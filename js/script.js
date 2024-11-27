@@ -5,8 +5,8 @@ async function fetchData() {
     return data;
 }
 
-// 시즌 23의 데이터를 표시하는 함수
-async function displaySeason23() {
+// 시즌 데이터 추출 및 차트 표시 함수
+async function displaySeasonData() {
     const data = await fetchData();
     const season23 = data.union.find(season => season.season === 23);
     const season22 = data.union.find(season => season.season === 22);
@@ -25,7 +25,8 @@ async function displaySeason23() {
     const members = season23.member.map(member => ({
         name: member.name,
         level: member.level,
-        previousLevel: getPreviousLevel(member.name, season22)
+        previousLevel: getPreviousLevel(member.name, season22),
+        levelHistory: getLevelHistory(member.name, data.union)
     }));
 
     members.sort((a, b) => b.level - a.level);
@@ -50,29 +51,40 @@ async function displaySeason23() {
             increaseCell.textContent = increase > 0 ? `+${increase}` : increase.toString();
         }
 
-        // 차트 생성 (각 멤버의 상승 차트)
+        // 선 그래프를 위한 캔버스 생성
         const canvas = document.createElement('canvas');
-        canvas.width = 100;
-        canvas.height = 50;
+        canvas.width = 300;
+        canvas.height = 100;
         chartCell.appendChild(canvas);
 
+        // Chart.js로 선 그래프 생성
         new Chart(canvas.getContext('2d'), {
-            type: 'bar',
+            type: 'line',
             data: {
-                labels: ['상승'],
+                labels: member.levelHistory.map(record => `Season ${record.season}`),
                 datasets: [{
                     label: member.name,
-                    data: [member.level - member.previousLevel || 0],
-                    backgroundColor: member.level - member.previousLevel > 0 ? 'green' : 'red',
-                    borderColor: 'black',
-                    borderWidth: 1
+                    data: member.levelHistory.map(record => record.level),
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    fill: false,
+                    tension: 0.1
                 }]
             },
             options: {
                 scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Season'
+                        }
+                    },
                     y: {
-                        beginAtZero: true,
-                        max: 100 // 레벨 상승 범위를 제한할 수 있습니다.
+                        title: {
+                            display: true,
+                            text: 'Level'
+                        },
+                        beginAtZero: true
                     }
                 },
                 responsive: true,
@@ -89,5 +101,16 @@ function getPreviousLevel(name, season22) {
     return member ? member.level : undefined;
 }
 
+// 시즌별 레벨 히스토리를 가져오는 함수
+function getLevelHistory(name, seasons) {
+    return seasons
+        .sort((a, b) => b.season - a.season)
+        .map(season => {
+            const member = season.member.find(member => member.name === name);
+            return member ? { season: season.season, level: member.level } : null;
+        })
+        .filter(record => record !== null);
+}
+
 // 페이지가 로드되면 실행
-document.addEventListener('DOMContentLoaded', displaySeason23);
+document.addEventListener('DOMContentLoaded', displaySeasonData);
