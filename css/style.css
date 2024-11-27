@@ -51,3 +51,15 @@ canvas {
     height: auto;
     display: block; /* 불필요한 여백 제거 */
 }
+
+.increase-new {
+    color: red;
+    background-color: yellow;
+    font-weight: bold;
+}
+
+.increase-positive {
+    color: black;
+    background-color: lightgray;
+    font-weight: bold;
+}
