@@ -1,72 +1,51 @@
-async function loadTable() {
-    const response = await fetch('data/data.json');
-    const data = await response.json();
+// JSON 데이터를 fetch로 불러옵니다.
+fetch('data.json')
+    .then(response => response.json())
+    .then(data => {
+        // 데이터 구조 확인 및 변수 할당
+        const seasonData = data.union[0];
+        
+        // 상단 정보 표시
+        document.getElementById('season-number').textContent = seasonData.season;
+        document.getElementById('ranking-number').textContent = seasonData.ranking;
+        document.getElementById('clear-time').textContent = seasonData.clearTime;
 
-    const container = document.getElementById('table-container');
-    let tableHTML = `
-        <table>
-            <tr>
-                <th>Name</th>
-                <th>Sales</th>
-                <th>Profit</th>
-            </tr>
-    `;
+        // 테이블 데이터 표시
+        const tableBody = document.getElementById('table-body');
+        seasonData.member.forEach(member => {
+            const row = document.createElement('tr');
+            const nameCell = document.createElement('td');
+            nameCell.textContent = member.name;
+            const levelCell = document.createElement('td');
+            levelCell.textContent = member.level;
+            row.appendChild(nameCell);
+            row.appendChild(levelCell);
+            tableBody.appendChild(row);
+        });
 
-    data.forEach(item => {
-        tableHTML += `
-            <tr>
-                <td>${item.name}</td>
-                <td>${item.sales}</td>
-                <td>${item.profit}</td>
-            </tr>
-        `;
-    });
+        // 차트 데이터 준비
+        const ctx = document.getElementById('level-chart').getContext('2d');
+        const levels = seasonData.member.map(member => member.level);
 
-    tableHTML += '</table>';
-    container.innerHTML = tableHTML;
-}
-
-async function loadChart() {
-    const response = await fetch('data/data.json');
-    const data = await response.json();
-
-    const labels = data.map(item => item.name);
-    const salesData = data.map(item => item.sales);
-    const profitData = data.map(item => item.profit);
-
-    const ctx = document.getElementById('chart').getContext('2d');
-
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Sales',
-                    data: salesData,
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: seasonData.member.map(member => member.name),
+                datasets: [{
+                    label: 'Level',
+                    data: levels,
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
-                },
-                {
-                    label: 'Profit',
-                    data: profitData,
-                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                    borderColor: 'rgba(153, 102, 255, 1)',
-                    borderWidth: 1
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
                 }
             }
-        }
-    });
-}
-
-loadTable();
-loadChart();
+        });
+    })
+    .catch(error => console.error('Error loading JSON data:', error));

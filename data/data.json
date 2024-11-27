@@ -1,5 +1,43 @@
-[
-    {"name": "Product A", "sales": 120, "profit": 30},
-    {"name": "Product B", "sales": 150, "profit": 50},
-    {"name": "Product C", "sales": 100, "profit": 20}
-]
+{
+    "union": [
+        {
+            "season": 23,
+            "ranking": 13,
+            "clearTime": "12시56분",
+            "member": [
+                { "name": "팡팡", "level": 508 },
+                { "name": "SUM", "level": 502 },
+                { "name": "유화", "level": 483 },
+                { "name": "또만나네염", "level": 481 },
+                { "name": "HAKU", "level": 474 },
+                { "name": "그게너의한계야", "level": 468 },
+                { "name": "감자", "level": 456 },
+                { "name": "징버거", "level": 456 },
+                { "name": "인형", "level": 453 },
+                { "name": "별", "level": 451 },
+                { "name": "유찌종", "level": 449 },
+                { "name": "지구외계인", "level": 442 },
+                { "name": "무공", "level": 441 },
+                { "name": "개미눈꽃", "level": 440 },
+                { "name": "노바", "level": 439 },
+                { "name": "존버", "level": 434 },
+                { "name": "최고다노지선", "level": 430 },
+                { "name": "RANCOR", "level": 425 },
+                { "name": "반달", "level": 421 },
+                { "name": "QWER", "level": 418 },
+                { "name": "카니틴", "level": 418 },
+                { "name": "TA3", "level": 416 },
+                { "name": "SL", "level": 406 },
+                { "name": "애롱", "level": 401 },
+                { "name": "체르", "level": 401 },
+                { "name": "웅기", "level": 399 },
+                { "name": "진섯", "level": 399 },
+                { "name": "연두버섯", "level": 397 },
+                { "name": "보름달", "level": 391 },
+                { "name": "케빈", "level": 388 },
+                { "name": "마루", "level": 372 },
+                { "name": "마몬", "level": 347 }
+            ]
+        }
+    ]
+}

@@ -1,18 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Styled Chart Example</title>
-    <link rel="stylesheet" href="css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Season Ranking Data</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Sales and Profit Visualization</h1>
-    <div id="table-container">
-        <!-- 표가 JavaScript로 추가됩니다 -->
+    <div class="season-info">
+        <h1>Season: <span id="season-number"></span></h1>
+        <h2>Ranking: <span id="ranking-number"></span></h2>
+        <h3>Clear Time: <span id="clear-time"></span></h3>
     </div>
-    <canvas id="chart" width="400" height="200"></canvas>
-    <script src="js/script.js"></script>
+
+    <div class="member-table">
+        <h2>Member List</h2>
+        <table id="member-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Level</th>
+                </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+        </table>
+    </div>
+
+    <div class="chart-container">
+        <h2>Level Distribution Chart</h2>
+        <canvas id="level-chart"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
