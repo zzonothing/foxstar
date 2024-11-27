@@ -9,7 +9,7 @@
     border: 1px solid #ddd;
     padding: 8px;
     text-align: center;
-    font-size: 10px
+    font-size: 14px
 }
 
 #ranking-table th {
@@ -60,7 +60,7 @@ canvas {
     background-color: yellow;
     color: red;
     font-weight: bold;
-    font-size: 10px;
+    font-size: 12px;
 }
 
 .increase-positive {
@@ -70,7 +70,7 @@ canvas {
     background-color: lightgray;
     color: black;
     font-weight: bold;
-    font-size: 10px;
+    font-size: 12px;
 }
 
 .increase-neutral {
@@ -80,5 +80,5 @@ canvas {
     background-color: gray;
     color: white;
     font-weight: bold;
-    font-size: 10px;
+    font-size: 12px;
 }
