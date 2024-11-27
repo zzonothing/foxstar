@@ -58,6 +58,7 @@ canvas {
     border-radius: 8px;
     background-color: yellow;
     color: red;
+    font-size: 14px;
 }
 
 .increase-positive {
@@ -66,7 +67,7 @@ canvas {
     border-radius: 8px;
     background-color: lightgray;
     color: black;
-    font-weight: 10px;
+    font-size: 10px;
 }
 
 .increase-neutral {
