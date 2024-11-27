@@ -44,14 +44,30 @@ async function displaySeasonData() {
         nameCell.textContent = member.name;
         levelCell.textContent = member.level;
 
+        let increaseText = '';
         if (member.previousLevel === undefined) {
-            increaseCell.textContent = 'NEW';
-            increaseCell.classList.add('increase-new');
+            increaseText = 'NEW';
         } else {
             const increase = member.level - member.previousLevel;
-            increaseCell.textContent = increase > 0 ? `+${increase}` : increase.toString();
-            increaseCell.classList.add('increase-positive');
+            increaseText = increase > 0 ? `+${increase}` : increase.toString();
         }
+
+        // 새로운 span 태그 생성
+        const span = document.createElement('span');
+        span.textContent = increaseText;
+
+        // 조건에 따라 클래스 추가
+        if (increaseText === 'NEW') {
+            span.classList.add('increase-new');
+        } else if (increaseText.startsWith('+')) {
+            span.classList.add('increase-positive');
+        } else if (increaseText < 0) {
+            span.classList.add('increase-negative');
+        } else {
+            span.classList.add('increase-neutral');
+        }
+
+        increaseCell.appendChild(span);
 
         // 선 그래프를 위한 캔버스 생성
         const canvas = document.createElement('canvas');

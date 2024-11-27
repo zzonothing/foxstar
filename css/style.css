@@ -53,13 +53,36 @@ canvas {
 }
 
 .increase-new {
-    color: red;
-    background-color: yellow;
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 12px;
+    background-color: blue;
+    color: white;
     font-weight: bold;
 }
 
 .increase-positive {
-    color: black;
-    background-color: lightgray;
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 12px;
+    background-color: green;
+    color: white;
     font-weight: bold;
+}
+
+.increase-negative {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 12px;
+    background-color: red;
+    color: white;
+    font-weight: bold;
+}
+
+.increase-neutral {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 12px;
+    background-color: gray;
+    color: white;
 }
