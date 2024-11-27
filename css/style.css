@@ -1,49 +1,53 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    line-height: 1.6;
-}
-
-header {
-    margin-bottom: 20px;
-}
-
-#season-info {
-    margin-bottom: 10px;
-}
-
-table {
+/* 테이블 스타일 */
+#ranking-table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
 }
 
-table, th, td {
+#ranking-table th, #ranking-table td {
     border: 1px solid #ddd;
-}
-
-th, td {
-    padding: 10px;
+    padding: 8px;
     text-align: center;
 }
 
-th {
+#ranking-table th {
     background-color: #f4f4f4;
 }
 
-td {
-    background-color: #f9f9f9;
+#ranking-table td {
+    word-wrap: break-word; /* 긴 텍스트가 줄바꿈 되도록 */
 }
 
-#ranking-table tbody tr:nth-child(even) {
-    background-color: #f2f2f2;
+/* 각 컬럼의 너비 고정 */
+#ranking-table th:nth-child(1),
+#ranking-table td:nth-child(1) {
+    width: 5%; /* 순위 컬럼 */
 }
 
-#ranking-table tbody tr:hover {
-    background-color: #e2e2e2;
+#ranking-table th:nth-child(2),
+#ranking-table td:nth-child(2) {
+    width: 20%; /* 닉네임 컬럼 */
 }
 
-#levelTrendChart {
-    margin-top: 20px;
+#ranking-table th:nth-child(3),
+#ranking-table td:nth-child(3) {
+    width: 10%; /* 레벨 컬럼 */
+}
+
+#ranking-table th:nth-child(4),
+#ranking-table td:nth-child(4) {
+    width: 10%; /* 상승 컬럼 */
+}
+
+#ranking-table th:nth-child(5),
+#ranking-table td:nth-child(5) {
+    width: 55%; /* 차트 컬럼 */
+}
+
+/* 차트 컨테이너 스타일 */
+canvas {
+    max-width: 100%; /* 차트가 컨테이너의 너비를 넘어가지 않도록 */
+    height: auto;
+    display: block; /* 불필요한 여백 제거 */
 }
