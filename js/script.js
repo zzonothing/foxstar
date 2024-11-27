@@ -80,7 +80,7 @@ async function displaySeasonData() {
                 labels: member.levelHistory.map(record => `Season ${record.season}`),
                 datasets: [{
                     data: member.levelHistory.map(record => record.level),
-                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderColor: 'rgba(75, 192, 192, 1)',                    
                     borderWidth: 1,
                     fill: false,
                     tension: 0.1
@@ -94,6 +94,11 @@ async function displaySeasonData() {
                         title: {
                             display: false,
                             text: 'Season'
+                        },
+                        ticks: {
+                            font: {
+                                size: 10 // x축 텍스트의 크기 조정
+                            }
                         }
                     },
                     y: {
@@ -101,7 +106,12 @@ async function displaySeasonData() {
                             display: false,
                             text: 'Level'
                         },
-                        beginAtZero: true
+                        beginAtZero: true,
+                        ticks: {
+                            font: {
+                                size: 10 // y축 텍스트의 크기 조정
+                            }
+                        }
                     }
                 },
                 responsive: false,
