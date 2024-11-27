@@ -1,27 +1,16 @@
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: Arial, sans-serif;
     margin: 0;
     padding: 20px;
-    background-color: #f4f4f4;
+    line-height: 1.6;
 }
 
-.container {
-    max-width: 800px;
-    margin: auto;
-    padding: 20px;
-    background-color: #ffffff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-}
-
-h1 {
-    text-align: center;
+header {
     margin-bottom: 20px;
 }
 
-.table-container {
-    overflow-x: auto;
-    margin-bottom: 20px;
+#season-info {
+    margin-bottom: 10px;
 }
 
 table {
@@ -30,23 +19,31 @@ table {
     margin-bottom: 20px;
 }
 
-th, td {
+table, th, td {
     border: 1px solid #ddd;
-    padding: 8px;
+}
+
+th, td {
+    padding: 10px;
     text-align: center;
 }
 
 th {
+    background-color: #f4f4f4;
+}
+
+td {
+    background-color: #f9f9f9;
+}
+
+#ranking-table tbody tr:nth-child(even) {
     background-color: #f2f2f2;
 }
 
-.chart-container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
+#ranking-table tbody tr:hover {
+    background-color: #e2e2e2;
 }
 
-canvas {
-    max-width: 100%;
-    width: 100%;
+#levelChart {
+    margin-top: 20px;
 }
