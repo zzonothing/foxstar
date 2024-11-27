@@ -76,13 +76,13 @@ async function displaySeasonData() {
                         type: 'category',
                         labels: member.levelHistory.map(record => `Season ${record.season}`),
                         title: {
-                            display: true,
+                            display: false,
                             text: 'Season'
                         }
                     },
                     y: {
                         title: {
-                            display: true,
+                            display: false,
                             text: 'Level'
                         },
                         beginAtZero: true
@@ -110,7 +110,7 @@ function getPreviousLevel(name, season22) {
 // 시즌별 레벨 히스토리를 가져오는 함수
 function getLevelHistory(name, seasons) {
     return seasons
-        .sort((a, b) => b.season - a.season)
+        .sort((a, b) => a.season - b.season)
         .map(season => {
             const member = season.member.find(member => member.name === name);
             return member ? { season: season.season, level: member.level } : null;
