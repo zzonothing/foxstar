@@ -22,27 +22,27 @@
 /* 각 컬럼의 너비 고정 */
 #ranking-table th:nth-child(1),
 #ranking-table td:nth-child(1) {
-    width: 5%; /* 순위 컬럼 */
+    width: 30px; /* 순위 컬럼 */
 }
 
 #ranking-table th:nth-child(2),
 #ranking-table td:nth-child(2) {
-    width: 20%; /* 닉네임 컬럼 */
+    width: 50px; /* 닉네임 컬럼 */
 }
 
 #ranking-table th:nth-child(3),
 #ranking-table td:nth-child(3) {
-    width: 10%; /* 레벨 컬럼 */
+    width: 50px; /* 레벨 컬럼 */
 }
 
 #ranking-table th:nth-child(4),
 #ranking-table td:nth-child(4) {
-    width: 10%; /* 상승 컬럼 */
+    width: 50px; /* 상승 컬럼 */
 }
 
 #ranking-table th:nth-child(5),
 #ranking-table td:nth-child(5) {
-    width: 55%; /* 차트 컬럼 */
+    width: 150px; /* 차트 컬럼 */
 }
 
 /* 차트 컨테이너 스타일 */
