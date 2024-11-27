@@ -1,80 +1,70 @@
-document.addEventListener('DOMContentLoaded', () => {
+// JSON 데이터를 로드하고 테이블을 생성하는 코드
+document.addEventListener("DOMContentLoaded", function() {
     fetch('data/data.json')
         .then(response => response.json())
         .then(data => {
-            const unionData = data.union[0]; // 데이터는 첫 번째 객체만 사용
-            displayTable(unionData.member);
-            displayChart(unionData.member);
-        })
-        .catch(error => console.error('Error loading data:', error));
-});
+            const season23 = data.union.find(season => season.season === 23);
+            const season22 = data.union.find(season => season.season === 22);
 
-function displayTable(members) {
-    const tableContainer = document.getElementById('table-container');
-    let tableHTML = `
-        <table>
-            <thead>
-                <tr>
-                    <th>순위</th>
-                    <th>이름</th>
-                    <th>레벨</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
+            if (season23 && season22) {
+                const season23Members = season23.member;
+                const season22Members = season22.member.reduce((acc, member) => {
+                    acc[member.name] = member.level;
+                    return acc;
+                }, {});
 
-    members.sort((a, b) => b.level - a.level).forEach((member, index) => {
-        tableHTML += `
-            <tr>
-                <td>${index + 1}</td>
-                <td>${member.name}</td>
-                <td>${member.level}</td>
-            </tr>
-        `;
-    });
+                // 테이블 생성
+                const table = document.createElement('table');
+                table.border = '1';
+                table.style.width = '100%';
 
-    tableHTML += `
-            </tbody>
-        </table>
-    `;
+                // 테이블 헤더 생성
+                const headerRow = document.createElement('tr');
+                const headers = ['순위', '이름', '레벨', '상승'];
+                headers.forEach(text => {
+                    const th = document.createElement('th');
+                    th.textContent = text;
+                    headerRow.appendChild(th);
+                });
+                table.appendChild(headerRow);
 
-    tableContainer.innerHTML = tableHTML;
-}
+                // 데이터 행 생성
+                season23Members.forEach((member, index) => {
+                    const row = document.createElement('tr');
 
-function displayChart(members) {
-    const ctx = document.getElementById('chart').getContext('2d');
-    const names = members.map(member => member.name);
-    const levels = members.map(member => member.level);
+                    // 순위
+                    const rankCell = document.createElement('td');
+                    rankCell.textContent = index + 1;
+                    row.appendChild(rankCell);
 
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: names,
-            datasets: [{
-                label: '레벨',
-                data: levels,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: '레벨'
+                    // 이름
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = member.name;
+                    row.appendChild(nameCell);
+
+                    // 레벨
+                    const levelCell = document.createElement('td');
+                    levelCell.textContent = member.level;
+                    row.appendChild(levelCell);
+
+                    // 상승량 계산
+                    const increaseCell = document.createElement('td');
+                    if (season22Members[member.name] !== undefined) {
+                        const levelChange = member.level - season22Members[member.name];
+                        increaseCell.textContent = (levelChange > 0 ? '+' : '') + levelChange;
+                    } else {
+                        increaseCell.textContent = 'new';
                     }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: '이름'
-                    }
-                }
+                    row.appendChild(increaseCell);
+
+                    table.appendChild(row);
+                });
+
+                // 테이블을 페이지에 추가
+                document.body.appendChild(table);
+            } else {
+                console.error("해당 시즌 데이터가 없습니다.");
             }
-        }
-    });
-}
+        })
+        .catch(error => console.error('데이터 로드 실패:', error));
+});

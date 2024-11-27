@@ -38,6 +38,45 @@
                 { "name": "마루", "level": 372 },
                 { "name": "마몬", "level": 347 }
             ]
+        },
+        {
+            "season": 22,
+            "ranking": 18,
+            "clearTime": "13시09분",
+            "member": [
+                { "name": "SUM", "level": 481 },
+                { "name": "팡팡", "level": 481 },
+                { "name": "또만나네염", "level": 471 },
+                { "name": "유화", "level": 462 },
+                { "name": "HAKU", "level": 456 },
+                { "name": "그게너의한계야", "level": 452 },
+                { "name": "징버거", "level": 442 },
+                { "name": "인형", "level": 433 },
+                { "name": "지구외계인", "level": 430 },
+                { "name": "유찌종", "level": 427 },
+                { "name": "무공", "level": 426 },
+                { "name": "별", "level": 426 },
+                { "name": "노바", "level": 422 },
+                { "name": "감자", "level": 420 },
+                { "name": "기상", "level": 410 },
+                { "name": "존버", "level": 410 },
+                { "name": "호빵찐빵", "level": 408 },
+                { "name": "반달", "level": 407 },
+                { "name": "최고다노지선", "level": 406 },
+                { "name": "QWER", "level": 400 },
+                { "name": "카니틴", "level": 400 },
+                { "name": "RANCOR", "level": 397 },
+                { "name": "TA3", "level": 394 },
+                { "name": "웅기", "level": 381 },
+                { "name": "체르", "level": 380 },
+                { "name": "진섯", "level": 378 },
+                { "name": "보름달", "level": 371 },
+                { "name": "케빈", "level": 369 },
+                { "name": "SL", "level": 368 },
+                { "name": "애롱", "level": 368 },
+                { "name": "마루", "level": 352 },
+                { "name": "마몬", "level": 335 }
+            ]
         }
     ]
 }
