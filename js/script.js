@@ -61,8 +61,6 @@ async function displaySeasonData() {
             span.classList.add('increase-new');
         } else if (increaseText.startsWith('+')) {
             span.classList.add('increase-positive');
-        } else if (increaseText < 0) {
-            span.classList.add('increase-negative');
         } else {
             span.classList.add('increase-neutral');
         }
