@@ -1,5 +1,5 @@
 // JSON 데이터를 fetch로 불러옵니다.
-fetch('data.json')
+fetch('../data/data.json')
     .then(response => response.json())
     .then(data => {
         // 데이터 구조 확인 및 변수 할당
