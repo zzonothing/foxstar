@@ -63,7 +63,6 @@ async function displaySeasonData() {
             data: {
                 labels: member.levelHistory.map(record => `Season ${record.season}`),
                 datasets: [{
-                    label: member.name,
                     data: member.levelHistory.map(record => record.level),
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1,
@@ -74,6 +73,8 @@ async function displaySeasonData() {
             options: {
                 scales: {
                     x: {
+                        type: 'category',
+                        labels: member.levelHistory.map(record => `Season ${record.season}`),
                         title: {
                             display: true,
                             text: 'Season'
@@ -88,7 +89,12 @@ async function displaySeasonData() {
                     }
                 },
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false // 이름을 상단에 표시하지 않음
+                    }
+                }
             }
         });
     });
