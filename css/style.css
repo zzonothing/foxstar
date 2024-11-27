@@ -22,12 +22,12 @@
 /* 각 컬럼의 너비 고정 */
 #ranking-table th:nth-child(1),
 #ranking-table td:nth-child(1) {
-    width: 30px; /* 순위 컬럼 */
+    width: 40px; /* 순위 컬럼 */
 }
 
 #ranking-table th:nth-child(2),
 #ranking-table td:nth-child(2) {
-    width: 100px; /* 닉네임 컬럼 */
+    width: 120px; /* 닉네임 컬럼 */
 }
 
 #ranking-table th:nth-child(3),
