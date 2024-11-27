@@ -88,7 +88,7 @@ async function displaySeasonData() {
                         beginAtZero: true
                     }
                 },
-                responsive: true,
+                responsive: false,
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
