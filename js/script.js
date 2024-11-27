@@ -46,9 +46,15 @@ async function displaySeasonData() {
 
         if (member.previousLevel === undefined) {
             increaseCell.textContent = 'NEW';
+            increaseCell.style.color = 'red';
+            increaseCell.style.background = 'yellow';
+            increaseCell.style.fontWeight = 'bold';
         } else {
             const increase = member.level - member.previousLevel;
             increaseCell.textContent = increase > 0 ? `+${increase}` : increase.toString();
+            increaseCell.style.color = 'black';
+            increaseCell.style.background = 'lightgray';
+            increaseCell.style.fontWeight = 'bold';
         }
 
         // 선 그래프를 위한 캔버스 생성
