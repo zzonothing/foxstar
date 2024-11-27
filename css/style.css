@@ -27,7 +27,7 @@
 
 #ranking-table th:nth-child(2),
 #ranking-table td:nth-child(2) {
-    width: 50px; /* 닉네임 컬럼 */
+    width: 100px; /* 닉네임 컬럼 */
 }
 
 #ranking-table th:nth-child(3),
@@ -42,7 +42,7 @@
 
 #ranking-table th:nth-child(5),
 #ranking-table td:nth-child(5) {
-    width: 150px; /* 차트 컬럼 */
+    width: 300px; /* 차트 컬럼 */
 }
 
 /* 차트 컨테이너 스타일 */

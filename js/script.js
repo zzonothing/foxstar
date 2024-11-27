@@ -74,7 +74,7 @@ async function displaySeasonData() {
                 scales: {
                     x: {
                         type: 'category',
-                        labels: member.levelHistory.map(record => `Season ${record.season}`),
+                        labels: member.levelHistory.map(record => `UR ${record.season}`),
                         title: {
                             display: false,
                             text: 'Season'
