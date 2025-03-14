@@ -42,7 +42,7 @@
                 <th>비우코 파워</th>
                 <th>우코</th>
                 <th>공증</th>
-                <th>공격력</th>                
+                <th>공격력</th>
                 <th>스킬1</th>
                 <th>스킬2</th>
                 <th>스킬3</th>
@@ -79,68 +79,88 @@
                 });
 
                 // 캐릭터 선택 시 테이블 업데이트
+                // 캐릭터 선택 시 테이블 업데이트
                 select.addEventListener('change', function () {
                     const selectedName = this.value;
                     const tbody = document.getElementById('statsTable').querySelector('tbody');
                     tbody.innerHTML = ''; // 기존 테이블 내용 초기화
 
-                    // 각 멤버에 대해 해당 캐릭터 데이터가 있는지 확인
+                    // 선택된 캐릭터를 가진 멤버들의 데이터를 배열로 저장
+                    let selectedCharacters = [];
+
                     members.forEach(member => {
-                        // 멤버의 Characters 배열에서 선택한 캐릭터 검색
                         const character = member.Characters.find(c => c.name === selectedName);
                         if (character) {
-                            const tr = document.createElement('tr');
+                            // 우코 파워 계산
+                            const elementPower = Math.round(character.atk * (1 + character.increaseAtk / 100) * (1 + character.increaseElementDamage / 100));
 
-                            // 멤버 이름
-                            const tdMember = document.createElement('td');
-                            tdMember.textContent = member.name;
-                            tr.appendChild(tdMember);
-                            
-                            // 우코 파워
-                            const tdElementPower = document.createElement('td');
-                            tdElementPower.textContent =
-                                Math.round(character.atk * (1 + character.increaseAtk/100) * (1 + character.increaseElementDamage/100));
-                            tr.appendChild(tdElementPower);
-
-                            // 비우코 파워
-                            const tdNonElementPower = document.createElement('td');
-                            tdNonElementPower.textContent =
-                                Math.round(character.atk * (1 + character.increaseAtk/100));
-                            tr.appendChild(tdNonElementPower);
-
-                            // 우코
-                            const tdIncreaseElementDamage = document.createElement('td');
-                            tdIncreaseElementDamage.textContent = character.increaseElementDamage;
-                            tr.appendChild(tdIncreaseElementDamage);
-
-                            // 공증
-                            const tdIncreaseAtk = document.createElement('td');
-                            tdIncreaseAtk.textContent = character.increaseAtk;
-                            tr.appendChild(tdIncreaseAtk);
-
-                            // ATK
-                            const tdAtk = document.createElement('td');
-                            tdAtk.textContent = character.atk;
-                            tr.appendChild(tdAtk);
-
-                            // Skill1
-                            const tdSkill1 = document.createElement('td');
-                            tdSkill1.textContent = character.skill1;
-                            tr.appendChild(tdSkill1);
-
-                            // Skill2
-                            const tdSkill2 = document.createElement('td');
-                            tdSkill2.textContent = character.skill2;
-                            tr.appendChild(tdSkill2);
-
-                            // Skill3
-                            const tdSkill3 = document.createElement('td');
-                            tdSkill3.textContent = character.skill3;
-                            tr.appendChild(tdSkill3);
-
-                            // 추가로 다른 스탯들도 필요하면 같은 방식으로 추가
-                            tbody.appendChild(tr);
+                            selectedCharacters.push({
+                                memberName: member.name,
+                                elementPower: elementPower,
+                                nonElementPower: Math.round(character.atk * (1 + character.increaseAtk / 100)),
+                                increaseElementDamage: character.increaseElementDamage,
+                                increaseAtk: character.increaseAtk,
+                                atk: character.atk,
+                                skill1: character.skill1,
+                                skill2: character.skill2,
+                                skill3: character.skill3
+                            });
                         }
+                    });
+
+                    // 우코 파워 기준으로 내림차순 정렬
+                    selectedCharacters.sort((a, b) => b.elementPower - a.elementPower);
+
+                    // 정렬된 데이터로 테이블 생성
+                    selectedCharacters.forEach(character => {
+                        const tr = document.createElement('tr');
+
+                        // 멤버 이름
+                        const tdMember = document.createElement('td');
+                        tdMember.textContent = character.memberName;
+                        tr.appendChild(tdMember);
+
+                        // 우코 파워
+                        const tdElementPower = document.createElement('td');
+                        tdElementPower.textContent = character.elementPower;
+                        tr.appendChild(tdElementPower);
+
+                        // 비우코 파워
+                        const tdNonElementPower = document.createElement('td');
+                        tdNonElementPower.textContent = character.nonElementPower;
+                        tr.appendChild(tdNonElementPower);
+
+                        // 우코
+                        const tdIncreaseElementDamage = document.createElement('td');
+                        tdIncreaseElementDamage.textContent = character.increaseElementDamage;
+                        tr.appendChild(tdIncreaseElementDamage);
+
+                        // 공증
+                        const tdIncreaseAtk = document.createElement('td');
+                        tdIncreaseAtk.textContent = character.increaseAtk;
+                        tr.appendChild(tdIncreaseAtk);
+
+                        // ATK
+                        const tdAtk = document.createElement('td');
+                        tdAtk.textContent = character.atk;
+                        tr.appendChild(tdAtk);
+
+                        // Skill1
+                        const tdSkill1 = document.createElement('td');
+                        tdSkill1.textContent = character.skill1;
+                        tr.appendChild(tdSkill1);
+
+                        // Skill2
+                        const tdSkill2 = document.createElement('td');
+                        tdSkill2.textContent = character.skill2;
+                        tr.appendChild(tdSkill2);
+
+                        // Skill3
+                        const tdSkill3 = document.createElement('td');
+                        tdSkill3.textContent = character.skill3;
+                        tr.appendChild(tdSkill3);
+
+                        tbody.appendChild(tr);
                     });
                 });
             })
