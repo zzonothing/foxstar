@@ -38,15 +38,14 @@
         <thead>
             <tr>
                 <th>닉네임</th>
-                <th>공격력</th>
-                <th>체력</th>
-                <th>방어력</th>
+                <th>우코 파워</th>
+                <th>비우코 파워</th>
+                <th>우코</th>
+                <th>공증</th>
+                <th>공격력</th>                
                 <th>스킬1</th>
                 <th>스킬2</th>
                 <th>스킬3</th>
-                <th>우코</th>
-                <th>공증</th>
-                <!-- 필요한 경우 다른 스탯 컬럼 추가 -->
             </tr>
         </thead>
         <tbody>
@@ -96,21 +95,33 @@
                             const tdMember = document.createElement('td');
                             tdMember.textContent = member.name;
                             tr.appendChild(tdMember);
+                            
+                            // 우코 파워
+                            const tdElementPower = document.createElement('td');
+                            tdElementPower.textContent =
+                                character.Atk * (1 + character.increaseAtk/100) * (1 + character.increaseElementDamage/100);
+                            tr.appendChild(tdElementPower);
+
+                            // 비우코 파워
+                            const tdNonElementPower = document.createElement('td');
+                            tdNonElementPower.textContent =
+                                character.Atk * (1 + character.increaseAtk/100);
+                            tr.appendChild(tdNonElementPower);
+
+                            // 우코
+                            const tdIncreaseElementDamage = document.createElement('td');
+                            tdIncreaseElementDamage.textContent = character.increaseElementDamage;
+                            tr.appendChild(tdIncreaseElementDamage);
+
+                            // 공증
+                            const tdIncreaseAtk = document.createElement('td');
+                            tdIncreaseAtk.textContent = character.increaseAtk;
+                            tr.appendChild(tdIncreaseAtk);
 
                             // ATK
                             const tdAtk = document.createElement('td');
                             tdAtk.textContent = character.atk;
                             tr.appendChild(tdAtk);
-
-                            // HP
-                            const tdHp = document.createElement('td');
-                            tdHp.textContent = character.hp;
-                            tr.appendChild(tdHp);
-
-                            // DEF
-                            const tdDef = document.createElement('td');
-                            tdDef.textContent = character.def;
-                            tr.appendChild(tdDef);
 
                             // Skill1
                             const tdSkill1 = document.createElement('td');
@@ -126,16 +137,6 @@
                             const tdSkill3 = document.createElement('td');
                             tdSkill3.textContent = character.skill3;
                             tr.appendChild(tdSkill3);
-
-                            // 우코
-                            const tdIncreaseElementDamage = document.createElement('td');
-                            tdIncreaseElementDamage.textContent = character.increaseElementDamage;
-                            tr.appendChild(tdIncreaseElementDamage);
-
-                            // 공증
-                            const tdIncreaseAtk = document.createElement('td');
-                            tdIncreaseAtk.textContent = character.increaseAtk;
-                            tr.appendChild(tdIncreaseAtk);
 
                             // 추가로 다른 스탯들도 필요하면 같은 방식으로 추가
                             tbody.appendChild(tr);
