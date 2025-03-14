@@ -99,13 +99,13 @@
                             // 우코 파워
                             const tdElementPower = document.createElement('td');
                             tdElementPower.textContent =
-                                character.Atk * (1 + character.increaseAtk/100) * (1 + character.increaseElementDamage/100);
+                                character.atk * (1 + character.increaseAtk/100) * (1 + character.increaseElementDamage/100);
                             tr.appendChild(tdElementPower);
 
                             // 비우코 파워
                             const tdNonElementPower = document.createElement('td');
                             tdNonElementPower.textContent =
-                                character.Atk * (1 + character.increaseAtk/100);
+                                character.atk * (1 + character.increaseAtk/100);
                             tr.appendChild(tdNonElementPower);
 
                             // 우코
