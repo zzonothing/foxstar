@@ -1,38 +1,118 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Season Rankings</title>
-    <link rel="stylesheet" href="css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <title>캐릭터 스탯 테이블</title>
+  <style>
+    table {
+      width: 80%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 8px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>여우별 유니온레이드</h1>
-        <div id="season-info">
-            <p id="season"></p>
-            <p id="ranking"></p>
-            <p id="clearTime"></p>
-        </div>
-    </header>
+  <h1>캐릭터 스탯 조회</h1>
+  <!-- 캐릭터 선택 드롭다운 -->
+  <label for="characterSelect">캐릭터 선택: </label>
+  <select id="characterSelect">
+    <option value="">-- 선택하세요 --</option>
+  </select>
+  
+  <!-- 스탯 출력 테이블 -->
+  <table id="statsTable">
+    <thead>
+      <tr>
+        <th>멤버명</th>
+        <th>ATK</th>
+        <th>HP</th>
+        <th>DEF</th>
+        <th>Skill1</th>
+        <!-- 필요한 경우 다른 스탯 컬럼 추가 -->
+      </tr>
+    </thead>
+    <tbody>
+      <!-- JavaScript로 동적 생성 -->
+    </tbody>
+  </table>
 
-    <section>
-        <table id="ranking-table">
-            <thead>
-                <tr>
-                    <th>순위</th>
-                    <th>닉네임</th>
-                    <th>레벨</th>
-                    <th>상승</th>
-                    <th>차트</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Table rows will be populated here -->
-            </tbody>
-        </table>
-    </section>
-    <script src="js/script.js"></script>
+  <script>
+    // data.json 파일을 불러오기
+    fetch('data.json')
+      .then(response => response.json())
+      .then(data => {
+        const members = data.members;
+
+        // 모든 멤버의 Characters 배열에서 고유 캐릭터 이름을 추출
+        const characterNamesSet = new Set();
+        members.forEach(member => {
+          member.Characters.forEach(character => {
+            characterNamesSet.add(character.name);
+          });
+        });
+        const characterNames = Array.from(characterNamesSet);
+
+        // 드롭다운 메뉴에 캐릭터 이름 추가
+        const select = document.getElementById('characterSelect');
+        characterNames.forEach(name => {
+          const option = document.createElement('option');
+          option.value = name;
+          option.textContent = name;
+          select.appendChild(option);
+        });
+
+        // 캐릭터 선택 시 테이블 업데이트
+        select.addEventListener('change', function() {
+          const selectedName = this.value;
+          const tbody = document.getElementById('statsTable').querySelector('tbody');
+          tbody.innerHTML = ''; // 기존 테이블 내용 초기화
+
+          // 각 멤버에 대해 해당 캐릭터 데이터가 있는지 확인
+          members.forEach(member => {
+            // 멤버의 Characters 배열에서 선택한 캐릭터 검색
+            const character = member.Characters.find(c => c.name === selectedName);
+            if (character) {
+              const tr = document.createElement('tr');
+
+              // 멤버 이름
+              const tdMember = document.createElement('td');
+              tdMember.textContent = member.name;
+              tr.appendChild(tdMember);
+
+              // ATK
+              const tdAtk = document.createElement('td');
+              tdAtk.textContent = character.atk;
+              tr.appendChild(tdAtk);
+
+              // HP
+              const tdHp = document.createElement('td');
+              tdHp.textContent = character.hp;
+              tr.appendChild(tdHp);
+
+              // DEF
+              const tdDef = document.createElement('td');
+              tdDef.textContent = character.def;
+              tr.appendChild(tdDef);
+
+              // Skill1
+              const tdSkill1 = document.createElement('td');
+              tdSkill1.textContent = character.skill1;
+              tr.appendChild(tdSkill1);
+
+              // 추가로 다른 스탯들도 필요하면 같은 방식으로 추가
+              tbody.appendChild(tr);
+            }
+          });
+        });
+      })
+      .catch(error => console.error('JSON 파일 로딩 중 오류:', error));
+  </script>
 </body>
 </html>
