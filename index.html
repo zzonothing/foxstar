@@ -45,6 +45,7 @@
     <table id="statsTable">
         <thead>
             <tr>
+                <th>순위</th>
                 <th>닉네임</th>
                 <th>우코 파워</th>
                 <th>비우코 파워</th>
@@ -121,9 +122,14 @@
                     // 선택된 정렬 기준에 맞게 정렬
                     selectedCharacters.sort((a, b) => b[sortBy] - a[sortBy]);
 
-                    // 정렬된 데이터로 테이블 생성
-                    selectedCharacters.forEach(character => {
+                    // 정렬된 데이터로 테이블 생성 (순위 추가)
+                    selectedCharacters.forEach((character, index) => {
                         const tr = document.createElement('tr');
+
+                        // 순위 추가 (1부터 시작)
+                        const tdRank = document.createElement('td');
+                        tdRank.textContent = index + 1;
+                        tr.appendChild(tdRank);
 
                         // 멤버 이름
                         const tdMember = document.createElement('td');
