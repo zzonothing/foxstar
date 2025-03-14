@@ -73,7 +73,7 @@
                 const selectSort = document.getElementById('sortSelect');
                 const tbody = document.getElementById('statsTable').querySelector('tbody');
 
-                // 캐릭터 이름 중복 제거 후 드롭다운에 추가
+                // 캐릭터 이름 중복 제거 후 알파벳 순 정렬하여 드롭다운에 추가
                 const characterNamesSet = new Set();
                 members.forEach(member => {
                     member.Characters.forEach(character => {
@@ -81,7 +81,8 @@
                     });
                 });
 
-                Array.from(characterNamesSet).forEach(name => {
+                // 정렬 후 드롭다운에 추가
+                Array.from(characterNamesSet).sort().forEach(name => {
                     const option = document.createElement('option');
                     option.value = name;
                     option.textContent = name;
