@@ -89,6 +89,30 @@
                     selectCharacter.appendChild(option);
                 });
 
+                // 테이블 헤더 업데이트 함수 (정렬 기준 컬럼에 ▼ 추가)
+                function updateTableHeader(sortBy) {
+                    // 모든 헤더에서 ▼ 제거
+                    document.querySelectorAll("#statsTable th").forEach(th => {
+                        th.textContent = th.textContent.replace(" ▼", "");
+                    });
+
+                    // 정렬 기준에 맞는 컬럼에 ▼ 추가
+                    const headers = {
+                        "elementPower": "우코 파워",
+                        "nonElementPower": "비우코 파워",
+                        "elementPlusAtk": "우코+공증",
+                        "increaseElementDamage": "우코",
+                        "increaseAtk": "공증"
+                    };
+
+                    const thElements = document.querySelectorAll("#statsTable th");
+                    thElements.forEach(th => {
+                        if (th.textContent === headers[sortBy]) {
+                            th.textContent += " ▼";
+                        }
+                    });
+                }
+
                 // 캐릭터 선택 또는 정렬 기준 변경 시 테이블 업데이트
                 function updateTable() {
                     const selectedName = selectCharacter.value;
@@ -103,7 +127,7 @@
                             // 스탯 계산
                             const elementPower = Math.round(character.atk * (1 + character.increaseAtk / 100) * (1 + character.increaseElementDamage / 100));
                             const nonElementPower = Math.round(character.atk * (1 + character.increaseAtk / 100));
-                            const elementPlusAtk = Math.round((character.increaseElementDamage + character.increaseAtk)*100)/100;
+                            const elementPlusAtk = Math.round((character.increaseElementDamage + character.increaseAtk) * 100) / 100;
 
                             selectedCharacters.push({
                                 memberName: member.name,
@@ -122,6 +146,9 @@
 
                     // 선택된 정렬 기준에 맞게 정렬
                     selectedCharacters.sort((a, b) => b[sortBy] - a[sortBy]);
+
+                    // 헤더 업데이트
+                    updateTableHeader(sortBy);
 
                     // 정렬된 데이터로 테이블 생성 (순위 추가)
                     selectedCharacters.forEach((character, index) => {
@@ -189,6 +216,9 @@
                 // 캐릭터 선택 또는 정렬 기준 변경 시 테이블 업데이트
                 selectCharacter.addEventListener('change', updateTable);
                 selectSort.addEventListener('change', updateTable);
+
+                // 초기 정렬 기준 적용
+                updateTableHeader(selectSort.value);
             })
             .catch(error => console.error('JSON 파일 로딩 중 오류:', error));
     </script>
