@@ -101,7 +101,7 @@
                             // 스탯 계산
                             const elementPower = Math.round(character.atk * (1 + character.increaseAtk / 100) * (1 + character.increaseElementDamage / 100));
                             const nonElementPower = Math.round(character.atk * (1 + character.increaseAtk / 100));
-                            const elementPlusAtk = Math.round(elementPower * (1 + character.increaseAtk / 100));
+                            const elementPlusAtk = character.increaseElementDamage + character.increaseAtk;
 
                             selectedCharacters.push({
                                 memberName: member.name,
