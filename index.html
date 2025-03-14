@@ -6,19 +6,16 @@
     <title>캐릭터 스탯 테이블</title>
     <style>
         table {
-            width: 80%;
+            width: 90%;
             border-collapse: collapse;
             margin-top: 20px;
         }
 
-        table,
-        th,
-        td {
+        table, th, td {
             border: 1px solid #ccc;
         }
 
-        th,
-        td {
+        th, td {
             padding: 8px;
             text-align: center;
         }
@@ -27,10 +24,21 @@
 
 <body>
     <h1>캐릭터 스탯 조회</h1>
+
     <!-- 캐릭터 선택 드롭다운 -->
     <label for="characterSelect">캐릭터 선택: </label>
     <select id="characterSelect">
         <option value="">-- 선택하세요 --</option>
+    </select>
+
+    <!-- 정렬 기준 선택 드롭다운 -->
+    <label for="sortSelect">정렬 기준: </label>
+    <select id="sortSelect">
+        <option value="elementPower">우코 파워</option>
+        <option value="nonElementPower">비우코 파워</option>
+        <option value="elementPlusAtk">우코+공증</option>
+        <option value="increaseElementDamage">우코</option>
+        <option value="increaseAtk">공증</option>
     </select>
 
     <!-- 스탯 출력 테이블 -->
@@ -40,9 +48,10 @@
                 <th>닉네임</th>
                 <th>우코 파워</th>
                 <th>비우코 파워</th>
+                <th>우코+공증</th>
                 <th>우코</th>
                 <th>공증</th>
-                <th>공격력</th>
+                <th>공격력</th>                
                 <th>스킬1</th>
                 <th>스킬2</th>
                 <th>스킬3</th>
@@ -54,50 +63,51 @@
     </table>
 
     <script>
-        // data.json 파일을 불러오기
+        // JSON 데이터 불러오기
         fetch('data/data.json')
             .then(response => response.json())
             .then(data => {
                 const members = data.members;
+                const selectCharacter = document.getElementById('characterSelect');
+                const selectSort = document.getElementById('sortSelect');
+                const tbody = document.getElementById('statsTable').querySelector('tbody');
 
-                // 모든 멤버의 Characters 배열에서 고유 캐릭터 이름을 추출
+                // 캐릭터 이름 중복 제거 후 드롭다운에 추가
                 const characterNamesSet = new Set();
                 members.forEach(member => {
                     member.Characters.forEach(character => {
                         characterNamesSet.add(character.name);
                     });
                 });
-                const characterNames = Array.from(characterNamesSet);
 
-                // 드롭다운 메뉴에 캐릭터 이름 추가
-                const select = document.getElementById('characterSelect');
-                characterNames.forEach(name => {
+                Array.from(characterNamesSet).forEach(name => {
                     const option = document.createElement('option');
                     option.value = name;
                     option.textContent = name;
-                    select.appendChild(option);
+                    selectCharacter.appendChild(option);
                 });
 
-                // 캐릭터 선택 시 테이블 업데이트
-                // 캐릭터 선택 시 테이블 업데이트
-                select.addEventListener('change', function () {
-                    const selectedName = this.value;
-                    const tbody = document.getElementById('statsTable').querySelector('tbody');
+                // 캐릭터 선택 또는 정렬 기준 변경 시 테이블 업데이트
+                function updateTable() {
+                    const selectedName = selectCharacter.value;
+                    const sortBy = selectSort.value;
                     tbody.innerHTML = ''; // 기존 테이블 내용 초기화
 
-                    // 선택된 캐릭터를 가진 멤버들의 데이터를 배열로 저장
                     let selectedCharacters = [];
 
                     members.forEach(member => {
                         const character = member.Characters.find(c => c.name === selectedName);
                         if (character) {
-                            // 우코 파워 계산
+                            // 스탯 계산
                             const elementPower = Math.round(character.atk * (1 + character.increaseAtk / 100) * (1 + character.increaseElementDamage / 100));
+                            const nonElementPower = Math.round(character.atk * (1 + character.increaseAtk / 100));
+                            const elementPlusAtk = Math.round(elementPower * (1 + character.increaseAtk / 100));
 
                             selectedCharacters.push({
                                 memberName: member.name,
                                 elementPower: elementPower,
-                                nonElementPower: Math.round(character.atk * (1 + character.increaseAtk / 100)),
+                                nonElementPower: nonElementPower,
+                                elementPlusAtk: elementPlusAtk,
                                 increaseElementDamage: character.increaseElementDamage,
                                 increaseAtk: character.increaseAtk,
                                 atk: character.atk,
@@ -108,8 +118,8 @@
                         }
                     });
 
-                    // 우코 파워 기준으로 내림차순 정렬
-                    selectedCharacters.sort((a, b) => b.elementPower - a.elementPower);
+                    // 선택된 정렬 기준에 맞게 정렬
+                    selectedCharacters.sort((a, b) => b[sortBy] - a[sortBy]);
 
                     // 정렬된 데이터로 테이블 생성
                     selectedCharacters.forEach(character => {
@@ -129,6 +139,11 @@
                         const tdNonElementPower = document.createElement('td');
                         tdNonElementPower.textContent = character.nonElementPower;
                         tr.appendChild(tdNonElementPower);
+
+                        // 우코+공증
+                        const tdElementPlusAtk = document.createElement('td');
+                        tdElementPlusAtk.textContent = character.elementPlusAtk;
+                        tr.appendChild(tdElementPlusAtk);
 
                         // 우코
                         const tdIncreaseElementDamage = document.createElement('td');
@@ -162,10 +177,13 @@
 
                         tbody.appendChild(tr);
                     });
-                });
+                }
+
+                // 캐릭터 선택 또는 정렬 기준 변경 시 테이블 업데이트
+                selectCharacter.addEventListener('change', updateTable);
+                selectSort.addEventListener('change', updateTable);
             })
             .catch(error => console.error('JSON 파일 로딩 중 오류:', error));
     </script>
 </body>
-
 </html>
