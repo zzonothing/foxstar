@@ -158,15 +158,15 @@
                     selectedData.sort((a, b) => b[sortBy] - a[sortBy]);
                     updateTableHeader(sortBy);
 
-                    tableHeader.querySelector(".nickname-col").style.display = selectedCharacter ? "none" : "table-cell";
-                    tableHeader.querySelector(".character-col").style.display = selectedMember ? "none" : "table-cell";
+                    tableHeader.querySelector(".nickname-col").style.display = selectedMember ? "none" : "table-cell";
+                    tableHeader.querySelector(".character-col").style.display = selectedCharacter ? "none" : "table-cell";
 
                     selectedData.forEach((data, index) => {
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
                             <td>${index + 1}</td>
-                            ${!selectedCharacter ? `<td>${data.memberName}</td>` : ''}
-                            ${!selectedMember ? `<td>${data.characterName}</td>` : ''}
+                            ${!selectedMember ? `<td>${data.memberName}</td>` : ''}
+                            ${!selectedCharacter ? `<td>${data.characterName}</td>` : ''}
                             <td>${data.elementPower}</td>
                             <td>${data.nonElementPower}</td>
                             <td>${data.elementPlusAtk}</td>
