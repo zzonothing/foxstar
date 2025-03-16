@@ -125,7 +125,7 @@
                 });
 
                 // 개별 모드 헤더 업데이트 (정렬 기준 컬럼 우측에 ▼ 표시)
-                function updateNormalHeader(sortBy) {
+                function updateNormalHeader(sortBy, showNickname, showCharacter) {
                     tableHeader.innerHTML = `<tr>
                         <th>순위</th>
                         ${showNickname ? `<th class="nickname-col">닉네임</th>` : ""}
@@ -287,9 +287,12 @@
                             });
                         });
                         selectedData.sort((a, b) => b[sortBy] - a[sortBy]);
-                        updateNormalHeader(sortBy);
+                        
                         const showNickname = selectedMember ? false : true;
                         const showCharacter = selectedCharacter ? false : true;
+
+                        updateNormalHeader(sortBy, showNickname, showCharacter);
+                        
                         selectedData.forEach((data, index) => {
                             const tr = document.createElement("tr");
                             tr.innerHTML = `
