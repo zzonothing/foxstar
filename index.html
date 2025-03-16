@@ -2,133 +2,127 @@
 <html lang="ko">
 
 <head>
-    <meta charset="UTF-8">
-    <title>캐릭터 스탯 테이블</title>
-    <style>
-        table {
-            width: 90%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        table,
-        th,
-        td {
-            border: 1px solid #ccc;
-        }
-
-        th,
-        td {
-            padding: 8px;
-            text-align: center;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>캐릭터 스탯 테이블</title>
+  <style>
+    table {
+      width: 90%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 8px;
+      text-align: center;
+    }
+  </style>
 </head>
 
 <body>
-    <h1>캐릭터 스탯 조회</h1>
+  <h1>캐릭터 스탯 조회</h1>
 
-    <!-- 덱 선택 드롭다운 (덱 모드를 선택하면 덱 전용 화면으로 전환) -->
-    <label for="deckSelect">덱 선택: </label>
-    <select id="deckSelect">
-        <option value="">-- 선택 안함 (개별 보기) --</option>
-        <!-- value는 식별자, text는 덱 이름 및 구성이 표시됨 -->
-        <option value="deck1">신데렐라, 아니스 : 스파클링 서머, 메이든 : 아이스 로즈</option>
-    </select>
+  <!-- 덱 선택 (덱 모드로 전환) -->
+  <label for="deckSelect">덱 선택: </label>
+  <select id="deckSelect">
+    <option value="">-- 선택 안함 (개별 보기) --</option>
+    <!-- 현재 deck1만 정의 (추후 덱 추가 가능) -->
+    <option value="deck1">신데렐라, 아니스 : 스파클링 서머, 메이든 : 아이스 로즈</option>
+  </select>
 
-    <!-- 개별 모드용 드롭다운 -->
-    <label for="characterSelect">캐릭터 선택: </label>
-    <select id="characterSelect">
-        <option value="">-- 선택하세요 --</option>
-    </select>
+  <!-- 개별 모드용 드롭다운 -->
+  <label for="characterSelect">캐릭터 선택: </label>
+  <select id="characterSelect">
+    <option value="">-- 선택하세요 --</option>
+  </select>
 
-    <label for="memberSelect">멤버 선택: </label>
-    <select id="memberSelect">
-        <option value="">-- 선택하세요 --</option>
-    </select>
+  <label for="memberSelect">멤버 선택: </label>
+  <select id="memberSelect">
+    <option value="">-- 선택하세요 --</option>
+  </select>
 
-    <!-- 정렬 기준 선택 (개별 모드에 적용, 덱 모드에서는 덱 파워 기준으로 정렬) -->
-    <label for="sortSelect">정렬 기준: </label>
-    <select id="sortSelect">
-        <option value="elementPower">우코 파워</option>
-        <option value="nonElementPower">비우코 파워</option>
-        <option value="elementPlusAtk">우코x공증</option>
-        <option value="increaseElementDamage">우코</option>
-        <option value="increaseAtk">공증</option>
-    </select>
+  <!-- 정렬 기준 (개별 모드에 적용, 덱 모드에서는 덱 파워 기준) -->
+  <label for="sortSelect">정렬 기준: </label>
+  <select id="sortSelect">
+    <option value="elementPower">우코 파워</option>
+    <option value="nonElementPower">비우코 파워</option>
+    <option value="elementPlusAtk">우코x공증</option>
+    <option value="increaseElementDamage">우코</option>
+    <option value="increaseAtk">공증</option>
+  </select>
 
-    <!-- 스탯 출력 테이블 -->
-    <table id="statsTable">
-        <thead id="tableHeader">
-            <!-- 개별 모드 기본 헤더 -->
-            <tr>
-                <th>순위</th>
-                <th class="nickname-col">닉네임</th>
-                <th class="character-col">캐릭터</th>
-                <th>우코 파워</th>
-                <th>비우코 파워</th>
-                <th>우코x공증</th>
-                <th>우코</th>
-                <th>공증</th>
-                <th>공격력</th>
-                <th>스킬1</th>
-                <th>스킬2</th>
-                <th>스킬3</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- JavaScript로 동적 생성 -->
-        </tbody>
-    </table>
+  <!-- 스탯 출력 테이블 -->
+  <table id="statsTable">
+    <thead id="tableHeader">
+      <!-- 개별 모드 기본 헤더 -->
+      <tr>
+        <th>순위</th>
+        <th class="nickname-col">닉네임</th>
+        <th class="character-col">캐릭터</th>
+        <th>우코 파워</th>
+        <th>비우코 파워</th>
+        <th>우코x공증</th>
+        <th>우코</th>
+        <th>공증</th>
+        <th>공격력</th>
+        <th>스킬1</th>
+        <th>스킬2</th>
+        <th>스킬3</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- JavaScript로 동적 생성 -->
+    </tbody>
+  </table>
 
-    <script>
-        // 덱 구성을 미리 정의 (추후 덱 구성이 변경되거나 추가 가능)
-        const decks = {
-            deck1: {
-                name: '신데렐라, 아니스 : 스파클링 서머, 메이든 : 아이스 로즈',
-                // 덱에 포함될 캐릭터 이름의 배열 (순서는 화면에 표시되는 순서와 동일하게 함)
-                characters: ['신데렐라', '아니스 : 스파클링 서머', '메이든 : 아이스 로즈']
-            }
-        };
+  <script>
+    // 덱 구성을 미리 정의 (추후 덱 추가/변경 가능)
+    const decks = {
+      deck1: {
+        // 덱 모드에서 헤더에 출력할 텍스트는 '신수클'로 고정합니다.
+        name: '신수클',
+        // 덱에 포함될 캐릭터 배열 (현재 예시용 3종류)
+        characters: ['신데렐라', '아니스 : 스파클링 서머', '메이든 : 아이스 로즈']
+      }
+    };
 
-        fetch('data/data.json')
-            .then(response => response.json())
-            .then(data => {
-                const members = data.members;
-                const selectDeck = document.getElementById('deckSelect');
-                const selectCharacter = document.getElementById('characterSelect');
-                const selectMember = document.getElementById('memberSelect');
-                const selectSort = document.getElementById('sortSelect');
-                const tbody = document.getElementById('statsTable').querySelector('tbody');
-                const tableHeader = document.getElementById('tableHeader');
+    fetch('data/data.json')
+      .then(response => response.json())
+      .then(data => {
+        const members = data.members;
+        const selectDeck = document.getElementById('deckSelect');
+        const selectCharacter = document.getElementById('characterSelect');
+        const selectMember = document.getElementById('memberSelect');
+        const selectSort = document.getElementById('sortSelect');
+        const tbody = document.getElementById('statsTable').querySelector('tbody');
+        const tableHeader = document.getElementById('tableHeader');
 
-                // 개별 모드용 드롭다운 채우기: 캐릭터, 멤버 목록
-                const characterNamesSet = new Set();
-                const memberNamesSet = new Set();
-                members.forEach(member => {
-                    memberNamesSet.add(member.name);
-                    member.Characters.forEach(character => {
-                        characterNamesSet.add(character.name);
-                    });
-                });
+        // 개별 모드용 드롭다운 채우기: 캐릭터, 멤버 목록
+        const characterNamesSet = new Set();
+        const memberNamesSet = new Set();
+        members.forEach(member => {
+          memberNamesSet.add(member.name);
+          member.Characters.forEach(character => {
+            characterNamesSet.add(character.name);
+          });
+        });
+        Array.from(characterNamesSet).sort().forEach(name => {
+          const option = document.createElement('option');
+          option.value = name;
+          option.textContent = name;
+          selectCharacter.appendChild(option);
+        });
+        Array.from(memberNamesSet).sort().forEach(name => {
+          const option = document.createElement('option');
+          option.value = name;
+          option.textContent = name;
+          selectMember.appendChild(option);
+        });
 
-                Array.from(characterNamesSet).sort().forEach(name => {
-                    const option = document.createElement('option');
-                    option.value = name;
-                    option.textContent = name;
-                    selectCharacter.appendChild(option);
-                });
-
-                Array.from(memberNamesSet).sort().forEach(name => {
-                    const option = document.createElement('option');
-                    option.value = name;
-                    option.textContent = name;
-                    selectMember.appendChild(option);
-                });
-
-                // 개별 모드용 헤더 업데이트 (단일 헤더, 정렬 기준 컬럼 우측에 ▼ 추가)
-                function updateNormalHeader(sortBy) {
-                    tableHeader.innerHTML = `<tr>
+        // 개별 모드 헤더 업데이트 (정렬 기준 컬럼 우측에 ▼ 표시)
+        function updateNormalHeader(sortBy) {
+          tableHeader.innerHTML = `<tr>
               <th>순위</th>
               <th class="nickname-col">닉네임</th>
               <th class="character-col">캐릭터</th>
@@ -142,116 +136,116 @@
               <th>스킬2</th>
               <th>스킬3</th>
             </tr>`;
-                    const headers = {
-                        "elementPower": "우코 파워",
-                        "nonElementPower": "비우코 파워",
-                        "elementPlusAtk": "우코x공증",
-                        "increaseElementDamage": "우코",
-                        "increaseAtk": "공증"
-                    };
-                    tableHeader.querySelectorAll("th").forEach(th => {
-                        if (th.textContent === headers[sortBy]) {
-                            th.textContent += " ▼";
-                        }
-                    });
+          const headers = {
+            "elementPower": "우코 파워",
+            "nonElementPower": "비우코 파워",
+            "elementPlusAtk": "우코x공증",
+            "increaseElementDamage": "우코",
+            "increaseAtk": "공증"
+          };
+          tableHeader.querySelectorAll("th").forEach(th => {
+            if (th.textContent === headers[sortBy]) {
+              th.textContent += " ▼";
+            }
+          });
+        }
+
+        // 덱 모드 헤더 업데이트 (두 행 헤더, '신수클'으로 고정)
+        function updateDeckHeader() {
+          let headerHTML = '<tr>' +
+            '<th rowspan="2">순위</th>' +
+            '<th rowspan="2">닉네임</th>' +
+            '<th rowspan="2">덱 파워</th>' +
+            '<th colspan="2">신수클</th>' +
+            '</tr>';
+          headerHTML += '<tr>' +
+            '<th>우코 파워</th><th>우코x공증</th>' +
+            '</tr>';
+          tableHeader.innerHTML = headerHTML;
+        }
+
+        // updateTable 함수: 덱 모드와 개별 모드를 모두 지원
+        function updateTable() {
+          const deckMode = selectDeck.value !== "";
+          const selectedCharacter = selectCharacter.value;
+          const selectedMember = selectMember.value;
+          const sortBy = selectSort.value;
+          tbody.innerHTML = "";
+
+          if (deckMode) {
+            // 덱 모드: 덱에 정의된 캐릭터 조합을 모두 보유한 멤버만 표시
+            const deck = decks[selectDeck.value];
+            let deckData = [];
+            members.forEach(member => {
+              let hasAll = true;
+              let totalElementPower = 0;
+              let totalElementPlusAtk = 0;
+              deck.characters.forEach(deckChar => {
+                const charData = member.Characters.find(c => c.name === deckChar);
+                if (charData) {
+                  const elementPower = Math.round(charData.atk * (1 + charData.increaseAtk / 100) * (1 + charData.increaseElementDamage / 100));
+                  const elementPlusAtk = Math.round(((1 + charData.increaseAtk / 100) * (1 + charData.increaseElementDamage / 100) - 1) * 10000) / 100;
+                  totalElementPower += elementPower;
+                  totalElementPlusAtk += elementPlusAtk;
+                } else {
+                  hasAll = false;
                 }
-
-                // 덱 모드용 헤더 업데이트 (두 행 헤더, merge cell 효과 적용)
-                function updateDeckHeader() {
-                    const deck = decks[selectDeck.value];
-                    let headerHTML = '<tr>' +
-                        '<th rowspan="2">순위</th>' +
-                        '<th rowspan="2">덱 파워</th>';
-                    deck.characters.forEach(charName => {
-                        headerHTML += `<th colspan="2">${charName}</th>`;
-                    });
-                    headerHTML += '</tr>';
-                    headerHTML += '<tr>';
-                    deck.characters.forEach(() => {
-                        headerHTML += '<th>우코 파워</th><th>우코x공증</th>';
-                    });
-                    headerHTML += '</tr>';
-                    tableHeader.innerHTML = headerHTML;
+              });
+              if (hasAll) {
+                deckData.push({
+                  memberName: member.name,
+                  deckPower: totalElementPower,
+                  deckPlus: totalElementPlusAtk
+                });
+              }
+            });
+            // 덱 모드에서는 덱 파워 기준 내림차순 정렬
+            deckData.sort((a, b) => b.deckPower - a.deckPower);
+            updateDeckHeader();
+            deckData.forEach((data, index) => {
+              const tr = document.createElement("tr");
+              const rowHTML = `<td>${index + 1}</td>
+                <td>${data.memberName}</td>
+                <td>${data.deckPower}</td>
+                <td>${data.deckPower}</td>
+                <td>${data.deckPlus}</td>`;
+              tr.innerHTML = rowHTML;
+              tbody.appendChild(tr);
+            });
+          } else {
+            // 개별 모드: 기존 필터(캐릭터, 멤버 선택) 및 정렬 기능 적용
+            let selectedData = [];
+            members.forEach(member => {
+              member.Characters.forEach(character => {
+                if ((selectedCharacter && character.name !== selectedCharacter) ||
+                    (selectedMember && member.name !== selectedMember)) {
+                  return;
                 }
-
-                // updateTable 함수: 덱 모드와 개별 모드를 모두 지원
-                function updateTable() {
-                    const deckMode = selectDeck.value !== "";
-                    const selectedCharacter = selectCharacter.value;
-                    const selectedMember = selectMember.value;
-                    const sortBy = selectSort.value;
-                    tbody.innerHTML = '';
-
-                    if (deckMode) {
-                        // 덱 모드: 덱에 정의된 캐릭터 조합을 모두 보유한 멤버만 표시
-                        const deck = decks[selectDeck.value];
-                        let deckData = [];
-                        members.forEach(member => {
-                            let memberDeckData = [];
-                            let hasAll = true;
-                            deck.characters.forEach(deckChar => {
-                                const charData = member.Characters.find(c => c.name === deckChar);
-                                if (charData) {
-                                    const elementPower = Math.round(charData.atk * (1 + charData.increaseAtk / 100) * (1 + charData.increaseElementDamage / 100));
-                                    const elementPlusAtk = Math.round(((1 + charData.increaseAtk / 100) * (1 + charData.increaseElementDamage / 100) - 1) * 10000) / 100;
-                                    memberDeckData.push({ elementPower, elementPlusAtk });
-                                } else {
-                                    hasAll = false;
-                                }
-                            });
-                            if (hasAll) {
-                                const deckPower = memberDeckData.reduce((sum, curr) => sum + curr.elementPower, 0);
-                                deckData.push({ memberName: member.name, deckPower, deckStats: memberDeckData });
-                            }
-                        });
-                        // 덱 모드에서는 덱 파워 기준 내림차순 정렬
-                        deckData.sort((a, b) => b.deckPower - a.deckPower);
-                        updateDeckHeader();
-                        deckData.forEach((data, index) => {
-                            const tr = document.createElement('tr');
-                            let rowHTML = `<td>${index + 1}</td>` +
-                                `<td>${data.deckPower}</td>`;
-                            data.deckStats.forEach(stat => {
-                                rowHTML += `<td>${stat.elementPower}</td><td>${stat.elementPlusAtk}</td>`;
-                            });
-                            tr.innerHTML = rowHTML;
-                            tbody.appendChild(tr);
-                        });
-                    } else {
-                        // 개별 모드: 기존 필터(캐릭터, 멤버 선택) 및 정렬 기능 적용
-                        let selectedData = [];
-                        members.forEach(member => {
-                            member.Characters.forEach(character => {
-                                if ((selectedCharacter && character.name !== selectedCharacter) ||
-                                    (selectedMember && member.name !== selectedMember)) {
-                                    return;
-                                }
-                                selectedData.push({
-                                    memberName: member.name,
-                                    characterName: character.name,
-                                    elementPower: Math.round(character.atk * (1 + character.increaseAtk / 100) * (1 + character.increaseElementDamage / 100)),
-                                    nonElementPower: Math.round(character.atk * (1 + character.increaseAtk / 100)),
-                                    elementPlusAtk: Math.round(((1 + character.increaseAtk / 100) * (1 + character.increaseElementDamage / 100) - 1) * 10000) / 100,
-                                    increaseElementDamage: character.increaseElementDamage,
-                                    increaseAtk: character.increaseAtk,
-                                    atk: character.atk,
-                                    skill1: character.skill1,
-                                    skill2: character.skill2,
-                                    skill3: character.skill3
-                                });
-                            });
-                        });
-                        selectedData.sort((a, b) => b[sortBy] - a[sortBy]);
-                        updateNormalHeader(sortBy);
-                        // 선택된 경우, 특정 컬럼 숨김: 특정 캐릭터 선택 시 캐릭터 컬럼 숨김, 특정 멤버 선택 시 닉네임 컬럼 숨김.
-                        const showNickname = selectedMember ? false : true;
-                        const showCharacter = selectedCharacter ? false : true;
-                        selectedData.forEach((data, index) => {
-                            const tr = document.createElement('tr');
-                            tr.innerHTML = `
+                selectedData.push({
+                  memberName: member.name,
+                  characterName: character.name,
+                  elementPower: Math.round(character.atk * (1 + character.increaseAtk / 100) * (1 + character.increaseElementDamage / 100)),
+                  nonElementPower: Math.round(character.atk * (1 + character.increaseAtk / 100)),
+                  elementPlusAtk: Math.round(((1 + character.increaseAtk / 100) * (1 + character.increaseElementDamage / 100) - 1) * 10000) / 100,
+                  increaseElementDamage: character.increaseElementDamage,
+                  increaseAtk: character.increaseAtk,
+                  atk: character.atk,
+                  skill1: character.skill1,
+                  skill2: character.skill2,
+                  skill3: character.skill3
+                });
+              });
+            });
+            selectedData.sort((a, b) => b[sortBy] - a[sortBy]);
+            updateNormalHeader(sortBy);
+            const showNickname = selectedMember ? false : true;
+            const showCharacter = selectedCharacter ? false : true;
+            selectedData.forEach((data, index) => {
+              const tr = document.createElement("tr");
+              tr.innerHTML = `
                 <td>${index + 1}</td>
-                ${showNickname ? `<td>${data.memberName}</td>` : ''}
-                ${showCharacter ? `<td>${data.characterName}</td>` : ''}
+                ${showNickname ? `<td>${data.memberName}</td>` : ""}
+                ${showCharacter ? `<td>${data.characterName}</td>` : ""}
                 <td>${data.elementPower}</td>
                 <td>${data.nonElementPower}</td>
                 <td>${data.elementPlusAtk}</td>
@@ -262,22 +256,21 @@
                 <td>${data.skill2}</td>
                 <td>${data.skill3}</td>
               `;
-                            tbody.appendChild(tr);
-                        });
-                    }
-                }
+              tbody.appendChild(tr);
+            });
+          }
+        }
 
-                // 이벤트 리스너 등록
-                selectDeck.addEventListener('change', updateTable);
-                selectCharacter.addEventListener('change', updateTable);
-                selectMember.addEventListener('change', updateTable);
-                selectSort.addEventListener('change', updateTable);
-
-                // 초기 헤더 설정 (개별 모드 기본)
-                updateNormalHeader(selectSort.value);
-            })
-            .catch(error => console.error('JSON 파일 로딩 중 오류:', error));
-    </script>
+        // 이벤트 리스너 등록
+        selectDeck.addEventListener("change", updateTable);
+        selectCharacter.addEventListener("change", updateTable);
+        selectMember.addEventListener("change", updateTable);
+        selectSort.addEventListener("change", updateTable);
+        // 초기 헤더 설정 (개별 모드 기본)
+        updateNormalHeader(selectSort.value);
+      })
+      .catch(error => console.error("JSON 파일 로딩 중 오류:", error));
+  </script>
 </body>
 
 </html>
