@@ -10,9 +10,11 @@
             border-collapse: collapse;
             margin-top: 20px;
         }
+
         table, th, td {
             border: 1px solid #ccc;
         }
+
         th, td {
             padding: 8px;
             text-align: center;
@@ -23,16 +25,19 @@
 <body>
     <h1>캐릭터 스탯 조회</h1>
 
-    <label for="memberSelect">멤버 선택: </label>
-    <select id="memberSelect">
-        <option value="">-- 선택하세요 --</option>
-    </select>
-
+    <!-- 캐릭터 선택 드롭다운 -->
     <label for="characterSelect">캐릭터 선택: </label>
     <select id="characterSelect">
         <option value="">-- 선택하세요 --</option>
     </select>
 
+    <!-- 멤버 선택 드롭다운 -->
+    <label for="memberSelect">멤버 선택: </label>
+    <select id="memberSelect">
+        <option value="">-- 선택하세요 --</option>
+    </select>
+
+    <!-- 정렬 기준 선택 드롭다운 -->
     <label for="sortSelect">정렬 기준: </label>
     <select id="sortSelect">
         <option value="elementPower">우코 파워</option>
@@ -42,24 +47,27 @@
         <option value="increaseAtk">공증</option>
     </select>
 
+    <!-- 스탯 출력 테이블 -->
     <table id="statsTable">
         <thead>
-            <tr>
+            <tr id="tableHeader">
                 <th>순위</th>
-                <th>닉네임</th>
-                <th>캐릭터</th>
+                <th class="nickname-col">닉네임</th>
+                <th class="character-col">캐릭터</th>
                 <th>우코 파워</th>
                 <th>비우코 파워</th>
                 <th>우코x공증</th>
                 <th>우코</th>
                 <th>공증</th>
-                <th>공격력</th>
+                <th>공격력</th>                
                 <th>스킬1</th>
                 <th>스킬2</th>
                 <th>스킬3</th>
             </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+            <!-- JavaScript로 동적 생성 -->
+        </tbody>
     </table>
 
     <script>
@@ -67,82 +75,116 @@
             .then(response => response.json())
             .then(data => {
                 const members = data.members;
-                const memberSelect = document.getElementById('memberSelect');
-                const characterSelect = document.getElementById('characterSelect');
-                const sortSelect = document.getElementById('sortSelect');
+                const selectCharacter = document.getElementById('characterSelect');
+                const selectMember = document.getElementById('memberSelect');
+                const selectSort = document.getElementById('sortSelect');
                 const tbody = document.getElementById('statsTable').querySelector('tbody');
+                const tableHeader = document.getElementById('tableHeader');
+
+                const characterNamesSet = new Set();
+                const memberNamesSet = new Set();
                 
-                const memberNames = [...new Set(members.map(m => m.name))].sort();
-                memberNames.forEach(name => {
-                    const option = document.createElement('option');
-                    option.value = name;
-                    option.textContent = name;
-                    memberSelect.appendChild(option);
-                });
-                
-                const characterNames = new Set();
-                members.forEach(m => m.Characters.forEach(c => characterNames.add(c.name)));
-                Array.from(characterNames).sort().forEach(name => {
-                    const option = document.createElement('option');
-                    option.value = name;
-                    option.textContent = name;
-                    characterSelect.appendChild(option);
+                members.forEach(member => {
+                    memberNamesSet.add(member.name);
+                    member.Characters.forEach(character => {
+                        characterNamesSet.add(character.name);
+                    });
                 });
 
-                function updateTable() {
-                    const selectedMember = memberSelect.value;
-                    const selectedCharacter = characterSelect.value;
-                    const sortBy = sortSelect.value;
-                    tbody.innerHTML = '';
-                    
-                    let filteredData = [];
-                    members.forEach(member => {
-                        if (!selectedMember || member.name === selectedMember) {
-                            member.Characters.forEach(character => {
-                                if (!selectedCharacter || character.name === selectedCharacter) {
-                                    filteredData.push({
-                                        memberName: member.name,
-                                        characterName: character.name,
-                                        elementPower: Math.round(character.atk * (1 + character.increaseAtk / 100) * (1 + character.increaseElementDamage / 100)),
-                                        nonElementPower: Math.round(character.atk * (1 + character.increaseAtk / 100)),
-                                        elementPlusAtk: Math.round(((1 + character.increaseAtk / 100) * (1 + character.increaseElementDamage / 100) - 1) * 10000) / 100,
-                                        increaseElementDamage: character.increaseElementDamage,
-                                        increaseAtk: character.increaseAtk,
-                                        atk: character.atk,
-                                        skill1: character.skill1,
-                                        skill2: character.skill2,
-                                        skill3: character.skill3
-                                    });
-                                }
-                            });
-                        }
+                Array.from(characterNamesSet).sort().forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    selectCharacter.appendChild(option);
+                });
+
+                Array.from(memberNamesSet).sort().forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    selectMember.appendChild(option);
+                });
+
+                function updateTableHeader(sortBy) {
+                    document.querySelectorAll("#statsTable th").forEach(th => {
+                        th.textContent = th.textContent.replace(" ▼", "");
                     });
 
-                    filteredData.sort((a, b) => b[sortBy] - a[sortBy]);
+                    const headers = {
+                        "elementPower": "우코 파워",
+                        "nonElementPower": "비우코 파워",
+                        "elementPlusAtk": "우코x공증",
+                        "increaseElementDamage": "우코",
+                        "increaseAtk": "공증"
+                    };
+
+                    document.querySelectorAll("#statsTable th").forEach(th => {
+                        if (th.textContent === headers[sortBy]) {
+                            th.textContent += " ▼";
+                        }
+                    });
+                }
+
+                function updateTable() {
+                    const selectedCharacter = selectCharacter.value;
+                    const selectedMember = selectMember.value;
+                    const sortBy = selectSort.value;
+                    tbody.innerHTML = '';
                     
-                    filteredData.forEach((character, index) => {
+                    let selectedData = [];
+
+                    members.forEach(member => {
+                        member.Characters.forEach(character => {
+                            if ((selectedCharacter && character.name !== selectedCharacter) || (selectedMember && member.name !== selectedMember)) {
+                                return;
+                            }
+
+                            selectedData.push({
+                                memberName: member.name,
+                                characterName: character.name,
+                                elementPower: Math.round(character.atk * (1 + character.increaseAtk / 100) * (1 + character.increaseElementDamage / 100)),
+                                nonElementPower: Math.round(character.atk * (1 + character.increaseAtk / 100)),
+                                elementPlusAtk: Math.round(((1 + character.increaseAtk/100) * (1 + character.increaseElementDamage/100) - 1) * 10000) / 100,
+                                increaseElementDamage: character.increaseElementDamage,
+                                increaseAtk: character.increaseAtk,
+                                atk: character.atk,
+                                skill1: character.skill1,
+                                skill2: character.skill2,
+                                skill3: character.skill3
+                            });
+                        });
+                    });
+
+                    selectedData.sort((a, b) => b[sortBy] - a[sortBy]);
+                    updateTableHeader(sortBy);
+
+                    tableHeader.querySelector(".nickname-col").style.display = selectedCharacter ? "none" : "table-cell";
+                    tableHeader.querySelector(".character-col").style.display = selectedMember ? "none" : "table-cell";
+
+                    selectedData.forEach((data, index) => {
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
                             <td>${index + 1}</td>
-                            <td>${character.memberName}</td>
-                            <td>${character.characterName}</td>
-                            <td>${character.elementPower}</td>
-                            <td>${character.nonElementPower}</td>
-                            <td>${character.elementPlusAtk}</td>
-                            <td>${character.increaseElementDamage}</td>
-                            <td>${character.increaseAtk}</td>
-                            <td>${character.atk}</td>
-                            <td>${character.skill1}</td>
-                            <td>${character.skill2}</td>
-                            <td>${character.skill3}</td>
+                            ${!selectedCharacter ? `<td>${data.memberName}</td>` : ''}
+                            ${!selectedMember ? `<td>${data.characterName}</td>` : ''}
+                            <td>${data.elementPower}</td>
+                            <td>${data.nonElementPower}</td>
+                            <td>${data.elementPlusAtk}</td>
+                            <td>${data.increaseElementDamage}</td>
+                            <td>${data.increaseAtk}</td>
+                            <td>${data.atk}</td>
+                            <td>${data.skill1}</td>
+                            <td>${data.skill2}</td>
+                            <td>${data.skill3}</td>
                         `;
                         tbody.appendChild(tr);
                     });
                 }
-                
-                memberSelect.addEventListener('change', updateTable);
-                characterSelect.addEventListener('change', updateTable);
-                sortSelect.addEventListener('change', updateTable);
+
+                selectCharacter.addEventListener('change', updateTable);
+                selectMember.addEventListener('change', updateTable);
+                selectSort.addEventListener('change', updateTable);
+                updateTableHeader(selectSort.value);
             })
             .catch(error => console.error('JSON 파일 로딩 중 오류:', error));
     </script>
