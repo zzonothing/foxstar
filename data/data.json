@@ -2084,15 +2084,15 @@
                     "skill1": 10,
                     "skill2": 10,
                     "skill3": 10,
-                    "increaseElementDamage": 85.81,
-                    "increaseAtk": 5.47,
+                    "increaseElementDamage": 94.22,
+                    "increaseAtk": 33.17,
                     "increaseDef": 0.00,
-                    "increaseHitRate": 6.88,
+                    "increaseHitRate": 6.18,
                     "increaseChargeSpeed": 0.00,
-                    "increaseChargeDamage": 11.81,
-                    "increaseCriticalRate": 4.35,
+                    "increaseChargeDamage": 8.29,
+                    "increaseCriticalRate": 0.00,
                     "increaseCriticalDamage": 0.00,
-                    "increaseMaxAmmuitionCapacity": 31.95
+                    "increaseMaxAmmuitionCapacity": 0.00
                 },
                 {
                     "name": "아인",
