@@ -25,10 +25,16 @@
 <body>
     <h1>캐릭터 스탯 조회</h1>
 
+    <!-- 멤버 선택 드롭다운 -->
+    <label for="memberSelect">멤버 선택: </label>
+    <select id="memberSelect">
+        <option value="">-- 전체 멤버 --</option>
+    </select>
+
     <!-- 캐릭터 선택 드롭다운 -->
     <label for="characterSelect">캐릭터 선택: </label>
     <select id="characterSelect">
-        <option value="">-- 선택하세요 --</option>
+        <option value="">-- 전체 캐릭터 --</option>
     </select>
 
     <!-- 정렬 기준 선택 드롭다운 -->
@@ -36,7 +42,7 @@
     <select id="sortSelect">
         <option value="elementPower">우코 파워</option>
         <option value="nonElementPower">비우코 파워</option>
-        <option value="elementPlusAtk">우코x공증</option>
+        <option value="elementPlusAtk">우코+공증</option>
         <option value="increaseElementDamage">우코</option>
         <option value="increaseAtk">공증</option>
     </select>
@@ -46,13 +52,14 @@
         <thead>
             <tr>
                 <th>순위</th>
-                <th>닉네임</th>
+                <th>멤버</th>
+                <th>캐릭터</th>
                 <th>우코 파워</th>
                 <th>비우코 파워</th>
-                <th>우코x공증</th>
+                <th>우코+공증</th>
                 <th>우코</th>
                 <th>공증</th>
-                <th>공격력</th>                
+                <th>공격력</th>
                 <th>스킬1</th>
                 <th>스킬2</th>
                 <th>스킬3</th>
@@ -69,19 +76,32 @@
             .then(response => response.json())
             .then(data => {
                 const members = data.members;
+                const selectMember = document.getElementById('memberSelect');
                 const selectCharacter = document.getElementById('characterSelect');
                 const selectSort = document.getElementById('sortSelect');
                 const tbody = document.getElementById('statsTable').querySelector('tbody');
 
-                // 캐릭터 이름 중복 제거 후 알파벳 순 정렬하여 드롭다운에 추가
+                // 멤버 이름 및 캐릭터 이름 저장
+                const memberNamesSet = new Set();
                 const characterNamesSet = new Set();
+
+                // 모든 멤버 및 캐릭터 목록 수집
                 members.forEach(member => {
+                    memberNamesSet.add(member.name);
                     member.Characters.forEach(character => {
                         characterNamesSet.add(character.name);
                     });
                 });
 
-                // 정렬 후 드롭다운에 추가
+                // 멤버 선택 드롭다운에 추가
+                Array.from(memberNamesSet).sort().forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    selectMember.appendChild(option);
+                });
+
+                // 캐릭터 선택 드롭다운에 추가
                 Array.from(characterNamesSet).sort().forEach(name => {
                     const option = document.createElement('option');
                     option.value = name;
@@ -89,48 +109,30 @@
                     selectCharacter.appendChild(option);
                 });
 
-                // 테이블 헤더 업데이트 함수 (정렬 기준 컬럼에 ▼ 추가)
-                function updateTableHeader(sortBy) {
-                    // 모든 헤더에서 ▼ 제거
-                    document.querySelectorAll("#statsTable th").forEach(th => {
-                        th.textContent = th.textContent.replace(" ▼", "");
-                    });
-
-                    // 정렬 기준에 맞는 컬럼에 ▼ 추가
-                    const headers = {
-                        "elementPower": "우코 파워",
-                        "nonElementPower": "비우코 파워",
-                        "elementPlusAtk": "우코x공증",
-                        "increaseElementDamage": "우코",
-                        "increaseAtk": "공증"
-                    };
-
-                    const thElements = document.querySelectorAll("#statsTable th");
-                    thElements.forEach(th => {
-                        if (th.textContent === headers[sortBy]) {
-                            th.textContent += " ▼";
-                        }
-                    });
-                }
-
-                // 캐릭터 선택 또는 정렬 기준 변경 시 테이블 업데이트
+                // 테이블 업데이트 함수
                 function updateTable() {
-                    const selectedName = selectCharacter.value;
+                    const selectedMember = selectMember.value;
+                    const selectedCharacter = selectCharacter.value;
                     const sortBy = selectSort.value;
                     tbody.innerHTML = ''; // 기존 테이블 내용 초기화
 
-                    let selectedCharacters = [];
+                    let filteredCharacters = [];
 
+                    // 멤버 및 캐릭터 필터링
                     members.forEach(member => {
-                        const character = member.Characters.find(c => c.name === selectedName);
-                        if (character) {
+                        if (selectedMember && member.name !== selectedMember) return;
+
+                        member.Characters.forEach(character => {
+                            if (selectedCharacter && character.name !== selectedCharacter) return;
+
                             // 스탯 계산
                             const elementPower = Math.round(character.atk * (1 + character.increaseAtk / 100) * (1 + character.increaseElementDamage / 100));
                             const nonElementPower = Math.round(character.atk * (1 + character.increaseAtk / 100));
-                            const elementPlusAtk = Math.round(((1 + character.increaseAtk/100) * (1 + character.increaseElementDamage/100) - 1) * 10000) / 100;
+                            const elementPlusAtk = Math.round((character.increaseElementDamage + character.increaseAtk) * 100) / 100;
 
-                            selectedCharacters.push({
+                            filteredCharacters.push({
                                 memberName: member.name,
+                                characterName: character.name,
                                 elementPower: elementPower,
                                 nonElementPower: nonElementPower,
                                 elementPlusAtk: elementPlusAtk,
@@ -141,17 +143,14 @@
                                 skill2: character.skill2,
                                 skill3: character.skill3
                             });
-                        }
+                        });
                     });
 
                     // 선택된 정렬 기준에 맞게 정렬
-                    selectedCharacters.sort((a, b) => b[sortBy] - a[sortBy]);
-
-                    // 헤더 업데이트
-                    updateTableHeader(sortBy);
+                    filteredCharacters.sort((a, b) => b[sortBy] - a[sortBy]);
 
                     // 정렬된 데이터로 테이블 생성 (순위 추가)
-                    selectedCharacters.forEach((character, index) => {
+                    filteredCharacters.forEach((character, index) => {
                         const tr = document.createElement('tr');
 
                         // 순위 추가 (1부터 시작)
@@ -164,6 +163,11 @@
                         tdMember.textContent = character.memberName;
                         tr.appendChild(tdMember);
 
+                        // 캐릭터 이름
+                        const tdCharacter = document.createElement('td');
+                        tdCharacter.textContent = character.characterName;
+                        tr.appendChild(tdCharacter);
+
                         // 우코 파워
                         const tdElementPower = document.createElement('td');
                         tdElementPower.textContent = character.elementPower;
@@ -174,7 +178,7 @@
                         tdNonElementPower.textContent = character.nonElementPower;
                         tr.appendChild(tdNonElementPower);
 
-                        // 우코x공증
+                        // 우코+공증
                         const tdElementPlusAtk = document.createElement('td');
                         tdElementPlusAtk.textContent = character.elementPlusAtk;
                         tr.appendChild(tdElementPlusAtk);
@@ -194,31 +198,17 @@
                         tdAtk.textContent = character.atk;
                         tr.appendChild(tdAtk);
 
-                        // Skill1
-                        const tdSkill1 = document.createElement('td');
-                        tdSkill1.textContent = character.skill1;
-                        tr.appendChild(tdSkill1);
-
-                        // Skill2
-                        const tdSkill2 = document.createElement('td');
-                        tdSkill2.textContent = character.skill2;
-                        tr.appendChild(tdSkill2);
-
-                        // Skill3
-                        const tdSkill3 = document.createElement('td');
-                        tdSkill3.textContent = character.skill3;
-                        tr.appendChild(tdSkill3);
-
                         tbody.appendChild(tr);
                     });
                 }
 
-                // 캐릭터 선택 또는 정렬 기준 변경 시 테이블 업데이트
+                // 필터 변경 시 테이블 업데이트
+                selectMember.addEventListener('change', updateTable);
                 selectCharacter.addEventListener('change', updateTable);
                 selectSort.addEventListener('change', updateTable);
 
-                // 초기 정렬 기준 적용
-                updateTableHeader(selectSort.value);
+                // 페이지 로드 시 초기 테이블 표시
+                updateTable();
             })
             .catch(error => console.error('JSON 파일 로딩 중 오류:', error));
     </script>
