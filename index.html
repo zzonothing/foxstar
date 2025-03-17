@@ -121,7 +121,7 @@
                 const memberNamesSet = new Set();
                 members.forEach(member => {
                     memberNamesSet.add(member.name);
-                    member.Characters.forEach(character => {
+                    member.characters.forEach(character => {
                         characterNamesSet.add(character.name);
                     });
                 });
@@ -210,7 +210,7 @@
                             let deckStats = [];
                             let hasAll = true;
                             deck.characters.forEach(deckChar => {
-                                const charData = member.Characters.find(c => c.name === deckChar.name);
+                                const charData = member.characters.find(c => c.name === deckChar.name);
                                 if (charData) {
                                     // 각 캐릭터별 계산
                                     const elementPower = Math.round(charData.atk * (1 + charData.increaseAtk / 100) * (1 + charData.increaseElementDamage / 100));
@@ -224,7 +224,7 @@
                                         increaseElementDamage: charData.increaseElementDamage,
                                         increaseAtk: charData.increaseAtk,
                                         increaseChargeSpeed: charData.increaseChargeSpeed,
-                                        increaseMaxAmmuitionCapacity: charData.increaseMaxAmmuitionCapacity,
+                                        increaseMaxAmmunitionCapacity: charData.increaseMaxAmmunitionCapacity,
                                         atk: charData.atk,
                                         skill1: charData.skill1,
                                         skill2: charData.skill2,
@@ -266,7 +266,7 @@
                     <td>${stat.increaseElementDamage}</td>                    
                     <td>${stat.increaseAtk}</td>
                     <td${stat.characterName === "앨리스" && stat.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${stat.increaseChargeSpeed}</td>
-                    <td>${stat.increaseMaxAmmuitionCapacity}</td>
+                    <td>${stat.increaseMaxAmmunitionCapacity}</td>
                     <td>${stat.atk}</td>
                     <td>${stat.skill1}</td>
                     <td>${stat.skill2}</td>
@@ -279,7 +279,7 @@
                     <td>${stat.increaseElementDamage}</td>
                     <td>${stat.increaseAtk}</td>
                     <td${stat.characterName === "앨리스" && stat.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${stat.increaseChargeSpeed}</td>
-                    <td>${stat.increaseMaxAmmuitionCapacity}</td>
+                    <td>${stat.increaseMaxAmmunitionCapacity}</td>
                     <td>${stat.atk}</td>
                     <td>${stat.skill1}</td>
                     <td>${stat.skill2}</td>
@@ -292,7 +292,7 @@
                         // 개별 모드: 기존 필터(캐릭터, 멤버 선택) 및 정렬 기능 적용
                         let selectedData = [];
                         members.forEach(member => {
-                            member.Characters.forEach(character => {
+                            member.characters.forEach(character => {
                                 if ((selectedCharacter && character.name !== selectedCharacter) ||
                                     (selectedMember && member.name !== selectedMember)) {
                                     return;
@@ -306,7 +306,7 @@
                                     increaseElementDamage: character.increaseElementDamage,
                                     increaseAtk: character.increaseAtk,
                                     increaseChargeSpeed: character.increaseChargeSpeed,
-                                    increaseMaxAmmuitionCapacity: character.increaseMaxAmmuitionCapacity,
+                                    increaseMaxAmmunitionCapacity: character.increaseMaxAmmunitionCapacity,
                                     atk: character.atk,
                                     skill1: character.skill1,
                                     skill2: character.skill2,
@@ -333,7 +333,7 @@
                 <td>${data.increaseElementDamage}</td>
                 <td>${data.increaseAtk}</td>
                 <td${data.characterName === "앨리스" && data.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${data.increaseChargeSpeed}</td>
-                <td>${data.increaseMaxAmmuitionCapacity}</td>
+                <td>${data.increaseMaxAmmunitionCapacity}</td>
                 <td>${data.atk}</td>
                 <td>${data.skill1}</td>
                 <td>${data.skill2}</td>
