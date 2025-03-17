@@ -88,9 +88,16 @@
                 name: '신수클',
                 // 내부적으로 포함된 캐릭터 배열 (갯수는 변동 가능)
                 characters: [
-                    { name: '신데렐라', weight: 14.4 },
-                    { name: '아니스 : 스파클링 서머', weight: 4.4 },
-                    { name: '메이든 : 아이스 로즈', weight: 6.2 }
+                    { name: '신데렐라', weight: 14.4, type: 'element' },
+                    { name: '아니스 : 스파클링 서머', weight: 4.4, type: 'element' },
+                    { name: '메이든 : 아이스 로즈', weight: 6.2, type: 'element' }
+                ]
+            },
+            deck2: {
+                name: '흑앨 (풍압)',
+                characters: [
+                    { name: '홍련 : 흑영', weight: 1, type: 'element' },
+                    { name: '앨리스', weight: 1, type: 'nonElement' }
                 ]
             }
         };
@@ -213,7 +220,8 @@
                                         skill1: charData.skill1,
                                         skill2: charData.skill2,
                                         skill3: charData.skill3,
-                                        weight: deckChar.weight
+                                        weight: deckChar.weight,
+                                        type: deckChar.type
                                     });
                                 } else {
                                     hasAll = false;
@@ -221,7 +229,7 @@
                             });
                             if (hasAll && deckStats.length > 0) {
                                 // 덱 파워: 각 캐릭터의 우코 파워 합계
-                                const deckPower = deckStats.reduce((sum, curr) => sum + (Math.round(curr.elementPower * curr.weight)), 0);
+                                const deckPower = deckStats.reduce((sum, curr) => sum + (Math.round((curr.type === "element" ? curr.elementPower : curr.nonElementPower) * curr.weight)), 0);
                                 deckData.push({
                                     memberName: member.name,
                                     deckPower: deckPower,
