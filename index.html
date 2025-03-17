@@ -70,6 +70,8 @@
                 <th>우코x공증</th>
                 <th>우코</th>
                 <th>공증</th>
+                <th>차속</th>
+                <th>장탄</th>
                 <th>공격력</th>
                 <th>스킬1</th>
                 <th>스킬2</th>
@@ -147,6 +149,8 @@
                         <th>우코x공증</th>
                         <th>우코</th>
                         <th>공증</th>
+                        <th>차속</th>
+                        <th>장탄</th>
                         <th>공격력</th>
                         <th>스킬1</th>
                         <th>스킬2</th>
@@ -180,6 +184,8 @@
               <th>우코x공증</th>
               <th>우코</th>
               <th>공증</th>
+              <th>차속</th>
+              <th>장탄</th>
               <th>공격력</th>
               <th>스킬1</th>
               <th>스킬2</th>
@@ -217,6 +223,8 @@
                                         elementPlusAtk: elementPlusAtk,
                                         increaseElementDamage: charData.increaseElementDamage,
                                         increaseAtk: charData.increaseAtk,
+                                        increaseChargeSpeed: charData.increaseChargeSpeed,
+                                        increaseMaxAmmuitionCapacity: charData.increaseMaxAmmuitionCapacity,
                                         atk: charData.atk,
                                         skill1: charData.skill1,
                                         skill2: charData.skill2,
@@ -255,8 +263,10 @@
                     <td>${stat.elementPower}</td>
                     <td>${stat.nonElementPower}</td>
                     <td>${stat.elementPlusAtk}</td>
-                    <td>${stat.increaseElementDamage}</td>
+                    <td>${stat.increaseElementDamage}</td>                    
                     <td>${stat.increaseAtk}</td>
+                    <td>${stat.increaseChargeSpeed}</td>
+                    <td>${stat.increaseMaxAmmuitionCapacity}</td>
                     <td>${stat.atk}</td>
                     <td>${stat.skill1}</td>
                     <td>${stat.skill2}</td>
@@ -268,6 +278,8 @@
                     <td>${stat.elementPlusAtk}</td>
                     <td>${stat.increaseElementDamage}</td>
                     <td>${stat.increaseAtk}</td>
+                    <td>${stat.increaseChargeSpeed}</td>
+                    <td>${stat.increaseMaxAmmuitionCapacity}</td>
                     <td>${stat.atk}</td>
                     <td>${stat.skill1}</td>
                     <td>${stat.skill2}</td>
@@ -293,6 +305,8 @@
                                     elementPlusAtk: Math.round(((1 + character.increaseAtk / 100) * (1 + character.increaseElementDamage / 100) - 1) * 10000) / 100,
                                     increaseElementDamage: character.increaseElementDamage,
                                     increaseAtk: character.increaseAtk,
+                                    increaseChargeSpeed: charData.increaseChargeSpeed,
+                                    increaseMaxAmmuitionCapacity: charData.increaseMaxAmmuitionCapacity,
                                     atk: character.atk,
                                     skill1: character.skill1,
                                     skill2: character.skill2,
@@ -318,6 +332,8 @@
                 <td>${data.elementPlusAtk}</td>
                 <td>${data.increaseElementDamage}</td>
                 <td>${data.increaseAtk}</td>
+                <td>${data.increaseChargeSpeed}</td>
+                <td>${data.increaseMaxAmmuitionCapacity}</td>
                 <td>${data.atk}</td>
                 <td>${data.skill1}</td>
                 <td>${data.skill2}</td>
