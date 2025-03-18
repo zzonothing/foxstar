@@ -31,21 +31,23 @@
     <!-- 덱 선택: 덱 모드 전환 (옵션 텍스트는 '신수클') -->
     <label for="deckSelect">덱 선택: </label>
     <select id="deckSelect">
-        <option value="">-- 선택 안함 --</option>
+        <option value="">-- 덱 선택 --</option>
         <option value="deck1">신수클</option>
         <option value="deck2">흑앨 (풍압)</option>
         <option value="deck3">레맥</option>
+        <option value="deck4">레라(3버)</option>
+        <option value="deck5">라(1버)레맥</option>
     </select>
 
     <!-- 개별 모드용 드롭다운 -->
     <label for="characterSelect">캐릭터 선택: </label>
     <select id="characterSelect">
-        <option value="">-- 선택하세요 --</option>
+        <option value="">-- 캐릭터 선택택 --</option>
     </select>
 
     <label for="memberSelect">멤버 선택: </label>
     <select id="memberSelect">
-        <option value="">-- 선택하세요 --</option>
+        <option value="">-- 멤버 선택 --</option>
     </select>
 
     <!-- 정렬 기준 (개별 모드에 적용, 덱 모드에서는 덱 파워 기준 정렬) -->
@@ -109,6 +111,21 @@
                 characters: [
                     { name: '레드 후드', weight: 6.8, type: 'element' },
                     { name: '맥스웰', weight: 2.7, type: 'element' }
+                ]
+            },
+            deck4: {
+                name: '레라(3버)',
+                characters: [
+                    { name: '레드 후드', weight: 5.8, type: 'element' },
+                    { name: '라피 : 레드 후드', weight: 7.5, type: 'element' }
+                ]
+            },
+            deck5: {
+                name: '라(1버)레맥',
+                characters: [
+                    { name: '라피 : 레드 후드', weight: 4.1, type: 'element' },
+                    { name: '레드 후드', weight: 7, type: 'element' },
+                    { name: '맥스웰', weight: 2.2, type: 'element' }                    
                 ]
             }
         };
