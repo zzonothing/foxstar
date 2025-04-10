@@ -4,23 +4,78 @@
 <head>
     <meta charset="UTF-8">
     <title>캐릭터 스탯 테이블</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        table {
-            width: 90%;
-            border-collapse: collapse;
-            margin-top: 20px;
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
         }
 
-        table,
-        th,
-        td {
-            border: 1px solid #ccc;
-        }
-
-        th,
-        td {
-            padding: 8px;
+        h1 {
             text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        div {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        label {
+            margin-right: 8px;
+            font-weight: 600;
+        }
+
+        select {
+            padding: 8px 12px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        table {
+            width: 95%;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background-color: #f1f7ff;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
         }
     </style>
 </head>
