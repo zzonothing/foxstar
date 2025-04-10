@@ -23,42 +23,47 @@
             text-align: center;
         }
     </style>
-</head>
-
-<body>
-    <h1>캐릭터 스탯 조회</h1>
-
-    <!-- 덱 선택: 덱 모드 전환 (옵션 텍스트는 '신수클') -->
-    <label for="deckSelect">덱 선택: </label>
-    <select id="deckSelect">
-        <option value="">-- 덱 선택 --</option>
-        <option value="deck1">신수클</option>
-        <option value="deck2">흑앨 (풍압)</option>
-        <option value="deck3">레맥</option>
-        <option value="deck4">레라(3버)</option>
-        <option value="deck5">라(1버)레맥</option>
-    </select>
-
-    <!-- 개별 모드용 드롭다운 -->
-    <label for="characterSelect">캐릭터 선택: </label>
-    <select id="characterSelect">
-        <option value="">-- 캐릭터 선택택 --</option>
-    </select>
-
-    <label for="memberSelect">멤버 선택: </label>
-    <select id="memberSelect">
-        <option value="">-- 멤버 선택 --</option>
-    </select>
-
-    <!-- 정렬 기준 (개별 모드에 적용, 덱 모드에서는 덱 파워 기준 정렬) -->
-    <label for="sortSelect">정렬 기준: </label>
-    <select id="sortSelect">
-        <option value="elementPower">우코 파워</option>
-        <option value="nonElementPower">비우코 파워</option>
-        <option value="elementPlusAtk">우코x공증</option>
-        <option value="increaseElementDamage">우코</option>
-        <option value="increaseAtk">공증</option>
-    </select>
+    </head>
+    
+    <body>
+        <h1>캐릭터 스탯 조회</h1>
+        <div>
+            <label for="seasonSelect">시즌 선택: </label>
+            <select id="seasonSelect"></select>
+        </div>
+        <div>
+            <!-- 덱 선택: 덱 모드 전환 (옵션 텍스트는 '신수클') -->
+            <label for="deckSelect">덱 선택: </label>
+            <select id="deckSelect">
+                <option value="">-- 덱 선택 --</option>
+                <option value="deck1">신수클</option>
+                <option value="deck2">흑앨 (풍압)</option>
+                <option value="deck3">레맥</option>
+                <option value="deck4">레라(3버)</option>
+                <option value="deck5">라(1버)레맥</option>
+            </select>
+    
+            <!-- 개별 모드용 드롭다운 -->
+            <label for="characterSelect">캐릭터 선택: </label>
+            <select id="characterSelect">
+                <option value="">-- 캐릭터 선택택 --</option>
+            </select>
+    
+            <label for="memberSelect">멤버 선택: </label>
+            <select id="memberSelect">
+                <option value="">-- 멤버 선택 --</option>
+            </select>
+    
+            <!-- 정렬 기준 (개별 모드에 적용, 덱 모드에서는 덱 파워 기준 정렬) -->
+            <label for="sortSelect">정렬 기준: </label>
+            <select id="sortSelect">
+                <option value="elementPower">우코 파워</option>
+                <option value="nonElementPower">비우코 파워</option>
+                <option value="elementPlusAtk">우코x공증</option>
+                <option value="increaseElementDamage">우코</option>
+                <option value="increaseAtk">공증</option>
+            </select>
+        </div>
 
     <!-- 스탯 출력 테이블 -->
     <table id="statsTable">
@@ -87,6 +92,23 @@
     </table>
 
     <script>
+        const seasonSelect = document.getElementById('seasonSelect');
+        const seasons = Object.keys(data.seasons).sort((a, b) => b - a); // 숫자 내림차순
+        seasons.forEach(season => {
+            const option = document.createElement('option');
+            option.value = season;
+            option.textContent = `시즌 ${season}`;
+            seasonSelect.appendChild(option);
+        });
+
+        let currentMembers = data.seasons[seasons[0]].members; // 최신 시즌으로 기본 설정
+
+        seasonSelect.addEventListener('change', () => {
+            const selectedSeason = seasonSelect.value;
+            currentMembers = data.seasons[selectedSeason].members;
+            updateTable(); // 테이블을 다시 그립니다
+        });
+
         // 덱 구성 정보를 미리 정의 (추후 덱이 추가될 때 유연하게 적용)
         const decks = {
             deck1: {
@@ -133,7 +155,7 @@
         fetch('data/data.json')
             .then(response => response.json())
             .then(data => {
-                const members = data.members;
+                const members = data.seasons[seasons[0]].members;
                 const selectDeck = document.getElementById('deckSelect');
                 const selectCharacter = document.getElementById('characterSelect');
                 const selectMember = document.getElementById('memberSelect');
