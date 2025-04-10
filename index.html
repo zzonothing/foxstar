@@ -13,23 +13,23 @@
             margin: 0;
             padding: 20px;
         }
-    
+
         h1 {
             text-align: center;
             color: #2c3e50;
             margin-bottom: 30px;
         }
-    
+
         div {
             margin-bottom: 20px;
             text-align: center;
         }
-    
+
         label {
             margin-right: 8px;
             font-weight: 600;
         }
-    
+
         select {
             padding: 8px 12px;
             margin-right: 10px;
@@ -40,12 +40,12 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             transition: border-color 0.3s;
         }
-    
+
         select:focus {
             border-color: #3498db;
             outline: none;
         }
-        
+
         table {
             width: 95%;
             margin: 0 auto;
@@ -55,120 +55,97 @@
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
         }
-    
+
         th,
         td {
             padding: 12px 15px;
             text-align: center;
             border-bottom: 1px solid #eee;
         }
-    
+
         th {
             background-color: #3498db;
             color: white;
             font-weight: 600;
             font-size: 14px;
         }
-    
+
         tr:hover {
             background-color: #f1f7ff;
         }
-    
+
         tbody tr:last-child td {
             border-bottom: none;
-        }
-    
-        /* 상단 고정 (제목 + 필터 + 컬럼 헤더) */
-        .sticky-header {
-            position: sticky;
-            top: 0;
-            background-color: #f9f9f9;
-            z-index: 10;
-            padding-bottom: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-    
-        /* 데이터 스크롤 영역 */
-        .table-body-wrapper {
-            overflow-y: auto;
-        }
-    
-        .table-body-wrapper table {
-            border-collapse: collapse;
         }
     </style>
 </head>
 
 <body>
-    <div class="sticky-header">        
-        <div>
-            <label for="seasonSelect">시즌 선택: </label>
-            <select id="seasonSelect"></select>            
-        </div>
-        <div>
-            <!-- 덱 선택: 덱 모드 전환 (옵션 텍스트는 '신수클') -->
-            <label for="deckSelect">덱 선택: </label>
-            <select id="deckSelect">
-                <option value="">-- 덱 선택 --</option>
-                <option value="deck1">신수클</option>
-                <option value="deck2">흑앨 (풍압)</option>
-                <option value="deck3">레맥</option>
-                <option value="deck4">레라(3버)</option>
-                <option value="deck5">라(1버)레맥</option>
-            </select>
+    <h1>캐릭터 스탯 조회</h1>
+    <div>
+        <label for="seasonSelect">시즌 선택: </label>
+        <select id="seasonSelect"></select>
+    </div>
+    <div>
+        <!-- 덱 선택: 덱 모드 전환 (옵션 텍스트는 '신수클') -->
+        <label for="deckSelect">덱 선택: </label>
+        <select id="deckSelect">
+            <option value="">-- 덱 선택 --</option>
+            <option value="deck1">신수클</option>
+            <option value="deck2">흑앨 (풍압)</option>
+            <option value="deck3">레맥</option>
+            <option value="deck4">레라(3버)</option>
+            <option value="deck5">라(1버)레맥</option>
+        </select>
+    </div>
+    <div>
+        <!-- 개별 모드용 드롭다운 -->
+        <label for="characterSelect">캐릭터 선택: </label>
+        <select id="characterSelect">
+            <option value="">-- 캐릭터 선택택 --</option>
+        </select>
+    
+        <label for="memberSelect">멤버 선택: </label>
+        <select id="memberSelect">
+            <option value="">-- 멤버 선택 --</option>
+        </select>
+    
+        <!-- 정렬 기준 (개별 모드에 적용, 덱 모드에서는 덱 파워 기준 정렬) -->
+        <label for="sortSelect">정렬 기준: </label>
+        <select id="sortSelect">
+            <option value="elementPower">우코 파워</option>
+            <option value="nonElementPower">비우코 파워</option>
+            <option value="elementPlusAtk">우코x공증</option>
+            <option value="increaseElementDamage">우코</option>
+            <option value="increaseAtk">공증</option>
+        </select>
+    </div>
 
-            <!-- 개별 모드용 드롭다운 -->
-            <label for="characterSelect">캐릭터 선택: </label>
-            <select id="characterSelect">
-                <option value="">-- 캐릭터 선택택 --</option>
-            </select>
-    
-            <label for="memberSelect">멤버 선택: </label>
-            <select id="memberSelect">
-                <option value="">-- 멤버 선택 --</option>
-            </select>
-    
-            <!-- 정렬 기준 (개별 모드에 적용, 덱 모드에서는 덱 파워 기준 정렬) -->
-            <label for="sortSelect">정렬 기준: </label>
-            <select id="sortSelect">
-                <option value="elementPower">우코 파워</option>
-                <option value="nonElementPower">비우코 파워</option>
-                <option value="elementPlusAtk">우코x공증</option>
-                <option value="increaseElementDamage">우코</option>
-                <option value="increaseAtk">공증</option>
-            </select>
-        </div>
-        <table>
-            <thead id="tableHeader">
-                <!-- 기본 개별 모드 헤더 (덱 모드가 아닐 경우) -->
-                <tr>
-                    <th>순위</th>
-                    <th class="nickname-col">닉네임</th>
-                    <th class="character-col">캐릭터</th>
-                    <th>우코 파워</th>
-                    <th>비우코 파워</th>
-                    <th>우코x공증</th>
-                    <th>우코</th>
-                    <th>공증</th>
-                    <th>차속</th>
-                    <th>장탄</th>
-                    <th>공격력</th>
-                    <th>스킬1</th>
-                    <th>스킬2</th>
-                    <th>스킬3</th>
-                </tr>
-            </thead>
-        </table>
-    </div>
-    
-    <div class="table-body-wrapper">
-        <!-- 스탯 출력 테이블 -->
-        <table id="statsTable">
-            <tbody>
-                <!-- JavaScript로 동적 생성 -->
-            </tbody>
-        </table>
-    </div>
+    <!-- 스탯 출력 테이블 -->
+    <table id="statsTable">
+        <thead id="tableHeader">
+            <!-- 기본 개별 모드 헤더 (덱 모드가 아닐 경우) -->
+            <tr>
+                <th>순위</th>
+                <th class="nickname-col">닉네임</th>
+                <th class="character-col">캐릭터</th>
+                <th>우코 파워</th>
+                <th>비우코 파워</th>
+                <th>우코x공증</th>
+                <th>우코</th>
+                <th>공증</th>
+                <th>차속</th>
+                <th>장탄</th>
+                <th>공격력</th>
+                <th>스킬1</th>
+                <th>스킬2</th>
+                <th>스킬3</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- JavaScript로 동적 생성 -->
+        </tbody>
+    </table>
 
     <script>
         // 덱 구성 정보를 미리 정의 (추후 덱이 추가될 때 유연하게 적용)
