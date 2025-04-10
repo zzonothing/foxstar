@@ -6,42 +6,21 @@
     <title>캐릭터 스탯 테이블</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #f9f9f9;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --header-bg: #3498db;
-            --header-text: #ffffff;
-            --hover-bg: #f1f7ff;
-            --border-color: #e0e0e0;
-        }
-
-        [data-theme="dark"] {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --text-color: #eeeeee;
-            --header-bg: #3498db;
-            --header-text: #ffffff;
-            --hover-bg: #2c2c2c;
-            --border-color: #333333;
-        }
-
         body {
             font-family: 'Inter', 'Noto Sans KR', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: #f9f9f9;
+            color: #333;
             margin: 0;
             padding: 20px;
-            transition: background-color 0.3s, color 0.3s;
         }
 
         h1 {
             text-align: center;
-            color: var(--text-color);
+            color: #2c3e50;
             margin-bottom: 30px;
         }
 
-        div.controls {
+        div {
             margin-bottom: 20px;
             text-align: center;
         }
@@ -51,21 +30,18 @@
             font-weight: 600;
         }
 
-        select,
-        button {
+        select {
             padding: 8px 12px;
             margin-right: 10px;
-            border: 1px solid var(--border-color);
+            border: 1px solid #ccc;
             border-radius: 8px;
-            background: var(--card-bg);
-            color: var(--text-color);
+            background: white;
             font-size: 14px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+            transition: border-color 0.3s;
         }
 
-        select:focus,
-        button:focus {
+        select:focus {
             border-color: #3498db;
             outline: none;
         }
@@ -74,7 +50,7 @@
             width: 95%;
             margin: 0 auto;
             border-collapse: collapse;
-            background: var(--card-bg);
+            background: white;
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
@@ -84,18 +60,18 @@
         td {
             padding: 12px 15px;
             text-align: center;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid #eee;
         }
 
         th {
-            background-color: var(--header-bg);
-            color: var(--header-text);
+            background-color: #3498db;
+            color: white;
             font-weight: 600;
             font-size: 14px;
         }
 
         tr:hover {
-            background-color: var(--hover-bg);
+            background-color: #f1f7ff;
         }
 
         tbody tr:last-child td {
@@ -128,12 +104,12 @@
         <select id="characterSelect">
             <option value="">-- 캐릭터 선택택 --</option>
         </select>
-
+    
         <label for="memberSelect">멤버 선택: </label>
         <select id="memberSelect">
             <option value="">-- 멤버 선택 --</option>
         </select>
-
+    
         <!-- 정렬 기준 (개별 모드에 적용, 덱 모드에서는 덱 파워 기준 정렬) -->
         <label for="sortSelect">정렬 기준: </label>
         <select id="sortSelect">
@@ -143,8 +119,6 @@
             <option value="increaseElementDamage">우코</option>
             <option value="increaseAtk">공증</option>
         </select>
-
-        <button onclick="toggleDarkMode()">🌙 / ☀️</button>
     </div>
 
     <!-- 스탯 출력 테이블 -->
@@ -469,14 +443,6 @@
               `;
                             tbody.appendChild(tr);
                         });
-                    }
-                }
-
-                function toggleDarkMode() {
-                    if (document.documentElement.getAttribute('data-theme') === 'dark') {
-                        document.documentElement.setAttribute('data-theme', 'light');
-                    } else {
-                        document.documentElement.setAttribute('data-theme', 'dark');
                     }
                 }
 
