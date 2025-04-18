@@ -332,7 +332,6 @@
                                     const elementPlusAtk = Math.round(((1 + charData.increaseAtk / 100) * (1 + charData.increaseElementDamage / 100) - 1) * 10000) / 100;
                                     deckStats.push({
                                         characterName: deckChar.name,
-                                        characterSubName: deckChar.subName,
                                         elementPower: elementPower,
                                         nonElementPower: nonElementPower,
                                         elementPlusAtk: elementPlusAtk,
@@ -377,8 +376,7 @@
                     <td rowspan="${rowCount}">${data.memberName}</td>
                     <td rowspan="${rowCount}">${data.deckPower}</td>
                     <td>
-                        <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
-                        <span class="character-name">${stat.characterSubName}</span>
+                        <img src="${stat.image}" class="character-image" alt="${stat.characterName}">                        
                     </td>
                     <td>${stat.elementPower}</td>
                     <td>${stat.nonElementPower}</td>
@@ -396,7 +394,6 @@
                                 {
                                     tr.innerHTML = `<td>
                         <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
-                        <span class="character-name">${stat.characterSubName}</span>
                     </td>
                     <td>${stat.elementPower}</td>
                     <td>${stat.nonElementPower}</td>
