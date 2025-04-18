@@ -13,23 +13,23 @@
             margin: 0;
             padding: 20px;
         }
-
+    
         h1 {
             text-align: center;
             color: #2c3e50;
             margin-bottom: 30px;
         }
-
+    
         div {
             margin-bottom: 20px;
             text-align: center;
         }
-
+    
         label {
             margin-right: 8px;
             font-weight: 600;
         }
-
+    
         select {
             padding: 8px 12px;
             margin-right: 10px;
@@ -40,12 +40,12 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             transition: border-color 0.3s;
         }
-
+    
         select:focus {
             border-color: #3498db;
             outline: none;
         }
-
+    
         table {
             width: 95%;
             margin: 0 auto;
@@ -55,27 +55,40 @@
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
         }
-
+    
         th,
         td {
             padding: 12px 15px;
             text-align: center;
             border-bottom: 1px solid #eee;
         }
-
+    
         th {
             background-color: #3498db;
             color: white;
             font-weight: 600;
             font-size: 14px;
         }
-
+    
         tr:hover {
             background-color: #f1f7ff;
         }
-
+    
         tbody tr:last-child td {
             border-bottom: none;
+        }
+    
+        .character-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 25%;
+            vertical-align: middle;
+        }
+    
+        .character-name {
+            display: block;
+            font-size: 12px;
+            margin-top: 4px;
         }
     </style>
 </head>
@@ -154,9 +167,9 @@
                 name: '신수클',
                 // 내부적으로 포함된 캐릭터 배열 (갯수는 변동 가능)
                 characters: [
-                    { name: '신데렐라', weight: 14.4, type: 'element' },
-                    { name: '아니스 : 스파클링 서머', weight: 4.4, type: 'element' },
-                    { name: '메이든 : 아이스 로즈', weight: 6.2, type: 'element' }
+                    { name: '신데렐라', weight: 14.4, type: 'element', image: 'images/characters/si_c511_00_s.webp' },
+                    { name: '아니스 : 스파클링 서머', weight: 4.4, type: 'element', image: 'images/characters/si_c015_00_s.webp' },
+                    { name: '메이든 : 아이스 로즈', weight: 6.2, type: 'element', image: 'images/characters/si_c183_00_s.webp' }
                 ]
             },
             deck2: {
@@ -356,11 +369,15 @@
                             const rowCount = data.deckStats.length;
                             data.deckStats.forEach((stat, i) => {
                                 const tr = document.createElement("tr");
-                                if (i === 0) {
+                                if (i === 0)
+                                {
                                     tr.innerHTML = `<td rowspan="${rowCount}">${index + 1}</td>
                     <td rowspan="${rowCount}">${data.memberName}</td>
                     <td rowspan="${rowCount}">${data.deckPower}</td>
-                    <td>${stat.characterName}</td>
+                    <td>
+                        <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
+                        <span class="character-name">${stat.characterName}</span>
+                    </td>
                     <td>${stat.elementPower}</td>
                     <td>${stat.nonElementPower}</td>
                     <td>${stat.elementPlusAtk}</td>
@@ -372,8 +389,13 @@
                     <td>${stat.skill1}</td>
                     <td>${stat.skill2}</td>
                     <td>${stat.skill3}</td>`;
-                                } else {
-                                    tr.innerHTML = `<td>${stat.characterName}</td>
+                                }
+                                else
+                                {
+                                    tr.innerHTML = `<td>
+                        <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
+                        <span class="character-name">${stat.characterName}</span>
+                    </td>
                     <td>${stat.elementPower}</td>
                     <td>${stat.nonElementPower}</td>
                     <td>${stat.elementPlusAtk}</td>
