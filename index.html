@@ -242,7 +242,15 @@
                 });
 
                 // 특정 캐릭터를 최상단에 위치시키기
-                const priorityCharacters = ["신데렐라", "앨리스", "홍련 : 흑영", "라피 : 레드 후드", "레드 후드", "루드밀라 : 윈터 오너"];
+                const priorityCharacters = [
+                    "신데렐라", 
+                    "앨리스", 
+                    "홍련 : 흑영", 
+                    "라피 : 레드 후드", 
+                    "레드 후드", 
+                    "헬름", 
+                    "루드밀라 : 윈터 오너"
+                ];
                 const sortedCharacters = Array.from(characterNamesSet)
                     .sort()
                     .filter(name => !priorityCharacters.includes(name)); // 우선순위 캐릭터 제외
