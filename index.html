@@ -248,7 +248,7 @@
                 Array.from(memberNamesSet).forEach(name => {
                     const option = document.createElement('option');
                     option.value = name;
-                    option.textContent = name;
+                    option.textContent = `${name} (${syncroLevel})`;
                     selectMember.appendChild(option);
                 });
 
