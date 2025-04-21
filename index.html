@@ -394,7 +394,8 @@
                     <td rowspan="${rowCount}">${data.memberName}</td>
                     <td rowspan="${rowCount}">${data.deckPower}</td>
                     <td>
-                        <img src="${stat.image}" class="character-image" alt="${stat.characterName}">                        
+                        <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
+                        <span class="character-name">${stat.characterName}</span>
                     </td>
                     <td>${stat.elementPower}</td>
                     <td>${stat.nonElementPower}</td>
@@ -412,6 +413,7 @@
                                 {
                                     tr.innerHTML = `<td>
                         <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
+                        <span class="character-name">${stat.characterName}</span>
                     </td>
                     <td>${stat.elementPower}</td>
                     <td>${stat.nonElementPower}</td>
