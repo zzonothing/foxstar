@@ -233,7 +233,7 @@
                 // 개별 모드용 드롭다운 채우기: 캐릭터, 멤버 목록
                 const characterNamesSet = new Set();
                 const memberNamesSet = new Set();
-                members.forEach(member => {
+                members.sort((a, b) => b.syncroLevel - a.syncroLevel).forEach(member => {
                     memberNamesSet.add(member.name);
                     member.characters.forEach(character => {
                         characterNamesSet.add(character.name);
