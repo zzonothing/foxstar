@@ -234,7 +234,7 @@
                 const characterNamesSet = new Set();
                 const memberNamesSet = new Set();
                 members.sort((a, b) => b.syncroLevel - a.syncroLevel).forEach(member => {
-                    memberNamesSet.add(member.name);
+                    memberNamesSet.add({name: member.name, syncroLevel: member.syncroLevel});
                     member.characters.forEach(character => {
                         characterNamesSet.add(character.name);
                     });
