@@ -114,7 +114,7 @@
         <!-- 개별 모드용 드롭다운 -->
         <label for="characterSelect">캐릭터 선택: </label>
         <select id="characterSelect">
-            <option value="">-- 캐릭터 선택택 --</option>
+            <option value="">-- 캐릭터 선택 --</option>
         </select>
     
         <label for="memberSelect">멤버 선택: </label>
@@ -240,12 +240,29 @@
                         characterNamesSet.add(character.name);
                     });
                 });
-                Array.from(characterNamesSet).sort().forEach(name => {
+
+                // 특정 캐릭터를 최상단에 위치시키기
+                const priorityCharacters = ["신데렐라", "앨리스", "홍련 : 흑영", "라피 : 레드 후드", "레드 후드", "루드밀라 : 윈터 오너"];
+                const sortedCharacters = Array.from(characterNamesSet)
+                    .sort()
+                    .filter(name => !priorityCharacters.includes(name)); // 우선순위 캐릭터 제외
+
+                // 우선순위 캐릭터를 먼저 추가
+                priorityCharacters.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.innerHTML = `${name} <span style="color: gold;">★</span>`; // 노란색 별 추가
+                    selectCharacter.appendChild(option);
+                });
+
+                // 나머지 캐릭터를 이름 순으로 추가
+                sortedCharacters.forEach(name => {
                     const option = document.createElement('option');
                     option.value = name;
                     option.textContent = name;
                     selectCharacter.appendChild(option);
                 });
+
                 memberNamesSet.forEach(member => {
                     const option = document.createElement('option');
                     option.value = member.name;
