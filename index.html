@@ -114,12 +114,12 @@
         <!-- 개별 모드용 드롭다운 -->
         <label for="characterSelect">캐릭터 선택: </label>
         <select id="characterSelect">
-            <option value="">-- 캐릭터 선택 --</option>
+            <option value="">-- 전체 캐릭터 --</option>
         </select>
     
         <label for="memberSelect">멤버 선택: </label>
         <select id="memberSelect">
-            <option value="">-- 멤버 선택 --</option>
+            <option value="">-- 전체 멤버 --</option>
         </select>
     
         <!-- 정렬 기준 (개별 모드에 적용, 덱 모드에서는 덱 파워 기준 정렬) -->
@@ -489,8 +489,11 @@
                 selectCharacter.addEventListener("change", updateTable);
                 selectMember.addEventListener("change", updateTable);
                 selectSort.addEventListener("change", updateTable);
+
                 // 초기 헤더 설정 (개별 모드 기본)
                 updateNormalHeader(selectSort.value);
+
+                updateTable(); // 초기 테이블 업데이트
             })
             .catch(error => console.error("JSON 파일 로딩 중 오류:", error));
     </script>
