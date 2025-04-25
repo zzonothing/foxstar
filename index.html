@@ -163,9 +163,7 @@
         // 덱 구성 정보를 미리 정의 (추후 덱이 추가될 때 유연하게 적용)
         const decks = {
             deck1: {
-                // 덱 선택 옵션에서 보여질 텍스트는 '신수클'
-                name: '신수클',
-                // 내부적으로 포함된 캐릭터 배열 (갯수는 변동 가능)
+                name: '신데 수니스 클이든',
                 characters: [
                     { name: '신데렐라', weight: 14.4, type: 'element', image: 'images/characters/si_c511_00_s.webp' },
                     { name: '아니스 : 스파클링 서머', weight: 4.4, type: 'element', image: 'images/characters/si_c015_00_s.webp' },
@@ -173,32 +171,61 @@
                 ]
             },
             deck2: {
-                name: '흑앨 (풍압)',
+                name: '흑영 앨리스 (풍압)',
                 characters: [
-                    { name: '홍련 : 흑영', weight: 9.5, type: 'element' },
-                    { name: '앨리스', weight: 5.2, type: 'nonElement' }
+                    { name: '홍련 : 흑영', weight: 9.5, type: 'element', image: 'images/characters/si_c225_00_s.webp' },
+                    { name: '앨리스', weight: 5.2, type: 'nonElement', image: 'images/characters/si_c191_00_s.webp' }
                 ]
             },
-            deck3: {
-                name: '레맥',
+            deck3: { 
+                name: '흑영 풍스카', //'세이렌 흑영 풍스카',
                 characters: [
-                    { name: '레드 후드', weight: 6.8, type: 'element' },
-                    { name: '맥스웰', weight: 2.7, type: 'element' }
+                    //{ name: '리틀 머메이드', weight: 1, type: 'element', image: 'images/characters/si_c513_00_s.webp' },
+                    { name: '홍련 : 흑영', weight: 7, type: 'element', image: 'images/characters/si_c225_00_s.webp' },
+                    { name: '아스카 : WILLE', weight: 8.2, type: 'element', image: 'images/characters/si_c835_00_s.webp' }
                 ]
             },
             deck4: {
-                name: '레라(3버)',
+                name: '레후 맥스웰',
                 characters: [
-                    { name: '레드 후드', weight: 5.8, type: 'element' },
-                    { name: '라피 : 레드 후드', weight: 7.5, type: 'element' }
+                    { name: '레드 후드', weight: 6.8, type: 'element', image: 'images/characters/si_c470_00_s.webp' },
+                    { name: '맥스웰', weight: 2.7, type: 'element', image: 'images/characters/si_c102_00_s.webp' }
                 ]
             },
             deck5: {
-                name: '라(1버)레맥',
+                name: '레후 라피', // 관통 2타 박히는 스톰브링어인 경우에 weight 5.8, 7.5 였음
                 characters: [
-                    { name: '라피 : 레드 후드', weight: 4.1, type: 'element' },
-                    { name: '레드 후드', weight: 7, type: 'element' },
-                    { name: '맥스웰', weight: 2.2, type: 'element' }
+                    { name: '레드 후드', weight: 5.8, type: 'element', image: 'images/characters/si_c470_00_s.webp' },
+                    { name: '라피 : 레드 후드', weight: 7.5, type: 'element', image: 'images/characters/si_c016_00_s.webp' }
+                ]
+            },
+            deck6: {
+                name: '라피 모더', // 리빌드 쿠쿰버 기준으로 weight
+                characters: [
+                    { name: '라피 : 레드 후드', weight: 7, type: 'element', image: 'images/characters/si_c016_00_s.webp' },
+                    { name: '모더니아', weight: 6, type: 'element', image: 'images/characters/si_c260_00_s.webp' }
+                ]
+            },
+            // deck7: { // weight 조정
+            //     name: '라피 앨리스',
+            //     characters: [
+            //         { name: '라피 : 레드 후드', weight: 1, type: 'element', image: 'images/characters/si_c016_00_s.webp' },
+            //         { name: '앨리스', weight: 1, type: 'element', image: 'images/characters/si_c191_00_s.webp' }
+            //     ]
+            // },
+            // deck8: { // weight 조정
+            //     name: '아스카 레이 모더',
+            //     characters: [
+            //         { name: '아스카', weight: 1, type: 'element', image: 'images/characters/si_c830_00_s.webp' },
+            //         { name: '레이', weight: 1, type: 'element', image: 'images/characters/si_c831_00_s.webp' },
+            //         { name: '모더니아', weight: 1, type: 'element', image: 'images/characters/si_c260_00_s.webp' }
+            //     ]
+            // },
+            deck7: { // weight 조정
+                name: '헬름 클루드', // 토커티브 (코어있음) 기준으로 weight
+                characters: [
+                    { name: '헬름', weight: 6.1, type: 'element', image: 'images/characters/si_c352_00_s.webp' },
+                    { name: '루드밀라 : 윈터 오너', weight: 5.4, type: 'element', image: 'images/characters/si_c194_00_s.webp' }
                 ]
             }
         };
