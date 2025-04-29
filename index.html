@@ -493,22 +493,22 @@
                                 {
                                     tr.innerHTML = `<td rowspan="${rowCount}">${index + 1}</td>
                     <td rowspan="${rowCount}">${data.memberName}</td>
-                    <td rowspan="${rowCount}">${data.deckPower}</td>
-                    ${showDamageCol ? `<td rowspan="${rowCount}">${damageValue}</td>` : ""}
+                    <td rowspan="${rowCount}">${data.deckPower.toLocaleString()}</td>
+                    ${showDamageCol ? `<td rowspan="${rowCount}">${damageValue.toLocaleString()}</td>` : ""}
                     <td>
                         <div class="character-container">
                             <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
                             <span class="character-name">${stat.characterName}</span>
                         </div>
                     </td>
-                    <td>${stat.elementPower}</td>
-                    <td>${stat.nonElementPower}</td>
+                    <td>${stat.elementPower.toLocaleString()}</td>
+                    <td>${stat.nonElementPower.toLocaleString()}</td>
                     <td>${stat.elementPlusAtk}</td>
                     <td>${stat.increaseElementDamage}</td>                    
                     <td>${stat.increaseAtk}</td>
                     <td${stat.characterName === "앨리스" && stat.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${stat.increaseChargeSpeed}</td>
                     <td>${stat.increaseMaxAmmunitionCapacity}</td>
-                    <td>${stat.atk}</td>
+                    <td>${stat.atk.toLocaleString()}</td>
                     <td>${stat.skill1}</td>
                     <td>${stat.skill2}</td>
                     <td>${stat.skill3}</td>`;
@@ -521,14 +521,14 @@
                             <span class="character-name">${stat.characterName}</span>
                         </div>
                     </td>
-                    <td>${stat.elementPower}</td>
-                    <td>${stat.nonElementPower}</td>
+                    <td>${stat.elementPower.toLocaleString()}</td>
+                    <td>${stat.nonElementPower.toLocaleString()}</td>
                     <td>${stat.elementPlusAtk}</td>
                     <td>${stat.increaseElementDamage}</td>
                     <td>${stat.increaseAtk}</td>
                     <td${stat.characterName === "앨리스" && stat.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${stat.increaseChargeSpeed}</td>
                     <td>${stat.increaseMaxAmmunitionCapacity}</td>
-                    <td>${stat.atk}</td>
+                    <td>${stat.atk.toLocaleString()}</td>
                     <td>${stat.skill1}</td>
                     <td>${stat.skill2}</td>
                     <td>${stat.skill3}</td>`;
@@ -575,14 +575,14 @@
                 <td>${index + 1}</td>
                 ${showNickname ? `<td>${data.memberName}</td>` : ""}
                 ${showCharacter ? `<td>${data.characterName}</td>` : ""}
-                <td>${data.elementPower}</td>
-                <td>${data.nonElementPower}</td>
+                <td>${data.elementPower.toLocaleString()}</td>
+                <td>${data.nonElementPower.toLocaleString()}</td>
                 <td>${data.elementPlusAtk}</td>
                 <td>${data.increaseElementDamage}</td>
                 <td>${data.increaseAtk}</td>
                 <td${data.characterName === "앨리스" && data.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${data.increaseChargeSpeed}</td>
                 <td>${data.increaseMaxAmmunitionCapacity}</td>
-                <td>${data.atk}</td>
+                <td>${data.atk.toLocaleString()}</td>
                 <td>${data.skill1}</td>
                 <td>${data.skill2}</td>
                 <td>${data.skill3}</td>
