@@ -460,8 +460,8 @@
                                     const chrismasMaiden = deckStats.find(c => c.characterName === "메이든 : 아이스 로즈");
 
                                     const cindeRealElementPower = (cinde.atk * (1 + cinde.increaseAtk / 100) + (sunis.atk * 0.55) + (chrismasMaiden.atk * 0.2)) * (1 + cinde.increaseElementDamage / 100);
-                                    const deckPower = cindeRealElementPower + sunis.elementPower + chrismasMaiden.elementPower
-                                    //const deckPower = deckStats.reduce((sum, curr) => sum + (Math.round((curr.type === "element" ? curr.elementPower : curr.nonElementPower) * curr.weight)), 0);
+                                    const deckPower = 7 * cindeRealElementPower + 4 * sunis.elementPower + 6 * chrismasMaiden.elementPower;
+                                    
                                     deckData.push({
                                         memberName: member.name,
                                         deckPower: deckPower,
