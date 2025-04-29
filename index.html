@@ -113,6 +113,8 @@
             <!-- <option value="deck8">아스카 레이 모더</option> -->
             <option value="deck9">헬름 클루드</option>
         </select>
+        <select id="deckMemberSelect" style="display:none; margin-left:10px;"></select>
+        <input id="deckDamageInput" type="number" placeholder="예상 대미지" style="display:none; width:100px; margin-left:5px;">
     </div>
     <div>
         <!-- 개별 모드용 드롭다운 -->
@@ -260,6 +262,8 @@
                 const selectSort = document.getElementById('sortSelect');
                 const tbody = document.getElementById('statsTable').querySelector('tbody');
                 const tableHeader = document.getElementById('tableHeader');
+                const deckMemberSelect = document.getElementById('deckMemberSelect');
+                const deckDamageInput = document.getElementById('deckDamageInput');
 
                 // 개별 모드용 드롭다운 채우기: 캐릭터, 멤버 목록
                 const characterNamesSet = new Set();
@@ -310,6 +314,16 @@
                     selectMember.appendChild(option);
                 });
 
+                function updateDeckMemberSelect() {
+                    deckMemberSelect.innerHTML = '<option value="">-- 멤버 선택 --</option>';
+                    members.forEach(member => {
+                        const option = document.createElement('option');
+                        option.value = member.name;
+                        option.textContent = `${member.name} (${member.syncroLevel})`;
+                        deckMemberSelect.appendChild(option);
+                    });
+                }
+
                 // 개별 모드 헤더 업데이트 (정렬 기준 컬럼 우측에 ▼ 표시)
                 function updateNormalHeader(sortBy, showNickname, showCharacter) {
                     tableHeader.innerHTML = `<tr>
@@ -343,13 +357,14 @@
                 }
 
                 // 덱 모드용 헤더 업데이트 (단일 행 헤더)
-                function updateDeckHeader() {
+                function updateDeckHeader(showDamageCol = false) {
                     // 헤더: 순위, 닉네임, 덱 파워, 캐릭터, 우코 파워, 비우코 파워, 우코x공증, 우코, 공증, 공격력, 스킬1, 스킬2, 스킬3
                     // 덱 모드에서는 순위, 닉네임, 덱 파워 셀은 병합(여러 행에 걸쳐 보여짐)
                     tableHeader.innerHTML = `<tr>
               <th rowspan="2">순위</th>
               <th rowspan="2">닉네임</th>
               <th rowspan="2">덱 파워 ▼</th>
+              ${showDamageCol ? '<th rowspan="2">예상 대미지</th>' : ''}
               <th>캐릭터</th>
               <th>우코 파워</th>
               <th>비우코 파워</th>
@@ -373,6 +388,15 @@
                     const selectedMember = selectMember.value;
                     const sortBy = selectSort.value;
                     tbody.innerHTML = "";
+
+                    if (deckMode) {
+                        deckMemberSelect.style.display = '';
+                        deckDamageInput.style.display = '';
+                        updateDeckMemberSelect();
+                    } else {
+                        deckMemberSelect.style.display = 'none';
+                        deckDamageInput.style.display = 'none';
+                    }
 
                     if (deckMode) {
                         // 덱 모드: 덱에 정의된 모든 캐릭터를 보유한 멤버만 표시
@@ -419,13 +443,30 @@
                                 });
                             }
                         });
-                        // 덱 모드에서는 덱 파워 기준 내림차순 정렬
                         deckData.sort((a, b) => b.deckPower - a.deckPower);
-                        updateDeckHeader();
-                        // 데이터 행: 각 멤버마다 deck.characters.length 개의 행을 출력하고,
-                        // 첫 행에 순위, 닉네임, 덱 파워 셀은 rowspan으로 병합
+                        
+                        let showDamageCol = false;
+                        let selectedDeckMember = deckMemberSelect.value;
+                        let inputDamage = parseFloat(deckDamageInput.value);
+                        let selectedDeckMemberPower = null;
+                        if (selectedDeckMember && !isNaN(inputDamage) && inputDamage > 0) {
+                            const found = deckData.find(d => d.memberName === selectedDeckMember);
+                            if (found) {
+                                selectedDeckMemberPower = found.deckPower;
+                                showDamageCol = true;
+                            }
+                        }
+
+                        updateDeckHeader(showDamageCol);
+                        
                         deckData.forEach((data, index) => {
                             const rowCount = data.deckStats.length;
+
+                            let damageValue = '';
+                            if (showDamageCol && selectedDeckMemberPower) {
+                                damageValue = Math.round((inputDamage / selectedDeckMemberPower) * data.deckPower);
+                            }
+                            
                             data.deckStats.forEach((stat, i) => {
                                 const tr = document.createElement("tr");
                                 if (i === 0)
@@ -433,9 +474,12 @@
                                     tr.innerHTML = `<td rowspan="${rowCount}">${index + 1}</td>
                     <td rowspan="${rowCount}">${data.memberName}</td>
                     <td rowspan="${rowCount}">${data.deckPower}</td>
+                    ${showDamageCol ? `<td rowspan="${rowCount}">${damageValue}</td>` : ""}
                     <td>
-                        <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
-                        <span class="character-name">${stat.characterName}</span>
+                        <div class="character-container">
+                            <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
+                            <span class="character-name">${stat.characterName}</span>
+                        </div>
                     </td>
                     <td>${stat.elementPower}</td>
                     <td>${stat.nonElementPower}</td>
@@ -452,8 +496,10 @@
                                 else
                                 {
                                     tr.innerHTML = `<td>
-                        <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
-                        <span class="character-name">${stat.characterName}</span>
+                        <div class="character-container">
+                            <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
+                            <span class="character-name">${stat.characterName}</span>
+                        </div>
                     </td>
                     <td>${stat.elementPower}</td>
                     <td>${stat.nonElementPower}</td>
@@ -531,6 +577,8 @@
                 selectCharacter.addEventListener("change", updateTable);
                 selectMember.addEventListener("change", updateTable);
                 selectSort.addEventListener("change", updateTable);
+                deckMemberSelect.addEventListener("change", updateTable);
+                deckDamageInput.addEventListener("input", updateTable);
 
                 // 초기 헤더 설정 (개별 모드 기본)
                 updateNormalHeader(selectSort.value);
