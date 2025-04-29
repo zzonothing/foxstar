@@ -90,6 +90,30 @@
             font-size: 12px;
             margin-top: 4px;
         }
+
+        #deckDamageInput {
+            width: 120px;
+            padding: 8px 12px;
+            margin-left: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: border-color 0.3s;
+            /* 스핀 버튼 숨기기 */
+            -moz-appearance: textfield;
+        }
+        #deckDamageInput:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        /* Chrome, Safari, Edge, Opera에서 스핀 버튼 숨기기 */
+        #deckDamageInput::-webkit-outer-spin-button,
+        #deckDamageInput::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
     </style>
 </head>
 
@@ -315,6 +339,8 @@
                 });
 
                 function updateDeckMemberSelect() {
+                    // 현재 선택된 값 저장
+                    const prevValue = deckMemberSelect.value;
                     deckMemberSelect.innerHTML = '<option value="">-- 멤버 선택 --</option>';
                     members.forEach(member => {
                         const option = document.createElement('option');
@@ -322,6 +348,8 @@
                         option.textContent = `${member.name} (${member.syncroLevel})`;
                         deckMemberSelect.appendChild(option);
                     });
+                    // 이전 선택값 복원
+                    if (prevValue) deckMemberSelect.value = prevValue;
                 }
 
                 // 개별 모드 헤더 업데이트 (정렬 기준 컬럼 우측에 ▼ 표시)
@@ -388,15 +416,7 @@
                     const selectedMember = selectMember.value;
                     const sortBy = selectSort.value;
                     tbody.innerHTML = "";
-
-                    if (deckMode) {
-                        deckMemberSelect.style.display = '';
-                        deckDamageInput.style.display = '';
-                        updateDeckMemberSelect();
-                    } else {
-                        deckMemberSelect.style.display = 'none';
-                        deckDamageInput.style.display = 'none';
-                    }
+                    updateDeckMemberSelect();
 
                     if (deckMode) {
                         // 덱 모드: 덱에 정의된 모든 캐릭터를 보유한 멤버만 표시
