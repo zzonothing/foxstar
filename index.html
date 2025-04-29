@@ -454,13 +454,29 @@
                                 }
                             });
                             if (hasAll && deckStats.length > 0) {
-                                // 덱 파워: 각 캐릭터의 우코 파워 합계
-                                const deckPower = deckStats.reduce((sum, curr) => sum + (Math.round((curr.type === "element" ? curr.elementPower : curr.nonElementPower) * curr.weight)), 0);
-                                deckData.push({
-                                    memberName: member.name,
-                                    deckPower: deckPower,
-                                    deckStats: deckStats
-                                });
+                                if (deck.name === '신데 수니스 클이든') {
+                                    const cinde = deckStats.find(c => c.characterName === "신데렐라");
+                                    const sunis = deckStats.find(c => c.characterName === "아니스 : 스파클링 서머");
+                                    const chrismasMaiden = deckStats.find(c => c.characterName === "메이든 : 아이스 로즈");
+
+                                    const cindeRealElementPower = (cinde.atk * (1 + cinde.increaseAtk / 100) + (sunis.atk * 0.55) + (chrismasMaiden.atk * 0.2)) * (1 + cinde.increaseElementDamage / 100);
+                                    const deckPower = cindeRealElementPower + sunis.elementPower + chrismasMaiden.elementPower
+                                    //const deckPower = deckStats.reduce((sum, curr) => sum + (Math.round((curr.type === "element" ? curr.elementPower : curr.nonElementPower) * curr.weight)), 0);
+                                    deckData.push({
+                                        memberName: member.name,
+                                        deckPower: deckPower,
+                                        deckStats: deckStats
+                                    });
+                                }
+                                else {
+                                    // 덱 파워: 각 캐릭터의 우코 파워 합계
+                                    const deckPower = deckStats.reduce((sum, curr) => sum + (Math.round((curr.type === "element" ? curr.elementPower : curr.nonElementPower) * curr.weight)), 0);
+                                    deckData.push({
+                                        memberName: member.name,
+                                        deckPower: deckPower,
+                                        deckStats: deckStats
+                                    });
+                                }
                             }
                         });
                         deckData.sort((a, b) => b.deckPower - a.deckPower);
