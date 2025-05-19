@@ -328,7 +328,7 @@
                 ];
                 const sortedCharacters = Array.from(characterNamesSet)
                     .sort()
-                    .filter(name => !priorityCharacters.includes(name)); // 우선순위 캐릭터 제외
+                    .filter(name => !priorityCharacters.includes(name.slice(2))); // 우선순위 캐릭터 제외
 
                 // 우선순위 캐릭터를 먼저 추가
                 priorityCharacters.forEach(name => {
