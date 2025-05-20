@@ -330,7 +330,7 @@
                 // 우선순위 캐릭터를 먼저 추가
                 priorityCharacters.forEach(name => {
                     const option = document.createElement('option');
-                    option.value = name.slice(2); // 이모지 제거
+                    option.value = name.slice(3); // 이모지 제거
                     option.innerHTML = name;
                     selectCharacter.appendChild(option);
                 });
