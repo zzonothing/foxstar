@@ -326,10 +326,7 @@
                     "💙 브래디",
                     "💙 퀀시 : 이스케이프 퀸"
                 ];
-                const sortedCharacters = Array.from(characterNamesSet)
-                    .sort()
-                    .filter(name => !priorityCharacters.includes(name.slice(2))); // 우선순위 캐릭터 제외
-
+                
                 // 우선순위 캐릭터를 먼저 추가
                 priorityCharacters.forEach(name => {
                     const option = document.createElement('option');
@@ -337,6 +334,10 @@
                     option.innerHTML = name;
                     selectCharacter.appendChild(option);
                 });
+
+                const sortedCharacters = Array.from(characterNamesSet)
+                    .sort()
+                    .filter(name => !priorityCharacters.includes(name)); // 우선순위 캐릭터 제외
 
                 // 나머지 캐릭터를 이름 순으로 추가
                 sortedCharacters.forEach(name => {
