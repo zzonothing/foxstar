@@ -179,6 +179,7 @@
                 <th>차속</th>
                 <th>장탄</th>
                 <th>공격력</th>
+                <th>소장품</th>
                 <th>스킬1</th>
                 <th>스킬2</th>
                 <th>스킬3</th>
@@ -382,6 +383,7 @@
                         <th>차속</th>
                         <th>장탄</th>
                         <th>공격력</th>
+                        <th>소장품</th>
                         <th>스킬1</th>
                         <th>스킬2</th>
                         <th>스킬3</th>
@@ -418,6 +420,7 @@
               <th>차속</th>
               <th>장탄</th>
               <th>공격력</th>
+              <th>소장품</th>
               <th>스킬1</th>
               <th>스킬2</th>
               <th>스킬3</th>
@@ -541,6 +544,7 @@
                     <td${stat.characterName === "앨리스" && stat.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${stat.increaseChargeSpeed}</td>
                     <td>${stat.increaseMaxAmmunitionCapacity}</td>
                     <td>${stat.atk.toLocaleString()}</td>
+                    <td>${(stat.itemGrade !== undefined && stat.itemLevel !== undefined) ? stat.itemGrade + ' ' + stat.itemLevel : ''}</td>
                     <td>${stat.skill1}</td>
                     <td>${stat.skill2}</td>
                     <td>${stat.skill3}</td>`;
@@ -561,6 +565,7 @@
                     <td${stat.characterName === "앨리스" && stat.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${stat.increaseChargeSpeed}</td>
                     <td>${stat.increaseMaxAmmunitionCapacity}</td>
                     <td>${stat.atk.toLocaleString()}</td>
+                    <td>${(stat.itemGrade !== undefined && stat.itemLevel !== undefined) ? stat.itemGrade + ' ' + stat.itemLevel : ''}</td>
                     <td>${stat.skill1}</td>
                     <td>${stat.skill2}</td>
                     <td>${stat.skill3}</td>`;
