@@ -546,7 +546,7 @@
                     <td${stat.characterName === "앨리스" && stat.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${stat.increaseChargeSpeed}</td>
                     <td>${stat.increaseMaxAmmunitionCapacity}</td>
                     <td>${stat.atk.toLocaleString()}</td>
-                    <td>${(stat.itemGrade !== undefined && stat.itemLevel !== undefined) ? stat.itemGrade + ' ' + stat.itemLevel : ''}</td>
+                    <td>${(stat.itemGrade !== undefined && stat.itemGrade !== '' && stat.itemLevel !== undefined) ? stat.itemGrade + ' ' + stat.itemLevel : ''}</td>
                     <td>${stat.skill1}</td>
                     <td>${stat.skill2}</td>
                     <td>${stat.skill3}</td>`;
@@ -567,7 +567,7 @@
                     <td${stat.characterName === "앨리스" && stat.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${stat.increaseChargeSpeed}</td>
                     <td>${stat.increaseMaxAmmunitionCapacity}</td>
                     <td>${stat.atk.toLocaleString()}</td>
-                    <td>${(stat.itemGrade !== undefined && stat.itemLevel !== undefined) ? stat.itemGrade + ' ' + stat.itemLevel : ''}</td>
+                    <td>${(stat.itemGrade !== undefined && stat.itemGrade !== '' && stat.itemLevel !== undefined) ? stat.itemGrade + ' ' + stat.itemLevel : ''}</td>
                     <td>${stat.skill1}</td>
                     <td>${stat.skill2}</td>
                     <td>${stat.skill3}</td>`;
@@ -624,7 +624,7 @@
                 <td${data.characterName === "앨리스" && data.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${data.increaseChargeSpeed}</td>
                 <td>${data.increaseMaxAmmunitionCapacity}</td>
                 <td>${data.atk.toLocaleString()}</td>
-                <td>${(data.itemGrade !== undefined && data.itemLevel !== undefined) ? data.itemGrade + ' ' + data.itemLevel : ''}</td>
+                <td>${(data.itemGrade !== undefined && data.itemGrade !== '' && data.itemLevel !== undefined) ? data.itemGrade + ' ' + data.itemLevel : ''}</td>
                 <td>${data.skill1}</td>
                 <td>${data.skill2}</td>
                 <td>${data.skill3}</td>
