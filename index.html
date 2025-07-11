@@ -114,6 +114,16 @@
             -webkit-appearance: none;
             margin: 0;
         }
+
+        .item-grade-SSR {
+            color: #FFD700;
+        }
+        .item-grade-SR {
+            color: #A259FF;
+        }
+        .item-grade-R {
+            color: #3498db;
+        }
     </style>
 </head>
 
@@ -546,7 +556,7 @@
                     <td${stat.characterName === "앨리스" && stat.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${stat.increaseChargeSpeed}</td>
                     <td>${stat.increaseMaxAmmunitionCapacity}</td>
                     <td>${stat.atk.toLocaleString()}</td>
-                    <td>${(stat.itemGrade !== undefined && stat.itemGrade !== '' && stat.itemLevel !== undefined) ? stat.itemGrade + ' ' + stat.itemLevel : ''}</td>
+                    <td>${(stat.itemGrade !== undefined && stat.itemGrade !== '' && stat.itemLevel !== undefined) ? `<span class="item-grade-${stat.itemGrade}">${stat.itemGrade} ${stat.itemLevel}</span>` : ''}</td>
                     <td>${stat.skill1}</td>
                     <td>${stat.skill2}</td>
                     <td>${stat.skill3}</td>`;
@@ -567,7 +577,7 @@
                     <td${stat.characterName === "앨리스" && stat.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${stat.increaseChargeSpeed}</td>
                     <td>${stat.increaseMaxAmmunitionCapacity}</td>
                     <td>${stat.atk.toLocaleString()}</td>
-                    <td>${(stat.itemGrade !== undefined && stat.itemGrade !== '' && stat.itemLevel !== undefined) ? stat.itemGrade + ' ' + stat.itemLevel : ''}</td>
+                    <td>${(stat.itemGrade !== undefined && stat.itemGrade !== '' && stat.itemLevel !== undefined) ? `<span class="item-grade-${stat.itemGrade}">${stat.itemGrade} ${stat.itemLevel}</span>` : ''}</td>
                     <td>${stat.skill1}</td>
                     <td>${stat.skill2}</td>
                     <td>${stat.skill3}</td>`;
