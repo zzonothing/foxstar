@@ -563,7 +563,7 @@
                     <td>
                         <div class="character-container">
                             <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
-                            <span class="character-name">${(characterEmojis[stat.characterName] + ' ') || ''}${stat.characterName}</span>
+                            <span class="character-name">${characterEmojis[stat.characterName] ? (characterEmojis[stat.characterName] + ' ') : ''}${stat.characterName}</span>
                         </div>
                     </td>
                     <td>${stat.increaseElementDamage >= 80 ? '🔴' : 
@@ -587,7 +587,7 @@
                                     tr.innerHTML = `<td>
                         <div class="character-container">
                             <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
-                            <span class="character-name">${(characterEmojis[stat.characterName] + ' ') || ''}${stat.characterName}</span>
+                            <span class="character-name">${characterEmojis[stat.characterName] ? (characterEmojis[stat.characterName] + ' ') : ''}${stat.characterName}</span>
                         </div>
                     </td>
                     <td>${stat.increaseElementDamage >= 80 ? '🔴' : 
@@ -652,7 +652,7 @@
                             tr.innerHTML = `
                 <td>${index + 1}</td>
                 ${showNickname ? `<td>${data.memberName}</td>` : ""}
-                ${showCharacter ? `<td>${(characterEmojis[data.characterName] + ' ') || ''}${data.characterName}</td>` : ""}
+                ${showCharacter ? `<td>${characterEmojis[data.characterName] ? (characterEmojis[data.characterName] + ' ') : ''}${data.characterName}</td>` : ""}
                 <td>${data.increaseElementDamage >= 80 ? '🔴' : 
                     data.increaseElementDamage >= 60 ? '🟠' : 
                     data.increaseElementDamage >= 40 ? '🟡' : ''}</td>
