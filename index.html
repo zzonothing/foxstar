@@ -494,9 +494,7 @@
                                         image: deckChar.image,
                                         itemGrade: charData.itemGrade,
                                         itemLevel: charData.itemLevel,
-                                        trainingLevel: charData.increaseElementDamage >= 80 ? 3 : 
-                                            charData.increaseElementDamage >= 60 ? 2 : 
-                                            charData.increaseElementDamage >= 40 ? 1 : 0,
+                                        trainingLevel: charData.increaseElementDamage,
                                     });
                                 } else {
                                     hasAll = false;
@@ -634,9 +632,7 @@
                                     skill3: character.skill3,
                                     itemGrade: character.itemGrade,
                                     itemLevel: character.itemLevel,
-                                    trainingLevel: character.increaseElementDamage >= 80 ? 3 : 
-                                        character.increaseElementDamage >= 60 ? 2 : 
-                                        character.increaseElementDamage >= 40 ? 1 : 0,
+                                    trainingLevel: character.increaseElementDamage,
                                 });
                             });
                         });
