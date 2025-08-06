@@ -473,9 +473,9 @@
                                 const charData = member.characters.find(c => c.name === deckChar.name);
                                 if (charData) {
                                     // 각 캐릭터별 계산
-                                    const elementPower = Math.round(charData.atk * (1 + charData.increaseAtk / 100) * (1 + charData.increaseElementDamage / 100));
-                                    const nonElementPower = Math.round(charData.atk * (1 + charData.increaseAtk / 100));
-                                    const elementPlusAtk = Math.round(((1 + charData.increaseAtk / 100) * (1 + charData.increaseElementDamage / 100) - 1) * 10000) / 100;
+                                    const elementPower = Math.round(charData.atk * (1 + charData.increaseAtk / 200) * (1 + charData.increaseElementDamage / 100));
+                                    const nonElementPower = Math.round(charData.atk * (1 + charData.increaseAtk / 200));
+                                    const elementPlusAtk = Math.round(((1 + charData.increaseAtk / 200) * (1 + charData.increaseElementDamage / 100) - 1) * 10000) / 100;
                                     deckStats.push({
                                         characterName: deckChar.name,
                                         elementPower: elementPower,
@@ -494,7 +494,7 @@
                                         image: deckChar.image,
                                         itemGrade: charData.itemGrade,
                                         itemLevel: charData.itemLevel,
-                                        trainingLevel: charData.increaseElementDamage,
+                                        trainingLevel: elementPlusAtk,
                                     });
                                 } else {
                                     hasAll = false;
@@ -616,12 +616,13 @@
                                     (selectedMember && member.name !== selectedMember)) {
                                     return;
                                 }
+                                const elementPlusAtk = Math.round(((1 + character.increaseAtk / 200) * (1 + character.increaseElementDamage / 100) - 1) * 10000) / 100;
                                 selectedData.push({
                                     memberName: member.name,
                                     characterName: character.name,
-                                    elementPower: Math.round(character.atk * (1 + character.increaseAtk / 100) * (1 + character.increaseElementDamage / 100)),
-                                    nonElementPower: Math.round(character.atk * (1 + character.increaseAtk / 100)),
-                                    elementPlusAtk: Math.round(((1 + character.increaseAtk / 100) * (1 + character.increaseElementDamage / 100) - 1) * 10000) / 100,
+                                    elementPower: Math.round(character.atk * (1 + character.increaseAtk / 200) * (1 + character.increaseElementDamage / 100)),
+                                    nonElementPower: Math.round(character.atk * (1 + character.increaseAtk / 200)),
+                                    elementPlusAtk: Math.round(((1 + character.increaseAtk / 200) * (1 + character.increaseElementDamage / 100) - 1) * 10000) / 100,
                                     increaseElementDamage: character.increaseElementDamage,
                                     increaseAtk: character.increaseAtk,
                                     increaseChargeSpeed: character.increaseChargeSpeed,
@@ -632,7 +633,7 @@
                                     skill3: character.skill3,
                                     itemGrade: character.itemGrade,
                                     itemLevel: character.itemLevel,
-                                    trainingLevel: character.increaseElementDamage,
+                                    trainingLevel: elementPlusAtk,
                                 });
                             });
                         });
