@@ -165,6 +165,7 @@
         <!-- 정렬 기준 (개별 모드에 적용, 덱 모드에서는 덱 파워 기준 정렬) -->
         <label for="sortSelect">정렬 기준: </label>
         <select id="sortSelect">
+            <option value="trainingLevel">육성</option>            
             <option value="elementPower">우코 파워</option>
             <option value="nonElementPower">비우코 파워</option>
             <option value="elementPlusAtk">우코x공증</option>
@@ -389,6 +390,7 @@
                         <th>순위</th>
                         ${showNickname ? `<th class="nickname-col">닉네임</th>` : ""}
                         ${showCharacter ? `<th class="character-col">캐릭터</th>` : ""}
+                        <th>육성</th>
                         <th>우코 파워</th>
                         <th>비우코 파워</th>
                         <th>우코x공증</th>
@@ -407,7 +409,8 @@
                         "nonElementPower": "비우코 파워",
                         "elementPlusAtk": "우코x공증",
                         "increaseElementDamage": "우코",
-                        "increaseAtk": "공증"
+                        "increaseAtk": "공증",
+                        "trainingLevel": "육성"
                     };
                     tableHeader.querySelectorAll("th").forEach(th => {
                         if (th.textContent === headers[sortBy]) {
@@ -426,6 +429,7 @@
               <th rowspan="2">덱 파워 ▼</th>
               ${showDamageCol ? '<th rowspan="2">예상 대미지</th>' : ''}
               <th>캐릭터</th>
+              <th>육성</th>
               <th>우코 파워</th>
               <th>비우코 파워</th>
               <th>우코x공증</th>
@@ -482,7 +486,10 @@
                                         type: deckChar.type,
                                         image: deckChar.image,
                                         itemGrade: charData.itemGrade,
-                                        itemLevel: charData.itemLevel
+                                        itemLevel: charData.itemLevel,
+                                        trainingLevel: charData.increaseElementDamage >= 80 ? 3 : 
+                                            charData.increaseElementDamage >= 60 ? 2 : 
+                                            charData.increaseElementDamage >= 40 ? 1 : 0,
                                     });
                                 } else {
                                     hasAll = false;
@@ -552,6 +559,9 @@
                             <span class="character-name">${stat.characterName}</span>
                         </div>
                     </td>
+                    <td>${stat.increaseElementDamage >= 80 ? '🔴' : 
+                        stat.increaseElementDamage >= 60 ? '🟠' : 
+                        stat.increaseElementDamage >= 40 ? '🟡' : ''}</td>
                     <td>${stat.elementPower.toLocaleString()}</td>
                     <td>${stat.nonElementPower.toLocaleString()}</td>
                     <td>${stat.elementPlusAtk}</td>
@@ -573,6 +583,9 @@
                             <span class="character-name">${stat.characterName}</span>
                         </div>
                     </td>
+                    <td>${stat.increaseElementDamage >= 80 ? '🔴' : 
+                        stat.increaseElementDamage >= 60 ? '🟠' : 
+                        stat.increaseElementDamage >= 40 ? '🟡' : ''}</td>
                     <td>${stat.elementPower.toLocaleString()}</td>
                     <td>${stat.nonElementPower.toLocaleString()}</td>
                     <td>${stat.elementPlusAtk}</td>
@@ -613,7 +626,10 @@
                                     skill2: character.skill2,
                                     skill3: character.skill3,
                                     itemGrade: character.itemGrade,
-                                    itemLevel: character.itemLevel
+                                    itemLevel: character.itemLevel,
+                                    trainingLevel: character.increaseElementDamage >= 80 ? 3 : 
+                                        character.increaseElementDamage >= 60 ? 2 : 
+                                        character.increaseElementDamage >= 40 ? 1 : 0,
                                 });
                             });
                         });
@@ -630,6 +646,9 @@
                 <td>${index + 1}</td>
                 ${showNickname ? `<td>${data.memberName}</td>` : ""}
                 ${showCharacter ? `<td>${data.characterName}</td>` : ""}
+                <td>${data.increaseElementDamage >= 80 ? '🔴' : 
+                    data.increaseElementDamage >= 60 ? '🟠' : 
+                    data.increaseElementDamage >= 40 ? '🟡' : ''}</td>
                 <td>${data.elementPower.toLocaleString()}</td>
                 <td>${data.nonElementPower.toLocaleString()}</td>
                 <td>${data.elementPlusAtk}</td>
