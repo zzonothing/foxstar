@@ -564,9 +564,9 @@
                             <span class="character-name">${characterEmojis[stat.characterName] ? (characterEmojis[stat.characterName] + ' ') : ''}${stat.characterName}</span>
                         </div>
                     </td>
-                    <td>${stat.increaseElementDamage >= 80 ? '🔴' : 
-                        stat.increaseElementDamage >= 60 ? '🟠' : 
-                        stat.increaseElementDamage >= 40 ? '🟡' : ''}</td>
+                    <td>${stat.trainingLevel >= 80 ? '🔴' : 
+                        stat.trainingLevel >= 60 ? '🟠' : 
+                        stat.trainingLevel >= 40 ? '🟡' : ''}</td>
                     <td>${stat.elementPower.toLocaleString()}</td>
                     <td>${stat.nonElementPower.toLocaleString()}</td>
                     <td>${stat.elementPlusAtk}</td>
@@ -588,9 +588,9 @@
                             <span class="character-name">${characterEmojis[stat.characterName] ? (characterEmojis[stat.characterName] + ' ') : ''}${stat.characterName}</span>
                         </div>
                     </td>
-                    <td>${stat.increaseElementDamage >= 80 ? '🔴' : 
-                        stat.increaseElementDamage >= 60 ? '🟠' : 
-                        stat.increaseElementDamage >= 40 ? '🟡' : ''}</td>
+                    <td>${stat.trainingLevel >= 80 ? '🔴' : 
+                        stat.trainingLevel >= 60 ? '🟠' : 
+                        stat.trainingLevel >= 40 ? '🟡' : ''}</td>
                     <td>${stat.elementPower.toLocaleString()}</td>
                     <td>${stat.nonElementPower.toLocaleString()}</td>
                     <td>${stat.elementPlusAtk}</td>
@@ -650,9 +650,9 @@
                 <td>${index + 1}</td>
                 ${showNickname ? `<td>${data.memberName}</td>` : ""}
                 ${showCharacter ? `<td>${characterEmojis[data.characterName] ? (characterEmojis[data.characterName] + ' ') : ''}${data.characterName}</td>` : ""}
-                <td>${data.increaseElementDamage >= 80 ? '🔴' : 
-                    data.increaseElementDamage >= 60 ? '🟠' : 
-                    data.increaseElementDamage >= 40 ? '🟡' : ''}</td>
+                <td>${data.trainingLevel >= 80 ? '🔴' : 
+                    data.trainingLevel >= 60 ? '🟠' : 
+                    data.trainingLevel >= 40 ? '🟡' : ''}</td>
                 <td>${data.elementPower.toLocaleString()}</td>
                 <td>${data.nonElementPower.toLocaleString()}</td>
                 <td>${data.elementPlusAtk}</td>
