@@ -342,6 +342,13 @@
                     "💙 퀀시 : 이스케이프 퀸",
                     "💙 브래디",
                 ];
+
+                const characterEmojis = {};
+                    priorityCharacters.forEach(char => {
+                        const emoji = char.slice(0, 2); 
+                        const name = char.slice(3);
+                        characterEmojis[name] = emoji;
+                    });
                 
                 // 우선순위 캐릭터를 먼저 추가
                 priorityCharacters.forEach(name => {
@@ -556,7 +563,7 @@
                     <td>
                         <div class="character-container">
                             <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
-                            <span class="character-name">${stat.characterName}</span>
+                            <span class="character-name">${characterEmojis[stat.characterName] || ''}${stat.characterName}</span>
                         </div>
                     </td>
                     <td>${stat.increaseElementDamage >= 80 ? '🔴' : 
@@ -580,7 +587,7 @@
                                     tr.innerHTML = `<td>
                         <div class="character-container">
                             <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
-                            <span class="character-name">${stat.characterName}</span>
+                            <span class="character-name">${characterEmojis[stat.characterName] || ''}${stat.characterName}</span>
                         </div>
                     </td>
                     <td>${stat.increaseElementDamage >= 80 ? '🔴' : 
@@ -645,7 +652,7 @@
                             tr.innerHTML = `
                 <td>${index + 1}</td>
                 ${showNickname ? `<td>${data.memberName}</td>` : ""}
-                ${showCharacter ? `<td>${data.characterName}</td>` : ""}
+                ${showCharacter ? `<td>${characterEmojis[data.characterName] || ''}${data.characterName}</td>` : ""}
                 <td>${data.increaseElementDamage >= 80 ? '🔴' : 
                     data.increaseElementDamage >= 60 ? '🟠' : 
                     data.increaseElementDamage >= 40 ? '🟡' : ''}</td>
