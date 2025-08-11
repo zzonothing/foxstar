@@ -498,7 +498,7 @@
                                 }
                                 else {
                                     // 덱 파워: 각 캐릭터의 우코 파워 합계
-                                    const deckPower = deckStats.reduce((sum, curr) => sum + (Math.round((curr.type === "element" ? curr.elementPower : curr.nonElementPower) * curr.weight)), 0);
+                                    const deckPower = deckStats.reduce((sum, curr) => sum + curr.elementPlusAtk, 0);
                                     deckData.push({
                                         memberName: member.name,
                                         deckPower: deckPower,
