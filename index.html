@@ -220,23 +220,55 @@
             const headerRow = [];
             const headers = table.querySelectorAll('th');
             headers.forEach(header => {
-                // ▼ 기호 제거 및 텍스트 정리
-                let headerText = header.textContent.replace(' ▼', '').trim();
-                headerRow.push(`"${headerText}"`);
+                // rowspan이 있는 헤더는 한 번만 추가
+                if (!header.hasAttribute('rowspan')) {
+                    let headerText = header.textContent.replace(' ▼', '').trim();
+                    headerRow.push(`"${headerText}"`);
+                }
             });
             csv.push(headerRow.join(','));
             
             // 데이터 추출
             const rows = table.querySelectorAll('tbody tr');
+            let currentMemberData = null;
+            
             rows.forEach(row => {
                 const rowData = [];
                 const cells = row.querySelectorAll('td');
+                
+                // 첫 번째 TD가 rowspan을 가진 경우 (새로운 멤버의 시작)
+                if (cells[0].hasAttribute('rowspan')) {
+                    currentMemberData = {
+                        rank: cells[0].textContent.trim(),
+                        memberName: cells[1].textContent.trim(),
+                        deckPower: cells[2].textContent.trim()
+                    };
+                    
+                    // 예상 대미지 컬럼이 있는 경우
+                    if (cells[3].hasAttribute('rowspan')) {
+                        currentMemberData.expectedDamage = cells[3].textContent.trim();
+                        cells = Array.from(cells).slice(4); // 예상 대미지 이후 셀부터 처리
+                    } else {
+                        cells = Array.from(cells).slice(3); // 덱파워 이후 셀부터 처리
+                    }
+                }
+                
+                // 현재 멤버 데이터 추가
+                if (currentMemberData) {
+                    rowData.push(`"${currentMemberData.rank}"`);
+                    rowData.push(`"${currentMemberData.memberName}"`);
+                    rowData.push(`"${currentMemberData.deckPower}"`);
+                    if (currentMemberData.expectedDamage !== undefined) {
+                        rowData.push(`"${currentMemberData.expectedDamage}"`);
+                    }
+                }
+                
+                // 나머지 셀 데이터 추가
                 cells.forEach(cell => {
-                    // 이모지와 텍스트 모두 포함
                     let cellText = cell.textContent.trim();
-                    // 쉼표가 있을 수 있으므로 큰따옴표로 감싸기
                     rowData.push(`"${cellText}"`);
                 });
+                
                 csv.push(rowData.join(','));
             });
             
@@ -246,10 +278,12 @@
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
             
-            // 현재 날짜를 파일명에 포함
+            // 현재 날짜와 시즌, 속성을 파일명에 포함
             const date = new Date().toISOString().slice(0, 10);
             const season = document.getElementById('seasonSelect').value;
-            const filename = `스탯테이블_시즌${season}_${date}.csv`;
+            const deck = document.getElementById('deckSelect').value;
+            const deckName = deck ? decks[deck].name.split(' ')[1] : '전체';
+            const filename = `스탯테이블_시즌${season}_${deckName}_${date}.csv`;
             
             link.setAttribute('href', url);
             link.setAttribute('download', filename);
