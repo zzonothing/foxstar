@@ -124,6 +124,22 @@
         .item-grade-R {
             color: #3498db;
         }
+
+        /* 버튼 스타일 추가 */
+        .export-button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .export-button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 
@@ -166,6 +182,7 @@
             <option value="increaseElementDamage">우코</option>
             <option value="increaseAtk">공증</option>
         </select>
+        <button id="exportButton" class="export-button">Excel</button>
     </div>
 
     <!-- 스탯 출력 테이블 -->
@@ -195,6 +212,56 @@
     </table>
 
     <script>
+        function exportTableToCSV() {
+            const table = document.getElementById('statsTable');
+            let csv = [];
+            
+            // 헤더 추출
+            const headerRow = [];
+            const headers = table.querySelectorAll('th');
+            headers.forEach(header => {
+                // ▼ 기호 제거 및 텍스트 정리
+                let headerText = header.textContent.replace(' ▼', '').trim();
+                headerRow.push(`"${headerText}"`);
+            });
+            csv.push(headerRow.join(','));
+            
+            // 데이터 추출
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const rowData = [];
+                const cells = row.querySelectorAll('td');
+                cells.forEach(cell => {
+                    // 이모지와 텍스트 모두 포함
+                    let cellText = cell.textContent.trim();
+                    // 쉼표가 있을 수 있으므로 큰따옴표로 감싸기
+                    rowData.push(`"${cellText}"`);
+                });
+                csv.push(rowData.join(','));
+            });
+            
+            // CSV 파일 생성 및 다운로드
+            const csvContent = csv.join('\n');
+            const blob = new Blob(["\ufeff" + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            // 현재 날짜를 파일명에 포함
+            const date = new Date().toISOString().slice(0, 10);
+            const season = document.getElementById('seasonSelect').value;
+            const filename = `스탯테이블_시즌${season}_${date}.csv`;
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // 이벤트 리스너 등록
+        document.getElementById('exportButton').addEventListener('click', exportTableToCSV);
+
         // 덱 구성 정보를 미리 정의 (추후 덱이 추가될 때 유연하게 적용)
         const decks = {
             deck1: {
