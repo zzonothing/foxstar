@@ -234,7 +234,7 @@
             
             rows.forEach(row => {
                 const rowData = [];
-                const cells = row.querySelectorAll('td');
+                let cells = row.querySelectorAll('td');
                 
                 // 첫 번째 TD가 rowspan을 가진 경우 (새로운 멤버의 시작)
                 if (cells[0].hasAttribute('rowspan')) {
