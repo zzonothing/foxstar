@@ -409,12 +409,10 @@
 
                 // 덱 모드용 헤더 업데이트 (단일 행 헤더)
                 function updateDeckHeader(showDamageCol = false) {
-                    // 헤더: 순위, 닉네임, 덱 파워, 캐릭터, 우코 파워, 비우코 파워, 우코x공증, 우코, 공증, 공격력, 스킬1, 스킬2, 스킬3
-                    // 덱 모드에서는 순위, 닉네임, 덱 파워 셀은 병합(여러 행에 걸쳐 보여짐)
                     tableHeader.innerHTML = `<tr>
               <th rowspan="2">순위</th>
               <th rowspan="2">닉네임</th>
-              <th rowspan="2">덱 파워 ▼</th>
+              <th rowspan="2">덱파워 ▼</th>
               ${showDamageCol ? '<th rowspan="2">예상 대미지</th>' : ''}
               <th>캐릭터</th>
               <th>육성</th>
@@ -497,7 +495,6 @@
                                     });
                                 }
                                 else {
-                                    // 덱 파워: 각 캐릭터의 우코 파워 합계
                                     const deckPower = deckStats.reduce((sum, curr) => sum + curr.elementPlusAtk, 0);
                                     deckData.push({
                                         memberName: member.name,
