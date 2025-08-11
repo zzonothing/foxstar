@@ -216,16 +216,36 @@
             const table = document.getElementById('statsTable');
             let csv = [];
             
-            // 헤더 추출
+            // 헤더 추출 수정
             const headerRow = [];
             const headers = table.querySelectorAll('th');
-            headers.forEach(header => {
-                // rowspan이 있는 헤더는 한 번만 추가
-                if (!header.hasAttribute('rowspan')) {
+            const deckMode = document.getElementById('deckSelect').value !== "";
+            
+            if (deckMode) {
+                // 덱 모드일 때 헤더 처리
+                headerRow.push('"순위"', '"닉네임"', '"덱파워"');
+                
+                // 예상 대미지 컬럼이 있는 경우
+                if (document.getElementById('deckMemberSelect').value && 
+                    !isNaN(parseFloat(document.getElementById('deckDamageInput').value))) {
+                    headerRow.push('"예상 대미지"');
+                }
+                
+                // 나머지 컬럼 헤더 추가
+                headers.forEach(header => {
+                    if (!header.hasAttribute('rowspan')) {
+                        let headerText = header.textContent.replace(' ▼', '').trim();
+                        headerRow.push(`"${headerText}"`);
+                    }
+                });
+            } else {
+                // 개별 모드일 때는 기존 방식 유지
+                headers.forEach(header => {
                     let headerText = header.textContent.replace(' ▼', '').trim();
                     headerRow.push(`"${headerText}"`);
-                }
-            });
+                });
+            }
+            
             csv.push(headerRow.join(','));
             
             // 데이터 추출
