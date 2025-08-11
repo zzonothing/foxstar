@@ -565,7 +565,7 @@
                     <td>
                         <div class="character-container">
                             <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
-                            <span class="character-name">${stat.element ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</span>
+                            <span class="character-name">${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</span>
                         </div>
                     </td>
                     <td>${stat.trainingLevel >= 80 ? '🔴' : 
@@ -589,7 +589,7 @@
                                     tr.innerHTML = `<td>
                         <div class="character-container">
                             <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
-                            <span class="character-name">${characterEmojis[stat.characterName] ? (characterEmojis[stat.characterName] + ' ') : ''}${stat.characterName}</span>
+                            <span class="character-name">${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</span>
                         </div>
                     </td>
                     <td>${stat.trainingLevel >= 80 ? '🔴' : 
