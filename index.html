@@ -176,6 +176,7 @@
                 <th>순위</th>
                 <th class="nickname-col">닉네임</th>
                 <th class="character-col">캐릭터</th>
+                <th>돌파</th>
                 <th>우코x공증</th>
                 <th>우코</th>
                 <th>공증</th>
@@ -374,6 +375,7 @@
                         <th>순위</th>
                         ${showNickname ? `<th class="nickname-col">닉네임</th>` : ""}
                         ${showCharacter ? `<th class="character-col">캐릭터</th>` : ""}
+                        <th>돌파</th>
                         <th>육성</th>
                         <th>우코x공증</th>
                         <th>우코</th>
@@ -407,6 +409,7 @@
               <th rowspan="2">덱파워 ▼</th>
               ${showDamageCol ? '<th rowspan="2">예상 대미지</th>' : ''}
               <th>캐릭터</th>
+              <th>돌파</th>
               <th>육성</th>
               <th>우코x공증</th>
               <th>우코</th>
@@ -529,7 +532,8 @@
                     <td rowspan="${rowCount}">${data.memberName} (${data.syncroLevel})</td>
                     <td rowspan="${rowCount}">${data.deckPower.toLocaleString()}</td>
                     ${showDamageCol ? `<td rowspan="${rowCount}">${damageValue.toLocaleString()}</td>` : ""}
-                    <td>${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName} [${data.upgrade}]</td>
+                    <td>${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</td>
+                    <td>${stat.upgrade}</td>
                     <td>${stat.trainingLevel >= 80 ? '🔴' : 
                         stat.trainingLevel >= 60 ? '🟠' : 
                         stat.trainingLevel >= 40 ? '🟡' : ''}</td>                    
@@ -546,7 +550,8 @@
                                 }
                                 else
                                 {
-                                    tr.innerHTML = `<td>${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName} [${data.upgrade}]</td>
+                                    tr.innerHTML = `<td>${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</td>
+                    <td>${stat.upgrade}</td>                                    
                     <td>${stat.trainingLevel >= 80 ? '🔴' : 
                         stat.trainingLevel >= 60 ? '🟠' : 
                         stat.trainingLevel >= 40 ? '🟡' : ''}</td>
@@ -609,7 +614,8 @@
                             tr.innerHTML = `
                 <td>${index + 1}</td>
                 ${showNickname ? `<td>${data.memberName} (${data.syncroLevel})</td>` : ""}
-                ${showCharacter ? `<td>${data.element ? (elementEmojis[data.element] + ' ') : ''} ${data.characterName} [${data.upgrade}]</td>` : ""}
+                ${showCharacter ? `<td>${data.element ? (elementEmojis[data.element] + ' ') : ''} ${data.characterName}</td>` : ""}
+                <td>${data.upgrade}</td>
                 <td>${data.trainingLevel >= 80 ? '🔴' : 
                     data.trainingLevel >= 60 ? '🟠' : 
                     data.trainingLevel >= 40 ? '🟡' : ''}</td>
