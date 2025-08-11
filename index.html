@@ -334,6 +334,7 @@
                     "💛 레드 후드",
                     "💛 이브",
                     "💛 레이븐",
+                    "💛 스노우 화이트",
                     // 수냉
                     "💙 도로시 : 세렌디피티", 
                     "💙 헬름", 
@@ -343,12 +344,14 @@
                     "💙 브래디",
                 ];
 
-                const characterEmojis = {};
-                    priorityCharacters.forEach(char => {
-                        const emoji = char.slice(0, 2); 
-                        const name = char.slice(3);
-                        characterEmojis[name] = emoji;
-                    });
+                // priorityCharacters 배열 위에 element 매핑 추가
+                const elementEmojis = {
+                    "전격": "🟪",
+                    "철갑": "🟨",
+                    "작열": "🟥", 
+                    "수냉": "🟦",
+                    "풍압": "🟩"
+                };
                 
                 // 우선순위 캐릭터를 먼저 추가
                 priorityCharacters.forEach(name => {
@@ -495,6 +498,7 @@
                                         itemGrade: charData.itemGrade,
                                         itemLevel: charData.itemLevel,
                                         trainingLevel: elementPlusAtk,
+                                        element: charData.element,
                                     });
                                 } else {
                                     hasAll = false;
@@ -561,7 +565,7 @@
                     <td>
                         <div class="character-container">
                             <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
-                            <span class="character-name">${characterEmojis[stat.characterName] ? (characterEmojis[stat.characterName] + ' ') : ''}${stat.characterName}</span>
+                            <span class="character-name">${stat.element ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</span>
                         </div>
                     </td>
                     <td>${stat.trainingLevel >= 80 ? '🔴' : 
@@ -634,6 +638,7 @@
                                     itemGrade: character.itemGrade,
                                     itemLevel: character.itemLevel,
                                     trainingLevel: elementPlusAtk,
+                                    element: character.element,
                                 });
                             });
                         });
@@ -649,7 +654,7 @@
                             tr.innerHTML = `
                 <td>${index + 1}</td>
                 ${showNickname ? `<td>${data.memberName}</td>` : ""}
-                ${showCharacter ? `<td>${characterEmojis[data.characterName] ? (characterEmojis[data.characterName] + ' ') : ''}${data.characterName}</td>` : ""}
+                ${showCharacter ? `<td>${data.element ? (elementEmojis[data.element] + ' ') : ''} ${data.characterName}</td>` : ""}
                 <td>${data.trainingLevel >= 80 ? '🔴' : 
                     data.trainingLevel >= 60 ? '🟠' : 
                     data.trainingLevel >= 40 ? '🟡' : ''}</td>
