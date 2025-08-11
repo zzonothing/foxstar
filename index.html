@@ -162,8 +162,7 @@
         <label for="sortSelect">정렬 기준: </label>
         <select id="sortSelect">
             <option value="trainingLevel">육성</option>            
-            <option value="elementPower">우코 파워</option>
-            <option value="nonElementPower">비우코 파워</option>
+            <option value="elementPower">우코 파워</option>            
             <option value="elementPlusAtk">우코x공증</option>
             <option value="increaseElementDamage">우코</option>
             <option value="increaseAtk">공증</option>
@@ -178,8 +177,7 @@
                 <th>순위</th>
                 <th class="nickname-col">닉네임</th>
                 <th class="character-col">캐릭터</th>
-                <th>우코 파워</th>
-                <th>비우코 파워</th>
+                <th>우코 파워</th>                
                 <th>우코x공증</th>
                 <th>우코</th>
                 <th>공증</th>
@@ -379,8 +377,7 @@
                         ${showNickname ? `<th class="nickname-col">닉네임</th>` : ""}
                         ${showCharacter ? `<th class="character-col">캐릭터</th>` : ""}
                         <th>육성</th>
-                        <th>우코 파워</th>
-                        <th>비우코 파워</th>
+                        <th>우코 파워</th>                        
                         <th>우코x공증</th>
                         <th>우코</th>
                         <th>공증</th>
@@ -393,8 +390,7 @@
                         <th>스킬3</th>
                         </tr>`;
                     const headers = {
-                        "elementPower": "우코 파워",
-                        "nonElementPower": "비우코 파워",
+                        "elementPower": "우코 파워",                        
                         "elementPlusAtk": "우코x공증",
                         "increaseElementDamage": "우코",
                         "increaseAtk": "공증",
@@ -416,8 +412,7 @@
               ${showDamageCol ? '<th rowspan="2">예상 대미지</th>' : ''}
               <th>캐릭터</th>
               <th>육성</th>
-              <th>우코 파워</th>
-              <th>비우코 파워</th>
+              <th>우코 파워</th>              
               <th>우코x공증</th>
               <th>우코</th>
               <th>공증</th>
