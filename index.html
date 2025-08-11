@@ -134,18 +134,14 @@
     </div>
     <div>
         <!-- 덱 선택: 덱 모드 전환 (옵션 텍스트는 '신수클') -->
-        <label for="deckSelect">덱 선택: </label>
+        <label for="deckSelect">속성 선택: </label>
         <select id="deckSelect">
-            <option value="">-- 덱 선택 --</option>
-            <option value="deck1">신데 수니스 클이든</option>
-            <option value="deck2">흑영 앨리스 (풍압)</option>
-            <option value="deck3">흑영 풍스카</option>
-            <option value="deck4">레후 맥스웰</option>
-            <option value="deck5">레후 라피</option>
-            <option value="deck6">라피 모더</option>
-            <!-- <option value="deck7">라피 앨리스</option> -->
-            <!-- <option value="deck8">아스카 레이 모더</option> -->
-            <option value="deck9">헬름 클루드</option>
+            <option value="">-- 속성 선택 --</option>
+            <option value="deck1">🟪 전격</option>
+            <option value="deck2">🟨 철갑</option>
+            <option value="deck3">🟥 작열</option>
+            <option value="deck4">🟦 수냉</option>
+            <option value="deck6">🟩 풍압</option>
         </select>
         <select id="deckMemberSelect" style="margin-left:10px;"></select>
         <input id="deckDamageInput" type="number" placeholder="예상 대미지" style="width:100px; margin-left:5px;">
@@ -205,69 +201,50 @@
         // 덱 구성 정보를 미리 정의 (추후 덱이 추가될 때 유연하게 적용)
         const decks = {
             deck1: {
-                name: '신데 수니스 클이든',
+                name: '🟪 전격',
                 characters: [
-                    { name: '신데렐라', weight: 14.4, type: 'element', image: 'images/characters/si_c511_00_s.webp' },
-                    { name: '아니스 : 스파클링 서머', weight: 4.4, type: 'element', image: 'images/characters/si_c015_00_s.webp' },
-                    { name: '메이든 : 아이스 로즈', weight: 6.2, type: 'element', image: 'images/characters/si_c183_00_s.webp' }
+                    { weight: 1, type: 'element', name: '신데렐라' },
+                    { weight: 1, type: 'element', name: '아니스 : 스파클링 서머' },
+                    { weight: 1, type: 'element', name: '메이든 : 아이스 로즈' }
                 ]
             },
             deck2: {
-                name: '흑영 앨리스 (풍압)',
+                name: '🟨 철갑',
                 characters: [
-                    { name: '홍련 : 흑영', weight: 9.5, type: 'element', image: 'images/characters/si_c225_00_s.webp' },
-                    { name: '앨리스', weight: 5.2, type: 'nonElement', image: 'images/characters/si_c191_00_s.webp' }
+                    { weight: 1, type: 'element', name: '라피 : 레드 후드' },
+                    { weight: 1, type: 'element', name: '레드 후드' },
+                    { weight: 1, type: 'element', name: '이브' },
+                    { weight: 1, type: 'element', name: '레이븐' },
+                    { weight: 1, type: 'element', name: '스노우 화이트' }
                 ]
             },
             deck3: { 
-                name: '흑영 풍스카', //'세이렌 흑영 풍스카',
+                name: '🟥 작열',
                 characters: [
-                    //{ name: '리틀 머메이드', weight: 1, type: 'element', image: 'images/characters/si_c513_00_s.webp' },
-                    { name: '홍련 : 흑영', weight: 7, type: 'element', image: 'images/characters/si_c225_00_s.webp' },
-                    { name: '아스카 : WILLE', weight: 8.2, type: 'element', image: 'images/characters/si_c835_00_s.webp' }
-                ]
-            },
-            deck4: {
-                name: '레후 맥스웰',
-                characters: [
-                    { name: '레드 후드', weight: 6.8, type: 'element', image: 'images/characters/si_c470_00_s.webp' },
-                    { name: '맥스웰', weight: 2.7, type: 'element', image: 'images/characters/si_c102_00_s.webp' }
+                    { weight: 1, type: 'element', name: '라피 : 레드 후드'  },
+                    { weight: 1, type: 'element', name: '미하라 : 본딩 체인' },
+                    { weight: 1, type: 'element', name: '앨리스' },
+                    { weight: 1, type: 'element', name: '레이' },
+                    { weight: 1, type: 'element', name: '모더니아' },
                 ]
             },
             deck5: {
-                name: '레후 라피', // 관통 2타 박히는 스톰브링어인 경우에 weight 5.8, 7.5 였음
+                name: '🟦 수냉',
                 characters: [
-                    { name: '레드 후드', weight: 5.8, type: 'element', image: 'images/characters/si_c470_00_s.webp' },
-                    { name: '라피 : 레드 후드', weight: 7.5, type: 'element', image: 'images/characters/si_c016_00_s.webp' }
+                    { weight: 1, type: 'element', name: '도로시 : 세렌디피티' },
+                    { weight: 1, type: 'element', name: '헬름' },
+                    { weight: 1, type: 'element', name: '루드밀라 : 윈터 오너' },
+                    { weight: 1, type: 'element', name: '퀀시 : 이스케이프 퀸' },
+                    { weight: 1, type: 'element', name: '브래디' },
+                    { weight: 1, type: 'element', name: '일레그 : 붐 앤 쇼크' },
                 ]
             },
             deck6: {
-                name: '라피 모더', // 리빌드 쿠쿰버 기준으로 weight
+                name: '🟩 풍압',
                 characters: [
-                    { name: '라피 : 레드 후드', weight: 7, type: 'element', image: 'images/characters/si_c016_00_s.webp' },
-                    { name: '모더니아', weight: 6, type: 'element', image: 'images/characters/si_c260_00_s.webp' }
-                ]
-            },
-            // deck7: { // weight 조정
-            //     name: '라피 앨리스',
-            //     characters: [
-            //         { name: '라피 : 레드 후드', weight: 1, type: 'element', image: 'images/characters/si_c016_00_s.webp' },
-            //         { name: '앨리스', weight: 1, type: 'element', image: 'images/characters/si_c191_00_s.webp' }
-            //     ]
-            // },
-            // deck8: { // weight 조정
-            //     name: '아스카 레이 모더',
-            //     characters: [
-            //         { name: '아스카', weight: 1, type: 'element', image: 'images/characters/si_c830_00_s.webp' },
-            //         { name: '레이', weight: 1, type: 'element', image: 'images/characters/si_c831_00_s.webp' },
-            //         { name: '모더니아', weight: 1, type: 'element', image: 'images/characters/si_c260_00_s.webp' }
-            //     ]
-            // },
-            deck9: { // weight 조정
-                name: '헬름 클루드', // 토커티브 (코어있음) 기준으로 weight
-                characters: [
-                    { name: '헬름', weight: 6.1, type: 'element', image: 'images/characters/si_c352_00_s.webp' },
-                    { name: '루드밀라 : 윈터 오너', weight: 5.4, type: 'element', image: 'images/characters/si_c194_00_s.webp' }
+                    { weight: 1, type: 'element', name: '홍련 : 흑영' },
+                    { weight: 1, type: 'element', name: '아스카 : WILLE' },
+                    { weight: 1, type: 'element', name: '리틀 머메이드' },
                 ]
             }
         };
@@ -342,6 +319,7 @@
                     "💙 일레그 : 붐 앤 쇼크",
                     "💙 퀀시 : 이스케이프 퀸",
                     "💙 브래디",
+                    "💙 일레그 : 붐 앤 쇼크"
                 ];
 
                 // priorityCharacters 배열 위에 element 매핑 추가
@@ -494,7 +472,6 @@
                                         skill3: charData.skill3,
                                         weight: deckChar.weight,
                                         type: deckChar.type,
-                                        image: deckChar.image,
                                         itemGrade: charData.itemGrade,
                                         itemLevel: charData.itemLevel,
                                         trainingLevel: elementPlusAtk,
@@ -562,12 +539,7 @@
                     <td rowspan="${rowCount}">${data.memberName}</td>
                     <td rowspan="${rowCount}">${data.deckPower.toLocaleString()}</td>
                     ${showDamageCol ? `<td rowspan="${rowCount}">${damageValue.toLocaleString()}</td>` : ""}
-                    <td>
-                        <div class="character-container">
-                            <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
-                            <span class="character-name">${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</span>
-                        </div>
-                    </td>
+                    <td>${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</td>
                     <td>${stat.trainingLevel >= 80 ? '🔴' : 
                         stat.trainingLevel >= 60 ? '🟠' : 
                         stat.trainingLevel >= 40 ? '🟡' : ''}</td>
@@ -586,12 +558,7 @@
                                 }
                                 else
                                 {
-                                    tr.innerHTML = `<td>
-                        <div class="character-container">
-                            <img src="${stat.image}" class="character-image" alt="${stat.characterName}">
-                            <span class="character-name">${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</span>
-                        </div>
-                    </td>
+                                    tr.innerHTML = `<td>${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</td>
                     <td>${stat.trainingLevel >= 80 ? '🔴' : 
                         stat.trainingLevel >= 60 ? '🟠' : 
                         stat.trainingLevel >= 40 ? '🟡' : ''}</td>
