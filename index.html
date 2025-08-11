@@ -161,8 +161,7 @@
         <!-- 정렬 기준 (개별 모드에 적용, 덱 모드에서는 덱 파워 기준 정렬) -->
         <label for="sortSelect">정렬 기준: </label>
         <select id="sortSelect">
-            <option value="trainingLevel">육성</option>            
-            <option value="elementPower">우코 파워</option>            
+            <option value="trainingLevel">육성</option>
             <option value="elementPlusAtk">우코x공증</option>
             <option value="increaseElementDamage">우코</option>
             <option value="increaseAtk">공증</option>
@@ -177,7 +176,6 @@
                 <th>순위</th>
                 <th class="nickname-col">닉네임</th>
                 <th class="character-col">캐릭터</th>
-                <th>우코 파워</th>                
                 <th>우코x공증</th>
                 <th>우코</th>
                 <th>공증</th>
@@ -377,7 +375,6 @@
                         ${showNickname ? `<th class="nickname-col">닉네임</th>` : ""}
                         ${showCharacter ? `<th class="character-col">캐릭터</th>` : ""}
                         <th>육성</th>
-                        <th>우코 파워</th>                        
                         <th>우코x공증</th>
                         <th>우코</th>
                         <th>공증</th>
@@ -390,7 +387,6 @@
                         <th>스킬3</th>
                         </tr>`;
                     const headers = {
-                        "elementPower": "우코 파워",                        
                         "elementPlusAtk": "우코x공증",
                         "increaseElementDamage": "우코",
                         "increaseAtk": "공증",
@@ -412,7 +408,6 @@
               ${showDamageCol ? '<th rowspan="2">예상 대미지</th>' : ''}
               <th>캐릭터</th>
               <th>육성</th>
-              <th>우코 파워</th>              
               <th>우코x공증</th>
               <th>우코</th>
               <th>공증</th>
@@ -536,8 +531,7 @@
                     <td>${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</td>
                     <td>${stat.trainingLevel >= 80 ? '🔴' : 
                         stat.trainingLevel >= 60 ? '🟠' : 
-                        stat.trainingLevel >= 40 ? '🟡' : ''}</td>
-                    <td>${stat.elementPower.toLocaleString()}</td>                    
+                        stat.trainingLevel >= 40 ? '🟡' : ''}</td>                    
                     <td>${stat.elementPlusAtk}</td>
                     <td>${stat.increaseElementDamage}</td>                    
                     <td>${stat.increaseAtk}</td>
@@ -555,7 +549,6 @@
                     <td>${stat.trainingLevel >= 80 ? '🔴' : 
                         stat.trainingLevel >= 60 ? '🟠' : 
                         stat.trainingLevel >= 40 ? '🟡' : ''}</td>
-                    <td>${stat.elementPower.toLocaleString()}</td>
                     <td>${stat.elementPlusAtk}</td>
                     <td>${stat.increaseElementDamage}</td>
                     <td>${stat.increaseAtk}</td>
@@ -618,7 +611,6 @@
                 <td>${data.trainingLevel >= 80 ? '🔴' : 
                     data.trainingLevel >= 60 ? '🟠' : 
                     data.trainingLevel >= 40 ? '🟡' : ''}</td>
-                <td>${data.elementPower.toLocaleString()}</td>                
                 <td>${data.elementPlusAtk}</td>
                 <td>${data.increaseElementDamage}</td>
                 <td>${data.increaseAtk}</td>
