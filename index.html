@@ -335,6 +335,7 @@
                     { weight: 1, type: 'element', name: '라피 : 레드 후드'  },
                     { weight: 1, type: 'element', name: '미하라 : 본딩 체인' },
                     { weight: 1, type: 'element', name: '앨리스' },
+                    { weight: 1, type: 'element', name: '아스카' },
                     { weight: 1, type: 'element', name: '레이' },
                     { weight: 1, type: 'element', name: '모더니아' },
                 ]
@@ -345,9 +346,9 @@
                     { weight: 1, type: 'element', name: '도로시 : 세렌디피티' },
                     { weight: 1, type: 'element', name: '헬름' },
                     { weight: 1, type: 'element', name: '루드밀라 : 윈터 오너' },
-                    { weight: 1, type: 'element', name: '퀀시 : 이스케이프 퀸' },
-                    { weight: 1, type: 'element', name: '브래디' },
                     { weight: 1, type: 'element', name: '일레그 : 붐 앤 쇼크' },
+                    { weight: 1, type: 'element', name: '브래디' },
+                    { weight: 1, type: 'element', name: '퀀시 : 이스케이프 퀸' },
                 ]
             },
             deck5: {
@@ -355,7 +356,9 @@
                 characters: [
                     { weight: 1, type: 'element', name: '홍련 : 흑영' },
                     { weight: 1, type: 'element', name: '아스카 : WILLE' },
+                    { weight: 1, type: 'element', name: '레이 (가칭)' },
                     { weight: 1, type: 'element', name: '리틀 머메이드' },
+                    { weight: 1, type: 'element', name: '마나' },
                 ]
             }
         };
@@ -561,7 +564,7 @@
                                     const nonElementPower = Math.round(charData.atk * (1 + charData.increaseAtk / 200));
                                     const elementPlusAtk = Math.round(((1 + charData.increaseAtk / 200) * (1 + charData.increaseElementDamage / 100) - 1) * 10000) / 100;                                    
                                     const trainingLevel = elementPlusAtk;
-                                    
+
                                     deckStats.push({
                                         characterName: deckChar.name,
                                         upgrade: charData.upgrade,
