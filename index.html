@@ -560,6 +560,14 @@
                                     const elementPower = Math.round(charData.atk * (1 + charData.increaseAtk / 200) * (1 + charData.increaseElementDamage / 100));
                                     const nonElementPower = Math.round(charData.atk * (1 + charData.increaseAtk / 200));
                                     const elementPlusAtk = Math.round(((1 + charData.increaseAtk / 200) * (1 + charData.increaseElementDamage / 100) - 1) * 10000) / 100;
+                                    const upgrade = 0;
+                                    switch (charData.upgrade) {
+                                        case "명함": upgrade = 1; break;
+                                        case "풀돌": upgrade = 4; break;
+                                        case "풀코": upgrade = 11; break;
+                                        default: upgrade = Number(charData.upgrade.charAt(0)); break;
+                                    }
+                                    const trainingLevel = elementPlusAtk + (upgrade * 2) + charData.skill1 + charData.skill2 + charData.skill3;
                                     deckStats.push({
                                         characterName: deckChar.name,
                                         upgrade: charData.upgrade,
@@ -578,7 +586,7 @@
                                         type: deckChar.type,
                                         itemGrade: charData.itemGrade,
                                         itemLevel: charData.itemLevel,
-                                        trainingLevel: elementPlusAtk,
+                                        trainingLevel: trainingLevel,
                                         element: charData.element,
                                     });
                                 } else {
@@ -673,6 +681,14 @@
                                     return;
                                 }
                                 const elementPlusAtk = Math.round(((1 + character.increaseAtk / 200) * (1 + character.increaseElementDamage / 100) - 1) * 10000) / 100;
+                                const upgrade = 0;
+                                switch (charData.upgrade) {
+                                    case "명함": upgrade = 1; break;
+                                    case "풀돌": upgrade = 4; break;
+                                    case "풀코": upgrade = 11; break;
+                                    default: upgrade = Number(charData.upgrade.charAt(0)); break;
+                                }
+                                const trainingLevel = elementPlusAtk + (upgrade * 2) + charData.skill1 + charData.skill2 + charData.skill3;
                                 selectedData.push({
                                     memberName: member.name,                                    
                                     syncroLevel: member.syncroLevel,
@@ -691,7 +707,7 @@
                                     skill3: character.skill3,
                                     itemGrade: character.itemGrade,
                                     itemLevel: character.itemLevel,
-                                    trainingLevel: elementPlusAtk,
+                                    trainingLevel: trainingLevel,
                                     element: character.element,
                                 });
                             });
