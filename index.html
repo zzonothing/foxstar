@@ -637,7 +637,7 @@
                                     tr.innerHTML = `<td rowspan="${rowCount}">${index + 1}</td>
                     <td rowspan="${rowCount}">${data.memberName} (${data.syncroLevel})</td>
                     <td rowspan="${rowCount}">${data.deckPower.toLocaleString()}</td>
-                    <td>${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</td>
+                    <td class="character-col">${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</td>
                     <td>${stat.upgrade}</td>
                     <td>${stat.trainingLevel >= 80 ? '🔴' : 
                         stat.trainingLevel >= 60 ? '🟠' : 
@@ -655,7 +655,7 @@
                                 }
                                 else
                                 {
-                                    tr.innerHTML = `<td>${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</td>
+                                    tr.innerHTML = `<td class="character-col">${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</td>
                     <td>${stat.upgrade}</td>                                    
                     <td>${stat.trainingLevel >= 80 ? '🔴' : 
                         stat.trainingLevel >= 60 ? '🟠' : 
@@ -721,7 +721,7 @@
                             tr.innerHTML = `
                 <td>${index + 1}</td>
                 ${showNickname ? `<td>${data.memberName} (${data.syncroLevel})</td>` : ""}
-                ${showCharacter ? `<td>${data.element ? (elementEmojis[data.element] + ' ') : ''} ${data.characterName}</td>` : ""}
+                ${showCharacter ? `<td class="character-col">${data.element ? (elementEmojis[data.element] + ' ') : ''} ${data.characterName}</td>` : ""}
                 <td>${data.upgrade}</td>
                 <td>${data.trainingLevel >= 80 ? '🔴' : 
                     data.trainingLevel >= 60 ? '🟠' : 
