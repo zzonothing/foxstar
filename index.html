@@ -460,10 +460,276 @@
             });
         }
 
-        // 컬럼 가시성 업데이트 함수 (더 이상 필요하지 않음 - 테이블 재렌더링으로 처리)
+        // 컬럼 가시성 업데이트 함수
         function updateColumnVisibility() {
-            // 테이블을 다시 렌더링하여 컬럼 변경사항 반영
-            updateTable();
+            // 체크박스 재생성 없이 테이블만 다시 렌더링
+            renderTableContent();
+        }
+        
+        // 테이블 내용만 렌더링하는 함수 (체크박스 재생성 없음)
+        function renderTableContent() {
+            const deckMode = selectDeck.value !== "";
+            const selectedCharacter = selectCharacter.value;
+            const selectedMember = selectMember.value;
+            const sortBy = selectSort.value;
+            tbody.innerHTML = "";
+
+            if (deckMode) {
+                // 덱 모드: 덱에 정의된 모든 캐릭터를 보유한 멤버만 표시
+                const deck = decks[selectDeck.value];
+                let deckData = [];
+                members.forEach(member => {
+                    let deckStats = [];
+                    let hasAll = true;
+                    deck.characters.forEach(deckChar => {
+                        const charData = member.characters.find(c => c.name === deckChar.name);
+                        if (charData) {
+                            // 각 캐릭터별 계산
+                            const elementPower = Math.round(charData.atk * (1 + charData.increaseAtk / 200) * (1 + charData.increaseElementDamage / 100));
+                            const nonElementPower = Math.round(charData.atk * (1 + charData.increaseAtk / 200));
+                            const elementPlusAtk = Math.round(((1 + charData.increaseAtk / 200) * (1 + charData.increaseElementDamage / 100) - 1) * 10000) / 100;                                    
+                            const trainingLevel = elementPlusAtk;
+
+                            deckStats.push({
+                                characterName: deckChar.name,
+                                upgrade: charData.upgrade,
+                                elementPower: elementPower,
+                                nonElementPower: nonElementPower,
+                                elementPlusAtk: elementPlusAtk,
+                                increaseElementDamage: charData.increaseElementDamage || 0,
+                                increaseAtk: charData.increaseAtk || 0,
+                                increaseChargeSpeed: charData.increaseChargeSpeed || 0,
+                                increaseMaxAmmunitionCapacity: charData.increaseMaxAmmunitionCapacity || 0,
+                                increaseChargeDamage: charData.increaseChargeDamage || 0,
+                                increaseCriticalRate: charData.increaseCriticalRate || 0,
+                                increaseCriticalDamage: charData.increaseCriticalDamage || 0,
+                                increaseHitRate: charData.increaseHitRate || 0,
+                                increaseDef: charData.increaseDef || 0,
+                                atk: charData.atk,
+                                skill1: charData.skill1,
+                                skill2: charData.skill2,
+                                skill3: charData.skill3,
+                                weight: deckChar.weight,
+                                type: deckChar.type,
+                                itemGrade: charData.itemGrade,
+                                itemLevel: charData.itemLevel,
+                                trainingLevel: trainingLevel,
+                                element: charData.element,
+                            });
+                        } else {
+                            hasAll = false;
+                        }
+                    });
+                    if (hasAll && deckStats.length > 0) {
+                        if (deck.name === '신데 수니스 클이든') {
+                            const cinde = deckStats.find(c => c.characterName === "신데렐라");
+                            const sunis = deckStats.find(c => c.characterName === "아니스 : 스파클링 서머");
+                            const chrismasMaiden = deckStats.find(c => c.characterName === "메이든 : 아이스 로즈");
+
+                            const cindeRealElementPower = Math.round((cinde.atk * (1 + cinde.increaseAtk / 100) + (sunis.atk * 1.1) + (chrismasMaiden.atk * 0.4)) * (1 + cinde.increaseElementDamage / 100));
+                            const deckPower = Math.round(16 * cindeRealElementPower + 5 * sunis.elementPower + 6 * chrismasMaiden.elementPower);
+                            
+                            deckData.push({
+                                memberName: member.name,
+                                syncroLevel: member.syncroLevel,
+                                deckPower: deckPower,
+                                deckStats: deckStats
+                            });
+                        }
+                        else {
+                            const deckPower = deckStats.reduce((sum, curr) => sum + curr.elementPlusAtk, 0);
+                            deckData.push({
+                                memberName: member.name,
+                                syncroLevel: member.syncroLevel,
+                                deckPower: deckPower,
+                                deckStats: deckStats
+                            });
+                        }
+                    }
+                });
+                deckData.sort((a, b) => b.deckPower - a.deckPower);
+                
+                updateDeckHeader();
+                
+                deckData.forEach((data, index) => {
+                    const rowCount = data.deckStats.length;
+                    
+                    data.deckStats.forEach((stat, i) => {
+                        const tr = document.createElement("tr");
+                        
+                        // 컬럼 데이터 매핑
+                        const columnData = {
+                            rank: index + 1,
+                            nickname: data.memberName,
+                            level: data.syncroLevel,
+                            character: `${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}`,
+                            upgrade: stat.upgrade,
+                            deckPower: data.deckPower.toLocaleString(),
+                            elementPlusAtk: `${(stat.trainingLevel >= 100 ? '🔴' : 
+                                stat.trainingLevel >= 80 ? '🟠' : 
+                                stat.trainingLevel >= 60 ? '🟡' : 
+                                stat.trainingLevel >= 40 ? '🟢' : 
+                                stat.trainingLevel >= 20 ? '🔵' : '⚪')} ${stat.elementPlusAtk}`,
+                            increaseElementDamage: stat.increaseElementDamage,
+                            increaseAtk: stat.increaseAtk,
+                            ammunition: stat.increaseMaxAmmunitionCapacity,
+                            chargeSpeed: stat.increaseChargeSpeed,
+                            chargeDamage: stat.increaseChargeDamage,
+                            criticalRate: stat.increaseCriticalRate,
+                            criticalDamage: stat.increaseCriticalDamage,
+                            hitRate: stat.increaseHitRate,
+                            defenseIncrease: stat.increaseDef,
+                            attack: stat.atk.toLocaleString(),
+                            item: (stat.itemGrade !== undefined && stat.itemGrade !== '' && stat.itemLevel !== undefined) ? `<span class="item-grade-${stat.itemGrade}">${stat.itemGrade} ${stat.itemLevel}</span>` : '',
+                            skill1: stat.skill1,
+                            skill2: stat.skill2,
+                            skill3: stat.skill3
+                        };
+                        
+                        let cellsHtml = '';
+                        const columns = columnDefinitions.deck;
+                        
+                        columns.forEach(column => {
+                            if (visibleColumns[column.id] !== false) {
+                                let cellContent = columnData[column.id];
+                                let cellAttributes = '';
+                                
+                                // 특별한 속성 처리
+                                if (column.id === 'character') {
+                                    cellAttributes = ' class="character-col"';
+                                }
+                                if (column.id === 'chargeSpeed' && stat.characterName === "앨리스" && stat.increaseChargeSpeed <= 8) {
+                                    cellAttributes = ' style="color:red"';
+                                }
+                                
+                                // rowspan 처리 (첫 번째 행에서만)
+                                if (i === 0 && ['rank', 'nickname', 'level', 'deckPower'].includes(column.id)) {
+                                    cellAttributes += ` rowspan="${rowCount}"`;
+                                } else if (i > 0 && ['rank', 'nickname', 'level', 'deckPower'].includes(column.id)) {
+                                    // 첫 번째 행이 아닌 경우 rowspan 컬럼은 생략
+                                    return;
+                                }
+                                
+                                cellsHtml += `<td${cellAttributes}>${cellContent}</td>`;
+                            }
+                        });
+                        
+                        tr.innerHTML = cellsHtml;
+                        tbody.appendChild(tr);
+                    });
+                });
+            } else {
+                // 개별 모드: 기존 필터(캐릭터, 멤버 선택) 및 정렬 기능 적용
+                let selectedData = [];
+                members.forEach(member => {
+                    member.characters.forEach(character => {
+                        if ((selectedCharacter && character.name !== selectedCharacter) ||
+                            (selectedMember && member.name !== selectedMember)) {
+                            return;
+                        }
+                        const elementPlusAtk = Math.round(((1 + character.increaseAtk / 200) * (1 + character.increaseElementDamage / 100) - 1) * 10000) / 100;                                
+                        const trainingLevel = elementPlusAtk;
+
+                        selectedData.push({
+                            memberName: member.name,                                    
+                            syncroLevel: member.syncroLevel,
+                            characterName: character.name,
+                            upgrade: character.upgrade,
+                            elementPower: Math.round(character.atk * (1 + character.increaseAtk / 200) * (1 + character.increaseElementDamage / 100)),
+                            nonElementPower: Math.round(character.atk * (1 + character.increaseAtk / 200)),
+                            elementPlusAtk: Math.round(((1 + character.increaseAtk / 200) * (1 + character.increaseElementDamage / 100) - 1) * 10000) / 100,
+                            increaseElementDamage: character.increaseElementDamage || 0,
+                            increaseAtk: character.increaseAtk || 0,
+                            increaseChargeSpeed: character.increaseChargeSpeed || 0,
+                            increaseMaxAmmunitionCapacity: character.increaseMaxAmmunitionCapacity || 0,
+                            increaseChargeDamage: character.increaseChargeDamage || 0,
+                            increaseCriticalRate: character.increaseCriticalRate || 0,
+                            increaseCriticalDamage: character.increaseCriticalDamage || 0,
+                            increaseHitRate: character.increaseHitRate || 0,
+                            increaseDef: character.increaseDef || 0,
+                            atk: character.atk,
+                            skill1: character.skill1,
+                            skill2: character.skill2,
+                            skill3: character.skill3,
+                            itemGrade: character.itemGrade,
+                            itemLevel: character.itemLevel,
+                            trainingLevel: trainingLevel,
+                            element: character.element,
+                        });
+                    });
+                });
+                selectedData.sort((a, b) => b[sortBy] - a[sortBy]);
+
+                const showNickname = selectedMember ? false : true;
+                const showCharacter = selectedCharacter ? false : true;
+
+                updateNormalHeader(sortBy, showNickname, showCharacter);
+
+                selectedData.forEach((data, index) => {
+                    const tr = document.createElement("tr");
+                    
+                    // 컬럼 데이터 매핑
+                    const columnData = {
+                        rank: index + 1,
+                        nickname: data.memberName,
+                        level: data.syncroLevel,
+                        character: `${data.element ? (elementEmojis[data.element] + ' ') : ''} ${data.characterName}`,
+                        upgrade: data.upgrade,
+                        elementPlusAtk: `${(data.trainingLevel >= 100 ? '🔴' : 
+                            data.trainingLevel >= 80 ? '🟠' : 
+                            data.trainingLevel >= 60 ? '🟡' : 
+                            data.trainingLevel >= 40 ? '🟢' : 
+                            data.trainingLevel >= 20 ? '🔵' : '⚪')} ${data.elementPlusAtk}`,
+                        increaseElementDamage: data.increaseElementDamage,
+                        increaseAtk: data.increaseAtk,
+                        ammunition: data.increaseMaxAmmunitionCapacity,
+                        chargeSpeed: data.increaseChargeSpeed,
+                        chargeDamage: data.increaseChargeDamage,
+                        criticalRate: data.increaseCriticalRate,
+                        criticalDamage: data.increaseCriticalDamage,
+                        hitRate: data.increaseHitRate,
+                        defenseIncrease: data.increaseDef,
+                        attack: data.atk.toLocaleString(),
+                        item: (data.itemGrade !== undefined && data.itemGrade !== '' && data.itemLevel !== undefined) ? `<span class="item-grade-${data.itemGrade}">${data.itemGrade} ${data.itemLevel}</span>` : '',
+                        skill1: data.skill1,
+                        skill2: data.skill2,
+                        skill3: data.skill3
+                    };
+                    
+                    let cellsHtml = '';
+                    let columns = columnDefinitions.normal;
+                    
+                    // 조건부 컬럼 필터링
+                    columns = columns.filter(column => {
+                        if (column.conditional) {
+                            if (column.id === 'nickname' && selectedMember) return false;
+                            if (column.id === 'level' && selectedMember) return false;
+                            if (column.id === 'character' && selectedCharacter) return false;
+                        }
+                        return true;
+                    });
+                    
+                    columns.forEach(column => {
+                        if (visibleColumns[column.id] !== false) {
+                            let cellContent = columnData[column.id];
+                            let cellAttributes = '';
+                            
+                            // 특별한 속성 처리
+                            if (column.id === 'character') {
+                                cellAttributes = ' class="character-col"';
+                            }
+                            if (column.id === 'chargeSpeed' && data.characterName === "앨리스" && data.increaseChargeSpeed <= 8) {
+                                cellAttributes = ' style="color:red"';
+                            }
+                            
+                            cellsHtml += `<td${cellAttributes}>${cellContent}</td>`;
+                        }
+                    });
+                    
+                    tr.innerHTML = cellsHtml;
+                    tbody.appendChild(tr);
+                });
+            }
         }
 
         // 인덱스로 컬럼 ID 가져오기
@@ -745,271 +1011,13 @@
                 // updateTable 함수: 덱 모드와 개별 모드를 모두 지원
                 function updateTable() {
                     const deckMode = selectDeck.value !== "";
-                    const selectedCharacter = selectCharacter.value;
-                    const selectedMember = selectMember.value;
-                    const sortBy = selectSort.value;
-                    tbody.innerHTML = "";
                     updateDeckMemberSelect();
                     
                     // 컬럼 체크박스 업데이트
                     createColumnCheckboxes(deckMode ? 'deck' : 'normal');
-
-                    if (deckMode) {
-                        // 덱 모드: 덱에 정의된 모든 캐릭터를 보유한 멤버만 표시
-                        const deck = decks[selectDeck.value];
-                        let deckData = [];
-                        members.forEach(member => {
-                            let deckStats = [];
-                            let hasAll = true;
-                            deck.characters.forEach(deckChar => {
-                                const charData = member.characters.find(c => c.name === deckChar.name);
-                                if (charData) {
-                                    // 각 캐릭터별 계산
-                                    const elementPower = Math.round(charData.atk * (1 + charData.increaseAtk / 200) * (1 + charData.increaseElementDamage / 100));
-                                    const nonElementPower = Math.round(charData.atk * (1 + charData.increaseAtk / 200));
-                                    const elementPlusAtk = Math.round(((1 + charData.increaseAtk / 200) * (1 + charData.increaseElementDamage / 100) - 1) * 10000) / 100;                                    
-                                    const trainingLevel = elementPlusAtk;
-
-                                    deckStats.push({
-                                        characterName: deckChar.name,
-                                        upgrade: charData.upgrade,
-                                        elementPower: elementPower,
-                                        nonElementPower: nonElementPower,
-                                        elementPlusAtk: elementPlusAtk,
-                                        increaseElementDamage: charData.increaseElementDamage || 0,
-                                        increaseAtk: charData.increaseAtk || 0,
-                                        increaseChargeSpeed: charData.increaseChargeSpeed || 0,
-                                        increaseMaxAmmunitionCapacity: charData.increaseMaxAmmunitionCapacity || 0,
-                                        increaseChargeDamage: charData.increaseChargeDamage || 0,
-                                        increaseCriticalRate: charData.increaseCriticalRate || 0,
-                                        increaseCriticalDamage: charData.increaseCriticalDamage || 0,
-                                        increaseHitRate: charData.increaseHitRate || 0,
-                                        increaseDef: charData.increaseDef || 0,
-                                        atk: charData.atk,
-                                        skill1: charData.skill1,
-                                        skill2: charData.skill2,
-                                        skill3: charData.skill3,
-                                        weight: deckChar.weight,
-                                        type: deckChar.type,
-                                        itemGrade: charData.itemGrade,
-                                        itemLevel: charData.itemLevel,
-                                        trainingLevel: trainingLevel,
-                                        element: charData.element,
-                                    });
-                                } else {
-                                    hasAll = false;
-                                }
-                            });
-                            if (hasAll && deckStats.length > 0) {
-                                if (deck.name === '신데 수니스 클이든') {
-                                    const cinde = deckStats.find(c => c.characterName === "신데렐라");
-                                    const sunis = deckStats.find(c => c.characterName === "아니스 : 스파클링 서머");
-                                    const chrismasMaiden = deckStats.find(c => c.characterName === "메이든 : 아이스 로즈");
-
-                                    const cindeRealElementPower = Math.round((cinde.atk * (1 + cinde.increaseAtk / 100) + (sunis.atk * 1.1) + (chrismasMaiden.atk * 0.4)) * (1 + cinde.increaseElementDamage / 100));
-                                    const deckPower = Math.round(16 * cindeRealElementPower + 5 * sunis.elementPower + 6 * chrismasMaiden.elementPower);
-                                    
-                                    deckData.push({
-                                        memberName: member.name,
-                                        syncroLevel: member.syncroLevel,
-                                        deckPower: deckPower,
-                                        deckStats: deckStats
-                                    });
-                                }
-                                else {
-                                    const deckPower = deckStats.reduce((sum, curr) => sum + curr.elementPlusAtk, 0);
-                                    deckData.push({
-                                        memberName: member.name,
-                                        syncroLevel: member.syncroLevel,
-                                        deckPower: deckPower,
-                                        deckStats: deckStats
-                                    });
-                                }
-                            }
-                        });
-                        deckData.sort((a, b) => b.deckPower - a.deckPower);
-                        
-                        updateDeckHeader();
-                        
-                        deckData.forEach((data, index) => {
-                            const rowCount = data.deckStats.length;
-                            
-                            data.deckStats.forEach((stat, i) => {
-                                const tr = document.createElement("tr");
-                                
-                                // 컬럼 데이터 매핑
-                                const columnData = {
-                                    rank: index + 1,
-                                    nickname: data.memberName,
-                                    level: data.syncroLevel,
-                                    character: `${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}`,
-                                    upgrade: stat.upgrade,
-                                    deckPower: data.deckPower.toLocaleString(),
-                                    elementPlusAtk: `${(stat.trainingLevel >= 100 ? '🔴' : 
-                                        stat.trainingLevel >= 80 ? '🟠' : 
-                                        stat.trainingLevel >= 60 ? '🟡' : 
-                                        stat.trainingLevel >= 40 ? '🟢' : 
-                                        stat.trainingLevel >= 20 ? '🔵' : '⚪')} ${stat.elementPlusAtk}`,
-                                    increaseElementDamage: stat.increaseElementDamage,
-                                    increaseAtk: stat.increaseAtk,
-                                    ammunition: stat.increaseMaxAmmunitionCapacity,
-                                    chargeSpeed: stat.increaseChargeSpeed,
-                                    chargeDamage: stat.increaseChargeDamage,
-                                    criticalRate: stat.increaseCriticalRate,
-                                    criticalDamage: stat.increaseCriticalDamage,
-                                    hitRate: stat.increaseHitRate,
-                                    defenseIncrease: stat.increaseDef,
-                                    attack: stat.atk.toLocaleString(),
-                                    item: (stat.itemGrade !== undefined && stat.itemGrade !== '' && stat.itemLevel !== undefined) ? `<span class="item-grade-${stat.itemGrade}">${stat.itemGrade} ${stat.itemLevel}</span>` : '',
-                                    skill1: stat.skill1,
-                                    skill2: stat.skill2,
-                                    skill3: stat.skill3
-                                };
-                                
-                                let cellsHtml = '';
-                                const columns = columnDefinitions.deck;
-                                
-                                columns.forEach(column => {
-                                    if (visibleColumns[column.id] !== false) {
-                                        let cellContent = columnData[column.id];
-                                        let cellAttributes = '';
-                                        
-                                        // 특별한 속성 처리
-                                        if (column.id === 'character') {
-                                            cellAttributes = ' class="character-col"';
-                                        }
-                                        if (column.id === 'chargeSpeed' && stat.characterName === "앨리스" && stat.increaseChargeSpeed <= 8) {
-                                            cellAttributes = ' style="color:red"';
-                                        }
-                                        
-                                        // rowspan 처리 (첫 번째 행에서만)
-                                        if (i === 0 && ['rank', 'nickname', 'level', 'deckPower'].includes(column.id)) {
-                                            cellAttributes += ` rowspan="${rowCount}"`;
-                                        } else if (i > 0 && ['rank', 'nickname', 'level', 'deckPower'].includes(column.id)) {
-                                            // 첫 번째 행이 아닌 경우 rowspan 컬럼은 생략
-                                            return;
-                                        }
-                                        
-                                        cellsHtml += `<td${cellAttributes}>${cellContent}</td>`;
-                                    }
-                                });
-                                
-                                tr.innerHTML = cellsHtml;
-                                tbody.appendChild(tr);
-                            });
-                        });
-                    } else {
-                        // 개별 모드: 기존 필터(캐릭터, 멤버 선택) 및 정렬 기능 적용
-                        let selectedData = [];
-                        members.forEach(member => {
-                            member.characters.forEach(character => {
-                                if ((selectedCharacter && character.name !== selectedCharacter) ||
-                                    (selectedMember && member.name !== selectedMember)) {
-                                    return;
-                                }
-                                const elementPlusAtk = Math.round(((1 + character.increaseAtk / 200) * (1 + character.increaseElementDamage / 100) - 1) * 10000) / 100;                                
-                                const trainingLevel = elementPlusAtk;
-
-                                selectedData.push({
-                                    memberName: member.name,                                    
-                                    syncroLevel: member.syncroLevel,
-                                    characterName: character.name,
-                                    upgrade: character.upgrade,
-                                    elementPower: Math.round(character.atk * (1 + character.increaseAtk / 200) * (1 + character.increaseElementDamage / 100)),
-                                    nonElementPower: Math.round(character.atk * (1 + character.increaseAtk / 200)),
-                                    elementPlusAtk: Math.round(((1 + character.increaseAtk / 200) * (1 + character.increaseElementDamage / 100) - 1) * 10000) / 100,
-                                    increaseElementDamage: character.increaseElementDamage || 0,
-                                    increaseAtk: character.increaseAtk || 0,
-                                    increaseChargeSpeed: character.increaseChargeSpeed || 0,
-                                    increaseMaxAmmunitionCapacity: character.increaseMaxAmmunitionCapacity || 0,
-                                    increaseChargeDamage: character.increaseChargeDamage || 0,
-                                    increaseCriticalRate: character.increaseCriticalRate || 0,
-                                    increaseCriticalDamage: character.increaseCriticalDamage || 0,
-                                    increaseHitRate: character.increaseHitRate || 0,
-                                    increaseDef: character.increaseDef || 0,
-                                    atk: character.atk,
-                                    skill1: character.skill1,
-                                    skill2: character.skill2,
-                                    skill3: character.skill3,
-                                    itemGrade: character.itemGrade,
-                                    itemLevel: character.itemLevel,
-                                    trainingLevel: trainingLevel,
-                                    element: character.element,
-                                });
-                            });
-                        });
-                        selectedData.sort((a, b) => b[sortBy] - a[sortBy]);
-
-                        const showNickname = selectedMember ? false : true;
-                        const showCharacter = selectedCharacter ? false : true;
-
-                        updateNormalHeader(sortBy, showNickname, showCharacter);
-
-                        selectedData.forEach((data, index) => {
-                            const tr = document.createElement("tr");
-                            
-                            // 컬럼 데이터 매핑
-                            const columnData = {
-                                rank: index + 1,
-                                nickname: data.memberName,
-                                level: data.syncroLevel,
-                                character: `${data.element ? (elementEmojis[data.element] + ' ') : ''} ${data.characterName}`,
-                                upgrade: data.upgrade,
-                                elementPlusAtk: `${(data.trainingLevel >= 100 ? '🔴' : 
-                                    data.trainingLevel >= 80 ? '🟠' : 
-                                    data.trainingLevel >= 60 ? '🟡' : 
-                                    data.trainingLevel >= 40 ? '🟢' : 
-                                    data.trainingLevel >= 20 ? '🔵' : '⚪')} ${data.elementPlusAtk}`,
-                                increaseElementDamage: data.increaseElementDamage,
-                                increaseAtk: data.increaseAtk,
-                                ammunition: data.increaseMaxAmmunitionCapacity,
-                                chargeSpeed: data.increaseChargeSpeed,
-                                chargeDamage: data.increaseChargeDamage,
-                                criticalRate: data.increaseCriticalRate,
-                                criticalDamage: data.increaseCriticalDamage,
-                                hitRate: data.increaseHitRate,
-                                defenseIncrease: data.increaseDef,
-                                attack: data.atk.toLocaleString(),
-                                item: (data.itemGrade !== undefined && data.itemGrade !== '' && data.itemLevel !== undefined) ? `<span class="item-grade-${data.itemGrade}">${data.itemGrade} ${data.itemLevel}</span>` : '',
-                                skill1: data.skill1,
-                                skill2: data.skill2,
-                                skill3: data.skill3
-                            };
-                            
-                            let cellsHtml = '';
-                            let columns = columnDefinitions.normal;
-                            
-                            // 조건부 컬럼 필터링
-                            columns = columns.filter(column => {
-                                if (column.conditional) {
-                                    if (column.id === 'nickname' && selectedMember) return false;
-                                    if (column.id === 'level' && selectedMember) return false;
-                                    if (column.id === 'character' && selectedCharacter) return false;
-                                }
-                                return true;
-                            });
-                            
-                            columns.forEach(column => {
-                                if (visibleColumns[column.id] !== false) {
-                                    let cellContent = columnData[column.id];
-                                    let cellAttributes = '';
-                                    
-                                    // 특별한 속성 처리
-                                    if (column.id === 'character') {
-                                        cellAttributes = ' class="character-col"';
-                                    }
-                                    if (column.id === 'chargeSpeed' && data.characterName === "앨리스" && data.increaseChargeSpeed <= 8) {
-                                        cellAttributes = ' style="color:red"';
-                                    }
-                                    
-                                    cellsHtml += `<td${cellAttributes}>${cellContent}</td>`;
-                                }
-                            });
-                            
-                            tr.innerHTML = cellsHtml;
-                            tbody.appendChild(tr);
-                        });
-                    }
+                    
+                    // 테이블 내용 렌더링
+                    renderTableContent();
                 }
 
                 // 이벤트 리스너 등록
