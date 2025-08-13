@@ -415,52 +415,6 @@
         // 현재 보이는 컬럼들 상태 관리
         let visibleColumns = {};
 
-        // 컬럼 체크박스 생성 함수
-        function createColumnCheckboxes(mode = 'normal') {
-            const container = document.getElementById('columnCheckboxes');
-            container.innerHTML = '';
-            
-            const columns = columnDefinitions[mode];
-            const selectedCharacter = document.getElementById('characterSelect').value;
-            const selectedMember = document.getElementById('memberSelect').value;
-            
-            columns.forEach(column => {
-                // 조건부 컬럼 체크
-                if (column.conditional) {
-                    if (column.id === 'nickname' && selectedMember) return;
-                    if (column.id === 'level' && selectedMember) return;
-                    if (column.id === 'character' && selectedCharacter) return;
-                }
-                
-                const checkboxDiv = document.createElement('div');
-                checkboxDiv.className = 'column-checkbox';
-                
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = `col-${column.id}`;
-                
-                // 기본값 설정: defaultHidden이 true이면 unchecked, 아니면 checked
-                if (visibleColumns[column.id] === undefined) {
-                    visibleColumns[column.id] = !column.defaultHidden;
-                }
-                checkbox.checked = visibleColumns[column.id];
-                
-                const span = document.createElement('span');
-                span.textContent = column.name;
-                
-                checkboxDiv.appendChild(checkbox);
-                checkboxDiv.appendChild(span);
-                container.appendChild(checkboxDiv);
-                
-                // 이벤트 리스너 추가
-                checkbox.addEventListener('change', function() {
-                    console.log(`체크박스 ${column.id} 변경됨:`, this.checked);
-                    visibleColumns[column.id] = this.checked;
-                    console.log('renderTableContent 직접 호출');
-                    renderTableContent();
-                });
-            });
-        }
 
 
         // 인덱스로 컬럼 ID 가져오기
@@ -842,6 +796,53 @@
                             tbody.appendChild(tr);
                         });
                     }
+                }
+
+                // 컬럼 체크박스 생성 함수
+                function createColumnCheckboxes(mode = 'normal') {
+                    const container = document.getElementById('columnCheckboxes');
+                    container.innerHTML = '';
+                    
+                    const columns = columnDefinitions[mode];
+                    const selectedCharacter = selectCharacter.value;
+                    const selectedMember = selectMember.value;
+                    
+                    columns.forEach(column => {
+                        // 조건부 컬럼 체크
+                        if (column.conditional) {
+                            if (column.id === 'nickname' && selectedMember) return;
+                            if (column.id === 'level' && selectedMember) return;
+                            if (column.id === 'character' && selectedCharacter) return;
+                        }
+                        
+                        const checkboxDiv = document.createElement('div');
+                        checkboxDiv.className = 'column-checkbox';
+                        
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.id = `col-${column.id}`;
+                        
+                        // 기본값 설정: defaultHidden이 true이면 unchecked, 아니면 checked
+                        if (visibleColumns[column.id] === undefined) {
+                            visibleColumns[column.id] = !column.defaultHidden;
+                        }
+                        checkbox.checked = visibleColumns[column.id];
+                        
+                        const span = document.createElement('span');
+                        span.textContent = column.name;
+                        
+                        checkboxDiv.appendChild(checkbox);
+                        checkboxDiv.appendChild(span);
+                        container.appendChild(checkboxDiv);
+                        
+                        // 이벤트 리스너 추가
+                        checkbox.addEventListener('change', function() {
+                            console.log(`체크박스 ${column.id} 변경됨:`, this.checked);
+                            visibleColumns[column.id] = this.checked;
+                            console.log('renderTableContent 직접 호출');
+                            renderTableContent();
+                        });
+                    });
                 }
 
                 // 개별 모드용 드롭다운 채우기: 캐릭터, 멤버 목록
