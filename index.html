@@ -47,7 +47,8 @@
         }
     
         table {
-            width: 95%;
+            width: 100%;
+            max-width: calc(100vw - 40px);
             margin: 0 auto;
             border-collapse: collapse;
             background: white;
@@ -152,6 +153,11 @@
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: calc(100vw - 40px);
+            margin-left: auto;
+            margin-right: auto;
+            box-sizing: border-box;
         }
 
         .column-controls label {
@@ -364,9 +370,8 @@
                 { id: 'nickname', name: '닉네임', conditional: true }, // 멤버 선택시 숨김
                 { id: 'level', name: '레벨', conditional: true }, // 멤버 선택시 숨김
                 { id: 'character', name: '캐릭터', conditional: true }, // 캐릭터 선택시 숨김
-                { id: 'training', name: '육성' },
                 { id: 'upgrade', name: '돌파' },
-                { id: 'elementPlusAtk', name: '우코x공증' },
+                { id: 'elementPlusAtk', name: '파워' },
                 { id: 'increaseElementDamage', name: '우코' },
                 { id: 'increaseAtk', name: '공증' },
                 { id: 'ammunition', name: '장탄' },
@@ -386,11 +391,10 @@
                 { id: 'rank', name: '순위', alwaysVisible: true },
                 { id: 'nickname', name: '닉네임', alwaysVisible: true },
                 { id: 'level', name: '레벨', alwaysVisible: true },
-                { id: 'deckPower', name: '덱파워', alwaysVisible: true },
                 { id: 'character', name: '캐릭터', alwaysVisible: true },
-                { id: 'training', name: '육성' },
                 { id: 'upgrade', name: '돌파' },
-                { id: 'elementPlusAtk', name: '우코x공증' },
+                { id: 'deckPower', name: '덱파워', alwaysVisible: true },
+                { id: 'elementPlusAtk', name: '파워' },
                 { id: 'increaseElementDamage', name: '우코' },
                 { id: 'increaseAtk', name: '공증' },
                 { id: 'ammunition', name: '장탄' },
@@ -694,9 +698,8 @@
                         ${showNickname ? `<th class="nickname-col">닉네임</th>` : ""}
                         ${showNickname ? `<th>레벨</th>` : ""}
                         ${showCharacter ? `<th class="character-col">캐릭터</th>` : ""}
-                        <th>육성</th>
                         <th>돌파</th>
-                        <th>우코x공증</th>
+                        <th>파워</th>
                         <th>우코</th>
                         <th>공증</th>
                         <th>장탄</th>
@@ -713,10 +716,10 @@
                         <th>스킬3</th>
                         </tr>`;
                     const headers = {
-                        "elementPlusAtk": "우코x공증",
+                        "elementPlusAtk": "파워",
                         "increaseElementDamage": "우코",
                         "increaseAtk": "공증",
-                        "trainingLevel": "육성"
+                        "trainingLevel": "파워"
                     };
                     tableHeader.querySelectorAll("th").forEach(th => {
                         if (th.textContent === headers[sortBy]) {
@@ -731,11 +734,10 @@
       <th rowspan="2">순위</th>
       <th rowspan="2">닉네임</th>
       <th rowspan="2">레벨</th>
-      <th rowspan="2">덱파워 ▼</th>
       <th>캐릭터</th>
-      <th>육성</th>
       <th>돌파</th>
-      <th>우코x공증</th>
+      <th rowspan="2">덱파워 ▼</th>
+      <th>파워</th>
       <th>우코</th>
       <th>공증</th>
       <th>장탄</th>
@@ -853,13 +855,12 @@
                                     tr.innerHTML = `<td rowspan="${rowCount}">${index + 1}</td>
                     <td rowspan="${rowCount}">${data.memberName}</td>
                     <td rowspan="${rowCount}">${data.syncroLevel}</td>
-                    <td rowspan="${rowCount}">${data.deckPower.toLocaleString()}</td>
                     <td class="character-col">${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</td>
-                    <td>${stat.trainingLevel >= 80 ? '🔴' : 
-                        stat.trainingLevel >= 60 ? '🟠' : 
-                        stat.trainingLevel >= 40 ? '🟡' : ''}</td>
                     <td>${stat.upgrade}</td>
-                    <td>${stat.elementPlusAtk}</td>
+                    <td rowspan="${rowCount}">${data.deckPower.toLocaleString()}</td>
+                    <td>${(stat.trainingLevel >= 80 ? '🔴' : 
+                        stat.trainingLevel >= 60 ? '🟠' : 
+                        stat.trainingLevel >= 40 ? '🟡' : '')} ${stat.elementPlusAtk}</td>
                     <td>${stat.increaseElementDamage}</td>                    
                     <td>${stat.increaseAtk}</td>
                     <td>${stat.increaseMaxAmmunitionCapacity}</td>
@@ -878,11 +879,10 @@
                                 else
                                 {
                                     tr.innerHTML = `<td class="character-col">${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</td>
-                    <td>${stat.trainingLevel >= 80 ? '🔴' : 
-                        stat.trainingLevel >= 60 ? '🟠' : 
-                        stat.trainingLevel >= 40 ? '🟡' : ''}</td>
                     <td>${stat.upgrade}</td>
-                    <td>${stat.elementPlusAtk}</td>
+                    <td>${(stat.trainingLevel >= 80 ? '🔴' : 
+                        stat.trainingLevel >= 60 ? '🟠' : 
+                        stat.trainingLevel >= 40 ? '🟡' : '')} ${stat.elementPlusAtk}</td>
                     <td>${stat.increaseElementDamage}</td>
                     <td>${stat.increaseAtk}</td>
                     <td>${stat.increaseMaxAmmunitionCapacity}</td>
@@ -955,11 +955,10 @@
                 ${showNickname ? `<td>${data.memberName}</td>` : ""}
                 ${showNickname ? `<td>${data.syncroLevel}</td>` : ""}
                 ${showCharacter ? `<td class="character-col">${data.element ? (elementEmojis[data.element] + ' ') : ''} ${data.characterName}</td>` : ""}
-                <td>${data.trainingLevel >= 80 ? '🔴' : 
-                    data.trainingLevel >= 60 ? '🟠' : 
-                    data.trainingLevel >= 40 ? '🟡' : ''}</td>
                 <td>${data.upgrade}</td>
-                <td>${data.elementPlusAtk}</td>
+                <td>${(data.trainingLevel >= 80 ? '🔴' : 
+                    data.trainingLevel >= 60 ? '🟠' : 
+                    data.trainingLevel >= 40 ? '🟡' : '')} ${data.elementPlusAtk}</td>
                 <td>${data.increaseElementDamage}</td>
                 <td>${data.increaseAtk}</td>
                 <td>${data.increaseMaxAmmunitionCapacity}</td>
