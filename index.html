@@ -460,59 +460,10 @@
             });
         }
 
-        // 컬럼 가시성 업데이트 함수
+        // 컬럼 가시성 업데이트 함수 (더 이상 필요하지 않음 - 테이블 재렌더링으로 처리)
         function updateColumnVisibility() {
-            const table = document.getElementById('statsTable');
-            const deckMode = document.getElementById('deckSelect').value !== "";
-            
-            // 기존 동적 스타일 제거
-            const existingStyle = document.getElementById('dynamic-column-style');
-            if (existingStyle) {
-                existingStyle.remove();
-            }
-            
-            // 새로운 동적 스타일 생성
-            const style = document.createElement('style');
-            style.id = 'dynamic-column-style';
-            let css = '';
-            
-            if (deckMode) {
-                // 덱 모드에서 컬럼 순서
-                const columnOrder = ['rank', 'nickname', 'level', 'character', 'upgrade', 'deckPower', 'elementPlusAtk', 'increaseElementDamage', 'increaseAtk', 'ammunition', 'chargeSpeed', 'chargeDamage', 'criticalRate', 'criticalDamage', 'hitRate', 'defenseIncrease', 'attack', 'item', 'skill1', 'skill2', 'skill3'];
-                
-                columnOrder.forEach((columnId, index) => {
-                    if (visibleColumns[columnId] === false) {
-                        const nthChild = index + 1;
-                        // 헤더와 모든 데이터 셀 숨김
-                        css += `#statsTable th:nth-child(${nthChild}), #statsTable td:nth-child(${nthChild}) { display: none !important; }\n`;
-                    }
-                });
-            } else {
-                // 개별 모드
-                const selectedCharacter = document.getElementById('characterSelect').value;
-                const selectedMember = document.getElementById('memberSelect').value;
-                let columns = columnDefinitions.normal;
-                
-                // 조건부 컬럼 필터링
-                columns = columns.filter(column => {
-                    if (column.conditional) {
-                        if (column.id === 'nickname' && selectedMember) return false;
-                        if (column.id === 'level' && selectedMember) return false;
-                        if (column.id === 'character' && selectedCharacter) return false;
-                    }
-                    return true;
-                });
-                
-                columns.forEach((column, index) => {
-                    if (visibleColumns[column.id] === false) {
-                        const nthChild = index + 1;
-                        css += `#statsTable th:nth-child(${nthChild}), #statsTable td:nth-child(${nthChild}) { display: none !important; }\n`;
-                    }
-                });
-            }
-            
-            style.textContent = css;
-            document.head.appendChild(style);
+            // 테이블을 다시 렌더링하여 컬럼 변경사항 반영
+            updateTable();
         }
 
         // 인덱스로 컬럼 ID 가져오기
@@ -718,67 +669,77 @@
 
                 // 개별 모드 헤더 업데이트 (정렬 기준 컬럼 우측에 ▼ 표시)
                 function updateNormalHeader(sortBy, showNickname, showCharacter) {
-                    tableHeader.innerHTML = `<tr>
-                        <th>순위</th>
-                        ${showNickname ? `<th class="nickname-col">닉네임</th>` : ""}
-                        ${showNickname ? `<th>레벨</th>` : ""}
-                        ${showCharacter ? `<th class="character-col">캐릭터</th>` : ""}
-                        <th>돌파</th>
-                        <th>파워</th>
-                        <th>우코</th>
-                        <th>공증</th>
-                        <th>장탄</th>
-                        <th>차속</th>
-                        <th>차댐</th>
-                        <th>크확</th>
-                        <th>크댐</th>
-                        <th>명중</th>
-                        <th>방증</th>
-                        <th>공격력</th>
-                        <th>소장품</th>
-                        <th>스킬1</th>
-                        <th>스킬2</th>
-                        <th>스킬3</th>
-                        </tr>`;
-                    const headers = {
-                        "elementPlusAtk": "파워",
-                        "increaseElementDamage": "우코",
-                        "increaseAtk": "공증",
-                        "trainingLevel": "파워"
-                    };
-                    tableHeader.querySelectorAll("th").forEach(th => {
-                        if (th.textContent === headers[sortBy]) {
-                            th.textContent += " ▼";
+                    let columns = columnDefinitions.normal;
+                    
+                    // 조건부 컬럼 필터링
+                    columns = columns.filter(column => {
+                        if (column.conditional) {
+                            if (column.id === 'nickname' && !showNickname) return false;
+                            if (column.id === 'level' && !showNickname) return false;
+                            if (column.id === 'character' && !showCharacter) return false;
+                        }
+                        return true;
+                    });
+                    
+                    let headerHtml = '<tr>';
+                    columns.forEach(column => {
+                        if (visibleColumns[column.id] !== false) {
+                            let headerText = column.name;
+                            let headerClass = '';
+                            
+                            // 정렬 표시
+                            const headers = {
+                                "elementPlusAtk": "파워",
+                                "increaseElementDamage": "우코",
+                                "increaseAtk": "공증",
+                                "trainingLevel": "파워"
+                            };
+                            
+                            if (headers[sortBy] === column.name) {
+                                headerText += " ▼";
+                            }
+                            
+                            // 특별한 클래스 처리
+                            if (column.id === 'nickname') {
+                                headerClass = ' class="nickname-col"';
+                            } else if (column.id === 'character') {
+                                headerClass = ' class="character-col"';
+                            }
+                            
+                            headerHtml += `<th${headerClass}>${headerText}</th>`;
                         }
                     });
+                    headerHtml += '</tr>';
+                    
+                    tableHeader.innerHTML = headerHtml;
                 }
 
                 // 덱 모드용 헤더 업데이트 (단일 행 헤더)
                 function updateDeckHeader() {
-                    tableHeader.innerHTML = `<tr>
-      <th rowspan="2">순위</th>
-      <th rowspan="2">닉네임</th>
-      <th rowspan="2">레벨</th>
-      <th>캐릭터</th>
-      <th>돌파</th>
-      <th rowspan="2">덱파워 ▼</th>
-      <th>파워</th>
-      <th>우코</th>
-      <th>공증</th>
-      <th>장탄</th>
-      <th>차속</th>
-      <th>차댐</th>
-      <th>크확</th>
-      <th>크댐</th>
-      <th>명중</th>
-      <th>방증</th>
-      <th>공격력</th>
-      <th>소장품</th>
-      <th>스킬1</th>
-      <th>스킬2</th>
-      <th>스킬3</th>
-    </tr>`;
-                    // 두 번째 행은 실제 헤더는 그대로 표시하지 않음 – 데이터 행에서 각 덱 캐릭터별로 출력됩니다.
+                    const columns = columnDefinitions.deck;
+                    let headerHtml = '<tr>';
+                    
+                    columns.forEach(column => {
+                        if (visibleColumns[column.id] !== false) {
+                            let rowspanAttr = '';
+                            let headerText = column.name;
+                            
+                            // rowspan이 필요한 컬럼들
+                            if (['rank', 'nickname', 'level', 'deckPower'].includes(column.id)) {
+                                rowspanAttr = ' rowspan="2"';
+                            }
+                            
+                            // 정렬 표시
+                            if (column.id === 'deckPower') {
+                                headerText += ' ▼';
+                            }
+                            
+                            headerHtml += `<th${rowspanAttr}>${headerText}</th>`;
+                        }
+                    });
+                    
+                    headerHtml += '</tr>';
+                    tableHeader.innerHTML = headerHtml;
                 }
 
                 // updateTable 함수: 덱 모드와 개별 모드를 모두 지원
@@ -875,58 +836,65 @@
                             
                             data.deckStats.forEach((stat, i) => {
                                 const tr = document.createElement("tr");
-                                if (i === 0)
-                                {
-                                    tr.innerHTML = `<td rowspan="${rowCount}">${index + 1}</td>
-                    <td rowspan="${rowCount}">${data.memberName}</td>
-                    <td rowspan="${rowCount}">${data.syncroLevel}</td>
-                    <td class="character-col">${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</td>
-                    <td>${stat.upgrade}</td>
-                    <td rowspan="${rowCount}">${data.deckPower.toLocaleString()}</td>
-                    <td>${(stat.trainingLevel >= 100 ? '🔴' : 
-                        stat.trainingLevel >= 80 ? '🟠' : 
-                        stat.trainingLevel >= 60 ? '🟡' : 
-                        stat.trainingLevel >= 40 ? '🟢' : 
-                        stat.trainingLevel >= 20 ? '🔵' : '⚪')} ${stat.elementPlusAtk}</td>
-                    <td>${stat.increaseElementDamage}</td>                    
-                    <td>${stat.increaseAtk}</td>
-                    <td>${stat.increaseMaxAmmunitionCapacity}</td>
-                    <td${stat.characterName === "앨리스" && stat.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${stat.increaseChargeSpeed}</td>
-                    <td>${stat.increaseChargeDamage}</td>
-                    <td>${stat.increaseCriticalRate}</td>
-                    <td>${stat.increaseCriticalDamage}</td>
-                    <td>${stat.increaseHitRate}</td>
-                    <td>${stat.increaseDef}</td>
-                    <td>${stat.atk.toLocaleString()}</td>
-                    <td>${(stat.itemGrade !== undefined && stat.itemGrade !== '' && stat.itemLevel !== undefined) ? `<span class="item-grade-${stat.itemGrade}">${stat.itemGrade} ${stat.itemLevel}</span>` : ''}</td>
-                    <td>${stat.skill1}</td>
-                    <td>${stat.skill2}</td>
-                    <td>${stat.skill3}</td>`;
-                                }
-                                else
-                                {
-                                    tr.innerHTML = `<td class="character-col">${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</td>
-                    <td>${stat.upgrade}</td>
-                    <td>${(stat.trainingLevel >= 100 ? '🔴' : 
-                        stat.trainingLevel >= 80 ? '🟠' : 
-                        stat.trainingLevel >= 60 ? '🟡' : 
-                        stat.trainingLevel >= 40 ? '🟢' : 
-                        stat.trainingLevel >= 20 ? '🔵' : '⚪')} ${stat.elementPlusAtk}</td>
-                    <td>${stat.increaseElementDamage}</td>
-                    <td>${stat.increaseAtk}</td>
-                    <td>${stat.increaseMaxAmmunitionCapacity}</td>
-                    <td${stat.characterName === "앨리스" && stat.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${stat.increaseChargeSpeed}</td>
-                    <td>${stat.increaseChargeDamage}</td>
-                    <td>${stat.increaseCriticalRate}</td>
-                    <td>${stat.increaseCriticalDamage}</td>
-                    <td>${stat.increaseHitRate}</td>
-                    <td>${stat.increaseDef}</td>
-                    <td>${stat.atk.toLocaleString()}</td>
-                    <td>${(stat.itemGrade !== undefined && stat.itemGrade !== '' && stat.itemLevel !== undefined) ? `<span class="item-grade-${stat.itemGrade}">${stat.itemGrade} ${stat.itemLevel}</span>` : ''}</td>
-                    <td>${stat.skill1}</td>
-                    <td>${stat.skill2}</td>
-                    <td>${stat.skill3}</td>`;
-                                }
+                                
+                                // 컬럼 데이터 매핑
+                                const columnData = {
+                                    rank: index + 1,
+                                    nickname: data.memberName,
+                                    level: data.syncroLevel,
+                                    character: `${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}`,
+                                    upgrade: stat.upgrade,
+                                    deckPower: data.deckPower.toLocaleString(),
+                                    elementPlusAtk: `${(stat.trainingLevel >= 100 ? '🔴' : 
+                                        stat.trainingLevel >= 80 ? '🟠' : 
+                                        stat.trainingLevel >= 60 ? '🟡' : 
+                                        stat.trainingLevel >= 40 ? '🟢' : 
+                                        stat.trainingLevel >= 20 ? '🔵' : '⚪')} ${stat.elementPlusAtk}`,
+                                    increaseElementDamage: stat.increaseElementDamage,
+                                    increaseAtk: stat.increaseAtk,
+                                    ammunition: stat.increaseMaxAmmunitionCapacity,
+                                    chargeSpeed: stat.increaseChargeSpeed,
+                                    chargeDamage: stat.increaseChargeDamage,
+                                    criticalRate: stat.increaseCriticalRate,
+                                    criticalDamage: stat.increaseCriticalDamage,
+                                    hitRate: stat.increaseHitRate,
+                                    defenseIncrease: stat.increaseDef,
+                                    attack: stat.atk.toLocaleString(),
+                                    item: (stat.itemGrade !== undefined && stat.itemGrade !== '' && stat.itemLevel !== undefined) ? `<span class="item-grade-${stat.itemGrade}">${stat.itemGrade} ${stat.itemLevel}</span>` : '',
+                                    skill1: stat.skill1,
+                                    skill2: stat.skill2,
+                                    skill3: stat.skill3
+                                };
+                                
+                                let cellsHtml = '';
+                                const columns = columnDefinitions.deck;
+                                
+                                columns.forEach(column => {
+                                    if (visibleColumns[column.id] !== false) {
+                                        let cellContent = columnData[column.id];
+                                        let cellAttributes = '';
+                                        
+                                        // 특별한 속성 처리
+                                        if (column.id === 'character') {
+                                            cellAttributes = ' class="character-col"';
+                                        }
+                                        if (column.id === 'chargeSpeed' && stat.characterName === "앨리스" && stat.increaseChargeSpeed <= 8) {
+                                            cellAttributes = ' style="color:red"';
+                                        }
+                                        
+                                        // rowspan 처리 (첫 번째 행에서만)
+                                        if (i === 0 && ['rank', 'nickname', 'level', 'deckPower'].includes(column.id)) {
+                                            cellAttributes += ` rowspan="${rowCount}"`;
+                                        } else if (i > 0 && ['rank', 'nickname', 'level', 'deckPower'].includes(column.id)) {
+                                            // 첫 번째 행이 아닌 경우 rowspan 컬럼은 생략
+                                            return;
+                                        }
+                                        
+                                        cellsHtml += `<td${cellAttributes}>${cellContent}</td>`;
+                                    }
+                                });
+                                
+                                tr.innerHTML = cellsHtml;
                                 tbody.appendChild(tr);
                             });
                         });
@@ -979,38 +947,69 @@
 
                         selectedData.forEach((data, index) => {
                             const tr = document.createElement("tr");
-                            tr.innerHTML = `
-                <td>${index + 1}</td>
-                ${showNickname ? `<td>${data.memberName}</td>` : ""}
-                ${showNickname ? `<td>${data.syncroLevel}</td>` : ""}
-                ${showCharacter ? `<td class="character-col">${data.element ? (elementEmojis[data.element] + ' ') : ''} ${data.characterName}</td>` : ""}
-                <td>${data.upgrade}</td>
-                <td>${(data.trainingLevel >= 100 ? '🔴' : 
-                    data.trainingLevel >= 80 ? '🟠' : 
-                    data.trainingLevel >= 60 ? '🟡' : 
-                    data.trainingLevel >= 40 ? '🟢' : 
-                    data.trainingLevel >= 20 ? '🔵' : '⚪')} ${data.elementPlusAtk}</td>
-                <td>${data.increaseElementDamage}</td>
-                <td>${data.increaseAtk}</td>
-                <td>${data.increaseMaxAmmunitionCapacity}</td>
-                <td${data.characterName === "앨리스" && data.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${data.increaseChargeSpeed}</td>
-                <td>${data.increaseChargeDamage}</td>
-                <td>${data.increaseCriticalRate}</td>
-                <td>${data.increaseCriticalDamage}</td>
-                <td>${data.increaseHitRate}</td>
-                <td>${data.increaseDef}</td>
-                <td>${data.atk.toLocaleString()}</td>
-                <td>${(data.itemGrade !== undefined && data.itemGrade !== '' && data.itemLevel !== undefined) ? `<span class="item-grade-${data.itemGrade}">${data.itemGrade} ${data.itemLevel}</span>` : ''}</td>
-                <td>${data.skill1}</td>
-                <td>${data.skill2}</td>
-                <td>${data.skill3}</td>
-              `;
+                            
+                            // 컬럼 데이터 매핑
+                            const columnData = {
+                                rank: index + 1,
+                                nickname: data.memberName,
+                                level: data.syncroLevel,
+                                character: `${data.element ? (elementEmojis[data.element] + ' ') : ''} ${data.characterName}`,
+                                upgrade: data.upgrade,
+                                elementPlusAtk: `${(data.trainingLevel >= 100 ? '🔴' : 
+                                    data.trainingLevel >= 80 ? '🟠' : 
+                                    data.trainingLevel >= 60 ? '🟡' : 
+                                    data.trainingLevel >= 40 ? '🟢' : 
+                                    data.trainingLevel >= 20 ? '🔵' : '⚪')} ${data.elementPlusAtk}`,
+                                increaseElementDamage: data.increaseElementDamage,
+                                increaseAtk: data.increaseAtk,
+                                ammunition: data.increaseMaxAmmunitionCapacity,
+                                chargeSpeed: data.increaseChargeSpeed,
+                                chargeDamage: data.increaseChargeDamage,
+                                criticalRate: data.increaseCriticalRate,
+                                criticalDamage: data.increaseCriticalDamage,
+                                hitRate: data.increaseHitRate,
+                                defenseIncrease: data.increaseDef,
+                                attack: data.atk.toLocaleString(),
+                                item: (data.itemGrade !== undefined && data.itemGrade !== '' && data.itemLevel !== undefined) ? `<span class="item-grade-${data.itemGrade}">${data.itemGrade} ${data.itemLevel}</span>` : '',
+                                skill1: data.skill1,
+                                skill2: data.skill2,
+                                skill3: data.skill3
+                            };
+                            
+                            let cellsHtml = '';
+                            let columns = columnDefinitions.normal;
+                            
+                            // 조건부 컬럼 필터링
+                            columns = columns.filter(column => {
+                                if (column.conditional) {
+                                    if (column.id === 'nickname' && selectedMember) return false;
+                                    if (column.id === 'level' && selectedMember) return false;
+                                    if (column.id === 'character' && selectedCharacter) return false;
+                                }
+                                return true;
+                            });
+                            
+                            columns.forEach(column => {
+                                if (visibleColumns[column.id] !== false) {
+                                    let cellContent = columnData[column.id];
+                                    let cellAttributes = '';
+                                    
+                                    // 특별한 속성 처리
+                                    if (column.id === 'character') {
+                                        cellAttributes = ' class="character-col"';
+                                    }
+                                    if (column.id === 'chargeSpeed' && data.characterName === "앨리스" && data.increaseChargeSpeed <= 8) {
+                                        cellAttributes = ' style="color:red"';
+                                    }
+                                    
+                                    cellsHtml += `<td${cellAttributes}>${cellContent}</td>`;
+                                }
+                            });
+                            
+                            tr.innerHTML = cellsHtml;
                             tbody.appendChild(tr);
                         });
                     }
-                    
-                    // 테이블 업데이트 후 컬럼 가시성 적용
-                    setTimeout(() => updateColumnVisibility(), 0);
                 }
 
                 // 이벤트 리스너 등록
