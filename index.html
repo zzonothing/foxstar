@@ -222,7 +222,6 @@
         <!-- 정렬 기준 (개별 모드에 적용, 덱 모드에서는 덱 파워 기준 정렬) -->
         <label for="sortSelect">정렬: </label>
         <select id="sortSelect">
-            <option value="elementPlusAtk">파워</option>
             <option value="increaseElementDamage">우코</option>
             <option value="increaseAtk">공증</option>
         </select>
@@ -381,7 +380,6 @@
                 { id: 'level', name: '레벨', conditional: true }, // 멤버 선택시 숨김
                 { id: 'character', name: '캐릭터', conditional: true }, // 캐릭터 선택시 숨김
                 { id: 'upgrade', name: '돌파' },
-                { id: 'elementPlusAtk', name: '파워' },
                 { id: 'increaseElementDamage', name: '우코' },
                 { id: 'increaseAtk', name: '공증' },
                 { id: 'ammunition', name: '장탄' },
@@ -404,7 +402,6 @@
                 { id: 'character', name: '캐릭터', alwaysVisible: true },
                 { id: 'upgrade', name: '돌파' },
                 { id: 'deckPower', name: '덱파워', alwaysVisible: true },
-                { id: 'elementPlusAtk', name: '파워' },
                 { id: 'increaseElementDamage', name: '우코' },
                 { id: 'increaseAtk', name: '공증' },
                 { id: 'ammunition', name: '장탄' },
@@ -543,6 +540,36 @@
                     renderTableContent();
                 }
                 
+                // 우코 값에 따른 색상 원 추가 함수
+                function getElementDamageDisplay(value) {
+                    let circle = '';
+                    if (value >= 94.24) {
+                        circle = '🔴';
+                    } else if (value >= 70.68) {
+                        circle = '🟠';
+                    } else if (value >= 47.12) {
+                        circle = '🟡';
+                    } else {
+                        circle = '⚪';
+                    }
+                    return `${circle} ${value}`;
+                }
+                
+                // 공증 값에 따른 색상 원 추가 함수
+                function getAttackDisplay(value) {
+                    let circle = '';
+                    if (value >= 47.24) {
+                        circle = '🔴';
+                    } else if (value >= 35.43) {
+                        circle = '🟠';
+                    } else if (value >= 23.62) {
+                        circle = '🟡';
+                    } else {
+                        circle = '⚪';
+                    }
+                    return `${circle} ${value}`;
+                }
+                
                 // 테이블 내용만 렌더링하는 함수 (체크박스 재생성 없음) - 성능 최적화
                 function renderTableContent() {
                     const startTime = performance.now();
@@ -647,13 +674,8 @@
                                     character: `${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}`,
                                     upgrade: stat.upgrade,
                                     deckPower: data.deckPower.toLocaleString(),
-                                    elementPlusAtk: `${(stat.trainingLevel >= 100 ? '🔴' : 
-                                        stat.trainingLevel >= 80 ? '🟠' : 
-                                        stat.trainingLevel >= 60 ? '🟡' : 
-                                        stat.trainingLevel >= 40 ? '🟢' : 
-                                        stat.trainingLevel >= 20 ? '🔵' : '⚪')} ${stat.elementPlusAtk}`,
-                                    increaseElementDamage: stat.increaseElementDamage,
-                                    increaseAtk: stat.increaseAtk,
+                                    increaseElementDamage: getElementDamageDisplay(stat.increaseElementDamage),
+                                    increaseAtk: getAttackDisplay(stat.increaseAtk),
                                     ammunition: stat.increaseMaxAmmunitionCapacity,
                                     chargeSpeed: stat.increaseChargeSpeed,
                                     chargeDamage: stat.increaseChargeDamage,
@@ -774,13 +796,8 @@
                                 level: data.syncroLevel,
                                 character: `${data.element ? (elementEmojis[data.element] + ' ') : ''} ${data.characterName}`,
                                 upgrade: data.upgrade,
-                                elementPlusAtk: `${(data.trainingLevel >= 100 ? '🔴' : 
-                                    data.trainingLevel >= 80 ? '🟠' : 
-                                    data.trainingLevel >= 60 ? '🟡' : 
-                                    data.trainingLevel >= 40 ? '🟢' : 
-                                    data.trainingLevel >= 20 ? '🔵' : '⚪')} ${data.elementPlusAtk}`,
-                                increaseElementDamage: data.increaseElementDamage,
-                                increaseAtk: data.increaseAtk,
+                                increaseElementDamage: getElementDamageDisplay(data.increaseElementDamage),
+                                increaseAtk: getAttackDisplay(data.increaseAtk),
                                 ammunition: data.increaseMaxAmmunitionCapacity,
                                 chargeSpeed: data.increaseChargeSpeed,
                                 chargeDamage: data.increaseChargeDamage,
@@ -1008,10 +1025,8 @@
                             
                             // 정렬 표시
                             const headers = {
-                                "elementPlusAtk": "파워",
                                 "increaseElementDamage": "우코",
-                                "increaseAtk": "공증",
-                                "trainingLevel": "파워"
+                                "increaseAtk": "공증"
                             };
                             
                             if (headers[sortBy] === column.name) {
