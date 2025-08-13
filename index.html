@@ -163,6 +163,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
+            justify-content: center;
         }
 
         .column-checkbox {
@@ -367,8 +368,13 @@
                 { id: 'elementPlusAtk', name: '우코x공증' },
                 { id: 'increaseElementDamage', name: '우코' },
                 { id: 'increaseAtk', name: '공증' },
-                { id: 'chargeSpeed', name: '차속' },
                 { id: 'ammunition', name: '장탄' },
+                { id: 'chargeSpeed', name: '차속' },
+                { id: 'chargeDamage', name: '차댐' },
+                { id: 'criticalRate', name: '크확' },
+                { id: 'criticalDamage', name: '크댐' },
+                { id: 'hitRate', name: '명중' },
+                { id: 'defenseIncrease', name: '방증' },
                 { id: 'attack', name: '공격력' },
                 { id: 'item', name: '소장품' },
                 { id: 'skill1', name: '스킬1' },
@@ -385,8 +391,13 @@
                 { id: 'elementPlusAtk', name: '우코x공증' },
                 { id: 'increaseElementDamage', name: '우코' },
                 { id: 'increaseAtk', name: '공증' },
-                { id: 'chargeSpeed', name: '차속' },
                 { id: 'ammunition', name: '장탄' },
+                { id: 'chargeSpeed', name: '차속' },
+                { id: 'chargeDamage', name: '차댐' },
+                { id: 'criticalRate', name: '크확' },
+                { id: 'criticalDamage', name: '크댐' },
+                { id: 'hitRate', name: '명중' },
+                { id: 'defenseIncrease', name: '방증' },
                 { id: 'attack', name: '공격력' },
                 { id: 'item', name: '소장품' },
                 { id: 'skill1', name: '스킬1' },
@@ -678,8 +689,13 @@
                         <th>우코x공증</th>
                         <th>우코</th>
                         <th>공증</th>
-                        <th>차속</th>
                         <th>장탄</th>
+                        <th>차속</th>
+                        <th>차댐</th>
+                        <th>크확</th>
+                        <th>크댐</th>
+                        <th>명중</th>
+                        <th>방증</th>
                         <th>공격력</th>
                         <th>소장품</th>
                         <th>스킬1</th>
@@ -711,8 +727,13 @@
       <th>우코x공증</th>
       <th>우코</th>
       <th>공증</th>
-      <th>차속</th>
       <th>장탄</th>
+      <th>차속</th>
+      <th>차댐</th>
+      <th>크확</th>
+      <th>크댐</th>
+      <th>명중</th>
+      <th>방증</th>
       <th>공격력</th>
       <th>소장품</th>
       <th>스킬1</th>
@@ -756,10 +777,15 @@
                                         elementPower: elementPower,
                                         nonElementPower: nonElementPower,
                                         elementPlusAtk: elementPlusAtk,
-                                        increaseElementDamage: charData.increaseElementDamage,
-                                        increaseAtk: charData.increaseAtk,
-                                        increaseChargeSpeed: charData.increaseChargeSpeed,
-                                        increaseMaxAmmunitionCapacity: charData.increaseMaxAmmunitionCapacity,
+                                        increaseElementDamage: charData.increaseElementDamage || 0,
+                                        increaseAtk: charData.increaseAtk || 0,
+                                        increaseChargeSpeed: charData.increaseChargeSpeed || 0,
+                                        increaseMaxAmmunitionCapacity: charData.increaseMaxAmmunitionCapacity || 0,
+                                        increaseChargeDamage: charData.increaseChargeDamage || 0,
+                                        increaseCriticalRate: charData.increaseCriticalRate || 0,
+                                        increaseCriticalDamage: charData.increaseCriticalDamage || 0,
+                                        increaseHitRate: charData.increaseHitRate || 0,
+                                        increaseDef: charData.increaseDef || 0,
                                         atk: charData.atk,
                                         skill1: charData.skill1,
                                         skill2: charData.skill2,
@@ -824,8 +850,13 @@
                     <td>${stat.elementPlusAtk}</td>
                     <td>${stat.increaseElementDamage}</td>                    
                     <td>${stat.increaseAtk}</td>
-                    <td${stat.characterName === "앨리스" && stat.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${stat.increaseChargeSpeed}</td>
                     <td>${stat.increaseMaxAmmunitionCapacity}</td>
+                    <td${stat.characterName === "앨리스" && stat.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${stat.increaseChargeSpeed}</td>
+                    <td>${stat.increaseChargeDamage}</td>
+                    <td>${stat.increaseCriticalRate}</td>
+                    <td>${stat.increaseCriticalDamage}</td>
+                    <td>${stat.increaseHitRate}</td>
+                    <td>${stat.increaseDef}</td>
                     <td>${stat.atk.toLocaleString()}</td>
                     <td>${(stat.itemGrade !== undefined && stat.itemGrade !== '' && stat.itemLevel !== undefined) ? `<span class="item-grade-${stat.itemGrade}">${stat.itemGrade} ${stat.itemLevel}</span>` : ''}</td>
                     <td>${stat.skill1}</td>
@@ -842,8 +873,13 @@
                     <td>${stat.elementPlusAtk}</td>
                     <td>${stat.increaseElementDamage}</td>
                     <td>${stat.increaseAtk}</td>
-                    <td${stat.characterName === "앨리스" && stat.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${stat.increaseChargeSpeed}</td>
                     <td>${stat.increaseMaxAmmunitionCapacity}</td>
+                    <td${stat.characterName === "앨리스" && stat.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${stat.increaseChargeSpeed}</td>
+                    <td>${stat.increaseChargeDamage}</td>
+                    <td>${stat.increaseCriticalRate}</td>
+                    <td>${stat.increaseCriticalDamage}</td>
+                    <td>${stat.increaseHitRate}</td>
+                    <td>${stat.increaseDef}</td>
                     <td>${stat.atk.toLocaleString()}</td>
                     <td>${(stat.itemGrade !== undefined && stat.itemGrade !== '' && stat.itemLevel !== undefined) ? `<span class="item-grade-${stat.itemGrade}">${stat.itemGrade} ${stat.itemLevel}</span>` : ''}</td>
                     <td>${stat.skill1}</td>
@@ -873,10 +909,15 @@
                                     elementPower: Math.round(character.atk * (1 + character.increaseAtk / 200) * (1 + character.increaseElementDamage / 100)),
                                     nonElementPower: Math.round(character.atk * (1 + character.increaseAtk / 200)),
                                     elementPlusAtk: Math.round(((1 + character.increaseAtk / 200) * (1 + character.increaseElementDamage / 100) - 1) * 10000) / 100,
-                                    increaseElementDamage: character.increaseElementDamage,
-                                    increaseAtk: character.increaseAtk,
-                                    increaseChargeSpeed: character.increaseChargeSpeed,
-                                    increaseMaxAmmunitionCapacity: character.increaseMaxAmmunitionCapacity,
+                                    increaseElementDamage: character.increaseElementDamage || 0,
+                                    increaseAtk: character.increaseAtk || 0,
+                                    increaseChargeSpeed: character.increaseChargeSpeed || 0,
+                                    increaseMaxAmmunitionCapacity: character.increaseMaxAmmunitionCapacity || 0,
+                                    increaseChargeDamage: character.increaseChargeDamage || 0,
+                                    increaseCriticalRate: character.increaseCriticalRate || 0,
+                                    increaseCriticalDamage: character.increaseCriticalDamage || 0,
+                                    increaseHitRate: character.increaseHitRate || 0,
+                                    increaseDef: character.increaseDef || 0,
                                     atk: character.atk,
                                     skill1: character.skill1,
                                     skill2: character.skill2,
@@ -908,8 +949,13 @@
                 <td>${data.elementPlusAtk}</td>
                 <td>${data.increaseElementDamage}</td>
                 <td>${data.increaseAtk}</td>
-                <td${data.characterName === "앨리스" && data.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${data.increaseChargeSpeed}</td>
                 <td>${data.increaseMaxAmmunitionCapacity}</td>
+                <td${data.characterName === "앨리스" && data.increaseChargeSpeed <= 8 ? ` style="color:red"` : ""}>${data.increaseChargeSpeed}</td>
+                <td>${data.increaseChargeDamage}</td>
+                <td>${data.increaseCriticalRate}</td>
+                <td>${data.increaseCriticalDamage}</td>
+                <td>${data.increaseHitRate}</td>
+                <td>${data.increaseDef}</td>
                 <td>${data.atk.toLocaleString()}</td>
                 <td>${(data.itemGrade !== undefined && data.itemGrade !== '' && data.itemLevel !== undefined) ? `<span class="item-grade-${data.itemGrade}">${data.itemGrade} ${data.itemLevel}</span>` : ''}</td>
                 <td>${data.skill1}</td>
