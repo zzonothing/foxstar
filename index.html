@@ -209,24 +209,34 @@
     </div>
     <div>
         <!-- 개별 모드용 드롭다운 -->
-        <label for="characterSelect">캐릭터 선택: </label>
+        <label for="characterSelect">캐릭터: </label>
         <select id="characterSelect">
             <option value="">-- 전체 캐릭터 --</option>
         </select>
     
-        <label for="memberSelect">멤버 선택: </label>
+        <label for="memberSelect">멤버: </label>
         <select id="memberSelect">
             <option value="">-- 전체 멤버 --</option>
         </select>
     
         <!-- 정렬 기준 (개별 모드에 적용, 덱 모드에서는 덱 파워 기준 정렬) -->
-        <label for="sortSelect">정렬 기준: </label>
+        <label for="sortSelect">정렬: </label>
         <select id="sortSelect">
-            <option value="trainingLevel">육성</option>
-            <option value="elementPlusAtk">우코x공증</option>
+            <option value="elementPlusAtk">파워</option>
             <option value="increaseElementDamage">우코</option>
             <option value="increaseAtk">공증</option>
         </select>
+        
+        <label for="conditionSelect" style="margin-left:10px;">조건: </label>
+        <select id="conditionSelect">
+            <option value="">-- 전체 --</option>
+            <option value="deck1">💜 전격</option>
+            <option value="deck2">🟩 풍압</option>
+            <option value="deck3">🟥 작열</option>
+            <option value="deck4">🟦 수냉</option>
+            <option value="deck5">🟩 풍압</option>
+        </select>
+        
         <button id="exportButton" class="export-button">Excel</button>
     </div>
 
@@ -515,6 +525,7 @@
                 const selectCharacter = document.getElementById('characterSelect');
                 const selectMember = document.getElementById('memberSelect');
                 const selectSort = document.getElementById('sortSelect');
+                const selectCondition = document.getElementById('conditionSelect');
                 const tbody = document.getElementById('statsTable').querySelector('tbody');
                 const tableHeader = document.getElementById('tableHeader');
                 const deckMemberSelect = document.getElementById('deckMemberSelect');
@@ -539,6 +550,7 @@
                     const selectedCharacter = selectCharacter.value;
                     const selectedMember = selectMember.value;
                     const sortBy = selectSort.value;
+                    const selectedCondition = selectCondition.value;
                     
                     // DocumentFragment 사용으로 DOM 조작 최적화
                     const fragment = document.createDocumentFragment();
@@ -680,9 +692,6 @@
                                             return;
                                         }
                                         
-                                        // data-column attribute 추가
-                                        cellAttributes += ` data-column="${column.id}"`;
-                                        
                                         cellsHtml += `<td${cellAttributes}>${cellContent}</td>`;
                                     }
                                 });
@@ -699,6 +708,23 @@
                                 if ((selectedCharacter && character.name !== selectedCharacter) ||
                                     (selectedMember && member.name !== selectedMember)) {
                                     return;
+                                }
+                                
+                                // 조건 필터링 적용 (element 기반)
+                                if (selectedCondition && selectedCondition !== "") {
+                                    // 덱 ID를 element로 매핑
+                                    const deckToElement = {
+                                        "deck1": "전격",
+                                        "deck2": "풍압", 
+                                        "deck3": "작열",
+                                        "deck4": "수냉",
+                                        "deck5": "풍압"
+                                    };
+                                    
+                                    const targetElement = deckToElement[selectedCondition];
+                                    if (targetElement && character.element !== targetElement) {
+                                        return;
+                                    }
                                 }
                                 const elementPlusAtk = Math.round(((1 + character.increaseAtk / 200) * (1 + character.increaseElementDamage / 100) - 1) * 10000) / 100;                                
                                 const trainingLevel = elementPlusAtk;
@@ -795,9 +821,6 @@
                                         cellAttributes = ' style="color:red"';
                                     }
                                     
-                                    // data-column attribute 추가
-                                    cellAttributes += ` data-column="${column.id}"`;
-                                    
                                     cellsHtml += `<td${cellAttributes}>${cellContent}</td>`;
                                 }
                             });
@@ -852,40 +875,22 @@
                         checkboxDiv.appendChild(span);
                         container.appendChild(checkboxDiv);
                         
-                        // 이벤트 리스너 추가 (즉시 반응 CSS 방식)
+                        // 이벤트 리스너 추가 (디바운싱 적용)
+                        let debounceTimer;
                         checkbox.addEventListener('change', function() {
                             console.log(`체크박스 ${column.id} 변경됨:`, this.checked);
                             visibleColumns[column.id] = this.checked;
                             
-                            // 즉시 CSS로 컬럼 숨김/표시 처리
-                            toggleColumnVisibilityCSS(column.id, this.checked);
+                            // 디바운싱: 빠른 연속 클릭을 방지하여 성능 향상
+                            clearTimeout(debounceTimer);
+                            debounceTimer = setTimeout(() => {
+                                console.log('renderTableContent 호출 (디바운싱)');
+                                renderTableContent();
+                            }, 50); // 50ms 지연
                         });
                     });
                 }
 
-                // CSS를 이용한 즉시 컬럼 visibility 토글 (data attribute 방식)
-                function toggleColumnVisibilityCSS(columnId, isVisible) {
-                    // CSS 선택자를 이용해 해당 컬럼 즉시 숨김/표시
-                    const styleId = `column-${columnId}-style`;
-                    let styleElement = document.getElementById(styleId);
-                    
-                    if (!styleElement) {
-                        styleElement = document.createElement('style');
-                        styleElement.id = styleId;
-                        document.head.appendChild(styleElement);
-                    }
-                    
-                    if (isVisible) {
-                        styleElement.textContent = '';
-                    } else {
-                        styleElement.textContent = `
-                            #statsTable th[data-column="${columnId}"],
-                            #statsTable td[data-column="${columnId}"] {
-                                display: none !important;
-                            }
-                        `;
-                    }
-                }
 
                 // 개별 모드용 드롭다운 채우기: 캐릭터, 멤버 목록
                 const characterNamesSet = new Set();
@@ -1020,9 +1025,6 @@
                                 headerClass = ' class="character-col"';
                             }
                             
-                            // data-column attribute 추가
-                            headerClass += ` data-column="${column.id}"`;
-                            
                             headerHtml += `<th${headerClass}>${headerText}</th>`;
                         }
                     });
@@ -1051,9 +1053,6 @@
                                 headerText += ' ▼';
                             }
                             
-                            // data-column attribute 추가
-                            rowspanAttr += ` data-column="${column.id}"`;
-                            
                             headerHtml += `<th${rowspanAttr}>${headerText}</th>`;
                         }
                     });
@@ -1079,6 +1078,7 @@
                 selectCharacter.addEventListener("change", updateTable);
                 selectMember.addEventListener("change", updateTable);
                 selectSort.addEventListener("change", updateTable);
+                selectCondition.addEventListener("change", updateTable);
                 deckMemberSelect.addEventListener("change", updateTable);
 
                 // 초기 헤더 설정 (개별 모드 기본)
@@ -1086,13 +1086,6 @@
                 
                 // 초기 컬럼 체크박스 생성
                 createColumnCheckboxes('normal');
-
-                // 기본 숨김 컬럼들에 대해 즉시 CSS 적용
-                Object.keys(visibleColumns).forEach(columnId => {
-                    if (visibleColumns[columnId] === false) {
-                        toggleColumnVisibilityCSS(columnId, false);
-                    }
-                });
 
                 updateTable(); // 초기 테이블 업데이트
             })
