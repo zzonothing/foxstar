@@ -454,8 +454,10 @@
                 
                 // 이벤트 리스너 추가
                 checkbox.addEventListener('change', function() {
+                    console.log(`체크박스 ${column.id} 변경됨:`, this.checked);
                     visibleColumns[column.id] = this.checked;
-                    updateColumnVisibility();
+                    console.log('renderTableContent 직접 호출');
+                    renderTableContent();
                 });
             });
         }
@@ -571,6 +573,7 @@
 
                 // 컬럼 가시성 업데이트 함수
                 function updateColumnVisibility() {
+                    console.log('updateColumnVisibility 호출됨', visibleColumns);
                     // 체크박스 재생성 없이 테이블만 다시 렌더링
                     renderTableContent();
                 }
