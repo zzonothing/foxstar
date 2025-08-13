@@ -144,6 +144,41 @@
         .export-button:hover {
             background-color: #45a049;
         }
+
+        /* 컬럼 체크박스 스타일 */
+        .column-controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .column-controls label {
+            font-weight: 600;
+            margin-right: 15px;
+        }
+
+        .column-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .column-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .column-checkbox input[type="checkbox"] {
+            margin: 0;
+        }
+
+        .column-checkbox span {
+            font-size: 14px;
+            white-space: nowrap;
+        }
     </style>
 </head>
 
@@ -186,6 +221,14 @@
             <option value="increaseAtk">공증</option>
         </select>
         <button id="exportButton" class="export-button">Excel</button>
+    </div>
+
+    <!-- 컬럼 visibility 컨트롤 -->
+    <div class="column-controls">
+        <label>컬럼:</label>
+        <div class="column-checkboxes" id="columnCheckboxes">
+            <!-- JavaScript로 동적 생성 -->
+        </div>
     </div>
 
     <!-- 스탯 출력 테이블 -->
@@ -312,6 +355,139 @@
 
         // 이벤트 리스너 등록
         document.getElementById('exportButton').addEventListener('click', exportTableToCSV);
+
+        // 컬럼 정의 (덱 모드와 개별 모드에 따라 다름)
+        const columnDefinitions = {
+            normal: [
+                { id: 'rank', name: '순위', alwaysVisible: true },
+                { id: 'nickname', name: '닉네임', conditional: true }, // 멤버 선택시 숨김
+                { id: 'character', name: '캐릭터', conditional: true }, // 캐릭터 선택시 숨김
+                { id: 'upgrade', name: '돌파' },
+                { id: 'training', name: '육성' },
+                { id: 'elementPlusAtk', name: '우코x공증' },
+                { id: 'increaseElementDamage', name: '우코' },
+                { id: 'increaseAtk', name: '공증' },
+                { id: 'chargeSpeed', name: '차속' },
+                { id: 'ammunition', name: '장탄' },
+                { id: 'attack', name: '공격력' },
+                { id: 'item', name: '소장품' },
+                { id: 'skill1', name: '스킬1' },
+                { id: 'skill2', name: '스킬2' },
+                { id: 'skill3', name: '스킬3' }
+            ],
+            deck: [
+                { id: 'rank', name: '순위', alwaysVisible: true },
+                { id: 'nickname', name: '닉네임', alwaysVisible: true },
+                { id: 'deckPower', name: '덱파워', alwaysVisible: true },
+                { id: 'character', name: '캐릭터', alwaysVisible: true },
+                { id: 'upgrade', name: '돌파' },
+                { id: 'training', name: '육성' },
+                { id: 'elementPlusAtk', name: '우코x공증' },
+                { id: 'increaseElementDamage', name: '우코' },
+                { id: 'increaseAtk', name: '공증' },
+                { id: 'chargeSpeed', name: '차속' },
+                { id: 'ammunition', name: '장탄' },
+                { id: 'attack', name: '공격력' },
+                { id: 'item', name: '소장품' },
+                { id: 'skill1', name: '스킬1' },
+                { id: 'skill2', name: '스킬2' },
+                { id: 'skill3', name: '스킬3' }
+            ]
+        };
+
+        // 현재 보이는 컬럼들 상태 관리
+        let visibleColumns = {};
+
+        // 컬럼 체크박스 생성 함수
+        function createColumnCheckboxes(mode = 'normal') {
+            const container = document.getElementById('columnCheckboxes');
+            container.innerHTML = '';
+            
+            const columns = columnDefinitions[mode];
+            const selectedCharacter = document.getElementById('characterSelect').value;
+            const selectedMember = document.getElementById('memberSelect').value;
+            
+            columns.forEach(column => {
+                // 조건부 컬럼 체크
+                if (column.conditional) {
+                    if (column.id === 'nickname' && selectedMember) return;
+                    if (column.id === 'character' && selectedCharacter) return;
+                }
+                
+                const checkboxDiv = document.createElement('div');
+                checkboxDiv.className = 'column-checkbox';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `col-${column.id}`;
+                checkbox.checked = visibleColumns[column.id] !== false; // 기본값은 true
+                
+                const span = document.createElement('span');
+                span.textContent = column.name;
+                
+                checkboxDiv.appendChild(checkbox);
+                checkboxDiv.appendChild(span);
+                container.appendChild(checkboxDiv);
+                
+                // 이벤트 리스너 추가
+                checkbox.addEventListener('change', function() {
+                    visibleColumns[column.id] = this.checked;
+                    updateColumnVisibility();
+                });
+            });
+        }
+
+        // 컬럼 가시성 업데이트 함수
+        function updateColumnVisibility() {
+            const table = document.getElementById('statsTable');
+            const headers = table.querySelectorAll('th');
+            const rows = table.querySelectorAll('tbody tr');
+            
+            // 헤더 가시성 업데이트
+            headers.forEach((header, index) => {
+                const columnId = getColumnIdByIndex(index);
+                if (columnId && visibleColumns[columnId] === false) {
+                    header.style.display = 'none';
+                } else {
+                    header.style.display = '';
+                }
+            });
+            
+            // 데이터 행 가시성 업데이트
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                cells.forEach((cell, index) => {
+                    const columnId = getColumnIdByIndex(index);
+                    if (columnId && visibleColumns[columnId] === false) {
+                        cell.style.display = 'none';
+                    } else {
+                        cell.style.display = '';
+                    }
+                });
+            });
+        }
+
+        // 인덱스로 컬럼 ID 가져오기
+        function getColumnIdByIndex(index) {
+            const deckMode = document.getElementById('deckSelect').value !== "";
+            const selectedCharacter = document.getElementById('characterSelect').value;
+            const selectedMember = document.getElementById('memberSelect').value;
+            
+            let columns = columnDefinitions[deckMode ? 'deck' : 'normal'];
+            
+            // 조건부 컬럼 필터링
+            if (!deckMode) {
+                columns = columns.filter(column => {
+                    if (column.conditional) {
+                        if (column.id === 'nickname' && selectedMember) return false;
+                        if (column.id === 'character' && selectedCharacter) return false;
+                    }
+                    return true;
+                });
+            }
+            
+            return columns[index] ? columns[index].id : null;
+        }
 
         // 덱 구성 정보를 미리 정의 (추후 덱이 추가될 때 유연하게 적용)
         const decks = {
@@ -554,6 +730,9 @@
                     const sortBy = selectSort.value;
                     tbody.innerHTML = "";
                     updateDeckMemberSelect();
+                    
+                    // 컬럼 체크박스 업데이트
+                    createColumnCheckboxes(deckMode ? 'deck' : 'normal');
 
                     if (deckMode) {
                         // 덱 모드: 덱에 정의된 모든 캐릭터를 보유한 멤버만 표시
@@ -740,6 +919,9 @@
                             tbody.appendChild(tr);
                         });
                     }
+                    
+                    // 테이블 업데이트 후 컬럼 가시성 적용
+                    setTimeout(() => updateColumnVisibility(), 0);
                 }
 
                 // 이벤트 리스너 등록
@@ -751,6 +933,9 @@
 
                 // 초기 헤더 설정 (개별 모드 기본)
                 updateNormalHeader(selectSort.value);
+                
+                // 초기 컬럼 체크박스 생성
+                createColumnCheckboxes('normal');
 
                 updateTable(); // 초기 테이블 업데이트
             })
