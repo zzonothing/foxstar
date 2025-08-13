@@ -680,6 +680,9 @@
                                             return;
                                         }
                                         
+                                        // data-column attribute 추가
+                                        cellAttributes += ` data-column="${column.id}"`;
+                                        
                                         cellsHtml += `<td${cellAttributes}>${cellContent}</td>`;
                                     }
                                 });
@@ -792,6 +795,9 @@
                                         cellAttributes = ' style="color:red"';
                                     }
                                     
+                                    // data-column attribute 추가
+                                    cellAttributes += ` data-column="${column.id}"`;
+                                    
                                     cellsHtml += `<td${cellAttributes}>${cellContent}</td>`;
                                 }
                             });
@@ -846,54 +852,20 @@
                         checkboxDiv.appendChild(span);
                         container.appendChild(checkboxDiv);
                         
-                        // 이벤트 리스너 추가 (디바운싱 적용)
-                        let debounceTimer;
+                        // 이벤트 리스너 추가 (즉시 반응 CSS 방식)
                         checkbox.addEventListener('change', function() {
                             console.log(`체크박스 ${column.id} 변경됨:`, this.checked);
                             visibleColumns[column.id] = this.checked;
                             
-                            // 디바운싱: 빠른 연속 클릭을 방지하여 성능 향상
-                            clearTimeout(debounceTimer);
-                            debounceTimer = setTimeout(() => {
-                                console.log('renderTableContent 호출 (디바운싱)');
-                                renderTableContent();
-                            }, 50); // 50ms 지연
+                            // 즉시 CSS로 컬럼 숨김/표시 처리
+                            toggleColumnVisibilityCSS(column.id, this.checked);
                         });
                     });
                 }
 
-                // CSS를 이용한 빠른 컬럼 visibility 토글
-                function toggleColumnVisibility(columnId, isVisible) {
-                    const table = document.getElementById('statsTable');
-                    const deckMode = selectDeck.value !== "";
-                    
-                    // 컬럼 인덱스 찾기
-                    let columnIndex = -1;
-                    const columns = columnDefinitions[deckMode ? 'deck' : 'normal'];
-                    const selectedCharacter = selectCharacter.value;
-                    const selectedMember = selectMember.value;
-                    
-                    // 조건부 컬럼 필터링
-                    let visibleColumnsList = columns.filter(column => {
-                        if (column.conditional) {
-                            if (column.id === 'nickname' && selectedMember) return false;
-                            if (column.id === 'level' && selectedMember) return false;
-                            if (column.id === 'character' && selectedCharacter) return false;
-                        }
-                        return true;
-                    });
-                    
-                    // 컬럼 인덱스 찾기
-                    for (let i = 0; i < visibleColumnsList.length; i++) {
-                        if (visibleColumnsList[i].id === columnId) {
-                            columnIndex = i;
-                            break;
-                        }
-                    }
-                    
-                    if (columnIndex === -1) return;
-                    
-                    // CSS 선택자를 이용해 해당 컬럼 숨김/표시
+                // CSS를 이용한 즉시 컬럼 visibility 토글 (data attribute 방식)
+                function toggleColumnVisibilityCSS(columnId, isVisible) {
+                    // CSS 선택자를 이용해 해당 컬럼 즉시 숨김/표시
                     const styleId = `column-${columnId}-style`;
                     let styleElement = document.getElementById(styleId);
                     
@@ -907,8 +879,8 @@
                         styleElement.textContent = '';
                     } else {
                         styleElement.textContent = `
-                            #statsTable th:nth-child(${columnIndex + 1}),
-                            #statsTable td:nth-child(${columnIndex + 1}) {
+                            #statsTable th[data-column="${columnId}"],
+                            #statsTable td[data-column="${columnId}"] {
                                 display: none !important;
                             }
                         `;
@@ -1048,6 +1020,9 @@
                                 headerClass = ' class="character-col"';
                             }
                             
+                            // data-column attribute 추가
+                            headerClass += ` data-column="${column.id}"`;
+                            
                             headerHtml += `<th${headerClass}>${headerText}</th>`;
                         }
                     });
@@ -1075,6 +1050,9 @@
                             if (column.id === 'deckPower') {
                                 headerText += ' ▼';
                             }
+                            
+                            // data-column attribute 추가
+                            rowspanAttr += ` data-column="${column.id}"`;
                             
                             headerHtml += `<th${rowspanAttr}>${headerText}</th>`;
                         }
@@ -1108,6 +1086,13 @@
                 
                 // 초기 컬럼 체크박스 생성
                 createColumnCheckboxes('normal');
+
+                // 기본 숨김 컬럼들에 대해 즉시 CSS 적용
+                Object.keys(visibleColumns).forEach(columnId => {
+                    if (visibleColumns[columnId] === false) {
+                        toggleColumnVisibilityCSS(columnId, false);
+                    }
+                });
 
                 updateTable(); // 초기 테이블 업데이트
             })
