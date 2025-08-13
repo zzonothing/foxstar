@@ -362,20 +362,21 @@
             normal: [
                 { id: 'rank', name: '순위', alwaysVisible: true },
                 { id: 'nickname', name: '닉네임', conditional: true }, // 멤버 선택시 숨김
+                { id: 'level', name: '레벨', conditional: true }, // 멤버 선택시 숨김
                 { id: 'character', name: '캐릭터', conditional: true }, // 캐릭터 선택시 숨김
-                { id: 'upgrade', name: '돌파' },
                 { id: 'training', name: '육성' },
+                { id: 'upgrade', name: '돌파' },
                 { id: 'elementPlusAtk', name: '우코x공증' },
                 { id: 'increaseElementDamage', name: '우코' },
                 { id: 'increaseAtk', name: '공증' },
                 { id: 'ammunition', name: '장탄' },
-                { id: 'chargeSpeed', name: '차속' },
-                { id: 'chargeDamage', name: '차댐' },
-                { id: 'criticalRate', name: '크확' },
-                { id: 'criticalDamage', name: '크댐' },
-                { id: 'hitRate', name: '명중' },
-                { id: 'defenseIncrease', name: '방증' },
-                { id: 'attack', name: '공격력' },
+                { id: 'chargeSpeed', name: '차속', defaultHidden: true },
+                { id: 'chargeDamage', name: '차댐', defaultHidden: true },
+                { id: 'criticalRate', name: '크확', defaultHidden: true },
+                { id: 'criticalDamage', name: '크댐', defaultHidden: true },
+                { id: 'hitRate', name: '명중', defaultHidden: true },
+                { id: 'defenseIncrease', name: '방증', defaultHidden: true },
+                { id: 'attack', name: '공격력', defaultHidden: true },
                 { id: 'item', name: '소장품' },
                 { id: 'skill1', name: '스킬1' },
                 { id: 'skill2', name: '스킬2' },
@@ -384,21 +385,22 @@
             deck: [
                 { id: 'rank', name: '순위', alwaysVisible: true },
                 { id: 'nickname', name: '닉네임', alwaysVisible: true },
+                { id: 'level', name: '레벨', alwaysVisible: true },
                 { id: 'deckPower', name: '덱파워', alwaysVisible: true },
                 { id: 'character', name: '캐릭터', alwaysVisible: true },
-                { id: 'upgrade', name: '돌파' },
                 { id: 'training', name: '육성' },
+                { id: 'upgrade', name: '돌파' },
                 { id: 'elementPlusAtk', name: '우코x공증' },
                 { id: 'increaseElementDamage', name: '우코' },
                 { id: 'increaseAtk', name: '공증' },
                 { id: 'ammunition', name: '장탄' },
-                { id: 'chargeSpeed', name: '차속' },
-                { id: 'chargeDamage', name: '차댐' },
-                { id: 'criticalRate', name: '크확' },
-                { id: 'criticalDamage', name: '크댐' },
-                { id: 'hitRate', name: '명중' },
-                { id: 'defenseIncrease', name: '방증' },
-                { id: 'attack', name: '공격력' },
+                { id: 'chargeSpeed', name: '차속', defaultHidden: true },
+                { id: 'chargeDamage', name: '차댐', defaultHidden: true },
+                { id: 'criticalRate', name: '크확', defaultHidden: true },
+                { id: 'criticalDamage', name: '크댐', defaultHidden: true },
+                { id: 'hitRate', name: '명중', defaultHidden: true },
+                { id: 'defenseIncrease', name: '방증', defaultHidden: true },
+                { id: 'attack', name: '공격력', defaultHidden: true },
                 { id: 'item', name: '소장품' },
                 { id: 'skill1', name: '스킬1' },
                 { id: 'skill2', name: '스킬2' },
@@ -422,6 +424,7 @@
                 // 조건부 컬럼 체크
                 if (column.conditional) {
                     if (column.id === 'nickname' && selectedMember) return;
+                    if (column.id === 'level' && selectedMember) return;
                     if (column.id === 'character' && selectedCharacter) return;
                 }
                 
@@ -431,7 +434,12 @@
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.id = `col-${column.id}`;
-                checkbox.checked = visibleColumns[column.id] !== false; // 기본값은 true
+                
+                // 기본값 설정: defaultHidden이 true이면 unchecked, 아니면 checked
+                if (visibleColumns[column.id] === undefined) {
+                    visibleColumns[column.id] = !column.defaultHidden;
+                }
+                checkbox.checked = visibleColumns[column.id];
                 
                 const span = document.createElement('span');
                 span.textContent = column.name;
@@ -491,6 +499,7 @@
                 columns = columns.filter(column => {
                     if (column.conditional) {
                         if (column.id === 'nickname' && selectedMember) return false;
+                        if (column.id === 'level' && selectedMember) return false;
                         if (column.id === 'character' && selectedCharacter) return false;
                     }
                     return true;
@@ -683,9 +692,10 @@
                     tableHeader.innerHTML = `<tr>
                         <th>순위</th>
                         ${showNickname ? `<th class="nickname-col">닉네임</th>` : ""}
+                        ${showNickname ? `<th>레벨</th>` : ""}
                         ${showCharacter ? `<th class="character-col">캐릭터</th>` : ""}
-                        <th>돌파</th>
                         <th>육성</th>
+                        <th>돌파</th>
                         <th>우코x공증</th>
                         <th>우코</th>
                         <th>공증</th>
@@ -720,10 +730,11 @@
                     tableHeader.innerHTML = `<tr>
       <th rowspan="2">순위</th>
       <th rowspan="2">닉네임</th>
+      <th rowspan="2">레벨</th>
       <th rowspan="2">덱파워 ▼</th>
       <th>캐릭터</th>
-      <th>돌파</th>
       <th>육성</th>
+      <th>돌파</th>
       <th>우코x공증</th>
       <th>우코</th>
       <th>공증</th>
@@ -840,13 +851,14 @@
                                 if (i === 0)
                                 {
                                     tr.innerHTML = `<td rowspan="${rowCount}">${index + 1}</td>
-                    <td rowspan="${rowCount}">${data.memberName} (${data.syncroLevel})</td>
+                    <td rowspan="${rowCount}">${data.memberName}</td>
+                    <td rowspan="${rowCount}">${data.syncroLevel}</td>
                     <td rowspan="${rowCount}">${data.deckPower.toLocaleString()}</td>
                     <td class="character-col">${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</td>
-                    <td>${stat.upgrade}</td>
                     <td>${stat.trainingLevel >= 80 ? '🔴' : 
                         stat.trainingLevel >= 60 ? '🟠' : 
-                        stat.trainingLevel >= 40 ? '🟡' : ''}</td>                    
+                        stat.trainingLevel >= 40 ? '🟡' : ''}</td>
+                    <td>${stat.upgrade}</td>
                     <td>${stat.elementPlusAtk}</td>
                     <td>${stat.increaseElementDamage}</td>                    
                     <td>${stat.increaseAtk}</td>
@@ -866,10 +878,10 @@
                                 else
                                 {
                                     tr.innerHTML = `<td class="character-col">${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}</td>
-                    <td>${stat.upgrade}</td>                                    
                     <td>${stat.trainingLevel >= 80 ? '🔴' : 
                         stat.trainingLevel >= 60 ? '🟠' : 
                         stat.trainingLevel >= 40 ? '🟡' : ''}</td>
+                    <td>${stat.upgrade}</td>
                     <td>${stat.elementPlusAtk}</td>
                     <td>${stat.increaseElementDamage}</td>
                     <td>${stat.increaseAtk}</td>
@@ -940,12 +952,13 @@
                             const tr = document.createElement("tr");
                             tr.innerHTML = `
                 <td>${index + 1}</td>
-                ${showNickname ? `<td>${data.memberName} (${data.syncroLevel})</td>` : ""}
+                ${showNickname ? `<td>${data.memberName}</td>` : ""}
+                ${showNickname ? `<td>${data.syncroLevel}</td>` : ""}
                 ${showCharacter ? `<td class="character-col">${data.element ? (elementEmojis[data.element] + ' ') : ''} ${data.characterName}</td>` : ""}
-                <td>${data.upgrade}</td>
                 <td>${data.trainingLevel >= 80 ? '🔴' : 
                     data.trainingLevel >= 60 ? '🟠' : 
                     data.trainingLevel >= 40 ? '🟡' : ''}</td>
+                <td>${data.upgrade}</td>
                 <td>${data.elementPlusAtk}</td>
                 <td>${data.increaseElementDamage}</td>
                 <td>${data.increaseAtk}</td>
