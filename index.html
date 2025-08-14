@@ -171,7 +171,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
@@ -231,12 +231,12 @@
 
 <body>
     <div>
-        <label for="seasonSelect">시즌 선택: </label>
+        <label for="seasonSelect">시즌: </label>
         <select id="seasonSelect"></select>
     </div>
     <div>
         <!-- 덱 선택: 덱 모드 전환 (옵션 텍스트는 '신수클') -->
-        <label for="deckSelect">덱 선택: </label>
+        <label for="deckSelect">덱 조합: </label>
         <select id="deckSelect">
             <option value="">-- 덱 선택 --</option>
             <option value="deck1">🟪 전격</option>
@@ -245,7 +245,8 @@
             <option value="deck4">🟦 수냉</option>
             <option value="deck5">🟩 풍압</option>
         </select>
-        <select id="deckMemberSelect" style="margin-left:10px;"></select>
+        <label for="deckMemberSelect" style="margin-left:10px;">멤버: </label>
+        <select id="deckMemberSelect"></select>
     </div>
     <div>
         <!-- 개별 모드용 드롭다운 -->
@@ -312,8 +313,11 @@
                     <option value="SR5">SR 5</option>
                     <option value="SR0">SR 0</option>
                     <option value="R">R</option>
+                    <option value="NONE">없음</option>
                 </select>
             </div>
+        </div>
+        <div class="condition-select-container" style="margin-top: 10px;">
             <div class="condition-item">
                 <label for="skill1Condition">스킬1:</label>
                 <select id="skill1Condition">
@@ -758,6 +762,8 @@
                             return itemGrade === 'SR' && itemLevel >= 0 && itemLevel <= 4;
                         case 'R':
                             return itemGrade === 'R';
+                        case 'NONE':
+                            return !itemGrade || itemGrade === '';
                         default:
                             return true;
                     }
