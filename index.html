@@ -928,19 +928,19 @@
                                         
                                         if (cinde && sunis && chiden && mari && rouge) {
                                             // 신데렐라 예측 대미지
-                                            const cindeDamage = (cinde.atk + (cinde.atk * (cinde.increaseAtk/100)) + (sunis.atk * 0.5531) + (chiden.atk * 0.209) + (mari.atk * 0.1453) + (rouge.atk * 0.1507)) * ((100 + cinde.increaseElementDamage + 19.09 + 10) / 100) * 1.4764 * 4779;
+                                            const cindeDamage = (cinde.atk + (cinde.atk * (cinde.increaseAtk/100)) + (sunis.atk * 0.5531) + (chiden.atk * 0.209) + (mari.atk * 0.1453) + (rouge.atk * 0.1507)) * ((100 + cinde.increaseElementDamage + 19.09 + 10) / 100) * 1.4764 * 4887;
                                             
                                             // 수니스 예측 대미지
-                                            const sunisDamage = (sunis.atk + (sunis.atk * (sunis.increaseAtk/100)) + (sunis.atk * 0.5531) + (chiden.atk * 0.209) + (mari.atk * 0.1453) + (rouge.atk * 0.1507)) * ((100 + sunis.increaseElementDamage + 19.09 + 10) / 100) * 1.4764 * 1855;
+                                            const sunisDamage = (sunis.atk + (sunis.atk * (sunis.increaseAtk/100)) + (sunis.atk * 0.5531) + (chiden.atk * 0.209) + (mari.atk * 0.1453) + (rouge.atk * 0.1507)) * ((100 + sunis.increaseElementDamage + 19.09 + 10) / 100) * 1.4764 * 1901;
                                             
                                             // 클이든 예측 대미지
-                                            const chidenDamage = (chiden.atk + (chiden.atk * (chiden.increaseAtk/100)) + (sunis.atk * 0.5531) + (mari.atk * 0.1453) + (rouge.atk * 0.1507)) * ((100 + chiden.increaseElementDamage + 19.09 + 10) / 100) * 1.4764 * 2033;
+                                            const chidenDamage = (chiden.atk + (chiden.atk * (chiden.increaseAtk/100)) + (sunis.atk * 0.5531) + (mari.atk * 0.1453) + (rouge.atk * 0.1507)) * ((100 + chiden.increaseElementDamage + 19.09 + 10) / 100) * 1.4764 * 2084;
                                             
                                             // 마리 예측 대미지
-                                            const mariDamage = (mari.atk + (mari.atk * (mari.increaseAtk/100)) + (sunis.atk * 0.5531) + (chiden.atk * 0.209) + (mari.atk * 0.2907) + (rouge.atk * 0.1507)) * ((100 + mari.increaseElementDamage + 19.09 + 10) / 100) * 1.4764 * 782;
+                                            const mariDamage = (mari.atk + (mari.atk * (mari.increaseAtk/100)) + (sunis.atk * 0.5531) + (chiden.atk * 0.209) + (mari.atk * 0.2907) + (rouge.atk * 0.1507)) * ((100 + mari.increaseElementDamage + 19.09 + 10) / 100) * 1.4764 * 808;
                                             
                                             // 루주 예측 대미지
-                                            const rougeDamage = (rouge.atk + (rouge.atk * (rouge.increaseAtk/100)) + (sunis.atk * 0.5531) + (chiden.atk * 0.209) + (mari.atk * 0.1453) + (rouge.atk * 0.1507)) * ((100 + rouge.increaseElementDamage + 19.09 + 10) / 100) * 1.4764 * 636;
+                                            const rougeDamage = (rouge.atk + (rouge.atk * (rouge.increaseAtk/100)) + (sunis.atk * 0.5531) + (chiden.atk * 0.209) + (mari.atk * 0.1453) + (rouge.atk * 0.1507)) * ((100 + rouge.increaseElementDamage + 19.09 + 10) / 100) * 1.4764 * 657;
                                             
                                             expectedDamage = Math.round(cindeDamage + sunisDamage + chidenDamage + mariDamage + rougeDamage);
                                             
