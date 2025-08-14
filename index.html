@@ -146,6 +146,39 @@
             background-color: #45a049;
         }
 
+        /* 조건 필터 컨트롤 스타일 */
+        .condition-controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: calc(100vw - 40px);
+            margin-left: auto;
+            margin-right: auto;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .condition-controls > label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .condition-select-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .condition-select-container label {
+            font-weight: 600;
+            margin: 0;
+        }
+
         /* 컬럼 체크박스 스타일 */
         .column-controls {
             margin-bottom: 20px;
@@ -226,17 +259,23 @@
             <option value="increaseAtk">공증</option>
         </select>
         
-        <label for="conditionSelect" style="margin-left:10px;">조건: </label>
-        <select id="conditionSelect">
-            <option value="">-- 전체 --</option>
-            <option value="deck1">🟪 전격</option>
-            <option value="deck2">🟨 철갑</option>
-            <option value="deck3">🟥 작열</option>
-            <option value="deck4">🟦 수냉</option>
-            <option value="deck5">🟩 풍압</option>
-        </select>
-        
         <button id="exportButton" class="export-button">Excel</button>
+    </div>
+
+    <!-- 조건 필터 컨트롤 -->
+    <div class="condition-controls">
+        <label>조건:</label>
+        <div class="condition-select-container">
+            <label for="conditionSelect">속성:</label>
+            <select id="conditionSelect">
+                <option value="">-- 전체 --</option>
+                <option value="deck1">🟪 전격</option>
+                <option value="deck2">🟨 철갑</option>
+                <option value="deck3">🟥 작열</option>
+                <option value="deck4">🟦 수냉</option>
+                <option value="deck5">🟩 풍압</option>
+            </select>
+        </div>
     </div>
 
     <!-- 컬럼 visibility 컨트롤 -->
