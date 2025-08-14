@@ -164,10 +164,12 @@
         }
 
         .condition-controls > label {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             font-weight: 600;
             margin-bottom: 8px;
-            font-size: 12px;
+            font-size: 14px;
         }
 
         .condition-select-container {
@@ -205,7 +207,17 @@
             box-sizing: border-box;
         }
 
-        .column-controls label {
+        .column-controls > label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            margin-right: 0;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .column-controls .column-checkboxes label {
             font-weight: 600;
             margin-right: 12px;
             font-size: 12px;
@@ -246,6 +258,23 @@
 
         .collapsible-content {
             transition: all 0.3s ease;
+        }
+
+        .toggle-button {
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 60px;
+        }
+
+        .toggle-button:hover {
+            background: #2980b9;
         }
     </style>
 </head>
@@ -293,7 +322,7 @@
 
     <!-- 조건 필터 컨트롤 -->
     <div class="condition-controls">
-        <label class="collapsible-header" onclick="toggleCollapse('conditionContent')">조건: ▼</label>
+        <label>조건 <button class="toggle-button" onclick="toggleCollapse('conditionContent')" id="conditionToggle">펼치기</button></label>
         <div id="conditionContent" class="collapsible-content" style="display: none;">
         <div class="condition-select-container">
             <div class="condition-item">
@@ -400,7 +429,7 @@
 
     <!-- 컬럼 visibility 컨트롤 -->
     <div class="column-controls">
-        <label class="collapsible-header" onclick="toggleCollapse('columnContent')">컬럼: ▼</label>
+        <label>컬럼 <button class="toggle-button" onclick="toggleCollapse('columnContent')" id="columnToggle">펼치기</button></label>
         <div id="columnContent" class="collapsible-content" style="display: none;">
         <div class="column-checkboxes" id="columnCheckboxes">
             <!-- JavaScript로 동적 생성 -->
@@ -438,14 +467,14 @@
         // Toggle collapse functionality
         function toggleCollapse(contentId) {
             const content = document.getElementById(contentId);
-            const header = content.previousElementSibling;
+            const toggleButton = document.getElementById(contentId.replace('Content', 'Toggle'));
             
             if (content.style.display === 'none') {
                 content.style.display = 'block';
-                header.innerHTML = header.innerHTML.replace('▼', '▲');
+                toggleButton.textContent = '접기';
             } else {
                 content.style.display = 'none';
-                header.innerHTML = header.innerHTML.replace('▲', '▼');
+                toggleButton.textContent = '펼치기';
             }
         }
 
