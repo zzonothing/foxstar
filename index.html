@@ -28,7 +28,7 @@
         label {
             margin-right: 6px;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 12px;
         }
     
         select {
@@ -37,7 +37,7 @@
             border: 1px solid #ccc;
             border-radius: 6px;
             background: white;
-            font-size: 13px;
+            font-size: 12px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             transition: border-color 0.3s;
         }
@@ -73,7 +73,7 @@
             background-color: #3498db;
             color: white;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 12px;
         }
     
         tr:hover {
@@ -104,7 +104,7 @@
             border: 1px solid #ccc;
             border-radius: 8px;
             background: white;
-            font-size: 14px;
+            font-size: 12px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             transition: border-color 0.3s;
             /* 스핀 버튼 숨기기 */
@@ -139,7 +139,7 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
             margin-top: 10px;
         }
         
@@ -167,7 +167,7 @@
             display: block;
             font-weight: 600;
             margin-bottom: 8px;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .condition-select-container {
@@ -208,7 +208,7 @@
         .column-controls label {
             font-weight: 600;
             margin-right: 12px;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .column-checkboxes {
@@ -231,6 +231,21 @@
         .column-checkbox span {
             font-size: 12px;
             white-space: nowrap;
+        }
+
+        /* Collapsible styles */
+        .collapsible-header {
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+
+        .collapsible-header:hover {
+            color: #3498db;
+        }
+
+        .collapsible-content {
+            transition: all 0.3s ease;
         }
     </style>
 </head>
@@ -278,7 +293,8 @@
 
     <!-- 조건 필터 컨트롤 -->
     <div class="condition-controls">
-        <label>조건:</label>
+        <label class="collapsible-header" onclick="toggleCollapse('conditionContent')">조건: ▼</label>
+        <div id="conditionContent" class="collapsible-content" style="display: none;">
         <div class="condition-select-container">
             <div class="condition-item">
                 <label for="conditionSelect">속성:</label>
@@ -379,13 +395,16 @@
                 </select>
             </div>
         </div>
+        </div>
     </div>
 
     <!-- 컬럼 visibility 컨트롤 -->
     <div class="column-controls">
-        <label>컬럼:</label>
+        <label class="collapsible-header" onclick="toggleCollapse('columnContent')">컬럼: ▼</label>
+        <div id="columnContent" class="collapsible-content" style="display: none;">
         <div class="column-checkboxes" id="columnCheckboxes">
             <!-- JavaScript로 동적 생성 -->
+        </div>
         </div>
     </div>
 
@@ -416,6 +435,20 @@
     </table>
 
     <script>
+        // Toggle collapse functionality
+        function toggleCollapse(contentId) {
+            const content = document.getElementById(contentId);
+            const header = content.previousElementSibling;
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                header.innerHTML = header.innerHTML.replace('▼', '▲');
+            } else {
+                content.style.display = 'none';
+                header.innerHTML = header.innerHTML.replace('▲', '▼');
+            }
+        }
+
         function exportTableToCSV() {
             const table = document.getElementById('statsTable');
             let csv = [];
