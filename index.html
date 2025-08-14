@@ -302,6 +302,72 @@
                     <option value="yellow">🟡↑</option>
                 </select>
             </div>
+            <div class="condition-item">
+                <label for="itemCondition">소장품:</label>
+                <select id="itemCondition">
+                    <option value="">전체</option>
+                    <option value="SSR">SSR</option>
+                    <option value="SR15">SR 15</option>
+                    <option value="SR10">SR 10</option>
+                    <option value="SR5">SR 5</option>
+                    <option value="SR0">SR 0</option>
+                    <option value="R">R</option>
+                </select>
+            </div>
+            <div class="condition-item">
+                <label for="skill1Condition">스킬1:</label>
+                <select id="skill1Condition">
+                    <option value="">전체</option>
+                    <option value="10">10</option>
+                    <option value="9">9</option>
+                    <option value="8">8</option>
+                    <option value="7">7</option>
+                    <option value="6">6</option>
+                    <option value="5">5</option>
+                    <option value="4">4</option>
+                    <option value="3">3</option>
+                    <option value="2">2</option>
+                    <option value="1">1</option>
+                </select>
+            </div>
+            <div class="condition-item">
+                <label for="skill2Condition">스킬2:</label>
+                <select id="skill2Condition">
+                    <option value="">전체</option>
+                    <option value="10">10</option>
+                    <option value="9">9</option>
+                    <option value="8">8</option>
+                    <option value="7">7</option>
+                    <option value="6">6</option>
+                    <option value="5">5</option>
+                    <option value="4">4</option>
+                    <option value="3">3</option>
+                    <option value="2">2</option>
+                    <option value="1">1</option>
+                </select>
+            </div>
+            <div class="condition-item">
+                <label for="skill3Condition">스킬3:</label>
+                <select id="skill3Condition">
+                    <option value="">전체</option>
+                    <option value="10">10</option>
+                    <option value="9">9</option>
+                    <option value="8">8</option>
+                    <option value="7">7</option>
+                    <option value="6">6</option>
+                    <option value="5">5</option>
+                    <option value="4">4</option>
+                    <option value="3">3</option>
+                    <option value="2">2</option>
+                    <option value="1">1</option>
+                </select>
+            </div>
+            <div class="condition-item">
+                <select id="skillMatchCondition">
+                    <option value="ge">이상</option>
+                    <option value="eq">일치</option>
+                </select>
+            </div>
         </div>
     </div>
 
@@ -591,6 +657,11 @@
                 const selectCondition = document.getElementById('conditionSelect');
                 const elementDamageConditionSelect = document.getElementById('elementDamageCondition');
                 const attackConditionSelect = document.getElementById('attackCondition');
+                const itemConditionSelect = document.getElementById('itemCondition');
+                const skill1ConditionSelect = document.getElementById('skill1Condition');
+                const skill2ConditionSelect = document.getElementById('skill2Condition');
+                const skill3ConditionSelect = document.getElementById('skill3Condition');
+                const skillMatchConditionSelect = document.getElementById('skillMatchCondition');
                 const tbody = document.getElementById('statsTable').querySelector('tbody');
                 const tableHeader = document.getElementById('tableHeader');
                 const deckMemberSelect = document.getElementById('deckMemberSelect');
@@ -669,6 +740,73 @@
                             return true;
                     }
                 }
+
+                // 소장품 조건 체크 함수
+                function checkItemCondition(itemGrade, itemLevel, condition) {
+                    if (!condition) return true;
+                    
+                    switch (condition) {
+                        case 'SSR':
+                            return itemGrade === 'SSR';
+                        case 'SR15':
+                            return itemGrade === 'SR' && itemLevel === 15;
+                        case 'SR10':
+                            return itemGrade === 'SR' && itemLevel >= 10 && itemLevel <= 14;
+                        case 'SR5':
+                            return itemGrade === 'SR' && itemLevel >= 5 && itemLevel <= 9;
+                        case 'SR0':
+                            return itemGrade === 'SR' && itemLevel >= 0 && itemLevel <= 4;
+                        case 'R':
+                            return itemGrade === 'R';
+                        default:
+                            return true;
+                    }
+                }
+
+                // 스킬 조건 체크 함수
+                function checkSkillConditions(skill1, skill2, skill3, skill1Condition, skill2Condition, skill3Condition, matchCondition) {
+                    if (!skill1Condition && !skill2Condition && !skill3Condition) return true;
+                    
+                    const isMatch = matchCondition === 'eq';
+                    
+                    // 스킬1 조건 체크
+                    if (skill1Condition) {
+                        const targetValue = parseInt(skill1Condition);
+                        const skillValue = parseInt(skill1) || 0;
+                        
+                        if (isMatch) {
+                            if (skillValue !== targetValue) return false;
+                        } else {
+                            if (skillValue < targetValue) return false;
+                        }
+                    }
+                    
+                    // 스킬2 조건 체크
+                    if (skill2Condition) {
+                        const targetValue = parseInt(skill2Condition);
+                        const skillValue = parseInt(skill2) || 0;
+                        
+                        if (isMatch) {
+                            if (skillValue !== targetValue) return false;
+                        } else {
+                            if (skillValue < targetValue) return false;
+                        }
+                    }
+                    
+                    // 스킬3 조건 체크
+                    if (skill3Condition) {
+                        const targetValue = parseInt(skill3Condition);
+                        const skillValue = parseInt(skill3) || 0;
+                        
+                        if (isMatch) {
+                            if (skillValue !== targetValue) return false;
+                        } else {
+                            if (skillValue < targetValue) return false;
+                        }
+                    }
+                    
+                    return true;
+                }
                 
                 // 테이블 내용만 렌더링하는 함수 (체크박스 재생성 없음) - 성능 최적화
                 function renderTableContent() {
@@ -680,6 +818,11 @@
                     const selectedCondition = selectCondition.value;
                     const elementDamageCondition = document.getElementById('elementDamageCondition').value;
                     const attackCondition = document.getElementById('attackCondition').value;
+                    const itemCondition = document.getElementById('itemCondition').value;
+                    const skill1Condition = document.getElementById('skill1Condition').value;
+                    const skill2Condition = document.getElementById('skill2Condition').value;
+                    const skill3Condition = document.getElementById('skill3Condition').value;
+                    const skillMatchCondition = document.getElementById('skillMatchCondition').value;
                     
                     // DocumentFragment 사용으로 DOM 조작 최적화
                     const fragment = document.createDocumentFragment();
@@ -740,6 +883,14 @@
                                     }
                                     // 공증 조건 체크  
                                     if (!checkAttackCondition(stat.increaseAtk, attackCondition)) {
+                                        return false;
+                                    }
+                                    // 소장품 조건 체크
+                                    if (!checkItemCondition(stat.itemGrade, stat.itemLevel, itemCondition)) {
+                                        return false;
+                                    }
+                                    // 스킬 조건 체크
+                                    if (!checkSkillConditions(stat.skill1, stat.skill2, stat.skill3, skill1Condition, skill2Condition, skill3Condition, skillMatchCondition)) {
                                         return false;
                                     }
                                     return true;
@@ -873,6 +1024,16 @@
 
                                 // 공증 조건 체크
                                 if (!checkAttackCondition(character.increaseAtk || 0, attackCondition)) {
+                                    return;
+                                }
+
+                                // 소장품 조건 체크
+                                if (!checkItemCondition(character.itemGrade, character.itemLevel, itemCondition)) {
+                                    return;
+                                }
+
+                                // 스킬 조건 체크
+                                if (!checkSkillConditions(character.skill1, character.skill2, character.skill3, skill1Condition, skill2Condition, skill3Condition, skillMatchCondition)) {
                                     return;
                                 }
                                 const elementPlusAtk = Math.round(((1 + character.increaseAtk / 200) * (1 + character.increaseElementDamage / 100) - 1) * 10000) / 100;                                
@@ -1223,6 +1384,11 @@
                 selectCondition.addEventListener("change", updateTable);
                 elementDamageConditionSelect.addEventListener("change", updateTable);
                 attackConditionSelect.addEventListener("change", updateTable);
+                itemConditionSelect.addEventListener("change", updateTable);
+                skill1ConditionSelect.addEventListener("change", updateTable);
+                skill2ConditionSelect.addEventListener("change", updateTable);
+                skill3ConditionSelect.addEventListener("change", updateTable);
+                skillMatchConditionSelect.addEventListener("change", updateTable);
                 deckMemberSelect.addEventListener("change", updateTable);
 
                 // 초기 헤더 설정 (개별 모드 기본)
