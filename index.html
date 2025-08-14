@@ -425,7 +425,7 @@
             
             if (deckMode) {
                 // 덱 모드일 때 헤더 처리
-                headerRow.push('"순위"', '"닉네임"', '"예상 대미지"');
+                headerRow.push('"순위"', '"닉네임"', '"예상 대미지"', '"지분"');
                 
                 // 나머지 컬럼 헤더 추가
                 headers.forEach(header => {
@@ -457,16 +457,10 @@
                     currentMemberData = {
                         rank: cells[0].textContent.trim(),
                         memberName: cells[1].textContent.trim(),
-                        expectedDamage: cells[2].textContent.trim()
+                        deckPower: cells[2].textContent.trim()
                     };
                     
-                    // 예상 대미지 컬럼이 있는 경우
-                    if (cells[3].hasAttribute('rowspan')) {
-                        currentMemberData.expectedDamage = cells[3].textContent.trim();
-                        cells = Array.from(cells).slice(4); // 예상 대미지 이후 셀부터 처리
-                    } else {
-                        cells = Array.from(cells).slice(3); // 덱파워 이후 셀부터 처리
-                    }
+                    cells = Array.from(cells).slice(3); // 예상 대미지 이후 셀부터 처리
                 }
                 
                 // 현재 멤버 데이터 추가
@@ -474,9 +468,6 @@
                     rowData.push(`"${currentMemberData.rank}"`);
                     rowData.push(`"${currentMemberData.memberName}"`);
                     rowData.push(`"${currentMemberData.deckPower}"`);
-                    if (currentMemberData.expectedDamage !== undefined) {
-                        rowData.push(`"${currentMemberData.expectedDamage}"`);
-                    }
                 }
                 
                 // 나머지 셀 데이터 추가
@@ -542,6 +533,7 @@
                 { id: 'character', name: '캐릭터', alwaysVisible: true },
                 { id: 'upgrade', name: '돌파' },
                 { id: 'deckPower', name: '예상 대미지', alwaysVisible: true },
+                { id: 'damageShare', name: '지분', alwaysVisible: true },
                 { id: 'increaseElementDamage', name: '우코' },
                 { id: 'increaseAtk', name: '공증' },
                 { id: 'ammunition', name: '장탄' },
@@ -951,6 +943,21 @@
                                             const rougeDamage = (rouge.atk + (rouge.atk * (rouge.increaseAtk/100)) + (sunis.atk * 0.5531) + (chiden.atk * 0.209) + (mari.atk * 0.1453) + (rouge.atk * 0.1507)) * ((100 + rouge.increaseElementDamage + 19.09 + 15) / 100) * 1.4764 * 636;
                                             
                                             expectedDamage = Math.round(cindeDamage + sunisDamage + chidenDamage + mariDamage + rougeDamage);
+                                            
+                                            // 각 캐릭터별 지분 계산하여 저장
+                                            deckStats.forEach(stat => {
+                                                if (stat.characterName === "신데렐라") {
+                                                    stat.damageShare = ((cindeDamage / expectedDamage) * 100).toFixed(2) + "%";
+                                                } else if (stat.characterName === "아니스 : 스파클링 서머") {
+                                                    stat.damageShare = ((sunisDamage / expectedDamage) * 100).toFixed(2) + "%";
+                                                } else if (stat.characterName === "메이든 : 아이스 로즈") {
+                                                    stat.damageShare = ((chidenDamage / expectedDamage) * 100).toFixed(2) + "%";
+                                                } else if (stat.characterName === "마리") {
+                                                    stat.damageShare = ((mariDamage / expectedDamage) * 100).toFixed(2) + "%";
+                                                } else if (stat.characterName === "루주") {
+                                                    stat.damageShare = ((rougeDamage / expectedDamage) * 100).toFixed(2) + "%";
+                                                }
+                                            });
                                         }
                                     }
                                     
@@ -981,6 +988,7 @@
                                     character: `${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}`,
                                     upgrade: stat.upgrade,
                                     deckPower: data.deckPower.toLocaleString(),
+                                    damageShare: stat.damageShare || "0.00%",
                                     increaseElementDamage: getElementDamageDisplay(stat.increaseElementDamage),
                                     increaseAtk: getAttackDisplay(stat.increaseAtk),
                                     ammunition: stat.increaseMaxAmmunitionCapacity,
