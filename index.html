@@ -171,10 +171,17 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .condition-item {
+            display: flex;
+            align-items: center;
             gap: 8px;
         }
 
-        .condition-select-container label {
+        .condition-item label {
             font-weight: 600;
             margin: 0;
         }
@@ -266,15 +273,35 @@
     <div class="condition-controls">
         <label>조건:</label>
         <div class="condition-select-container">
-            <label for="conditionSelect">속성:</label>
-            <select id="conditionSelect">
-                <option value="">-- 전체 --</option>
-                <option value="deck1">🟪 전격</option>
-                <option value="deck2">🟨 철갑</option>
-                <option value="deck3">🟥 작열</option>
-                <option value="deck4">🟦 수냉</option>
-                <option value="deck5">🟩 풍압</option>
-            </select>
+            <div class="condition-item">
+                <label for="conditionSelect">속성:</label>
+                <select id="conditionSelect">
+                    <option value="">전체</option>
+                    <option value="deck1">🟪 전격</option>
+                    <option value="deck2">🟨 철갑</option>
+                    <option value="deck3">🟥 작열</option>
+                    <option value="deck4">🟦 수냉</option>
+                    <option value="deck5">🟩 풍압</option>
+                </select>
+            </div>
+            <div class="condition-item">
+                <label for="elementDamageCondition">우코:</label>
+                <select id="elementDamageCondition">
+                    <option value="">전체</option>
+                    <option value="red">🔴↑</option>
+                    <option value="orange">🟠↑</option>
+                    <option value="yellow">🟡↑</option>
+                </select>
+            </div>
+            <div class="condition-item">
+                <label for="attackCondition">공증:</label>
+                <select id="attackCondition">
+                    <option value="">전체</option>
+                    <option value="red">🔴↑</option>
+                    <option value="orange">🟠↑</option>
+                    <option value="yellow">🟡↑</option>
+                </select>
+            </div>
         </div>
     </div>
 
@@ -562,6 +589,8 @@
                 const selectMember = document.getElementById('memberSelect');
                 const selectSort = document.getElementById('sortSelect');
                 const selectCondition = document.getElementById('conditionSelect');
+                const elementDamageConditionSelect = document.getElementById('elementDamageCondition');
+                const attackConditionSelect = document.getElementById('attackCondition');
                 const tbody = document.getElementById('statsTable').querySelector('tbody');
                 const tableHeader = document.getElementById('tableHeader');
                 const deckMemberSelect = document.getElementById('deckMemberSelect');
@@ -593,6 +622,22 @@
                     }
                     return `${circle} ${value}`;
                 }
+
+                // 우코 조건 체크 함수
+                function checkElementDamageCondition(value, condition) {
+                    if (!condition) return true;
+                    
+                    switch (condition) {
+                        case 'red':
+                            return value >= 94.24;
+                        case 'orange':
+                            return value >= 70.68;
+                        case 'yellow':
+                            return value >= 47.12;
+                        default:
+                            return true;
+                    }
+                }
                 
                 // 공증 값에 따른 색상 원 추가 함수
                 function getAttackDisplay(value) {
@@ -608,6 +653,22 @@
                     }
                     return `${circle} ${value}`;
                 }
+
+                // 공증 조건 체크 함수
+                function checkAttackCondition(value, condition) {
+                    if (!condition) return true;
+                    
+                    switch (condition) {
+                        case 'red':
+                            return value >= 47.24;
+                        case 'orange':
+                            return value >= 35.43;
+                        case 'yellow':
+                            return value >= 23.62;
+                        default:
+                            return true;
+                    }
+                }
                 
                 // 테이블 내용만 렌더링하는 함수 (체크박스 재생성 없음) - 성능 최적화
                 function renderTableContent() {
@@ -617,6 +678,8 @@
                     const selectedMember = selectMember.value;
                     const sortBy = selectSort.value;
                     const selectedCondition = selectCondition.value;
+                    const elementDamageCondition = document.getElementById('elementDamageCondition').value;
+                    const attackCondition = document.getElementById('attackCondition').value;
                     
                     // DocumentFragment 사용으로 DOM 조작 최적화
                     const fragment = document.createDocumentFragment();
@@ -669,6 +732,21 @@
                                 }
                             });
                             if (hasAll && deckStats.length > 0) {
+                                // 조건 필터링 적용 (AND 조건)
+                                const passesConditions = deckStats.every(stat => {
+                                    // 우코 조건 체크
+                                    if (!checkElementDamageCondition(stat.increaseElementDamage, elementDamageCondition)) {
+                                        return false;
+                                    }
+                                    // 공증 조건 체크  
+                                    if (!checkAttackCondition(stat.increaseAtk, attackCondition)) {
+                                        return false;
+                                    }
+                                    return true;
+                                });
+
+                                if (!passesConditions) return;
+
                                 if (deck.name === '신데 수니스 클이든') {
                                     const cinde = deckStats.find(c => c.characterName === "신데렐라");
                                     const sunis = deckStats.find(c => c.characterName === "아니스 : 스파클링 서머");
@@ -776,7 +854,7 @@
                                     // 덱 ID를 element로 매핑
                                     const deckToElement = {
                                         "deck1": "전격",
-                                        "deck2": "풍압", 
+                                        "deck2": "철갑", 
                                         "deck3": "작열",
                                         "deck4": "수냉",
                                         "deck5": "풍압"
@@ -786,6 +864,16 @@
                                     if (targetElement && character.element !== targetElement) {
                                         return;
                                     }
+                                }
+
+                                // 우코 조건 체크
+                                if (!checkElementDamageCondition(character.increaseElementDamage || 0, elementDamageCondition)) {
+                                    return;
+                                }
+
+                                // 공증 조건 체크
+                                if (!checkAttackCondition(character.increaseAtk || 0, attackCondition)) {
+                                    return;
                                 }
                                 const elementPlusAtk = Math.round(((1 + character.increaseAtk / 200) * (1 + character.increaseElementDamage / 100) - 1) * 10000) / 100;                                
                                 const trainingLevel = elementPlusAtk;
@@ -1133,6 +1221,8 @@
                 selectMember.addEventListener("change", updateTable);
                 selectSort.addEventListener("change", updateTable);
                 selectCondition.addEventListener("change", updateTable);
+                elementDamageConditionSelect.addEventListener("change", updateTable);
+                attackConditionSelect.addEventListener("change", updateTable);
                 deckMemberSelect.addEventListener("change", updateTable);
 
                 // 초기 헤더 설정 (개별 모드 기본)
