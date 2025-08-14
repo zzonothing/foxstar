@@ -151,7 +151,8 @@
         .condition-controls {
             margin-bottom: 15px;
             padding: 10px;
-            background: white;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
             border-radius: 6px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             width: 100%;
@@ -193,7 +194,8 @@
         .column-controls {
             margin-bottom: 15px;
             padding: 10px;
-            background: white;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
             border-radius: 6px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             width: 100%;
@@ -425,7 +427,7 @@
             
             if (deckMode) {
                 // 덱 모드일 때 헤더 처리
-                headerRow.push('"순위"', '"닉네임"', '"예상 대미지"', '"지분"');
+                headerRow.push('"순위"', '"닉네임"', '"예상 대미지"', '"기여도"');
                 
                 // 나머지 컬럼 헤더 추가
                 headers.forEach(header => {
@@ -513,7 +515,7 @@
                 { id: 'upgrade', name: '돌파' },
                 { id: 'increaseElementDamage', name: '우코' },
                 { id: 'increaseAtk', name: '공증' },
-                { id: 'ammunition', name: '장탄' },
+                { id: 'ammunition', name: '장탄', defaultHidden: true },
                 { id: 'chargeSpeed', name: '차속', defaultHidden: true },
                 { id: 'chargeDamage', name: '차댐', defaultHidden: true },
                 { id: 'criticalRate', name: '크확', defaultHidden: true },
@@ -530,13 +532,13 @@
                 { id: 'rank', name: '순위', alwaysVisible: true },
                 { id: 'nickname', name: '닉네임', alwaysVisible: true },
                 { id: 'level', name: '레벨', alwaysVisible: true },
+                { id: 'deckPower', name: '예상 대미지', alwaysVisible: true },
+                { id: 'damageShare', name: '기여도', alwaysVisible: true },
                 { id: 'character', name: '캐릭터', alwaysVisible: true },
                 { id: 'upgrade', name: '돌파' },
-                { id: 'deckPower', name: '예상 대미지', alwaysVisible: true },
-                { id: 'damageShare', name: '지분', alwaysVisible: true },
                 { id: 'increaseElementDamage', name: '우코' },
                 { id: 'increaseAtk', name: '공증' },
-                { id: 'ammunition', name: '장탄' },
+                { id: 'ammunition', name: '장탄', defaultHidden: true },
                 { id: 'chargeSpeed', name: '차속', defaultHidden: true },
                 { id: 'chargeDamage', name: '차댐', defaultHidden: true },
                 { id: 'criticalRate', name: '크확', defaultHidden: true },
