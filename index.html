@@ -491,7 +491,7 @@
             
             if (deckMode) {
                 // 덱 모드일 때 헤더 처리
-                headerRow.push('"순위"', '"닉네임"', '"예상 대미지"', '"기여도"');
+                headerRow.push('"순위"', '"닉네임"', '"총 대미지"', '"대미지"', '"기여도"');
                 
                 // 나머지 컬럼 헤더 추가
                 headers.forEach(header => {
@@ -596,7 +596,8 @@
                 { id: 'rank', name: '순위', alwaysVisible: true },
                 { id: 'nickname', name: '닉네임', alwaysVisible: true },
                 { id: 'level', name: '레벨', alwaysVisible: true },
-                { id: 'deckPower', name: '예상 대미지', alwaysVisible: true },
+                { id: 'deckPower', name: '총 대미지', alwaysVisible: true },
+                { id: 'individualDamage', name: '대미지', alwaysVisible: true },
                 { id: 'damageShare', name: '기여도', alwaysVisible: true },
                 { id: 'character', name: '캐릭터', alwaysVisible: true },
                 { id: 'upgrade', name: '돌파' },
@@ -1010,17 +1011,22 @@
                                             
                                             expectedDamage = Math.round(cindeDamage + sunisDamage + chidenDamage + mariDamage + rougeDamage);
                                             
-                                            // 각 캐릭터별 지분 계산하여 저장
+                                            // 각 캐릭터별 개별 대미지와 지분 계산하여 저장
                                             deckStats.forEach(stat => {
                                                 if (stat.characterName === "신데렐라") {
+                                                    stat.individualDamage = Math.round(cindeDamage).toLocaleString();
                                                     stat.damageShare = ((cindeDamage / expectedDamage) * 100).toFixed(2) + "%";
                                                 } else if (stat.characterName === "아니스 : 스파클링 서머") {
+                                                    stat.individualDamage = Math.round(sunisDamage).toLocaleString();
                                                     stat.damageShare = ((sunisDamage / expectedDamage) * 100).toFixed(2) + "%";
                                                 } else if (stat.characterName === "메이든 : 아이스 로즈") {
+                                                    stat.individualDamage = Math.round(chidenDamage).toLocaleString();
                                                     stat.damageShare = ((chidenDamage / expectedDamage) * 100).toFixed(2) + "%";
                                                 } else if (stat.characterName === "마리") {
+                                                    stat.individualDamage = Math.round(mariDamage).toLocaleString();
                                                     stat.damageShare = ((mariDamage / expectedDamage) * 100).toFixed(2) + "%";
                                                 } else if (stat.characterName === "루주") {
+                                                    stat.individualDamage = Math.round(rougeDamage).toLocaleString();
                                                     stat.damageShare = ((rougeDamage / expectedDamage) * 100).toFixed(2) + "%";
                                                 }
                                             });
@@ -1054,6 +1060,7 @@
                                     character: `${stat.element !== "" ? (elementEmojis[stat.element] + ' ') : ''} ${stat.characterName}`,
                                     upgrade: stat.upgrade,
                                     deckPower: data.deckPower.toLocaleString(),
+                                    individualDamage: stat.individualDamage || "0",
                                     damageShare: stat.damageShare || "0.00%",
                                     increaseElementDamage: getElementDamageDisplay(stat.increaseElementDamage),
                                     increaseAtk: getAttackDisplay(stat.increaseAtk),
