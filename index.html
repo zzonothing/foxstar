@@ -292,10 +292,10 @@
         <select id="deckSelect">
             <option value="">-- 덱 선택 --</option>
             <option value="deck1">🟪 전격</option>
-            <option value="deck2">🟨 철갑</option>
-            <option value="deck3">🟥 작열</option>
-            <option value="deck4">🟦 수냉</option>
-            <option value="deck5">🟩 풍압</option>
+            <option value="deck2">🟩 풍압</option>
+            <option value="deck3">🟨 철갑</option>
+            <option value="deck4">🟥 작열</option>
+            <option value="deck5">🟦 수냉</option>            
         </select>
         <label for="deckMemberSelect" style="margin-left:10px;">멤버: </label>
         <select id="deckMemberSelect"></select>
@@ -332,10 +332,10 @@
                 <select id="conditionSelect">
                     <option value="">전체</option>
                     <option value="deck1">🟪 전격</option>
-                    <option value="deck2">🟨 철갑</option>
-                    <option value="deck3">🟥 작열</option>
-                    <option value="deck4">🟦 수냉</option>
-                    <option value="deck5">🟩 풍압</option>
+                    <option value="deck2">🟩 풍압</option>
+                    <option value="deck3">🟨 철갑</option>
+                    <option value="deck4">🟥 작열</option>
+                    <option value="deck5">🟦 수냉</option>                    
                 </select>
             </div>
             <div class="condition-item">
@@ -659,6 +659,16 @@
                 ]
             },
             deck2: {
+                name: '🟩 풍압',
+                characters: [
+                    { weight: 1, type: 'element', name: '홍련 : 흑영' },
+                    { weight: 1, type: 'element', name: '아스카 : WILLE' },                    
+                    { weight: 1, type: 'element', name: '리틀 머메이드' },
+                    { weight: 1, type: 'element', name: '마스트 : 로망틱 메이드' },
+                    { weight: 1, type: 'element', name: '앵커 : 이노센트 메이드' },
+                ]
+            },
+            deck3: {
                 name: '🟨 철갑',
                 characters: [
                     { weight: 1, type: 'element', name: '라피 : 레드 후드' },
@@ -668,7 +678,7 @@
                     { weight: 1, type: 'element', name: '스노우 화이트' }
                 ]
             },
-            deck3: { 
+            deck4: { 
                 name: '🟥 작열',
                 characters: [
                     { weight: 1, type: 'element', name: '라피 : 레드 후드'  },
@@ -679,7 +689,7 @@
                     { weight: 1, type: 'element', name: '모더니아' },
                 ]
             },
-            deck4: {
+            deck5: {
                 name: '🟦 수냉',
                 characters: [
                     { weight: 1, type: 'element', name: '도로시 : 세렌디피티' },
@@ -690,16 +700,6 @@
                     { weight: 1, type: 'element', name: '퀀시 : 이스케이프 퀸' },
                 ]
             },
-            deck5: {
-                name: '🟩 풍압',
-                characters: [
-                    { weight: 1, type: 'element', name: '홍련 : 흑영' },
-                    { weight: 1, type: 'element', name: '아스카 : WILLE' },
-                    { weight: 1, type: 'element', name: '레이 (가칭)' },
-                    { weight: 1, type: 'element', name: '리틀 머메이드' },
-                    { weight: 1, type: 'element', name: '마나' },
-                ]
-            }
         };
 
         fetch('data/data.json')
@@ -1125,10 +1125,10 @@
                                     // 덱 ID를 element로 매핑
                                     const deckToElement = {
                                         "deck1": "전격",
-                                        "deck2": "철갑", 
-                                        "deck3": "작열",
-                                        "deck4": "수냉",
-                                        "deck5": "풍압"
+                                        "deck2": "풍압",
+                                        "deck3": "철갑", 
+                                        "deck4": "작열",
+                                        "deck5": "수냉",                                        
                                     };
                                     
                                     const targetElement = deckToElement[selectedCondition];
