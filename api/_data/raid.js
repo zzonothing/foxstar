@@ -22568,5 +22568,4519 @@ const RAID = {
         }
       ]
     }
+  ],
+  "S40": [
+    {
+      "name": "HAKU",
+      "openId": "110876475358569104",
+      "raids": [
+        {
+          "bossName": "리빌드 벌컨R [Z.E.U.S.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 4,
+          "totalDamage": 65433601574,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "풀코",
+              "characterLevel": 871,
+              "combat": 1020457
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "풀코",
+              "characterLevel": 871,
+              "combat": 908004
+            },
+            {
+              "slot": 3,
+              "name": "라피 : 레드 후드",
+              "upgrade": "풀코",
+              "characterLevel": 871,
+              "combat": 1110548
+            },
+            {
+              "slot": 4,
+              "name": "레이븐",
+              "upgrade": "풀코",
+              "characterLevel": 871,
+              "combat": 1004317
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "풀코",
+              "characterLevel": 871,
+              "combat": 928717
+            }
+          ]
+        },
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 44898204971,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "목단",
+              "upgrade": "풀코",
+              "characterLevel": 871,
+              "combat": 959936
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "풀돌",
+              "characterLevel": 871,
+              "combat": 733977
+            },
+            {
+              "slot": 3,
+              "name": "헬름",
+              "upgrade": "풀코",
+              "characterLevel": 871,
+              "combat": 959576
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "풀코",
+              "characterLevel": 871,
+              "combat": 906214
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "풀코",
+              "characterLevel": 871,
+              "combat": 974485
+            }
+          ]
+        },
+        {
+          "bossName": "헤비메탈 [H.S.T.A.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 2,
+          "totalDamage": 66700921037,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "풀코",
+              "characterLevel": 871,
+              "combat": 941039
+            },
+            {
+              "slot": 2,
+              "name": "나유타",
+              "upgrade": "풀코",
+              "characterLevel": 871,
+              "combat": 906960
+            },
+            {
+              "slot": 3,
+              "name": "스노우 화이트 : 헤비암즈",
+              "upgrade": "풀코",
+              "characterLevel": 871,
+              "combat": 1166395
+            },
+            {
+              "slot": 4,
+              "name": "도로시 : 세렌디피티",
+              "upgrade": "풀코",
+              "characterLevel": 871,
+              "combat": 1040650
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 871,
+              "combat": 1008326
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "토뭉",
+      "openId": "11369889047373461825",
+      "raids": [
+        {
+          "bossName": "두리안 [D.M.T.R.]",
+          "bossLevel": 1,
+          "difficulty": 2,
+          "step": 1,
+          "totalDamage": 54131425441,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "4코",
+              "characterLevel": 821,
+              "combat": 738630
+            },
+            {
+              "slot": 2,
+              "name": "나유타",
+              "upgrade": "풀코",
+              "characterLevel": 821,
+              "combat": 877657
+            },
+            {
+              "slot": 3,
+              "name": "리버렐리오",
+              "upgrade": "풀코",
+              "characterLevel": 821,
+              "combat": 951843
+            },
+            {
+              "slot": 4,
+              "name": "홍련 : 흑영",
+              "upgrade": "풀코",
+              "characterLevel": 821,
+              "combat": 907661
+            },
+            {
+              "slot": 5,
+              "name": "벨벳",
+              "upgrade": "1돌",
+              "characterLevel": 821,
+              "combat": 438945
+            }
+          ]
+        },
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 1,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 44417821227,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "라피 : 레드 후드",
+              "upgrade": "풀코",
+              "characterLevel": 821,
+              "combat": 995941
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "풀돌",
+              "characterLevel": 821,
+              "combat": 721328
+            },
+            {
+              "slot": 3,
+              "name": "헬름",
+              "upgrade": "풀코",
+              "characterLevel": 821,
+              "combat": 785483
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "풀돌",
+              "characterLevel": 821,
+              "combat": 816911
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "5코",
+              "characterLevel": 821,
+              "combat": 793554
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 5,
+          "totalDamage": 65226235881,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "풀코",
+              "characterLevel": 821,
+              "combat": 907177
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "풀코",
+              "characterLevel": 821,
+              "combat": 808248
+            },
+            {
+              "slot": 3,
+              "name": "네온 : 비전 아이",
+              "upgrade": "6코",
+              "characterLevel": 821,
+              "combat": 885168
+            },
+            {
+              "slot": 4,
+              "name": "아니스 : 스파클링 서머",
+              "upgrade": "풀돌",
+              "characterLevel": 821,
+              "combat": 768024
+            },
+            {
+              "slot": 5,
+              "name": "메이든 : 아이스 로즈",
+              "upgrade": "풀돌",
+              "characterLevel": 821,
+              "combat": 749499
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "팡팡",
+      "openId": "5323005549319398646",
+      "raids": [
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 57489976200,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "3코",
+              "characterLevel": 821,
+              "combat": 867905
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "풀돌",
+              "characterLevel": 821,
+              "combat": 676522
+            },
+            {
+              "slot": 3,
+              "name": "라피 : 레드 후드",
+              "upgrade": "풀코",
+              "characterLevel": 821,
+              "combat": 905322
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "풀돌",
+              "characterLevel": 821,
+              "combat": 760121
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "2코",
+              "characterLevel": 821,
+              "combat": 829682
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 5,
+          "totalDamage": 48030003801,
+          "isFinalHit": true,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "목단",
+              "upgrade": "풀코",
+              "characterLevel": 821,
+              "combat": 864399
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "풀코",
+              "characterLevel": 821,
+              "combat": 834389
+            },
+            {
+              "slot": 3,
+              "name": "네온 : 비전 아이",
+              "upgrade": "풀코",
+              "characterLevel": 821,
+              "combat": 935821
+            },
+            {
+              "slot": 4,
+              "name": "신데렐라",
+              "upgrade": "풀코",
+              "characterLevel": 821,
+              "combat": 945221
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "풀코",
+              "characterLevel": 821,
+              "combat": 837716
+            }
+          ]
+        },
+        {
+          "bossName": "헤비메탈 [H.S.T.A.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 2,
+          "totalDamage": 56920813242,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "5코",
+              "characterLevel": 821,
+              "combat": 825933
+            },
+            {
+              "slot": 2,
+              "name": "나유타",
+              "upgrade": "2코",
+              "characterLevel": 821,
+              "combat": 794940
+            },
+            {
+              "slot": 3,
+              "name": "스노우 화이트 : 헤비암즈",
+              "upgrade": "풀코",
+              "characterLevel": 821,
+              "combat": 960961
+            },
+            {
+              "slot": 4,
+              "name": "도로시 : 세렌디피티",
+              "upgrade": "풀코",
+              "characterLevel": 821,
+              "combat": 898442
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 821,
+              "combat": 794524
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "벙슨",
+      "openId": "5910183410263076252",
+      "raids": [
+        {
+          "bossName": "두리안 [D.M.T.R.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 1,
+          "totalDamage": 50456438798,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "풀코",
+              "characterLevel": 795,
+              "combat": 793292
+            },
+            {
+              "slot": 2,
+              "name": "홍련 : 흑영",
+              "upgrade": "풀코",
+              "characterLevel": 795,
+              "combat": 811685
+            },
+            {
+              "slot": 3,
+              "name": "리버렐리오",
+              "upgrade": "풀코",
+              "characterLevel": 795,
+              "combat": 859366
+            },
+            {
+              "slot": 4,
+              "name": "나유타",
+              "upgrade": "풀코",
+              "characterLevel": 795,
+              "combat": 742774
+            },
+            {
+              "slot": 5,
+              "name": "벨벳",
+              "upgrade": "명함",
+              "characterLevel": 795,
+              "combat": 565619
+            }
+          ]
+        },
+        {
+          "bossName": "리빌드 벌컨R [Z.E.U.S.]",
+          "bossLevel": 1,
+          "difficulty": 2,
+          "step": 4,
+          "totalDamage": 48811781320,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "풀코",
+              "characterLevel": 795,
+              "combat": 803318
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "풀코",
+              "characterLevel": 795,
+              "combat": 765145
+            },
+            {
+              "slot": 3,
+              "name": "라피 : 레드 후드",
+              "upgrade": "풀코",
+              "characterLevel": 795,
+              "combat": 860758
+            },
+            {
+              "slot": 4,
+              "name": "레이븐",
+              "upgrade": "풀돌",
+              "characterLevel": 795,
+              "combat": 680165
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "풀코",
+              "characterLevel": 795,
+              "combat": 669381
+            }
+          ]
+        },
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 37998530723,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "목단",
+              "upgrade": "풀코",
+              "characterLevel": 795,
+              "combat": 746260
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "풀돌",
+              "characterLevel": 795,
+              "combat": 620880
+            },
+            {
+              "slot": 3,
+              "name": "헬름",
+              "upgrade": "풀코",
+              "characterLevel": 795,
+              "combat": 731162
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "풀돌",
+              "characterLevel": 795,
+              "combat": 691037
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "풀코",
+              "characterLevel": 795,
+              "combat": 774954
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "다예콩",
+      "openId": "1339969899829915126",
+      "raids": [
+        {
+          "bossName": "두리안 [D.M.T.R.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 1,
+          "totalDamage": 39045159722,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "나유타",
+              "upgrade": "3코",
+              "characterLevel": 774,
+              "combat": 635758
+            },
+            {
+              "slot": 2,
+              "name": "홍련 : 흑영",
+              "upgrade": "6코",
+              "characterLevel": 774,
+              "combat": 714952
+            },
+            {
+              "slot": 3,
+              "name": "리틀 머메이드",
+              "upgrade": "6코",
+              "characterLevel": 774,
+              "combat": 681073
+            },
+            {
+              "slot": 4,
+              "name": "리버렐리오",
+              "upgrade": "1코",
+              "characterLevel": 774,
+              "combat": 614897
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "4코",
+              "characterLevel": 774,
+              "combat": 618864
+            }
+          ]
+        },
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 44973551229,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "1돌",
+              "characterLevel": 774,
+              "combat": 623168
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "1돌",
+              "characterLevel": 774,
+              "combat": 551879
+            },
+            {
+              "slot": 3,
+              "name": "라피 : 레드 후드",
+              "upgrade": "풀코",
+              "characterLevel": 774,
+              "combat": 783516
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "1돌",
+              "characterLevel": 774,
+              "combat": 654079
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "5코",
+              "characterLevel": 774,
+              "combat": 717728
+            }
+          ]
+        },
+        {
+          "bossName": "헤비메탈 [H.S.T.A.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 2,
+          "totalDamage": 37132638807,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "크라운",
+              "upgrade": "풀코",
+              "characterLevel": 774,
+              "combat": 651870
+            },
+            {
+              "slot": 2,
+              "name": "목단",
+              "upgrade": "풀코",
+              "characterLevel": 774,
+              "combat": 652690
+            },
+            {
+              "slot": 3,
+              "name": "스노우 화이트 : 헤비암즈",
+              "upgrade": "1코",
+              "characterLevel": 774,
+              "combat": 628536
+            },
+            {
+              "slot": 4,
+              "name": "도로시 : 세렌디피티",
+              "upgrade": "1코",
+              "characterLevel": 774,
+              "combat": 642678
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 774,
+              "combat": 578447
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "지금부터",
+      "openId": "15667329374439847089",
+      "raids": [
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 38927397554,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "라피 : 레드 후드",
+              "upgrade": "풀코",
+              "characterLevel": 780,
+              "combat": 769144
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "풀돌",
+              "characterLevel": 780,
+              "combat": 646765
+            },
+            {
+              "slot": 3,
+              "name": "헬름",
+              "upgrade": "풀코",
+              "characterLevel": 780,
+              "combat": 687477
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "1코",
+              "characterLevel": 780,
+              "combat": 661748
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "4코",
+              "characterLevel": 780,
+              "combat": 681080
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 5,
+          "totalDamage": 54188641775,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "신데렐라",
+              "upgrade": "풀코",
+              "characterLevel": 780,
+              "combat": 784324
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "풀코",
+              "characterLevel": 780,
+              "combat": 705993
+            },
+            {
+              "slot": 3,
+              "name": "아니스 : 스타",
+              "upgrade": "풀코",
+              "characterLevel": 780,
+              "combat": 754266
+            },
+            {
+              "slot": 4,
+              "name": "네온 : 비전 아이",
+              "upgrade": "풀돌",
+              "characterLevel": 780,
+              "combat": 697029
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "2코",
+              "characterLevel": 780,
+              "combat": 559716
+            }
+          ]
+        },
+        {
+          "bossName": "헤비메탈 [H.S.T.A.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 2,
+          "totalDamage": 42229532345,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "나유타",
+              "upgrade": "2코",
+              "characterLevel": 780,
+              "combat": 652321
+            },
+            {
+              "slot": 2,
+              "name": "리틀 머메이드",
+              "upgrade": "풀코",
+              "characterLevel": 780,
+              "combat": 738989
+            },
+            {
+              "slot": 3,
+              "name": "스노우 화이트 : 헤비암즈",
+              "upgrade": "1코",
+              "characterLevel": 780,
+              "combat": 694011
+            },
+            {
+              "slot": 4,
+              "name": "도로시 : 세렌디피티",
+              "upgrade": "풀돌",
+              "characterLevel": 780,
+              "combat": 644323
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 780,
+              "combat": 685762
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "SUM",
+      "openId": "17400954065510517136",
+      "raids": [
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 1,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 39933157547,
+          "isFinalHit": true,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "라피 : 레드 후드",
+              "upgrade": "풀코",
+              "characterLevel": 765,
+              "combat": 748885
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "3코",
+              "characterLevel": 765,
+              "combat": 563832
+            },
+            {
+              "slot": 3,
+              "name": "헬름",
+              "upgrade": "풀코",
+              "characterLevel": 765,
+              "combat": 740542
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "풀코",
+              "characterLevel": 765,
+              "combat": 748046
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "4코",
+              "characterLevel": 765,
+              "combat": 697811
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 1,
+          "difficulty": 2,
+          "step": 5,
+          "totalDamage": 58451119458,
+          "isFinalHit": true,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "풀코",
+              "characterLevel": 765,
+              "combat": 771944
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "풀코",
+              "characterLevel": 765,
+              "combat": 749445
+            },
+            {
+              "slot": 3,
+              "name": "네온 : 비전 아이",
+              "upgrade": "풀코",
+              "characterLevel": 765,
+              "combat": 796425
+            },
+            {
+              "slot": 4,
+              "name": "아니스 : 스파클링 서머",
+              "upgrade": "풀코",
+              "characterLevel": 765,
+              "combat": 779361
+            },
+            {
+              "slot": 5,
+              "name": "메이든 : 아이스 로즈",
+              "upgrade": "풀코",
+              "characterLevel": 765,
+              "combat": 702188
+            }
+          ]
+        },
+        {
+          "bossName": "헤비메탈 [H.S.T.A.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 2,
+          "totalDamage": 46193091655,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "5코",
+              "characterLevel": 765,
+              "combat": 612510
+            },
+            {
+              "slot": 2,
+              "name": "나유타",
+              "upgrade": "1코",
+              "characterLevel": 765,
+              "combat": 619540
+            },
+            {
+              "slot": 3,
+              "name": "스노우 화이트 : 헤비암즈",
+              "upgrade": "풀코",
+              "characterLevel": 765,
+              "combat": 717326
+            },
+            {
+              "slot": 4,
+              "name": "도로시 : 세렌디피티",
+              "upgrade": "풀코",
+              "characterLevel": 765,
+              "combat": 723844
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 765,
+              "combat": 754699
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "마용",
+      "openId": "14111965122596899073",
+      "raids": [
+        {
+          "bossName": "두리안 [D.M.T.R.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 1,
+          "totalDamage": 43839048114,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "나유타",
+              "upgrade": "1돌",
+              "characterLevel": 767,
+              "combat": 607558
+            },
+            {
+              "slot": 2,
+              "name": "홍련 : 흑영",
+              "upgrade": "풀코",
+              "characterLevel": 767,
+              "combat": 842346
+            },
+            {
+              "slot": 3,
+              "name": "리버렐리오",
+              "upgrade": "2코",
+              "characterLevel": 767,
+              "combat": 657889
+            },
+            {
+              "slot": 4,
+              "name": "리틀 머메이드",
+              "upgrade": "3코",
+              "characterLevel": 767,
+              "combat": 645692
+            },
+            {
+              "slot": 5,
+              "name": "벨벳",
+              "upgrade": "1돌",
+              "characterLevel": 767,
+              "combat": 563736
+            }
+          ]
+        },
+        {
+          "bossName": "리빌드 벌컨R [Z.E.U.S.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 4,
+          "totalDamage": 42287386991,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "3코",
+              "characterLevel": 767,
+              "combat": 673293
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "5코",
+              "characterLevel": 767,
+              "combat": 680613
+            },
+            {
+              "slot": 3,
+              "name": "라피 : 레드 후드",
+              "upgrade": "4코",
+              "characterLevel": 767,
+              "combat": 730330
+            },
+            {
+              "slot": 4,
+              "name": "레이븐",
+              "upgrade": "풀돌",
+              "characterLevel": 767,
+              "combat": 609781
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "풀돌",
+              "characterLevel": 767,
+              "combat": 589026
+            }
+          ]
+        },
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 33767176352,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "목단",
+              "upgrade": "풀코",
+              "characterLevel": 767,
+              "combat": 717373
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "풀돌",
+              "characterLevel": 767,
+              "combat": 611330
+            },
+            {
+              "slot": 3,
+              "name": "헬름",
+              "upgrade": "풀코",
+              "characterLevel": 767,
+              "combat": 630342
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "1돌",
+              "characterLevel": 767,
+              "combat": 620281
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "2코",
+              "characterLevel": 767,
+              "combat": 689936
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "유화",
+      "openId": "4940924147363832812",
+      "raids": [
+        {
+          "bossName": "두리안 [D.M.T.R.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 1,
+          "totalDamage": 49336682964,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "나유타",
+              "upgrade": "3코",
+              "characterLevel": 757,
+              "combat": 645138
+            },
+            {
+              "slot": 2,
+              "name": "홍련 : 흑영",
+              "upgrade": "풀코",
+              "characterLevel": 757,
+              "combat": 734707
+            },
+            {
+              "slot": 3,
+              "name": "리틀 머메이드",
+              "upgrade": "5코",
+              "characterLevel": 757,
+              "combat": 698466
+            },
+            {
+              "slot": 4,
+              "name": "리버렐리오",
+              "upgrade": "5코",
+              "characterLevel": 757,
+              "combat": 726824
+            },
+            {
+              "slot": 5,
+              "name": "벨벳",
+              "upgrade": "1코",
+              "characterLevel": 757,
+              "combat": 561274
+            }
+          ]
+        },
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 33936644978,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "라피 : 레드 후드",
+              "upgrade": "3코",
+              "characterLevel": 757,
+              "combat": 687136
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "풀돌",
+              "characterLevel": 757,
+              "combat": 561886
+            },
+            {
+              "slot": 3,
+              "name": "헬름",
+              "upgrade": "풀코",
+              "characterLevel": 757,
+              "combat": 635609
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "풀돌",
+              "characterLevel": 757,
+              "combat": 615237
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "1코",
+              "characterLevel": 757,
+              "combat": 639650
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 5,
+          "totalDamage": 47270850958,
+          "isFinalHit": true,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "1코",
+              "characterLevel": 757,
+              "combat": 651830
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "풀코",
+              "characterLevel": 757,
+              "combat": 599467
+            },
+            {
+              "slot": 3,
+              "name": "네온 : 비전 아이",
+              "upgrade": "풀돌",
+              "characterLevel": 757,
+              "combat": 634135
+            },
+            {
+              "slot": 4,
+              "name": "신데렐라",
+              "upgrade": "풀코",
+              "characterLevel": 757,
+              "combat": 720461
+            },
+            {
+              "slot": 5,
+              "name": "아니스 : 스파클링 서머",
+              "upgrade": "풀돌",
+              "characterLevel": 757,
+              "combat": 613547
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "여우로",
+      "openId": "5640553726172095322",
+      "raids": [
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 1,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 41985184598,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "풀돌",
+              "characterLevel": 762,
+              "combat": 588504
+            },
+            {
+              "slot": 2,
+              "name": "라피 : 레드 후드",
+              "upgrade": "풀코",
+              "characterLevel": 762,
+              "combat": 796632
+            },
+            {
+              "slot": 3,
+              "name": "리틀 머메이드",
+              "upgrade": "풀코",
+              "characterLevel": 762,
+              "combat": 764853
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "풀돌",
+              "characterLevel": 762,
+              "combat": 636688
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "풀코",
+              "characterLevel": 762,
+              "combat": 729206
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 1,
+          "difficulty": 2,
+          "step": 5,
+          "totalDamage": 55641427990,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "크라운",
+              "upgrade": "풀코",
+              "characterLevel": 762,
+              "combat": 709718
+            },
+            {
+              "slot": 2,
+              "name": "신데렐라",
+              "upgrade": "풀코",
+              "characterLevel": 762,
+              "combat": 763817
+            },
+            {
+              "slot": 3,
+              "name": "아니스 : 스타",
+              "upgrade": "풀코",
+              "characterLevel": 762,
+              "combat": 828902
+            },
+            {
+              "slot": 4,
+              "name": "네온 : 비전 아이",
+              "upgrade": "풀코",
+              "characterLevel": 762,
+              "combat": 807880
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "6코",
+              "characterLevel": 762,
+              "combat": 656215
+            }
+          ]
+        },
+        {
+          "bossName": "헤비메탈 [H.S.T.A.]",
+          "bossLevel": 1,
+          "difficulty": 2,
+          "step": 2,
+          "totalDamage": 42408557816,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "목단",
+              "upgrade": "풀코",
+              "characterLevel": 762,
+              "combat": 765635
+            },
+            {
+              "slot": 2,
+              "name": "나유타",
+              "upgrade": "1코",
+              "characterLevel": 762,
+              "combat": 647690
+            },
+            {
+              "slot": 3,
+              "name": "스노우 화이트 : 헤비암즈",
+              "upgrade": "풀코",
+              "characterLevel": 762,
+              "combat": 761548
+            },
+            {
+              "slot": 4,
+              "name": "도로시 : 세렌디피티",
+              "upgrade": "풀돌",
+              "characterLevel": 762,
+              "combat": 675378
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 762,
+              "combat": 680319
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "초이",
+      "openId": "18174332922623888354",
+      "raids": [
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 1,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 24505650228,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "라피 : 레드 후드",
+              "upgrade": "2돌",
+              "characterLevel": 735,
+              "combat": 580119
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "명함",
+              "characterLevel": 735,
+              "combat": 465544
+            },
+            {
+              "slot": 3,
+              "name": "헬름",
+              "upgrade": "풀코",
+              "characterLevel": 735,
+              "combat": 634653
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "1돌",
+              "characterLevel": 735,
+              "combat": 527023
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "1코",
+              "characterLevel": 735,
+              "combat": 580275
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 1,
+          "difficulty": 2,
+          "step": 5,
+          "totalDamage": 36749266152,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "풀돌",
+              "characterLevel": 735,
+              "combat": 559141
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "4코",
+              "characterLevel": 735,
+              "combat": 572193
+            },
+            {
+              "slot": 3,
+              "name": "네온 : 비전 아이",
+              "upgrade": "명함",
+              "characterLevel": 735,
+              "combat": 525343
+            },
+            {
+              "slot": 4,
+              "name": "아니스 : 스파클링 서머",
+              "upgrade": "풀돌",
+              "characterLevel": 735,
+              "combat": 564115
+            },
+            {
+              "slot": 5,
+              "name": "메이든 : 아이스 로즈",
+              "upgrade": "2돌",
+              "characterLevel": 735,
+              "combat": 562616
+            }
+          ]
+        },
+        {
+          "bossName": "헤비메탈 [H.S.T.A.]",
+          "bossLevel": 1,
+          "difficulty": 2,
+          "step": 2,
+          "totalDamage": 32868666063,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "2돌",
+              "characterLevel": 735,
+              "combat": 563615
+            },
+            {
+              "slot": 2,
+              "name": "나유타",
+              "upgrade": "풀돌",
+              "characterLevel": 735,
+              "combat": 535039
+            },
+            {
+              "slot": 3,
+              "name": "스노우 화이트 : 헤비암즈",
+              "upgrade": "2돌",
+              "characterLevel": 735,
+              "combat": 568037
+            },
+            {
+              "slot": 4,
+              "name": "도로시 : 세렌디피티",
+              "upgrade": "풀돌",
+              "characterLevel": 735,
+              "combat": 543754
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 735,
+              "combat": 573166
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "그게너의한계야",
+      "openId": "11218604649373412420",
+      "raids": [
+        {
+          "bossName": "두리안 [D.M.T.R.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 1,
+          "totalDamage": 33014841316,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "1코",
+              "characterLevel": 721,
+              "combat": 562868
+            },
+            {
+              "slot": 2,
+              "name": "나유타",
+              "upgrade": "풀돌",
+              "characterLevel": 721,
+              "combat": 537931
+            },
+            {
+              "slot": 3,
+              "name": "홍련 : 흑영",
+              "upgrade": "6코",
+              "characterLevel": 721,
+              "combat": 619768
+            },
+            {
+              "slot": 4,
+              "name": "리버렐리오",
+              "upgrade": "2코",
+              "characterLevel": 721,
+              "combat": 573226
+            },
+            {
+              "slot": 5,
+              "name": "벨벳",
+              "upgrade": "1돌",
+              "characterLevel": 721,
+              "combat": 348222
+            }
+          ]
+        },
+        {
+          "bossName": "리빌드 벌컨R [Z.E.U.S.]",
+          "bossLevel": 1,
+          "difficulty": 2,
+          "step": 4,
+          "totalDamage": 33682105365,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "2코",
+              "characterLevel": 721,
+              "combat": 550136
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "3코",
+              "characterLevel": 721,
+              "combat": 534588
+            },
+            {
+              "slot": 3,
+              "name": "라피 : 레드 후드",
+              "upgrade": "1코",
+              "characterLevel": 721,
+              "combat": 599866
+            },
+            {
+              "slot": 4,
+              "name": "레이븐",
+              "upgrade": "2돌",
+              "characterLevel": 721,
+              "combat": 540920
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "1돌",
+              "characterLevel": 721,
+              "combat": 508244
+            }
+          ]
+        },
+        {
+          "bossName": "헤비메탈 [H.S.T.A.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 2,
+          "totalDamage": 30582342324,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "목단",
+              "upgrade": "풀코",
+              "characterLevel": 721,
+              "combat": 574885
+            },
+            {
+              "slot": 2,
+              "name": "에이드 : 에이전트 바니",
+              "upgrade": "2돌",
+              "characterLevel": 721,
+              "combat": 495110
+            },
+            {
+              "slot": 3,
+              "name": "스노우 화이트 : 헤비암즈",
+              "upgrade": "풀돌",
+              "characterLevel": 721,
+              "combat": 547798
+            },
+            {
+              "slot": 4,
+              "name": "도로시 : 세렌디피티",
+              "upgrade": "풀돌",
+              "characterLevel": 721,
+              "combat": 570203
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 721,
+              "combat": 592713
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "애농",
+      "openId": "12103565092187810212",
+      "raids": [
+        {
+          "bossName": "두리안 [D.M.T.R.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 1,
+          "totalDamage": 39762647870,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "나유타",
+              "upgrade": "1코",
+              "characterLevel": 713,
+              "combat": 541329
+            },
+            {
+              "slot": 2,
+              "name": "리버렐리오",
+              "upgrade": "풀코",
+              "characterLevel": 713,
+              "combat": 704700
+            },
+            {
+              "slot": 3,
+              "name": "리틀 머메이드",
+              "upgrade": "풀코",
+              "characterLevel": 713,
+              "combat": 595362
+            },
+            {
+              "slot": 4,
+              "name": "홍련 : 흑영",
+              "upgrade": "풀코",
+              "characterLevel": 713,
+              "combat": 610525
+            },
+            {
+              "slot": 5,
+              "name": "벨벳",
+              "upgrade": "1돌",
+              "characterLevel": 713,
+              "combat": 377205
+            }
+          ]
+        },
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 33397812996,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "라피 : 레드 후드",
+              "upgrade": "풀코",
+              "characterLevel": 713,
+              "combat": 648048
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "명함",
+              "characterLevel": 713,
+              "combat": 421677
+            },
+            {
+              "slot": 3,
+              "name": "헬름",
+              "upgrade": "풀코",
+              "characterLevel": 713,
+              "combat": 589955
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "풀돌",
+              "characterLevel": 713,
+              "combat": 564089
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "풀코",
+              "characterLevel": 713,
+              "combat": 644048
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 5,
+          "totalDamage": 51059332465,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스파클링 서머",
+              "upgrade": "풀코",
+              "characterLevel": 713,
+              "combat": 607034
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "5코",
+              "characterLevel": 713,
+              "combat": 500274
+            },
+            {
+              "slot": 3,
+              "name": "아니스 : 스타",
+              "upgrade": "풀코",
+              "characterLevel": 713,
+              "combat": 643565
+            },
+            {
+              "slot": 4,
+              "name": "네온 : 비전 아이",
+              "upgrade": "3코",
+              "characterLevel": 713,
+              "combat": 633363
+            },
+            {
+              "slot": 5,
+              "name": "메이든 : 아이스 로즈",
+              "upgrade": "풀코",
+              "characterLevel": 713,
+              "combat": 581731
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "RIRING",
+      "openId": "4568941217241296355",
+      "raids": [
+        {
+          "bossName": "리빌드 벌컨R [Z.E.U.S.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 4,
+          "totalDamage": 29032190348,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "풀코",
+              "characterLevel": 711,
+              "combat": 578975
+            },
+            {
+              "slot": 2,
+              "name": "나유타",
+              "upgrade": "풀코",
+              "characterLevel": 711,
+              "combat": 581110
+            },
+            {
+              "slot": 3,
+              "name": "라피 : 레드 후드",
+              "upgrade": "풀코",
+              "characterLevel": 711,
+              "combat": 660190
+            },
+            {
+              "slot": 4,
+              "name": "레이븐",
+              "upgrade": "1코",
+              "characterLevel": 711,
+              "combat": 514825
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 711,
+              "combat": 540728
+            }
+          ]
+        },
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 27094038933,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "목단",
+              "upgrade": "풀코",
+              "characterLevel": 711,
+              "combat": 568127
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "풀돌",
+              "characterLevel": 711,
+              "combat": 476345
+            },
+            {
+              "slot": 3,
+              "name": "헬름",
+              "upgrade": "풀코",
+              "characterLevel": 711,
+              "combat": 572942
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "풀돌",
+              "characterLevel": 711,
+              "combat": 519718
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "3코",
+              "characterLevel": 711,
+              "combat": 573664
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 5,
+          "totalDamage": 48717240842,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "풀코",
+              "characterLevel": 711,
+              "combat": 595582
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "풀코",
+              "characterLevel": 711,
+              "combat": 525334
+            },
+            {
+              "slot": 3,
+              "name": "네온 : 비전 아이",
+              "upgrade": "풀코",
+              "characterLevel": 711,
+              "combat": 641605
+            },
+            {
+              "slot": 4,
+              "name": "아니스 : 스파클링 서머",
+              "upgrade": "풀코",
+              "characterLevel": 711,
+              "combat": 581593
+            },
+            {
+              "slot": 5,
+              "name": "메이든 : 아이스 로즈",
+              "upgrade": "풀코",
+              "characterLevel": 711,
+              "combat": 577142
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "인형",
+      "openId": "12556233674954653449",
+      "raids": [
+        {
+          "bossName": "리빌드 벌컨R [Z.E.U.S.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 4,
+          "totalDamage": 27522047085,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "나유타",
+              "upgrade": "풀코",
+              "characterLevel": 701,
+              "combat": 571079
+            },
+            {
+              "slot": 2,
+              "name": "라피 : 레드 후드",
+              "upgrade": "풀코",
+              "characterLevel": 701,
+              "combat": 652638
+            },
+            {
+              "slot": 3,
+              "name": "리틀 머메이드",
+              "upgrade": "1코",
+              "characterLevel": 701,
+              "combat": 514619
+            },
+            {
+              "slot": 4,
+              "name": "레이븐",
+              "upgrade": "풀돌",
+              "characterLevel": 701,
+              "combat": 518291
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 701,
+              "combat": 491475
+            }
+          ]
+        },
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 27821358653,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "목단",
+              "upgrade": "2코",
+              "characterLevel": 701,
+              "combat": 518400
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "명함",
+              "characterLevel": 701,
+              "combat": 479533
+            },
+            {
+              "slot": 3,
+              "name": "헬름",
+              "upgrade": "풀코",
+              "characterLevel": 701,
+              "combat": 498526
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "1코",
+              "characterLevel": 701,
+              "combat": 539212
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "풀코",
+              "characterLevel": 701,
+              "combat": 639264
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 5,
+          "totalDamage": 37717757246,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "크라운",
+              "upgrade": "6코",
+              "characterLevel": 701,
+              "combat": 494564
+            },
+            {
+              "slot": 2,
+              "name": "신데렐라",
+              "upgrade": "6코",
+              "characterLevel": 701,
+              "combat": 558393
+            },
+            {
+              "slot": 3,
+              "name": "아니스 : 스타",
+              "upgrade": "1코",
+              "characterLevel": 701,
+              "combat": 529646
+            },
+            {
+              "slot": 4,
+              "name": "네온 : 비전 아이",
+              "upgrade": "2돌",
+              "characterLevel": 701,
+              "combat": 500978
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "풀돌",
+              "characterLevel": 701,
+              "combat": 510416
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "카니틴",
+      "openId": "1460986363874007773",
+      "raids": [
+        {
+          "bossName": "리빌드 벌컨R [Z.E.U.S.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 4,
+          "totalDamage": 27856410525,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "1코",
+              "characterLevel": 701,
+              "combat": 534216
+            },
+            {
+              "slot": 2,
+              "name": "나유타",
+              "upgrade": "2코",
+              "characterLevel": 701,
+              "combat": 500633
+            },
+            {
+              "slot": 3,
+              "name": "라피 : 레드 후드",
+              "upgrade": "6코",
+              "characterLevel": 701,
+              "combat": 604777
+            },
+            {
+              "slot": 4,
+              "name": "레이븐",
+              "upgrade": "풀돌",
+              "characterLevel": 701,
+              "combat": 495160
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 701,
+              "combat": 552699
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 4,
+          "difficulty": 2,
+          "step": 6,
+          "totalDamage": 24065748827,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "목단",
+              "upgrade": "풀코",
+              "characterLevel": 701,
+              "combat": 547834
+            },
+            {
+              "slot": 2,
+              "name": "신데렐라",
+              "upgrade": "6코",
+              "characterLevel": 701,
+              "combat": 631584
+            },
+            {
+              "slot": 3,
+              "name": "에이드 : 에이전트 바니",
+              "upgrade": "2코",
+              "characterLevel": 701,
+              "combat": 467867
+            },
+            {
+              "slot": 4,
+              "name": "아니스 : 스파클링 서머",
+              "upgrade": "풀돌",
+              "characterLevel": 701,
+              "combat": 424225
+            },
+            {
+              "slot": 5,
+              "name": "메이든 : 아이스 로즈",
+              "upgrade": "풀돌",
+              "characterLevel": 701,
+              "combat": 495215
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 4,
+          "difficulty": 2,
+          "step": 6,
+          "totalDamage": 33551308627,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "풀돌",
+              "characterLevel": 701,
+              "combat": 500393
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "6코",
+              "characterLevel": 701,
+              "combat": 506908
+            },
+            {
+              "slot": 3,
+              "name": "네온 : 비전 아이",
+              "upgrade": "풀돌",
+              "characterLevel": 701,
+              "combat": 556029
+            },
+            {
+              "slot": 4,
+              "name": "헬름",
+              "upgrade": "풀코",
+              "characterLevel": 701,
+              "combat": 529889
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "2코",
+              "characterLevel": 701,
+              "combat": 482827
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "감자",
+      "openId": "17830312501484542237",
+      "raids": [
+        {
+          "bossName": "리빌드 벌컨R [Z.E.U.S.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 4,
+          "totalDamage": 30822390082,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "풀돌",
+              "characterLevel": 702,
+              "combat": 501243
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "5코",
+              "characterLevel": 702,
+              "combat": 518263
+            },
+            {
+              "slot": 3,
+              "name": "라피 : 레드 후드",
+              "upgrade": "3코",
+              "characterLevel": 702,
+              "combat": 541063
+            },
+            {
+              "slot": 4,
+              "name": "레이븐",
+              "upgrade": "풀코",
+              "characterLevel": 702,
+              "combat": 574791
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 702,
+              "combat": 530030
+            }
+          ]
+        },
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 20421911695,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "2코",
+              "characterLevel": 702,
+              "combat": 498294
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "풀돌",
+              "characterLevel": 702,
+              "combat": 436576
+            },
+            {
+              "slot": 3,
+              "name": "헬름",
+              "upgrade": "풀코",
+              "characterLevel": 702,
+              "combat": 553193
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "풀돌",
+              "characterLevel": 702,
+              "combat": 508559
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "1코",
+              "characterLevel": 702,
+              "combat": 496394
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 5,
+          "totalDamage": 25369182763,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "목단",
+              "upgrade": "2코",
+              "characterLevel": 702,
+              "combat": 503712
+            },
+            {
+              "slot": 2,
+              "name": "에이드 : 에이전트 바니",
+              "upgrade": "풀돌",
+              "characterLevel": 702,
+              "combat": 431422
+            },
+            {
+              "slot": 3,
+              "name": "네온 : 비전 아이",
+              "upgrade": "풀돌",
+              "characterLevel": 702,
+              "combat": 531442
+            },
+            {
+              "slot": 4,
+              "name": "신데렐라",
+              "upgrade": "풀코",
+              "characterLevel": 702,
+              "combat": 619707
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "5코",
+              "characterLevel": 702,
+              "combat": 472010
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "진섯",
+      "openId": "5376437178851019411",
+      "raids": [
+        {
+          "bossName": "리빌드 벌컨R [Z.E.U.S.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 4,
+          "totalDamage": 27564079422,
+          "isFinalHit": true,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "풀돌",
+              "characterLevel": 701,
+              "combat": 550821
+            },
+            {
+              "slot": 2,
+              "name": "에이드 : 에이전트 바니",
+              "upgrade": "풀돌",
+              "characterLevel": 701,
+              "combat": 471027
+            },
+            {
+              "slot": 3,
+              "name": "라피 : 레드 후드",
+              "upgrade": "2코",
+              "characterLevel": 701,
+              "combat": 560711
+            },
+            {
+              "slot": 4,
+              "name": "레이븐",
+              "upgrade": "풀돌",
+              "characterLevel": 701,
+              "combat": 502733
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "풀코",
+              "characterLevel": 701,
+              "combat": 521461
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 4,
+          "difficulty": 2,
+          "step": 6,
+          "totalDamage": 30475683703,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "크라운",
+              "upgrade": "풀코",
+              "characterLevel": 701,
+              "combat": 508346
+            },
+            {
+              "slot": 2,
+              "name": "목단",
+              "upgrade": "풀코",
+              "characterLevel": 701,
+              "combat": 568581
+            },
+            {
+              "slot": 3,
+              "name": "네온 : 비전 아이",
+              "upgrade": "2코",
+              "characterLevel": 701,
+              "combat": 571952
+            },
+            {
+              "slot": 4,
+              "name": "아니스 : 스파클링 서머",
+              "upgrade": "1코",
+              "characterLevel": 701,
+              "combat": 519288
+            },
+            {
+              "slot": 5,
+              "name": "메이든 : 아이스 로즈",
+              "upgrade": "풀돌",
+              "characterLevel": 701,
+              "combat": 488652
+            }
+          ]
+        },
+        {
+          "bossName": "헤비메탈 [H.S.T.A.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 2,
+          "totalDamage": 31732588594,
+          "isFinalHit": true,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "6코",
+              "characterLevel": 701,
+              "combat": 529494
+            },
+            {
+              "slot": 2,
+              "name": "나유타",
+              "upgrade": "1코",
+              "characterLevel": 701,
+              "combat": 523932
+            },
+            {
+              "slot": 3,
+              "name": "스노우 화이트 : 헤비암즈",
+              "upgrade": "2코",
+              "characterLevel": 701,
+              "combat": 546064
+            },
+            {
+              "slot": 4,
+              "name": "도로시 : 세렌디피티",
+              "upgrade": "풀돌",
+              "characterLevel": 701,
+              "combat": 507250
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 701,
+              "combat": 527629
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "별",
+      "openId": "994555351365077430",
+      "raids": [
+        {
+          "bossName": "두리안 [D.M.T.R.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 1,
+          "totalDamage": 28512338077,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "나유타",
+              "upgrade": "풀돌",
+              "characterLevel": 688,
+              "combat": 507511
+            },
+            {
+              "slot": 2,
+              "name": "홍련 : 흑영",
+              "upgrade": "1돌",
+              "characterLevel": 688,
+              "combat": 513466
+            },
+            {
+              "slot": 3,
+              "name": "리버렐리오",
+              "upgrade": "1코",
+              "characterLevel": 688,
+              "combat": 528809
+            },
+            {
+              "slot": 4,
+              "name": "목단",
+              "upgrade": "1코",
+              "characterLevel": 688,
+              "combat": 478672
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "1돌",
+              "characterLevel": 688,
+              "combat": 405101
+            }
+          ]
+        },
+        {
+          "bossName": "리빌드 벌컨R [Z.E.U.S.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 4,
+          "totalDamage": 29291695195,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "풀돌",
+              "characterLevel": 688,
+              "combat": 471192
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "2코",
+              "characterLevel": 688,
+              "combat": 437623
+            },
+            {
+              "slot": 3,
+              "name": "라피 : 레드 후드",
+              "upgrade": "1코",
+              "characterLevel": 688,
+              "combat": 506132
+            },
+            {
+              "slot": 4,
+              "name": "레이븐",
+              "upgrade": "명함",
+              "characterLevel": 688,
+              "combat": 423240
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 688,
+              "combat": 494797
+            }
+          ]
+        },
+        {
+          "bossName": "헤비메탈 [H.S.T.A.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 2,
+          "totalDamage": 1393284543,
+          "isFinalHit": true,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "2코",
+              "characterLevel": 688,
+              "combat": 454785
+            },
+            {
+              "slot": 2,
+              "name": "에이드 : 에이전트 바니",
+              "upgrade": "1돌",
+              "characterLevel": 688,
+              "combat": 406530
+            },
+            {
+              "slot": 3,
+              "name": "스노우 화이트 : 헤비암즈",
+              "upgrade": "풀돌",
+              "characterLevel": 688,
+              "combat": 478472
+            },
+            {
+              "slot": 4,
+              "name": "도로시 : 세렌디피티",
+              "upgrade": "풀돌",
+              "characterLevel": 688,
+              "combat": 479257
+            },
+            {
+              "slot": 5,
+              "name": "헬름",
+              "upgrade": "풀코",
+              "characterLevel": 688,
+              "combat": 571688
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "최고다노지선",
+      "openId": "13585576846289278408",
+      "raids": [
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 20175537059,
+          "isFinalHit": true,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "라피 : 레드 후드",
+              "upgrade": "풀돌",
+              "characterLevel": 686,
+              "combat": 503122
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "2돌",
+              "characterLevel": 686,
+              "combat": 455136
+            },
+            {
+              "slot": 3,
+              "name": "헬름",
+              "upgrade": "풀코",
+              "characterLevel": 686,
+              "combat": 522278
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "명함",
+              "characterLevel": 686,
+              "combat": 439742
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "1코",
+              "characterLevel": 686,
+              "combat": 453962
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 5,
+          "totalDamage": 36106353815,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "풀돌",
+              "characterLevel": 686,
+              "combat": 474512
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "1코",
+              "characterLevel": 686,
+              "combat": 446463
+            },
+            {
+              "slot": 3,
+              "name": "네온 : 비전 아이",
+              "upgrade": "2돌",
+              "characterLevel": 686,
+              "combat": 486503
+            },
+            {
+              "slot": 4,
+              "name": "아니스 : 스파클링 서머",
+              "upgrade": "풀돌",
+              "characterLevel": 686,
+              "combat": 466634
+            },
+            {
+              "slot": 5,
+              "name": "메이든 : 아이스 로즈",
+              "upgrade": "명함",
+              "characterLevel": 686,
+              "combat": 457380
+            }
+          ]
+        },
+        {
+          "bossName": "헤비메탈 [H.S.T.A.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 2,
+          "totalDamage": 28400122872,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "1코",
+              "characterLevel": 686,
+              "combat": 471797
+            },
+            {
+              "slot": 2,
+              "name": "나유타",
+              "upgrade": "2돌",
+              "characterLevel": 686,
+              "combat": 485096
+            },
+            {
+              "slot": 3,
+              "name": "스노우 화이트 : 헤비암즈",
+              "upgrade": "1돌",
+              "characterLevel": 686,
+              "combat": 450754
+            },
+            {
+              "slot": 4,
+              "name": "도로시 : 세렌디피티",
+              "upgrade": "풀돌",
+              "characterLevel": 686,
+              "combat": 475997
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 686,
+              "combat": 479536
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "QWER",
+      "openId": "2157063445051905060",
+      "raids": [
+        {
+          "bossName": "두리안 [D.M.T.R.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 1,
+          "totalDamage": 31234452278,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "풀코",
+              "characterLevel": 684,
+              "combat": 564107
+            },
+            {
+              "slot": 2,
+              "name": "나유타",
+              "upgrade": "풀돌",
+              "characterLevel": 684,
+              "combat": 455506
+            },
+            {
+              "slot": 3,
+              "name": "홍련 : 흑영",
+              "upgrade": "4코",
+              "characterLevel": 684,
+              "combat": 525083
+            },
+            {
+              "slot": 4,
+              "name": "리버렐리오",
+              "upgrade": "풀돌",
+              "characterLevel": 684,
+              "combat": 483408
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "6코",
+              "characterLevel": 684,
+              "combat": 511869
+            }
+          ]
+        },
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 31561152789,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "풀돌",
+              "characterLevel": 684,
+              "combat": 447982
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "풀돌",
+              "characterLevel": 684,
+              "combat": 437465
+            },
+            {
+              "slot": 3,
+              "name": "라피 : 레드 후드",
+              "upgrade": "5코",
+              "characterLevel": 684,
+              "combat": 536253
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "풀돌",
+              "characterLevel": 684,
+              "combat": 480985
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "3코",
+              "characterLevel": 684,
+              "combat": 493342
+            }
+          ]
+        },
+        {
+          "bossName": "헤비메탈 [H.S.T.A.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 2,
+          "totalDamage": 30355726471,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "목단",
+              "upgrade": "5코",
+              "characterLevel": 684,
+              "combat": 474392
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "3코",
+              "characterLevel": 684,
+              "combat": 455893
+            },
+            {
+              "slot": 3,
+              "name": "스노우 화이트 : 헤비암즈",
+              "upgrade": "1코",
+              "characterLevel": 684,
+              "combat": 505178
+            },
+            {
+              "slot": 4,
+              "name": "도로시 : 세렌디피티",
+              "upgrade": "풀돌",
+              "characterLevel": 684,
+              "combat": 519830
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 684,
+              "combat": 515263
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "체르",
+      "openId": "11482316190231985826",
+      "raids": [
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 16389364223,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "라피 : 레드 후드",
+              "upgrade": "풀코",
+              "characterLevel": 678,
+              "combat": 537256
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "명함",
+              "characterLevel": 678,
+              "combat": 407689
+            },
+            {
+              "slot": 3,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "2코",
+              "characterLevel": 678,
+              "combat": 507216
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "1돌",
+              "characterLevel": 678,
+              "combat": 419128
+            },
+            {
+              "slot": 5,
+              "name": "헬름",
+              "upgrade": "풀코",
+              "characterLevel": 678,
+              "combat": 486734
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 5,
+          "totalDamage": 31478630125,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "풀코",
+              "characterLevel": 678,
+              "combat": 508698
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "6코",
+              "characterLevel": 678,
+              "combat": 481350
+            },
+            {
+              "slot": 3,
+              "name": "네온 : 비전 아이",
+              "upgrade": "1코",
+              "characterLevel": 678,
+              "combat": 482794
+            },
+            {
+              "slot": 4,
+              "name": "신데렐라",
+              "upgrade": "풀코",
+              "characterLevel": 678,
+              "combat": 589050
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "4코",
+              "characterLevel": 678,
+              "combat": 463989
+            }
+          ]
+        },
+        {
+          "bossName": "헤비메탈 [H.S.T.A.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 2,
+          "totalDamage": 24994447246,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "2코",
+              "characterLevel": 678,
+              "combat": 459967
+            },
+            {
+              "slot": 2,
+              "name": "나유타",
+              "upgrade": "풀돌",
+              "characterLevel": 678,
+              "combat": 454640
+            },
+            {
+              "slot": 3,
+              "name": "스노우 화이트 : 헤비암즈",
+              "upgrade": "1코",
+              "characterLevel": 678,
+              "combat": 491853
+            },
+            {
+              "slot": 4,
+              "name": "도로시 : 세렌디피티",
+              "upgrade": "풀돌",
+              "characterLevel": 678,
+              "combat": 459827
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 678,
+              "combat": 482490
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "히르메",
+      "openId": "58794369962730414",
+      "raids": [
+        {
+          "bossName": "두리안 [D.M.T.R.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 1,
+          "totalDamage": 32638549903,
+          "isFinalHit": true,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "풀돌",
+              "characterLevel": 664,
+              "combat": 450783
+            },
+            {
+              "slot": 2,
+              "name": "홍련 : 흑영",
+              "upgrade": "풀코",
+              "characterLevel": 664,
+              "combat": 549912
+            },
+            {
+              "slot": 3,
+              "name": "리버렐리오",
+              "upgrade": "1코",
+              "characterLevel": 664,
+              "combat": 495121
+            },
+            {
+              "slot": 4,
+              "name": "나유타",
+              "upgrade": "풀돌",
+              "characterLevel": 664,
+              "combat": 465655
+            },
+            {
+              "slot": 5,
+              "name": "벨벳",
+              "upgrade": "명함",
+              "characterLevel": 664,
+              "combat": 359728
+            }
+          ]
+        },
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 24002216869,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "라피 : 레드 후드",
+              "upgrade": "1코",
+              "characterLevel": 664,
+              "combat": 498637
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "명함",
+              "characterLevel": 664,
+              "combat": 418292
+            },
+            {
+              "slot": 3,
+              "name": "헬름",
+              "upgrade": "풀코",
+              "characterLevel": 664,
+              "combat": 512534
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "1돌",
+              "characterLevel": 664,
+              "combat": 427986
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "1코",
+              "characterLevel": 664,
+              "combat": 465772
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 5,
+          "totalDamage": 38455341430,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "크라운",
+              "upgrade": "풀돌",
+              "characterLevel": 664,
+              "combat": 417608
+            },
+            {
+              "slot": 2,
+              "name": "신데렐라",
+              "upgrade": "5코",
+              "characterLevel": 664,
+              "combat": 567257
+            },
+            {
+              "slot": 3,
+              "name": "아니스 : 스타",
+              "upgrade": "풀코",
+              "characterLevel": 664,
+              "combat": 556158
+            },
+            {
+              "slot": 4,
+              "name": "네온 : 비전 아이",
+              "upgrade": "풀돌",
+              "characterLevel": 664,
+              "combat": 485569
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "6코",
+              "characterLevel": 664,
+              "combat": 476782
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "유찌종",
+      "openId": "13532953563492193236",
+      "raids": [
+        {
+          "bossName": "두리안 [D.M.T.R.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 1,
+          "totalDamage": 23052405809,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "1코",
+              "characterLevel": 660,
+              "combat": 407523
+            },
+            {
+              "slot": 2,
+              "name": "나유타",
+              "upgrade": "1코",
+              "characterLevel": 660,
+              "combat": 382607
+            },
+            {
+              "slot": 3,
+              "name": "홍련 : 흑영",
+              "upgrade": "6코",
+              "characterLevel": 660,
+              "combat": 485072
+            },
+            {
+              "slot": 4,
+              "name": "리버렐리오",
+              "upgrade": "3코",
+              "characterLevel": 660,
+              "combat": 430502
+            },
+            {
+              "slot": 5,
+              "name": "벨벳",
+              "upgrade": "2돌",
+              "characterLevel": 660,
+              "combat": 337914
+            }
+          ]
+        },
+        {
+          "bossName": "리빌드 벌컨R [Z.E.U.S.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 4,
+          "totalDamage": 26538850945,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "2돌",
+              "characterLevel": 660,
+              "combat": 384428
+            },
+            {
+              "slot": 2,
+              "name": "라피 : 레드 후드",
+              "upgrade": "4코",
+              "characterLevel": 660,
+              "combat": 466040
+            },
+            {
+              "slot": 3,
+              "name": "크라운",
+              "upgrade": "3코",
+              "characterLevel": 660,
+              "combat": 394340
+            },
+            {
+              "slot": 4,
+              "name": "레이븐",
+              "upgrade": "풀돌",
+              "characterLevel": 660,
+              "combat": 436511
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "4코",
+              "characterLevel": 660,
+              "combat": 398823
+            }
+          ]
+        },
+        {
+          "bossName": "헤비메탈 [H.S.T.A.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 2,
+          "totalDamage": 25342401829,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "목단",
+              "upgrade": "풀코",
+              "characterLevel": 660,
+              "combat": 467975
+            },
+            {
+              "slot": 2,
+              "name": "에이드 : 에이전트 바니",
+              "upgrade": "3코",
+              "characterLevel": 660,
+              "combat": 387363
+            },
+            {
+              "slot": 3,
+              "name": "스노우 화이트 : 헤비암즈",
+              "upgrade": "3코",
+              "characterLevel": 660,
+              "combat": 445886
+            },
+            {
+              "slot": 4,
+              "name": "도로시 : 세렌디피티",
+              "upgrade": "풀코",
+              "characterLevel": 660,
+              "combat": 494372
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 660,
+              "combat": 407201
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "지구외계인",
+      "openId": "11740729885555896775",
+      "raids": [
+        {
+          "bossName": "리빌드 벌컨R [Z.E.U.S.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 4,
+          "totalDamage": 26494397183,
+          "isFinalHit": true,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "풀돌",
+              "characterLevel": 693,
+              "combat": 463050
+            },
+            {
+              "slot": 2,
+              "name": "나유타",
+              "upgrade": "3코",
+              "characterLevel": 693,
+              "combat": 424353
+            },
+            {
+              "slot": 3,
+              "name": "라피 : 레드 후드",
+              "upgrade": "2코",
+              "characterLevel": 693,
+              "combat": 552568
+            },
+            {
+              "slot": 4,
+              "name": "레이븐",
+              "upgrade": "풀돌",
+              "characterLevel": 693,
+              "combat": 503399
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 693,
+              "combat": 458493
+            }
+          ]
+        },
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 18076226390,
+          "isFinalHit": true,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "목단",
+              "upgrade": "풀코",
+              "characterLevel": 693,
+              "combat": 533494
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "명함",
+              "characterLevel": 693,
+              "combat": 432470
+            },
+            {
+              "slot": 3,
+              "name": "헬름",
+              "upgrade": "5코",
+              "characterLevel": 693,
+              "combat": 549697
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "명함",
+              "characterLevel": 693,
+              "combat": 481470
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "1코",
+              "characterLevel": 693,
+              "combat": 534482
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 4,
+          "difficulty": 2,
+          "step": 6,
+          "totalDamage": 38244777684,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "풀돌",
+              "characterLevel": 693,
+              "combat": 514104
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "5코",
+              "characterLevel": 693,
+              "combat": 485788
+            },
+            {
+              "slot": 3,
+              "name": "네온 : 비전 아이",
+              "upgrade": "풀돌",
+              "characterLevel": 693,
+              "combat": 509821
+            },
+            {
+              "slot": 4,
+              "name": "아니스 : 스파클링 서머",
+              "upgrade": "풀돌",
+              "characterLevel": 693,
+              "combat": 518525
+            },
+            {
+              "slot": 5,
+              "name": "메이든 : 아이스 로즈",
+              "upgrade": "풀돌",
+              "characterLevel": 693,
+              "combat": 478949
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "반달",
+      "openId": "14146582832167071829",
+      "raids": [
+        {
+          "bossName": "두리안 [D.M.T.R.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 1,
+          "totalDamage": 22033462050,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "목단",
+              "upgrade": "2코",
+              "characterLevel": 657,
+              "combat": 394763
+            },
+            {
+              "slot": 2,
+              "name": "홍련 : 흑영",
+              "upgrade": "3코",
+              "characterLevel": 657,
+              "combat": 477106
+            },
+            {
+              "slot": 3,
+              "name": "리버렐리오",
+              "upgrade": "풀돌",
+              "characterLevel": 657,
+              "combat": 428165
+            },
+            {
+              "slot": 4,
+              "name": "나유타",
+              "upgrade": "2돌",
+              "characterLevel": 657,
+              "combat": 426173
+            },
+            {
+              "slot": 5,
+              "name": "벨벳",
+              "upgrade": "명함",
+              "characterLevel": 657,
+              "combat": 221438
+            }
+          ]
+        },
+        {
+          "bossName": "리빌드 벌컨R [Z.E.U.S.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 4,
+          "totalDamage": 18385232412,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "2코",
+              "characterLevel": 657,
+              "combat": 401731
+            },
+            {
+              "slot": 2,
+              "name": "에이드 : 에이전트 바니",
+              "upgrade": "2돌",
+              "characterLevel": 657,
+              "combat": 387642
+            },
+            {
+              "slot": 3,
+              "name": "라피 : 레드 후드",
+              "upgrade": "풀돌",
+              "characterLevel": 657,
+              "combat": 425124
+            },
+            {
+              "slot": 4,
+              "name": "레이븐",
+              "upgrade": "1돌",
+              "characterLevel": 657,
+              "combat": 422905
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 657,
+              "combat": 431133
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 5,
+          "totalDamage": 31227670971,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "2돌",
+              "characterLevel": 657,
+              "combat": 401381
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "2돌",
+              "characterLevel": 657,
+              "combat": 377677
+            },
+            {
+              "slot": 3,
+              "name": "네온 : 비전 아이",
+              "upgrade": "명함",
+              "characterLevel": 657,
+              "combat": 416688
+            },
+            {
+              "slot": 4,
+              "name": "신데렐라",
+              "upgrade": "1코",
+              "characterLevel": 657,
+              "combat": 458089
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "4코",
+              "characterLevel": 657,
+              "combat": 437452
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "케빈",
+      "openId": "3876519977867298299",
+      "raids": [
+        {
+          "bossName": "두리안 [D.M.T.R.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 1,
+          "totalDamage": 25427357759,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "나유타",
+              "upgrade": "1코",
+              "characterLevel": 657,
+              "combat": 419202
+            },
+            {
+              "slot": 2,
+              "name": "홍련 : 흑영",
+              "upgrade": "풀돌",
+              "characterLevel": 657,
+              "combat": 421471
+            },
+            {
+              "slot": 3,
+              "name": "리버렐리오",
+              "upgrade": "1코",
+              "characterLevel": 657,
+              "combat": 393242
+            },
+            {
+              "slot": 4,
+              "name": "리틀 머메이드",
+              "upgrade": "1돌",
+              "characterLevel": 657,
+              "combat": 389161
+            },
+            {
+              "slot": 5,
+              "name": "벨벳",
+              "upgrade": "명함",
+              "characterLevel": 657,
+              "combat": 321285
+            }
+          ]
+        },
+        {
+          "bossName": "리빌드 벌컨R [Z.E.U.S.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 4,
+          "totalDamage": 27399200838,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "크라운",
+              "upgrade": "1돌",
+              "characterLevel": 657,
+              "combat": 385620
+            },
+            {
+              "slot": 2,
+              "name": "라피 : 레드 후드",
+              "upgrade": "2코",
+              "characterLevel": 657,
+              "combat": 467203
+            },
+            {
+              "slot": 3,
+              "name": "아니스 : 스타",
+              "upgrade": "1돌",
+              "characterLevel": 657,
+              "combat": 416841
+            },
+            {
+              "slot": 4,
+              "name": "레이븐",
+              "upgrade": "명함",
+              "characterLevel": 657,
+              "combat": 388729
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "4코",
+              "characterLevel": 657,
+              "combat": 323581
+            }
+          ]
+        },
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 18859689866,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "목단",
+              "upgrade": "5코",
+              "characterLevel": 657,
+              "combat": 435345
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "명함",
+              "characterLevel": 657,
+              "combat": 342656
+            },
+            {
+              "slot": 3,
+              "name": "헬름",
+              "upgrade": "풀코",
+              "characterLevel": 657,
+              "combat": 458364
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "명함",
+              "characterLevel": 657,
+              "combat": 398019
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "2돌",
+              "characterLevel": 657,
+              "combat": 383920
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "웅기",
+      "openId": "4855339629453628819",
+      "raids": [
+        {
+          "bossName": "두리안 [D.M.T.R.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 1,
+          "totalDamage": 1019467923,
+          "isFinalHit": true,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "2코",
+              "characterLevel": 649,
+              "combat": 402824
+            },
+            {
+              "slot": 2,
+              "name": "에이드 : 에이전트 바니",
+              "upgrade": "1코",
+              "characterLevel": 649,
+              "combat": 379009
+            },
+            {
+              "slot": 3,
+              "name": "리버렐리오",
+              "upgrade": "풀돌",
+              "characterLevel": 649,
+              "combat": 397111
+            },
+            {
+              "slot": 4,
+              "name": "홍련 : 흑영",
+              "upgrade": "2코",
+              "characterLevel": 649,
+              "combat": 461524
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 649,
+              "combat": 382010
+            }
+          ]
+        },
+        {
+          "bossName": "리빌드 벌컨R [Z.E.U.S.]",
+          "bossLevel": 1,
+          "difficulty": 2,
+          "step": 4,
+          "totalDamage": 17362392515,
+          "isFinalHit": true,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "목단",
+              "upgrade": "3코",
+              "characterLevel": 649,
+              "combat": 452150
+            },
+            {
+              "slot": 2,
+              "name": "나유타",
+              "upgrade": "6코",
+              "characterLevel": 649,
+              "combat": 434713
+            },
+            {
+              "slot": 3,
+              "name": "라피 : 레드 후드",
+              "upgrade": "2코",
+              "characterLevel": 649,
+              "combat": 467395
+            },
+            {
+              "slot": 4,
+              "name": "레이븐",
+              "upgrade": "1돌",
+              "characterLevel": 649,
+              "combat": 419155
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "3코",
+              "characterLevel": 649,
+              "combat": 410027
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 5,
+          "totalDamage": 30561842780,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "크라운",
+              "upgrade": "풀코",
+              "characterLevel": 649,
+              "combat": 474156
+            },
+            {
+              "slot": 2,
+              "name": "신데렐라",
+              "upgrade": "6코",
+              "characterLevel": 649,
+              "combat": 455491
+            },
+            {
+              "slot": 3,
+              "name": "아니스 : 스타",
+              "upgrade": "1코",
+              "characterLevel": 649,
+              "combat": 430882
+            },
+            {
+              "slot": 4,
+              "name": "네온 : 비전 아이",
+              "upgrade": "풀돌",
+              "characterLevel": 649,
+              "combat": 432344
+            },
+            {
+              "slot": 5,
+              "name": "아니스 : 스파클링 서머",
+              "upgrade": "1코",
+              "characterLevel": 649,
+              "combat": 424076
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "연두버섯",
+      "openId": "16741456192922823100",
+      "raids": [
+        {
+          "bossName": "리빌드 벌컨R [Z.E.U.S.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 4,
+          "totalDamage": 26534618191,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "풀돌",
+              "characterLevel": 641,
+              "combat": 412120
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "4코",
+              "characterLevel": 641,
+              "combat": 405785
+            },
+            {
+              "slot": 3,
+              "name": "라피 : 레드 후드",
+              "upgrade": "2돌",
+              "characterLevel": 641,
+              "combat": 445784
+            },
+            {
+              "slot": 4,
+              "name": "레이븐",
+              "upgrade": "풀돌",
+              "characterLevel": 641,
+              "combat": 422207
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 641,
+              "combat": 422276
+            }
+          ]
+        },
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 17761103838,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "리틀 머메이드",
+              "upgrade": "1코",
+              "characterLevel": 641,
+              "combat": 413026
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "명함",
+              "characterLevel": 641,
+              "combat": 399769
+            },
+            {
+              "slot": 3,
+              "name": "헬름",
+              "upgrade": "풀코",
+              "characterLevel": 641,
+              "combat": 434677
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "명함",
+              "characterLevel": 641,
+              "combat": 361996
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "2돌",
+              "characterLevel": 641,
+              "combat": 416883
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 5,
+          "totalDamage": 17089215326,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "목단",
+              "upgrade": "2돌",
+              "characterLevel": 641,
+              "combat": 389831
+            },
+            {
+              "slot": 2,
+              "name": "에이드 : 에이전트 바니",
+              "upgrade": "풀돌",
+              "characterLevel": 641,
+              "combat": 397794
+            },
+            {
+              "slot": 3,
+              "name": "네온 : 비전 아이",
+              "upgrade": "명함",
+              "characterLevel": 641,
+              "combat": 372123
+            },
+            {
+              "slot": 4,
+              "name": "아니스 : 스파클링 서머",
+              "upgrade": "명함",
+              "characterLevel": 641,
+              "combat": 381240
+            },
+            {
+              "slot": 5,
+              "name": "메이든 : 아이스 로즈",
+              "upgrade": "명함",
+              "characterLevel": 641,
+              "combat": 355393
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TA3",
+      "openId": "4648697577910392912",
+      "raids": [
+        {
+          "bossName": "두리안 [D.M.T.R.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 1,
+          "totalDamage": 22856861967,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "나유타",
+              "upgrade": "풀돌",
+              "characterLevel": 637,
+              "combat": 383955
+            },
+            {
+              "slot": 2,
+              "name": "홍련 : 흑영",
+              "upgrade": "4코",
+              "characterLevel": 637,
+              "combat": 420465
+            },
+            {
+              "slot": 3,
+              "name": "리틀 머메이드",
+              "upgrade": "2코",
+              "characterLevel": 637,
+              "combat": 410379
+            },
+            {
+              "slot": 4,
+              "name": "리버렐리오",
+              "upgrade": "1돌",
+              "characterLevel": 637,
+              "combat": 381115
+            },
+            {
+              "slot": 5,
+              "name": "벨벳",
+              "upgrade": "1돌",
+              "characterLevel": 637,
+              "combat": 357313
+            }
+          ]
+        },
+        {
+          "bossName": "리빌드 벌컨R [Z.E.U.S.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 4,
+          "totalDamage": 22987480650,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "풀돌",
+              "characterLevel": 637,
+              "combat": 406394
+            },
+            {
+              "slot": 2,
+              "name": "크라운",
+              "upgrade": "2돌",
+              "characterLevel": 637,
+              "combat": 359480
+            },
+            {
+              "slot": 3,
+              "name": "라피 : 레드 후드",
+              "upgrade": "명함",
+              "characterLevel": 637,
+              "combat": 414150
+            },
+            {
+              "slot": 4,
+              "name": "레이븐",
+              "upgrade": "명함",
+              "characterLevel": 637,
+              "combat": 418266
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "1코",
+              "characterLevel": 637,
+              "combat": 336059
+            }
+          ]
+        },
+        {
+          "bossName": "헤비메탈 [H.S.T.A.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 2,
+          "totalDamage": 20251803585,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "목단",
+              "upgrade": "1코",
+              "characterLevel": 637,
+              "combat": 369264
+            },
+            {
+              "slot": 2,
+              "name": "에이드 : 에이전트 바니",
+              "upgrade": "1돌",
+              "characterLevel": 637,
+              "combat": 395381
+            },
+            {
+              "slot": 3,
+              "name": "스노우 화이트 : 헤비암즈",
+              "upgrade": "1돌",
+              "characterLevel": 637,
+              "combat": 384624
+            },
+            {
+              "slot": 4,
+              "name": "도로시 : 세렌디피티",
+              "upgrade": "명함",
+              "characterLevel": 637,
+              "combat": 393115
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 637,
+              "combat": 376215
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "보름달",
+      "openId": "10202850469888305508",
+      "raids": [
+        {
+          "bossName": "두리안 [D.M.T.R.]",
+          "bossLevel": 1,
+          "difficulty": 2,
+          "step": 1,
+          "totalDamage": 25175765401,
+          "isFinalHit": true,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "나유타",
+              "upgrade": "1코",
+              "characterLevel": 641,
+              "combat": 426746
+            },
+            {
+              "slot": 2,
+              "name": "홍련 : 흑영",
+              "upgrade": "2코",
+              "characterLevel": 641,
+              "combat": 433687
+            },
+            {
+              "slot": 3,
+              "name": "리버렐리오",
+              "upgrade": "1돌",
+              "characterLevel": 641,
+              "combat": 395747
+            },
+            {
+              "slot": 4,
+              "name": "리틀 머메이드",
+              "upgrade": "1돌",
+              "characterLevel": 641,
+              "combat": 377231
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "2코",
+              "characterLevel": 641,
+              "combat": 368619
+            }
+          ]
+        },
+        {
+          "bossName": "모더니아 [A.N.M.I.]",
+          "bossLevel": 2,
+          "difficulty": 2,
+          "step": 3,
+          "totalDamage": 27941726582,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "아니스 : 스타",
+              "upgrade": "풀돌",
+              "characterLevel": 641,
+              "combat": 442210
+            },
+            {
+              "slot": 2,
+              "name": "브리드 : 사일런트 트랙",
+              "upgrade": "명함",
+              "characterLevel": 641,
+              "combat": 300944
+            },
+            {
+              "slot": 3,
+              "name": "라피 : 레드 후드",
+              "upgrade": "2코",
+              "characterLevel": 641,
+              "combat": 470838
+            },
+            {
+              "slot": 4,
+              "name": "디젤 : 윈터 스위츠",
+              "upgrade": "명함",
+              "characterLevel": 641,
+              "combat": 367455
+            },
+            {
+              "slot": 5,
+              "name": "미하라 : 본딩 체인",
+              "upgrade": "풀돌",
+              "characterLevel": 641,
+              "combat": 447095
+            }
+          ]
+        },
+        {
+          "bossName": "헤비메탈 [H.S.T.A.]",
+          "bossLevel": 1,
+          "difficulty": 2,
+          "step": 2,
+          "totalDamage": 24579055321,
+          "isFinalHit": true,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "크라운",
+              "upgrade": "3코",
+              "characterLevel": 641,
+              "combat": 422750
+            },
+            {
+              "slot": 2,
+              "name": "목단",
+              "upgrade": "3코",
+              "characterLevel": 641,
+              "combat": 426054
+            },
+            {
+              "slot": 3,
+              "name": "스노우 화이트 : 헤비암즈",
+              "upgrade": "2돌",
+              "characterLevel": 641,
+              "combat": 399139
+            },
+            {
+              "slot": 4,
+              "name": "도로시 : 세렌디피티",
+              "upgrade": "1돌",
+              "characterLevel": 641,
+              "combat": 424247
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "풀코",
+              "characterLevel": 641,
+              "combat": 342173
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "마몬",
+      "openId": "15678979309220440854",
+      "raids": [
+        {
+          "bossName": "두리안 [D.M.T.R.]",
+          "bossLevel": 1,
+          "difficulty": 2,
+          "step": 1,
+          "totalDamage": 20549088358,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "나유타",
+              "upgrade": "1돌",
+              "characterLevel": 621,
+              "combat": 379764
+            },
+            {
+              "slot": 2,
+              "name": "리틀 머메이드",
+              "upgrade": "풀돌",
+              "characterLevel": 621,
+              "combat": 378783
+            },
+            {
+              "slot": 3,
+              "name": "리버렐리오",
+              "upgrade": "2돌",
+              "characterLevel": 621,
+              "combat": 385700
+            },
+            {
+              "slot": 4,
+              "name": "홍련 : 흑영",
+              "upgrade": "6코",
+              "characterLevel": 621,
+              "combat": 455261
+            },
+            {
+              "slot": 5,
+              "name": "마스트 : 로망틱 메이드",
+              "upgrade": "풀코",
+              "characterLevel": 621,
+              "combat": 387995
+            }
+          ]
+        },
+        {
+          "bossName": "리빌드 벌컨R [Z.E.U.S.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 4,
+          "totalDamage": 14080133109,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "크라운",
+              "upgrade": "풀돌",
+              "characterLevel": 624,
+              "combat": 345431
+            },
+            {
+              "slot": 2,
+              "name": "아니스 : 스타",
+              "upgrade": "명함",
+              "characterLevel": 624,
+              "combat": 381924
+            },
+            {
+              "slot": 3,
+              "name": "레드 후드",
+              "upgrade": "5코",
+              "characterLevel": 624,
+              "combat": 466050
+            },
+            {
+              "slot": 4,
+              "name": "라피 : 레드 후드",
+              "upgrade": "3코",
+              "characterLevel": 624,
+              "combat": 443605
+            },
+            {
+              "slot": 5,
+              "name": "프리바티",
+              "upgrade": "5코",
+              "characterLevel": 624,
+              "combat": 364729
+            }
+          ]
+        },
+        {
+          "bossName": "알트아이젠 [P.S.I.D.]",
+          "bossLevel": 3,
+          "difficulty": 2,
+          "step": 5,
+          "totalDamage": 12995321722,
+          "isFinalHit": false,
+          "squad": [
+            {
+              "slot": 1,
+              "name": "목단",
+              "upgrade": "1코",
+              "characterLevel": 624,
+              "combat": 385239
+            },
+            {
+              "slot": 2,
+              "name": "에이드 : 에이전트 바니",
+              "upgrade": "풀돌",
+              "characterLevel": 624,
+              "combat": 313375
+            },
+            {
+              "slot": 3,
+              "name": "신데렐라",
+              "upgrade": "1돌",
+              "characterLevel": 624,
+              "combat": 404810
+            },
+            {
+              "slot": 4,
+              "name": "네온 : 비전 아이",
+              "upgrade": "명함",
+              "characterLevel": 624,
+              "combat": 365016
+            },
+            {
+              "slot": 5,
+              "name": "메이든 : 아이스 로즈",
+              "upgrade": "명함",
+              "characterLevel": 624,
+              "combat": 356861
+            }
+          ]
+        }
+      ]
+    }
   ]
 };
