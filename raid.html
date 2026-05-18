@@ -1385,6 +1385,18 @@ function renderRank(seasonKey) {
   const el       = document.getElementById("raidRankBadge");
   const unionKey = seasonKey.replace("S", "");
   const rank     = UNION[unionKey] && UNION[unionKey].rank;
+  const compact  = document.getElementById("compactToggle").checked;
+  const fmt      = compact ? fmtCompact : fmtFull;
+
+  // LV1 ~ LV4 전체 누적 대미지
+  const members = RAID[seasonKey] || [];
+  let totalDmg = 0;
+  members.forEach(m => {
+    (m.raids || []).forEach(r => {
+      totalDmg += r.totalDamage || 0;
+    });
+  });
+
   el.innerHTML =
     '<div class="rank-badge">' +
       '<span class="rank-badge-label">순위</span>' +
@@ -1392,6 +1404,10 @@ function renderRank(seasonKey) {
       (rank != null
         ? '<span class="rank-badge-value">🏆 ' + rank + '위</span>'
         : '<span class="rank-badge-value unknown">미정</span>') +
+      '<span class="rank-badge-sep"></span>' +
+      '<span class="rank-badge-label">총 대미지</span>' +
+      '<span class="rank-badge-sep"></span>' +
+      '<span class="rank-badge-value">' + (totalDmg > 0 ? fmt(totalDmg) : "—") + '</span>' +
     '</div>';
 }
 
@@ -1400,7 +1416,10 @@ seasonSelect.addEventListener("change", () => {
   renderView(seasonSelect.value);
   renderRank(seasonSelect.value);
 });
-document.getElementById("compactToggle").addEventListener("change", () => renderView(seasonSelect.value));
+document.getElementById("compactToggle").addEventListener("change", () => {
+  renderView(seasonSelect.value);
+  renderRank(seasonSelect.value);
+});
 document.getElementById("summaryToggle").addEventListener("change", () => renderView(seasonSelect.value));
 document.querySelectorAll('input[name="typeSelect"]').forEach(r =>
   r.addEventListener("change", () => renderView(seasonSelect.value))
