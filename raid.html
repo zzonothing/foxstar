@@ -606,6 +606,17 @@ function renderBossHpSummary(seasonKey) {
     const hitsAtMax     = hits.filter(h => h.bossLevel === maxLevel);
     const totalDmgAtMax = hitsAtMax.reduce((s, h) => s + h.dmg, 0);
     const isKilled      = hitsAtMax.some(h => h.finalHit);
+
+    // LV4 = 무한 HP 보스 (5번 보스만 오픈, 피해량 누적 모드)
+    if (maxLevel >= 4) {
+      return {
+        elem, short,
+        displayLevel: maxLevel,
+        infinite: true,
+        damage: totalDmgAtMax,
+      };
+    }
+
     const nextHp = hpArr ? (hpArr[maxLevel] ?? null) : null;
     const displayLevel = (isKilled && nextHp != null) ? maxLevel + 1 : maxLevel;
     const totalHp = hpArr ? (hpArr[displayLevel - 1] ?? null) : null;
@@ -616,6 +627,10 @@ function renderBossHpSummary(seasonKey) {
     const pct = (totalHp && remaining != null) ? (remaining / totalHp * 100) : null;
     return { elem, short, displayLevel, totalHp, remaining, pct, slain };
   });
+
+  // LV4 도달 시: LV4 보스만 표시 (LV1~3 처치된 보스는 숨김)
+  const hasLv4 = bossesInfo.some(b => b.infinite);
+  const visibleBosses = hasLv4 ? bossesInfo.filter(b => b.infinite) : bossesInfo;
 
   const wrap  = document.createElement("div");
   wrap.style.cssText = "display:block; overflow-x:auto; -webkit-overflow-scrolling:touch;";
@@ -637,8 +652,8 @@ function renderBossHpSummary(seasonKey) {
   table.appendChild(colgroup);
 
   // 헤더: 보스 (Lv.X) / HP
-  const maxDisplayLevel = bossesInfo.length
-    ? Math.max(...bossesInfo.map(b => b.displayLevel))
+  const maxDisplayLevel = visibleBosses.length
+    ? Math.max(...visibleBosses.map(b => b.displayLevel))
     : null;
   const bossHeaderLabel = maxDisplayLevel != null
     ? '보스 (Lv.' + maxDisplayLevel + ')'
@@ -655,7 +670,8 @@ function renderBossHpSummary(seasonKey) {
 
   // 바디
   const tbody = document.createElement("tbody");
-  bossesInfo.forEach(({ elem, short, totalHp, remaining, pct, slain }) => {
+  visibleBosses.forEach(b => {
+    const { elem, short, totalHp, remaining, pct, slain, infinite, damage } = b;
     const tr = document.createElement("tr");
 
     // 보스명
@@ -677,29 +693,36 @@ function renderBossHpSummary(seasonKey) {
         '<span class="hp-pct-text">' + labelHtml + '</span>' +
       '</div>';
 
-    let barHtml;
-    if (slain || pct === 0) {
+    let barHtml, hpNumHtml;
+    if (infinite) {
       barHtml = barCell(
-        'width:100%;background:var(--border);',
-        '<span style="color:var(--red);font-weight:700;">0%</span>'
+        'width:100%;background:#f59e0b;',
+        '<span style="color:#f59e0b;font-weight:700;font-size:14px;">∞</span>'
       );
-    } else if (pct != null) {
-      barHtml = barCell(
-        'width:' + Math.min(pct, 100).toFixed(1) + '%;background:#f59e0b;',
-        pct.toFixed(2) + '%'
-      );
+      hpNumHtml = fmt(damage) + ' <span style="color:var(--text-sub);">/ ∞</span>';
     } else {
-      barHtml = '';
-    }
+      if (slain || pct === 0) {
+        barHtml = barCell(
+          'width:100%;background:var(--border);',
+          '<span style="color:var(--red);font-weight:700;">0%</span>'
+        );
+      } else if (pct != null) {
+        barHtml = barCell(
+          'width:' + Math.min(pct, 100).toFixed(1) + '%;background:#f59e0b;',
+          pct.toFixed(2) + '%'
+        );
+      } else {
+        barHtml = '';
+      }
 
-    const totalStr = totalHp ? fmt(totalHp) : "—";
-    let hpNumHtml;
-    if (slain) {
-      hpNumHtml = '<span style="color:var(--red);font-weight:700;">처치</span>' +
-        ' <span style="color:var(--text-sub);">/ ' + totalStr + '</span>';
-    } else {
-      const remStr = remaining != null ? fmt(remaining) : "—";
-      hpNumHtml = remStr + ' <span style="color:var(--text-sub);">/ ' + totalStr + '</span>';
+      const totalStr = totalHp ? fmt(totalHp) : "—";
+      if (slain) {
+        hpNumHtml = '<span style="color:var(--red);font-weight:700;">처치</span>' +
+          ' <span style="color:var(--text-sub);">/ ' + totalStr + '</span>';
+      } else {
+        const remStr = remaining != null ? fmt(remaining) : "—";
+        hpNumHtml = remStr + ' <span style="color:var(--text-sub);">/ ' + totalStr + '</span>';
+      }
     }
 
     tdHp.innerHTML = barHtml + '<div style="margin-top:4px;">' + hpNumHtml + '</div>';
