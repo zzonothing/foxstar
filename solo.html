@@ -23,10 +23,10 @@
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
       margin-bottom: 16px;
     }
-    .solo-toolbar label {
+    .solo-toolbar > label.field {
       display: inline-flex; align-items: center; gap: 8px;
       font-size: 13px; color: var(--text-sub);
     }
@@ -38,6 +38,82 @@
       color: var(--text);
       font-size: 14px;
       min-width: 220px;
+    }
+
+    /* 토글 스위치 (덱 보기) */
+    .toggle-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .toggle-wrap input[type="checkbox"] { display: none; }
+    .toggle-track {
+      position: relative;
+      width: 32px; height: 18px;
+      background: var(--border);
+      border-radius: 9px;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .toggle-thumb {
+      position: absolute;
+      left: 2px; top: 2px;
+      width: 14px; height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    }
+    .toggle-wrap input:checked + .toggle-track { background: var(--blue); }
+    .toggle-wrap input:checked + .toggle-track .toggle-thumb { transform: translateX(14px); }
+    .toggle-text {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-sub);
+      white-space: nowrap;
+    }
+
+    /* 덱 컬럼 (5×5 썸네일) */
+    .solo-table.hide-deck-col .th-deck,
+    .solo-table.hide-deck-col .td-deck {
+      display: none;
+    }
+    .deck-mini-grid {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .deck-mini-row {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .deck-mini-thumbs {
+      display: flex;
+      gap: 3px;
+    }
+    .deck-mini-thumb {
+      width: 28px; height: 28px;
+      border-radius: 4px;
+      object-fit: cover;
+      display: block;
+      background: var(--bg-muted);
+    }
+    .deck-mini-thumb-empty {
+      width: 28px; height: 28px;
+      border-radius: 4px;
+      background: var(--bg-muted);
+      opacity: 0.3;
+    }
+    .deck-mini-score {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      margin-left: 8px;
+      white-space: nowrap;
     }
 
     /* ── 속성 배지 (덱 모달 헤더에서 사용) ──────────────── */
@@ -317,9 +393,14 @@
   <div class="container page-content">
 
     <div class="solo-toolbar">
-      <label>
+      <label class="field">
         <span>시즌</span>
         <select id="soloSeasonSelect"></select>
+      </label>
+      <label class="toggle-wrap" for="viewDeckToggle">
+        <input type="checkbox" id="viewDeckToggle">
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        <span class="toggle-text">덱 보기</span>
       </label>
     </div>
 
@@ -331,7 +412,8 @@
             <th>솔레 순위</th>
             <th>닉네임</th>
             <th>점수</th>
-            <th>덱</th>
+            <th class="th-deck">덱</th>
+            <th>버튼</th>
           </tr>
         </thead>
         <tbody id="soloTbody"></tbody>
@@ -356,6 +438,7 @@
       <label><input type="checkbox" data-opt="optUpgrade">돌파</label>
       <label><input type="checkbox" data-opt="optItem">소장품</label>
       <label><input type="checkbox" data-opt="optAtk400">공격력</label>
+      <label><input type="checkbox" data-opt="optSkill">스킬</label>
     </div>
     <div class="deck-options" id="deckOptions">
       <span class="deck-options-label">장비 옵션</span>
@@ -438,11 +521,42 @@ seasonKeys.forEach(k => {
 if (seasonKeys.length) seasonSelect.value = seasonKeys[0];
 
 // ─── 렌더링 ──────────────────────────────────────────────────────
+function renderDeckMiniGrid(decks) {
+  const rows = [];
+  for (let d = 0; d < 5; d++) {
+    const deck = decks[d];
+    const squad = (deck && deck.squad) || [];
+    const slots = [];
+    for (let i = 0; i < 5; i++) {
+      const ch = squad[i];
+      if (ch) {
+        slots.push('<img class="deck-mini-thumb" src="' + charImgPath(ch.name) + '" alt="' + ch.name + '" title="' + ch.name + '" loading="lazy" onerror="this.style.opacity=0.2">');
+      } else {
+        slots.push('<div class="deck-mini-thumb-empty"></div>');
+      }
+    }
+    const scoreHtml = (deck && deck.deckScore != null)
+      ? '<span class="deck-mini-score">' + fmtScore(deck.deckScore) + '</span>'
+      : '';
+    rows.push(
+      '<div class="deck-mini-row">' +
+        '<div class="deck-mini-thumbs">' + slots.join('') + '</div>' +
+        scoreHtml +
+      '</div>'
+    );
+  }
+  return '<div class="deck-mini-grid">' + rows.join('') + '</div>';
+}
+
 function renderSeason(seasonKey) {
   const data = SOLO[seasonKey];
+  const table = document.querySelector(".solo-table");
   const tbody = document.getElementById("soloTbody");
   tbody.innerHTML = "";
   if (!data) return;
+
+  const deckView = document.getElementById("viewDeckToggle").checked;
+  if (table) table.classList.toggle("hide-deck-col", !deckView);
 
   // 멤버 순위 (점수 내림차순) — 여우별 순위 산출
   const sorted = [...(data.members || [])].sort((a, b) =>
@@ -453,12 +567,14 @@ function renderSeason(seasonKey) {
     const tr = document.createElement("tr");
     const foxRank = idx + 1;
     if (foxRank <= 3) tr.classList.add("rank-" + foxRank);
+    const deckCellContent = deckView ? renderDeckMiniGrid(m.decks || []) : '';
     tr.innerHTML =
       '<td class="td-rank-foxstar">' + foxRank + '</td>' +
       '<td>' + fmtSoloRank(m.soloRank) + '</td>' +
       '<td class="td-name">' + m.nickname + '</td>' +
       '<td class="td-score">' + fmtScore(m.totalScore) + '</td>' +
-      '<td><button class="deck-btn" data-uid="' + m.uid + '">덱보기</button></td>';
+      '<td class="td-deck">' + deckCellContent + '</td>' +
+      '<td><button class="deck-btn" data-uid="' + m.uid + '">자세히</button></td>';
     tr.querySelector(".deck-btn").addEventListener("click", () => openDeckModal(seasonKey, m));
     tbody.appendChild(tr);
   });
@@ -528,6 +644,12 @@ function renderSlot(ch, optStates) {
   }
   if (optStates.optAtk400) {
     rows.push(ch.atk400 ? '<div class="row">' + ch.atk400.toLocaleString() + '</div>' : '<div class="row">&nbsp;</div>');
+  }
+  if (optStates.optSkill) {
+    const s1 = ch.skill1 != null ? ch.skill1 : '—';
+    const s2 = ch.skill2 != null ? ch.skill2 : '—';
+    const s3 = ch.skill3 != null ? ch.skill3 : '—';
+    rows.push('<div class="row">' + s1 + ' ' + s2 + ' ' + s3 + '</div>');
   }
 
   // 장비 옵션 (체크박스 ON 일 때만 추가)
@@ -605,6 +727,7 @@ document.addEventListener("keydown", function(e) {
 
 // ─── 이벤트 ──────────────────────────────────────────────────────
 seasonSelect.addEventListener("change", () => renderSeason(seasonSelect.value));
+document.getElementById("viewDeckToggle").addEventListener("change", () => renderSeason(seasonSelect.value));
 
 // 옵션 체크박스 — 변경 시 덱 모달 재렌더링
 document.querySelectorAll('#deckBaseOptions input[data-opt], #deckOptions input[data-opt]').forEach(cb => {
