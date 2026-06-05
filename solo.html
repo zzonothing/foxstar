@@ -438,6 +438,8 @@
       <label><input type="checkbox" data-opt="optUpgrade">돌파</label>
       <label><input type="checkbox" data-opt="optItem">소장품</label>
       <label><input type="checkbox" data-opt="optAtk400">공격력</label>
+      <label><input type="checkbox" data-opt="optHp400">체력</label>
+      <label><input type="checkbox" data-opt="optDef400">방어력</label>
       <label><input type="checkbox" data-opt="optSkill">스킬</label>
     </div>
     <div class="deck-options" id="deckOptions">
@@ -643,13 +645,19 @@ function renderSlot(ch, optStates) {
     rows.push('<div class="row row-inline">' + parts.filter(Boolean).join(' ') + '</div>');
   }
   if (optStates.optAtk400) {
-    rows.push(ch.atk400 ? '<div class="row">' + ch.atk400.toLocaleString() + '</div>' : '<div class="row">&nbsp;</div>');
+    rows.push(ch.atk400 ? '<div class="row">공 ' + ch.atk400.toLocaleString() + '</div>' : '<div class="row">&nbsp;</div>');
+  }
+  if (optStates.optHp400) {
+    rows.push(ch.hp400 ? '<div class="row">체 ' + ch.hp400.toLocaleString() + '</div>' : '<div class="row">&nbsp;</div>');
+  }
+  if (optStates.optDef400) {
+    rows.push(ch.def400 ? '<div class="row">방 ' + ch.def400.toLocaleString() + '</div>' : '<div class="row">&nbsp;</div>');
   }
   if (optStates.optSkill) {
     const s1 = ch.skill1 != null ? ch.skill1 : '—';
     const s2 = ch.skill2 != null ? ch.skill2 : '—';
     const s3 = ch.skill3 != null ? ch.skill3 : '—';
-    rows.push('<div class="row">' + s1 + ' ' + s2 + ' ' + s3 + '</div>');
+    rows.push('<div class="row">스킬 ' + s1 + ' ' + s2 + ' ' + s3 + '</div>');
   }
 
   // 장비 옵션 (체크박스 ON 일 때만 추가)
