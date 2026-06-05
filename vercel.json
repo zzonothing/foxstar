@@ -2,7 +2,8 @@
   "rewrites": [
     { "source": "/data/member.js",    "destination": "/api/data?file=member.js"    },
     { "source": "/data/raid.js",      "destination": "/api/data?file=raid.js"      },
-    { "source": "/data/character.js", "destination": "/api/data?file=character.js" }
+    { "source": "/data/character.js", "destination": "/api/data?file=character.js" },
+    { "source": "/data/solo.js",      "destination": "/api/data?file=solo.js"      }
   ],
   "functions": {
     "api/data.js": {

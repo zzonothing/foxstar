@@ -2,7 +2,7 @@ const fs     = require('fs');
 const path   = require('path');
 const crypto = require('crypto');
 
-const ALLOWED = new Set(['member.js', 'raid.js', 'character.js']);
+const ALLOWED = new Set(['member.js', 'raid.js', 'character.js', 'solo.js']);
 
 // 데이터 파일 위치: api/_data/ (Vercel이 정적으로 서빙하지 않는 경로)
 const DATA_DIR = path.join(process.cwd(), 'api', '_data');

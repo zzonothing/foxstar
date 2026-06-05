@@ -131,7 +131,7 @@
   var err   = document.getElementById("authError");
 
   // return 파라미터 화이트리스트 검증 — same-origin 의 알려진 페이지만 허용
-  var ALLOWED_PATHS = ["/", "/index.html", "/raid.html", "/shift.html", "/stats.html", "/recommend.html"];
+  var ALLOWED_PATHS = ["/", "/index.html", "/raid.html", "/solo.html", "/shift.html", "/stats.html"];
   function getReturnPath() {
     try {
       var raw = new URLSearchParams(location.search).get("return");
