@@ -44,6 +44,8 @@
       user-select: none;
       white-space: nowrap;
     }
+    /* 자기 한 줄을 점유하도록 강제 (다음 항목은 새 줄로 wrap) */
+    .shift-controls label.row-full { flex-basis: 100%; }
     .shift-controls select {
       height: 30px;
       padding: 0 8px;
@@ -59,17 +61,7 @@
     }
     .shift-controls select:focus { border-color: var(--blue); }
 
-    /* ── 캐릭터 검색 콤보박스 ──────────────────────────────────── */
-    .char-combo { position: relative; }
-    .char-combo-input {
-      height: 30px; padding: 0 8px;
-      border: 1px solid var(--border); border-radius: 6px;
-      background: var(--bg-card); color: var(--text);
-      font-size: 13px; font-family: inherit;
-      outline: none; box-sizing: border-box;
-      width: 160px; cursor: text;
-    }
-    .char-combo-input:focus { border-color: var(--blue); }
+    /* ── 캐릭터 검색 드롭다운 ──────────────────────────────────── */
     .char-dropdown {
       display: none;
       position: absolute; top: calc(100% + 3px); left: 0;
@@ -146,6 +138,14 @@
       line-height: 1;
     }
     .sub-chip-x:hover { background: var(--border); color: var(--text); }
+    /* 캐릭터 멀티 선택 시 첫 칩(=primary, 정렬 기준) 강조 */
+    #charChips .sub-chip:first-child {
+      background: rgba(0,0,0,0.65);
+      color: #fff;
+      border-color: rgba(0,0,0,0.65);
+    }
+    #charChips .sub-chip:first-child .sub-chip-x { color: rgba(255,255,255,0.75); }
+    #charChips .sub-chip:first-child .sub-chip-x:hover { background: rgba(255,255,255,0.22); color: #fff; }
 
     /* 그룹 모드 (primary + sub 행) */
     .tr-group-sub td { background: var(--bg-muted); }
@@ -177,8 +177,6 @@
         height: 34px;
         font-size: 12px;
       }
-      .char-combo { width: 100%; }
-      .char-combo-input { width: 100%; font-size: 12px; height: 34px; }
     }
 
     /* ── 옵션 체크박스 필터 ─────────────────────────────────── */
@@ -478,19 +476,24 @@
 
       <!-- 컨트롤 바 -->
       <div class="shift-controls">
-        <label>
+        <label class="row-full">
           <span>캐릭터</span>
-          <div class="char-combo" id="charComboWrap">
-            <input type="text" id="charInput" class="char-combo-input" placeholder="전체" autocomplete="off">
+          <div class="sub-char-combo" id="charComboWrap">
+            <span id="charChips" style="display:contents;"></span>
+            <input type="text" id="charInput" placeholder="전체" autocomplete="off">
             <div class="char-dropdown" id="charDropdown"></div>
           </div>
         </label>
-        <label>
-          <span>멤버</span>
-          <select id="memberSelect"></select>
+        <label class="row-full">
+          <span>　멤버</span>
+          <div class="sub-char-combo" id="memberComboWrap">
+            <span id="memberChips" style="display:contents;"></span>
+            <input type="text" id="memberInput" placeholder="전체" autocomplete="off">
+            <div class="char-dropdown" id="memberDropdown"></div>
+          </div>
         </label>
         <label>
-          <span>속성</span>
+          <span>　속성</span>
           <select id="elementSelect">
             <option value="">전체</option>
             <option value="전격">전격</option>
@@ -507,18 +510,6 @@
             <option value="atk">공증</option>
             <option value="sum">우코+공증</option>
           </select>
-        </label>
-      </div>
-
-      <!-- 추가 캐릭터 (서브) 비교 컨트롤 -->
-      <div class="shift-controls">
-        <label>
-          <span>　추가</span>
-          <div class="sub-char-combo" id="subCharComboWrap">
-            <span id="subChips" style="display:contents;"></span>
-            <input type="text" id="subCharInput" placeholder="서브 캐릭터" autocomplete="off">
-            <div class="char-dropdown" id="subCharDropdown"></div>
-          </div>
         </label>
       </div>
 
@@ -669,7 +660,11 @@ const seasonKeys   = Object.keys(UNION).map(Number).sort((a, b) => a - b);
 const latestSeason = seasonKeys[seasonKeys.length - 1];
 
 // ─── 캐릭터 / 멤버 셀렉터 ────────────────────────────────────────
-const memberSelect = document.getElementById("memberSelect");
+const memberInput     = document.getElementById("memberInput");
+const memberDropdown  = document.getElementById("memberDropdown");
+const memberChipsEl   = document.getElementById("memberChips");
+let memberAllOptions  = [];     // { value, label }
+let memberFilterValues = new Set();
 
 // S39 기준 우선순위 캐릭터 목록
 const PRIORITY_CHARS = new Set([
@@ -683,18 +678,12 @@ const PRIORITY_CHARS = new Set([
   "프리바티", "헬름", "헬름 : 아쿠아마린", "홍련 : 흑영",
 ]);
 
-// ─── 캐릭터 검색 콤보박스 ────────────────────────────────────────
-const charInput    = document.getElementById("charInput");
-const charDropdown = document.getElementById("charDropdown");
-let charAllOptions = []; // { value, label, group }
-let charFilterValue = "";
-let charActiveIdx   = -1;
-
-// 비교(sub) 캐릭터 다중 선택 상태
-const subCharInput    = document.getElementById("subCharInput");
-const subCharDropdown = document.getElementById("subCharDropdown");
-const subChipsEl      = document.getElementById("subChips");
-let subCharValues     = new Set();
+// ─── 캐릭터 검색 콤보박스 (다중 선택, 첫 칩 = primary 정렬 기준) ─────
+const charInput     = document.getElementById("charInput");
+const charDropdown  = document.getElementById("charDropdown");
+const charChipsEl   = document.getElementById("charChips");
+let charAllOptions  = [];   // { value, label, group }
+let charFilterValues = [];  // 순서 있는 배열, [0] = primary
 
 function elemNameSort(a, b) {
   const ei = ELEMENT_ORDER.indexOf(a[1]);
@@ -733,39 +722,38 @@ function buildCharSelect() {
   }
 
   // 선택 초기화
-  charFilterValue = "";
+  charFilterValues = [];
   charInput.value = "";
-  renderCharDropdown("");
+  renderCharChips();
 }
 
-function getDropdownItems() {
-  return [...charDropdown.querySelectorAll(".char-dropdown-item")];
-}
-
-function setDropdownActive(idx) {
-  const items = getDropdownItems();
-  items.forEach(function(el, i) {
-    el.classList.toggle("active", i === idx);
-    if (i === idx) el.scrollIntoView({ block: "nearest" });
+// ─── 캐릭터 칩 (선택된 다중 항목, 첫 번째 = primary 정렬 기준) ───
+function renderCharChips() {
+  charChipsEl.innerHTML = "";
+  charFilterValues.forEach(name => {
+    const opt = charAllOptions.find(o => o.value === name);
+    const chip = document.createElement("span");
+    chip.className = "sub-chip";
+    chip.innerHTML = (opt ? opt.label : name) + ' <span class="sub-chip-x" data-name="' + name + '">×</span>';
+    charChipsEl.appendChild(chip);
   });
-  charActiveIdx = idx;
 }
+charChipsEl.addEventListener("click", e => {
+  const x = e.target.closest(".sub-chip-x");
+  if (!x) return;
+  const idx = charFilterValues.indexOf(x.dataset.name);
+  if (idx >= 0) charFilterValues.splice(idx, 1);
+  renderCharChips();
+  renderTable();
+});
 
 function renderCharDropdown(query) {
-  const q = query.trim().toLowerCase();
+  const q = (query || "").trim().toLowerCase();
   charDropdown.innerHTML = "";
-  charActiveIdx = -1;
-
-  // 전체 항목
-  const allEl = document.createElement("div");
-  allEl.className = "char-dropdown-item" + (charFilterValue === "" ? " selected" : "");
-  allEl.textContent = "전체";
-  allEl.dataset.value = "";
-  charDropdown.appendChild(allEl);
 
   const filtered = q
     ? charAllOptions.filter(o => o.value.toLowerCase().includes(q))
-    : charAllOptions;
+    : charAllOptions.slice();
 
   if (filtered.length === 0) {
     const empty = document.createElement("div");
@@ -775,7 +763,6 @@ function renderCharDropdown(query) {
     return;
   }
 
-  // 그룹 구분선 삽입 (검색 중엔 생략)
   let lastGroup = null;
   filtered.forEach(o => {
     if (!q && o.group && o.group !== lastGroup) {
@@ -786,14 +773,14 @@ function renderCharDropdown(query) {
       lastGroup = o.group;
     }
     const item = document.createElement("div");
-    item.className = "char-dropdown-item" + (charFilterValue === o.value ? " selected" : "");
-    item.textContent = o.label;
+    const checked = charFilterValues.includes(o.value);
+    item.className = "char-dropdown-item" + (checked ? " selected" : "");
+    item.textContent = (checked ? "✓ " : "") + o.label;
     item.dataset.value = o.value;
     charDropdown.appendChild(item);
   });
 }
 
-// 드롭다운 열기/닫기
 charInput.addEventListener("focus", () => {
   renderCharDropdown(charInput.value);
   charDropdown.classList.add("open");
@@ -802,162 +789,106 @@ charInput.addEventListener("input", () => {
   renderCharDropdown(charInput.value);
   charDropdown.classList.add("open");
 });
-charDropdown.addEventListener("mousedown", e => {
-  const item = e.target.closest(".char-dropdown-item");
-  if (!item) return;
-  e.preventDefault(); // blur 방지
-  charFilterValue = item.dataset.value;
-  charInput.value = charFilterValue === "" ? "" : charAllOptions.find(o => o.value === charFilterValue)?.label || charFilterValue;
-  charDropdown.classList.remove("open");
-  renderTable();
-});
 charInput.addEventListener("blur", () => {
-  if (charFilterValue) {
-    const opt = charAllOptions.find(o => o.value === charFilterValue);
-    charInput.value = opt ? opt.label : charFilterValue;
-  } else {
-    charInput.value = "";
-  }
-  charDropdown.classList.remove("open");
-  charActiveIdx = -1;
+  setTimeout(() => charDropdown.classList.remove("open"), 150);
 });
-
-charInput.addEventListener("keydown", function(e) {
-  const isOpen = charDropdown.classList.contains("open");
-
-  if (e.key === "ArrowDown") {
-    e.preventDefault();
-    if (!isOpen) {
-      renderCharDropdown(charInput.value);
-      charDropdown.classList.add("open");
-      setDropdownActive(0);
-    } else {
-      const items = getDropdownItems();
-      setDropdownActive(Math.min(charActiveIdx + 1, items.length - 1));
-    }
-  } else if (e.key === "ArrowUp") {
-    e.preventDefault();
-    if (isOpen) {
-      setDropdownActive(Math.max(charActiveIdx - 1, 0));
-    }
-  } else if (e.key === "Enter") {
-    e.preventDefault();
-    if (isOpen && charActiveIdx >= 0) {
-      const items = getDropdownItems();
-      const item  = items[charActiveIdx];
-      if (item) {
-        charFilterValue = item.dataset.value;
-        charInput.value = charFilterValue === ""
-          ? ""
-          : (charAllOptions.find(o => o.value === charFilterValue)?.label || charFilterValue);
-        charDropdown.classList.remove("open");
-        charActiveIdx = -1;
-        renderTable();
-      }
-    }
-  }
-});
-
-document.addEventListener("keydown", e => {
-  if (e.key === "Escape") { charDropdown.classList.remove("open"); charActiveIdx = -1; }
-});
-
-// ─── 비교(sub) 캐릭터 드롭다운 (다중 선택) ─────────────────────
-function renderSubChips() {
-  subChipsEl.innerHTML = "";
-  subCharValues.forEach(name => {
-    const opt = charAllOptions.find(o => o.value === name);
-    const chip = document.createElement("span");
-    chip.className = "sub-chip";
-    chip.innerHTML = (opt ? opt.label : name) + ' <span class="sub-chip-x" data-name="' + name + '">×</span>';
-    subChipsEl.appendChild(chip);
-  });
-}
-subChipsEl.addEventListener("click", e => {
-  const x = e.target.closest(".sub-chip-x");
-  if (!x) return;
-  subCharValues.delete(x.dataset.name);
-  renderSubChips();
-  renderTable();
-});
-
-function renderSubCharDropdown(q) {
-  subCharDropdown.innerHTML = "";
-  q = (q || "").trim().toLowerCase();
-  const filtered = q
-    ? charAllOptions.filter(o => o.value.toLowerCase().includes(q))
-    : charAllOptions.slice();
-  if (filtered.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "char-dropdown-empty";
-    empty.textContent = "검색 결과 없음";
-    subCharDropdown.appendChild(empty);
-    return;
-  }
-  let lastGroup = null;
-  filtered.forEach(o => {
-    if (!q && o.group && o.group !== lastGroup) {
-      const sep = document.createElement("div");
-      sep.className = "char-dropdown-sep";
-      sep.textContent = o.group === "주요" ? "── 주요 캐릭터" : "── 기타 캐릭터";
-      subCharDropdown.appendChild(sep);
-      lastGroup = o.group;
-    }
-    const item = document.createElement("div");
-    const checked = subCharValues.has(o.value);
-    item.className = "char-dropdown-item" + (checked ? " selected" : "");
-    item.textContent = (checked ? "✓ " : "") + o.label;
-    item.dataset.value = o.value;
-    subCharDropdown.appendChild(item);
-  });
-}
-
-subCharInput.addEventListener("focus", () => {
-  renderSubCharDropdown(subCharInput.value);
-  subCharDropdown.classList.add("open");
-});
-subCharInput.addEventListener("input", () => {
-  renderSubCharDropdown(subCharInput.value);
-  subCharDropdown.classList.add("open");
-});
-subCharInput.addEventListener("blur", () => {
-  setTimeout(() => subCharDropdown.classList.remove("open"), 150);
-});
-subCharDropdown.addEventListener("mousedown", e => {
+charDropdown.addEventListener("mousedown", e => {
   const item = e.target.closest(".char-dropdown-item");
   if (!item) return;
   e.preventDefault();
   const val = item.dataset.value;
   if (!val) return;
-  if (subCharValues.has(val)) subCharValues.delete(val);
-  else subCharValues.add(val);
-  renderSubChips();
-  renderSubCharDropdown(subCharInput.value);
-  subCharInput.value = "";
-  subCharInput.focus();
+  const idx = charFilterValues.indexOf(val);
+  if (idx >= 0) charFilterValues.splice(idx, 1);
+  else charFilterValues.push(val);
+  renderCharChips();
+  renderCharDropdown(charInput.value);
+  charInput.value = "";
+  charInput.focus();
   renderTable();
+});
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") charDropdown.classList.remove("open");
 });
 
 function buildMemberSelect() {
   const data = UNION[latestSeason];
-  memberSelect.innerHTML = "";
-
-  const allOpt = document.createElement("option");
-  allOpt.value       = "";
-  allOpt.textContent = "전체";
-  memberSelect.appendChild(allOpt);
-
+  memberAllOptions = [];
   if (!data) return;
-
   // 싱크로레벨 내림차순 정렬
   const sorted = [...data.members].sort((a, b) => b.syncroLevel - a.syncroLevel);
   sorted.forEach(m => {
-    const opt = document.createElement("option");
-    opt.value       = m.name;
-    opt.textContent = m.name + " (" + m.syncroLevel + ")";
-    memberSelect.appendChild(opt);
+    memberAllOptions.push({ value: m.name, label: m.name + " (" + m.syncroLevel + ")" });
   });
 }
+
+// ─── 멤버 다중 선택 드롭다운/칩 ─────────────────────────────────
+function renderMemberChips() {
+  memberChipsEl.innerHTML = "";
+  memberFilterValues.forEach(name => {
+    const opt = memberAllOptions.find(o => o.value === name);
+    const chip = document.createElement("span");
+    chip.className = "sub-chip";
+    chip.innerHTML = (opt ? opt.label : name) + ' <span class="sub-chip-x" data-name="' + name + '">×</span>';
+    memberChipsEl.appendChild(chip);
+  });
+}
+memberChipsEl.addEventListener("click", e => {
+  const x = e.target.closest(".sub-chip-x");
+  if (!x) return;
+  memberFilterValues.delete(x.dataset.name);
+  renderMemberChips();
+  renderTable();
+});
+
+function renderMemberDropdown(q) {
+  memberDropdown.innerHTML = "";
+  q = (q || "").trim().toLowerCase();
+  const filtered = q
+    ? memberAllOptions.filter(o => o.value.toLowerCase().includes(q))
+    : memberAllOptions.slice();
+  if (filtered.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "char-dropdown-empty";
+    empty.textContent = "검색 결과 없음";
+    memberDropdown.appendChild(empty);
+    return;
+  }
+  filtered.forEach(o => {
+    const item = document.createElement("div");
+    const checked = memberFilterValues.has(o.value);
+    item.className = "char-dropdown-item" + (checked ? " selected" : "");
+    item.textContent = (checked ? "✓ " : "") + o.label;
+    item.dataset.value = o.value;
+    memberDropdown.appendChild(item);
+  });
+}
+memberInput.addEventListener("focus", () => {
+  renderMemberDropdown(memberInput.value);
+  memberDropdown.classList.add("open");
+});
+memberInput.addEventListener("input", () => {
+  renderMemberDropdown(memberInput.value);
+  memberDropdown.classList.add("open");
+});
+memberInput.addEventListener("blur", () => {
+  setTimeout(() => memberDropdown.classList.remove("open"), 150);
+});
+memberDropdown.addEventListener("mousedown", e => {
+  const item = e.target.closest(".char-dropdown-item");
+  if (!item) return;
+  e.preventDefault();
+  const val = item.dataset.value;
+  if (!val) return;
+  if (memberFilterValues.has(val)) memberFilterValues.delete(val);
+  else memberFilterValues.add(val);
+  renderMemberChips();
+  renderMemberDropdown(memberInput.value);
+  memberInput.value = "";
+  memberInput.focus();
+  renderTable();
+});
 
 // ─── 돌파 뱃지 HTML ──────────────────────────────────────────────
 function upgradeBadge(val) {
@@ -1249,15 +1180,16 @@ function buildCharCells(ch, opts) {
 
 // ─── 테이블 렌더링 ───────────────────────────────────────────────
 function renderTable() {
-  const filterChar    = charFilterValue;
-  const filterMember  = memberSelect.value;
+  // 캐릭터 다중 선택: [0] = primary(정렬 기준), 나머지 = sub
+  const filterChar    = charFilterValues[0] || "";
+  const subList       = charFilterValues.slice(1);
+  const filterMembers = memberFilterValues;
   const filterElement = document.getElementById("elementSelect").value;
   const data          = UNION[latestSeason];
   const tbody         = document.getElementById("shiftTableBody");
   tbody.innerHTML     = "";
   if (!data) return;
 
-  const subList     = [...subCharValues];
   const isGroupMode = !!filterChar && subList.length > 0;
 
   // 정렬 기준
@@ -1331,7 +1263,7 @@ function renderTable() {
     // ─── 그룹 모드: primary + sub ───────────────────────────────
     const groups = [];
     data.members.forEach(member => {
-      if (filterMember && member.name !== filterMember) return;
+      if (filterMembers.size > 0 && !filterMembers.has(member.name)) return;
       const memberChars = CHARACTERS[member.uid] || [];
       const primary = memberChars.find(c => c.name === filterChar);
       if (!primary) return;
@@ -1397,7 +1329,7 @@ function renderTable() {
   // ─── 평면 모드 (기존 동작) ─────────────────────────────────
   const rows = [];
   data.members.forEach(member => {
-    if (filterMember && member.name !== filterMember) return;
+    if (filterMembers.size > 0 && !filterMembers.has(member.name)) return;
     (CHARACTERS[member.uid] || []).forEach(ch => {
       if (filterChar && ch.name !== filterChar) return;
       if (filterElement && ch.element !== filterElement) return;
@@ -1438,7 +1370,6 @@ function renderTable() {
 }
 
 // ─── 이벤트 ──────────────────────────────────────────────────────
-memberSelect.addEventListener("change", renderTable);
 document.getElementById("elementSelect").addEventListener("change", renderTable);
 document.getElementById("sortSelect").addEventListener("change", renderTable);
 ["optUko","optAtk","optSum","optAmmo","optAmmoApplied","optCharge","optChargeApplied","optCritDmg","optAtk400","optAtk40"].forEach(id => {
