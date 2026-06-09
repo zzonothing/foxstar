@@ -97,6 +97,63 @@
       text-align: center;
     }
 
+    /* ── 비교 캐릭터 콤보 (다중 선택, 칩 기반) ──────────────── */
+    .sub-char-combo {
+      position: relative;
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 3px;
+      padding: 3px 4px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-card);
+      min-width: 220px;
+      box-sizing: border-box;
+    }
+    .sub-char-combo:focus-within { border-color: var(--blue); }
+    .sub-char-combo input {
+      flex: 1;
+      min-width: 80px;
+      height: 22px;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      padding: 0 4px;
+    }
+    .sub-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      background: var(--bg-muted);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 1px 2px 1px 8px;
+      font-size: 12px;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+    .sub-chip-x {
+      cursor: pointer;
+      color: var(--text-sub);
+      font-weight: 700;
+      padding: 0 5px;
+      border-radius: 50%;
+      font-size: 14px;
+      line-height: 1;
+    }
+    .sub-chip-x:hover { background: var(--border); color: var(--text); }
+
+    /* 그룹 모드 (primary + sub 행) */
+    .tr-group-sub td { background: var(--bg-muted); }
+    .tr-group-sub td.td-num,
+    .tr-group-sub td.td-name,
+    .tr-group-sub td.td-level { background: var(--bg-card); }
+    .td-char-missing { color: var(--text-dim); font-style: italic; }
+
     @media (max-width: 600px) {
       .shift-controls {
         flex-direction: column;
@@ -453,6 +510,18 @@
         </label>
       </div>
 
+      <!-- 추가 캐릭터 (서브) 비교 컨트롤 -->
+      <div class="shift-controls">
+        <label>
+          <span>　추가</span>
+          <div class="sub-char-combo" id="subCharComboWrap">
+            <span id="subChips" style="display:contents;"></span>
+            <input type="text" id="subCharInput" placeholder="서브 캐릭터" autocomplete="off">
+            <div class="char-dropdown" id="subCharDropdown"></div>
+          </div>
+        </label>
+      </div>
+
       <!-- 옵션 체크박스 -->
       <div class="shift-options">
         <span class="shift-options-label">옵션:</span>
@@ -621,6 +690,12 @@ let charAllOptions = []; // { value, label, group }
 let charFilterValue = "";
 let charActiveIdx   = -1;
 
+// 비교(sub) 캐릭터 다중 선택 상태
+const subCharInput    = document.getElementById("subCharInput");
+const subCharDropdown = document.getElementById("subCharDropdown");
+const subChipsEl      = document.getElementById("subChips");
+let subCharValues     = new Set();
+
 function elemNameSort(a, b) {
   const ei = ELEMENT_ORDER.indexOf(a[1]);
   const ej = ELEMENT_ORDER.indexOf(b[1]);
@@ -785,6 +860,82 @@ charInput.addEventListener("keydown", function(e) {
 
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") { charDropdown.classList.remove("open"); charActiveIdx = -1; }
+});
+
+// ─── 비교(sub) 캐릭터 드롭다운 (다중 선택) ─────────────────────
+function renderSubChips() {
+  subChipsEl.innerHTML = "";
+  subCharValues.forEach(name => {
+    const opt = charAllOptions.find(o => o.value === name);
+    const chip = document.createElement("span");
+    chip.className = "sub-chip";
+    chip.innerHTML = (opt ? opt.label : name) + ' <span class="sub-chip-x" data-name="' + name + '">×</span>';
+    subChipsEl.appendChild(chip);
+  });
+}
+subChipsEl.addEventListener("click", e => {
+  const x = e.target.closest(".sub-chip-x");
+  if (!x) return;
+  subCharValues.delete(x.dataset.name);
+  renderSubChips();
+  renderTable();
+});
+
+function renderSubCharDropdown(q) {
+  subCharDropdown.innerHTML = "";
+  q = (q || "").trim().toLowerCase();
+  const filtered = q
+    ? charAllOptions.filter(o => o.value.toLowerCase().includes(q))
+    : charAllOptions.slice();
+  if (filtered.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "char-dropdown-empty";
+    empty.textContent = "검색 결과 없음";
+    subCharDropdown.appendChild(empty);
+    return;
+  }
+  let lastGroup = null;
+  filtered.forEach(o => {
+    if (!q && o.group && o.group !== lastGroup) {
+      const sep = document.createElement("div");
+      sep.className = "char-dropdown-sep";
+      sep.textContent = o.group === "주요" ? "── 주요 캐릭터" : "── 기타 캐릭터";
+      subCharDropdown.appendChild(sep);
+      lastGroup = o.group;
+    }
+    const item = document.createElement("div");
+    const checked = subCharValues.has(o.value);
+    item.className = "char-dropdown-item" + (checked ? " selected" : "");
+    item.textContent = (checked ? "✓ " : "") + o.label;
+    item.dataset.value = o.value;
+    subCharDropdown.appendChild(item);
+  });
+}
+
+subCharInput.addEventListener("focus", () => {
+  renderSubCharDropdown(subCharInput.value);
+  subCharDropdown.classList.add("open");
+});
+subCharInput.addEventListener("input", () => {
+  renderSubCharDropdown(subCharInput.value);
+  subCharDropdown.classList.add("open");
+});
+subCharInput.addEventListener("blur", () => {
+  setTimeout(() => subCharDropdown.classList.remove("open"), 150);
+});
+subCharDropdown.addEventListener("mousedown", e => {
+  const item = e.target.closest(".char-dropdown-item");
+  if (!item) return;
+  e.preventDefault();
+  const val = item.dataset.value;
+  if (!val) return;
+  if (subCharValues.has(val)) subCharValues.delete(val);
+  else subCharValues.add(val);
+  renderSubChips();
+  renderSubCharDropdown(subCharInput.value);
+  subCharInput.value = "";
+  subCharInput.focus();
+  renderTable();
 });
 
 function buildMemberSelect() {
@@ -1045,6 +1196,57 @@ function calcAppliedAmmo(ch) {
   return total;
 }
 
+// ─── 캐릭터 행 HTML (캐릭터/돌파/옵션/소장품/스킬 셀들) ─────────
+function buildCharCells(ch, opts) {
+  if (!ch) {
+    let html = '<td class="td-char-missing">— 미보유 —</td><td>—</td>';
+    if (opts.showUko)           html += '<td class="td-uko">—</td>';
+    if (opts.showAtk)           html += '<td class="td-atk">—</td>';
+    if (opts.showSum)           html += '<td class="td-uko">—</td>';
+    if (opts.showAmmo)          html += '<td class="td-atk">—</td>';
+    if (opts.showAmmoApplied)   html += '<td class="td-atk">—</td>';
+    if (opts.showCharge)        html += '<td class="td-atk">—</td>';
+    if (opts.showChargeApplied) html += '<td class="td-atk">—</td>';
+    if (opts.showCritDmg)       html += '<td class="td-atk">—</td>';
+    if (opts.showAtk400)        html += '<td class="td-atk">—</td>';
+    if (opts.showAtk40)         html += '<td class="td-atk">—</td>';
+    html += '<td>—</td><td class="td-skill">—</td><td class="td-skill">—</td><td class="td-skill">—</td>';
+    return html;
+  }
+
+  let html = '<td class="td-char" style="display:flex;align-items:center;justify-content:flex-start;gap:6px;">' +
+    elementDot(ch.element) + ch.name +
+    '<button class="btn-detail">자세히</button>' +
+    '</td>';
+  html += '<td>' + upgradeBadge(ch.upgrade) + '</td>';
+  if (opts.showUko)  html += '<td class="td-uko">' + (ch.increaseElementDamage != null ? ch.increaseElementDamage.toFixed(2) + "%" : "—") + '</td>';
+  if (opts.showAtk)  html += '<td class="td-atk">' + (ch.increaseAtk           != null ? ch.increaseAtk.toFixed(2)           + "%" : "—") + '</td>';
+  if (opts.showSum) {
+    const uko = ch.increaseElementDamage || 0;
+    const atk = ch.increaseAtk || 0;
+    const sum = uko + atk;
+    html += '<td class="td-uko">' + (uko || atk ? sum.toFixed(2) + "%" : "—") + '</td>';
+  }
+  if (opts.showAmmo) html += '<td class="td-atk">' + (ch.increaseMaxAmmunitionCapacity != null ? ch.increaseMaxAmmunitionCapacity.toFixed(2) + "%" : "—") + '</td>';
+  if (opts.showAmmoApplied) {
+    const v = calcAppliedAmmo(ch);
+    html += '<td class="td-atk">' + (v != null && v > 0 ? "+" + v : "—") + '</td>';
+  }
+  if (opts.showCharge) html += '<td class="td-atk">' + (ch.increaseChargeSpeed != null ? ch.increaseChargeSpeed.toFixed(2) + "%" : "—") + '</td>';
+  if (opts.showChargeApplied) {
+    const v = calcAppliedChargeSpeed(ch);
+    html += '<td class="td-atk">' + (v != null && v > 0 ? v + "%" : "—") + '</td>';
+  }
+  if (opts.showCritDmg) html += '<td class="td-atk">' + (ch.increaseCriticalDamage != null ? ch.increaseCriticalDamage.toFixed(2) + "%" : "—") + '</td>';
+  if (opts.showAtk400)  html += '<td class="td-atk">' + (ch.atk400 != null && ch.atk400 !== 0 ? ch.atk400.toLocaleString() : "—") + '</td>';
+  if (opts.showAtk40)   html += '<td class="td-atk">' + (ch.atk40  != null && ch.atk40  !== 0 ? ch.atk40.toLocaleString()  : "—") + '</td>';
+  html += '<td>' + itemHtml(ch.itemGrade, ch.itemLevel) + '</td>';
+  html += '<td class="td-skill">' + skillHtml(ch.skill1) + '</td>';
+  html += '<td class="td-skill">' + skillHtml(ch.skill2) + '</td>';
+  html += '<td class="td-skill">' + skillHtml(ch.skill3) + '</td>';
+  return html;
+}
+
 // ─── 테이블 렌더링 ───────────────────────────────────────────────
 function renderTable() {
   const filterChar    = charFilterValue;
@@ -1055,16 +1257,8 @@ function renderTable() {
   tbody.innerHTML     = "";
   if (!data) return;
 
-  // 모든 멤버의 캐릭터를 하나의 배열로 펼치기
-  const rows = [];
-  data.members.forEach(member => {
-    if (filterMember && member.name !== filterMember) return;
-    (CHARACTERS[member.uid] || []).forEach(ch => {
-      if (filterChar && ch.name !== filterChar) return;
-      if (filterElement && ch.element !== filterElement) return;
-      rows.push({ member, ch });
-    });
-  });
+  const subList     = [...subCharValues];
+  const isGroupMode = !!filterChar && subList.length > 0;
 
   // 정렬 기준
   const sortKey = document.getElementById("sortSelect").value;
@@ -1073,54 +1267,49 @@ function renderTable() {
     const atk = ch.increaseAtk || 0;
     if (sortKey === "atk") return atk;
     if (sortKey === "sum") return uko + atk;
-    return uko; // default: uko
+    return uko;
   }
   function tieBreakerVal(ch) {
     const uko = ch.increaseElementDamage || 0;
     const atk = ch.increaseAtk || 0;
-    if (sortKey === "uko") return atk; // 우코 동률 → 공증 내림차순
-    if (sortKey === "atk") return uko; // 공증 동률 → 우코 내림차순
+    if (sortKey === "uko") return atk;
+    if (sortKey === "atk") return uko;
     return 0;
   }
-  rows.sort((a, b) => {
-    const diff = sortVal(b.ch) - sortVal(a.ch);
-    if (diff !== 0) return diff;
-    const tieDiff = tieBreakerVal(b.ch) - tieBreakerVal(a.ch);
-    if (tieDiff !== 0) return tieDiff;
-    return a.ch.name.localeCompare(b.ch.name, "ko");
-  });
 
-  // ── 옵션 체크박스 상태 ──────────────────────────────────────────
-  const showUko     = document.getElementById("optUko").checked;
-  const showAtk     = document.getElementById("optAtk").checked;
-  const showSum     = document.getElementById("optSum").checked;
-  const showAmmo          = document.getElementById("optAmmo").checked;
-  const showAmmoApplied   = document.getElementById("optAmmoApplied").checked;
-  const showCharge        = document.getElementById("optCharge").checked;
-  const showChargeApplied = document.getElementById("optChargeApplied").checked;
-  const showCritDmg       = document.getElementById("optCritDmg").checked;
-  const showAtk400        = document.getElementById("optAtk400").checked;
-  const showAtk40         = document.getElementById("optAtk40").checked;
+  // 옵션 체크박스 상태
+  const opts = {
+    showUko:           document.getElementById("optUko").checked,
+    showAtk:           document.getElementById("optAtk").checked,
+    showSum:           document.getElementById("optSum").checked,
+    showAmmo:          document.getElementById("optAmmo").checked,
+    showAmmoApplied:   document.getElementById("optAmmoApplied").checked,
+    showCharge:        document.getElementById("optCharge").checked,
+    showChargeApplied: document.getElementById("optChargeApplied").checked,
+    showCritDmg:       document.getElementById("optCritDmg").checked,
+    showAtk400:        document.getElementById("optAtk400").checked,
+    showAtk40:         document.getElementById("optAtk40").checked,
+  };
 
   // 컬럼 헤더 show/hide
   const colToggle = [
-    { id: "thUko",           show: showUko           },
-    { id: "thAtk",           show: showAtk           },
-    { id: "thSum",           show: showSum           },
-    { id: "thAmmo",          show: showAmmo          },
-    { id: "thAmmoApplied",   show: showAmmoApplied   },
-    { id: "thCharge",        show: showCharge        },
-    { id: "thChargeApplied", show: showChargeApplied },
-    { id: "thCritDmg",       show: showCritDmg       },
-    { id: "thAtk400",        show: showAtk400        },
-    { id: "thAtk40",         show: showAtk40         },
+    { id: "thUko",           show: opts.showUko           },
+    { id: "thAtk",           show: opts.showAtk           },
+    { id: "thSum",           show: opts.showSum           },
+    { id: "thAmmo",          show: opts.showAmmo          },
+    { id: "thAmmoApplied",   show: opts.showAmmoApplied   },
+    { id: "thCharge",        show: opts.showCharge        },
+    { id: "thChargeApplied", show: opts.showChargeApplied },
+    { id: "thCritDmg",       show: opts.showCritDmg       },
+    { id: "thAtk400",        show: opts.showAtk400        },
+    { id: "thAtk40",         show: opts.showAtk40         },
   ];
   colToggle.forEach(({ id, show }) => {
     const el = document.getElementById(id);
     if (el) el.style.display = show ? "" : "none";
   });
 
-  // 헤더 정렬 화살표 표시
+  // 헤더 정렬 화살표
   ["thUko", "thAtk", "thSum"].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.textContent = el.textContent.replace(" ▼", "");
@@ -1132,19 +1321,104 @@ function renderTable() {
     if (th) th.textContent += " ▼";
   }
 
+  const dateEl = document.getElementById("shiftDateInfo");
+  if (dateEl) {
+    dateEl.textContent = CHARACTERS.actionDate ? "기준: " + CHARACTERS.actionDate : "";
+  }
+  const infoEl = document.getElementById("shiftRowInfo");
+
+  if (isGroupMode) {
+    // ─── 그룹 모드: primary + sub ───────────────────────────────
+    const groups = [];
+    data.members.forEach(member => {
+      if (filterMember && member.name !== filterMember) return;
+      const memberChars = CHARACTERS[member.uid] || [];
+      const primary = memberChars.find(c => c.name === filterChar);
+      if (!primary) return;
+      if (filterElement && primary.element !== filterElement) return;
+      const subs = subList.map(name => memberChars.find(c => c.name === name) || null);
+      groups.push({ member, primary, subs });
+    });
+
+    groups.sort((a, b) => {
+      const diff = sortVal(b.primary) - sortVal(a.primary);
+      if (diff !== 0) return diff;
+      const tieDiff = tieBreakerVal(b.primary) - tieBreakerVal(a.primary);
+      if (tieDiff !== 0) return tieDiff;
+      return a.primary.name.localeCompare(b.primary.name, "ko");
+    });
+
+    const MAX_GROUPS = 100;
+    const totalGroups = groups.length;
+    const displayGroups = groups.slice(0, MAX_GROUPS);
+    if (infoEl) {
+      infoEl.textContent = totalGroups > MAX_GROUPS
+        ? "총 " + totalGroups + "명 중 " + MAX_GROUPS + "명 표시"
+        : "";
+    }
+
+    displayGroups.forEach(({ member, primary, subs }, i) => {
+      // primary 행
+      const tr = document.createElement("tr");
+      tr.innerHTML =
+        '<td class="td-num">' + (i + 1) + '</td>' +
+        '<td class="td-name">' + member.name + '</td>' +
+        '<td class="td-level">' + member.syncroLevel + '</td>' +
+        buildCharCells(primary, opts);
+      const btn = tr.querySelector(".btn-detail");
+      if (btn) btn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        openEquipModal(member, primary);
+      });
+      tbody.appendChild(tr);
+
+      // sub 행들
+      subs.forEach(sub => {
+        const trSub = document.createElement("tr");
+        trSub.className = "tr-group-sub";
+        trSub.innerHTML =
+          '<td class="td-num"></td>' +
+          '<td class="td-name"></td>' +
+          '<td class="td-level"></td>' +
+          buildCharCells(sub, opts);
+        if (sub) {
+          const btn2 = trSub.querySelector(".btn-detail");
+          if (btn2) btn2.addEventListener("click", function(e) {
+            e.stopPropagation();
+            openEquipModal(member, sub);
+          });
+        }
+        tbody.appendChild(trSub);
+      });
+    });
+    return;
+  }
+
+  // ─── 평면 모드 (기존 동작) ─────────────────────────────────
+  const rows = [];
+  data.members.forEach(member => {
+    if (filterMember && member.name !== filterMember) return;
+    (CHARACTERS[member.uid] || []).forEach(ch => {
+      if (filterChar && ch.name !== filterChar) return;
+      if (filterElement && ch.element !== filterElement) return;
+      rows.push({ member, ch });
+    });
+  });
+  rows.sort((a, b) => {
+    const diff = sortVal(b.ch) - sortVal(a.ch);
+    if (diff !== 0) return diff;
+    const tieDiff = tieBreakerVal(b.ch) - tieBreakerVal(a.ch);
+    if (tieDiff !== 0) return tieDiff;
+    return a.ch.name.localeCompare(b.ch.name, "ko");
+  });
+
   const MAX_ROWS = 200;
   const totalRows = rows.length;
   const displayRows = rows.slice(0, MAX_ROWS);
-  const infoEl = document.getElementById("shiftRowInfo");
   if (infoEl) {
     infoEl.textContent = totalRows > MAX_ROWS
       ? "총 " + totalRows + "개 중 " + MAX_ROWS + "개 표시"
       : "";
-  }
-
-  const dateEl = document.getElementById("shiftDateInfo");
-  if (dateEl) {
-    dateEl.textContent = CHARACTERS.actionDate ? "기준: " + CHARACTERS.actionDate : "";
   }
 
   displayRows.forEach(({ member, ch }, i) => {
@@ -1152,41 +1426,10 @@ function renderTable() {
     tr.innerHTML =
       '<td class="td-num">' + (i + 1) + '</td>' +
       '<td class="td-name">' + member.name + '</td>' +
-      '<td>' + member.syncroLevel + '</td>' +
-      '<td class="td-char" style="display:flex;align-items:center;justify-content:flex-start;gap:6px;">' +
-        elementDot(ch.element) + ch.name +
-        '<button class="btn-detail">자세히</button>' +
-      '</td>' +
-      '<td>' + upgradeBadge(ch.upgrade) + '</td>' +
-      (showUko    ? '<td class="td-uko">'  + (ch.increaseElementDamage            != null ? ch.increaseElementDamage.toFixed(2)            + "%" : "—") + '</td>' : '') +
-      (showAtk    ? '<td class="td-atk">'  + (ch.increaseAtk                      != null ? ch.increaseAtk.toFixed(2)                      + "%" : "—") + '</td>' : '') +
-      (function() {
-        if (!showSum) return '';
-        const uko = ch.increaseElementDamage || 0;
-        const atk = ch.increaseAtk || 0;
-        const sum = uko + atk;
-        return '<td class="td-uko">' + (uko || atk ? sum.toFixed(2) + "%" : "—") + '</td>';
-      })() +
-      (showAmmo   ? '<td class="td-atk">'  + (ch.increaseMaxAmmunitionCapacity    != null ? ch.increaseMaxAmmunitionCapacity.toFixed(2)    + "%" : "—") + '</td>' : '') +
-      (function() {
-        if (!showAmmoApplied) return '';
-        const v = calcAppliedAmmo(ch);
-        return '<td class="td-atk">' + (v != null && v > 0 ? "+" + v : "—") + '</td>';
-      })() +
-      (showCharge  ? '<td class="td-atk">'  + (ch.increaseChargeSpeed              != null ? ch.increaseChargeSpeed.toFixed(2)              + "%" : "—") + '</td>' : '') +
-      (function() {
-        if (!showChargeApplied) return '';
-        const v = calcAppliedChargeSpeed(ch);
-        return '<td class="td-atk">' + (v != null && v > 0 ? v + "%" : "—") + '</td>';
-      })() +
-      (showCritDmg ? '<td class="td-atk">'  + (ch.increaseCriticalDamage           != null ? ch.increaseCriticalDamage.toFixed(2)           + "%" : "—") + '</td>' : '') +
-      (showAtk400  ? '<td class="td-atk">'  + (ch.atk400 != null && ch.atk400 !== 0 ? ch.atk400.toLocaleString()                                        : "—") + '</td>' : '') +
-      (showAtk40   ? '<td class="td-atk">'  + (ch.atk40  != null && ch.atk40  !== 0 ? ch.atk40.toLocaleString()                                         : "—") + '</td>' : '') +
-      '<td>' + itemHtml(ch.itemGrade, ch.itemLevel) + '</td>' +
-      '<td class="td-skill">' + skillHtml(ch.skill1) + '</td>' +
-      '<td class="td-skill">' + skillHtml(ch.skill2) + '</td>' +
-      '<td class="td-skill">' + skillHtml(ch.skill3) + '</td>';
-    tr.querySelector(".btn-detail").addEventListener("click", function(e) {
+      '<td class="td-level">' + member.syncroLevel + '</td>' +
+      buildCharCells(ch, opts);
+    const btn = tr.querySelector(".btn-detail");
+    if (btn) btn.addEventListener("click", function(e) {
       e.stopPropagation();
       openEquipModal(member, ch);
     });
