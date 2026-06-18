@@ -189,6 +189,61 @@
     }
     .sim-modal-close:hover { background: var(--bg-muted); }
 
+    /* 옵션 체크박스 패널 (기본 옵션 / 장비 옵션) */
+    .sim-options {
+      display: flex; flex-wrap: wrap;
+      gap: 6px 12px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      background: var(--bg-muted);
+      border-radius: 8px;
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+    .sim-options-label { font-weight: 700; color: var(--text); margin-right: 2px; }
+    .sim-options label {
+      display: inline-flex; align-items: center; gap: 4px;
+      cursor: pointer; user-select: none;
+    }
+    .sim-options input[type="checkbox"] { margin: 0; }
+
+    /* 돌파 뱃지 (시프티패드/솔레 모달과 동일) */
+    .badge-fullco {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 999px;
+      font-size: 10px; font-weight: 700;
+      line-height: 1;
+      background: var(--amber-light);
+      color: var(--amber);
+      border: 1px solid #fde68a;
+    }
+    .badge-upgrade {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 999px;
+      font-size: 10px; font-weight: 600;
+      line-height: 1;
+      background: var(--bg-muted);
+      color: var(--text-sub);
+      border: 1px solid var(--border);
+    }
+
+    /* 캐릭터 옵션 라인 (이름 컬럼 아래) */
+    .ch-options {
+      display: flex; flex-wrap: wrap;
+      gap: 3px 6px;
+      font-size: 10px;
+      color: var(--text);
+      margin-top: 4px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.3;
+    }
+    .ch-options .ch-opt { white-space: nowrap; }
+    .ch-options .ch-opt.item-ssr { color: var(--amber); font-weight: 700; }
+    .ch-options .ch-opt.item-sr  { color: #a855f7;     font-weight: 700; }
+    .ch-options .ch-opt.item-r   { color: var(--blue); font-weight: 700; }
+
     /* ── 유니온 표 ───────────────────────────────────────── */
     .union-wrap { overflow-x: auto; }
     .union-table {
@@ -319,6 +374,18 @@
     }
     .char-bar .bar-seg {
       position: absolute; top: 0; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .bar-seg-label {
+      font-size: 9px;
+      color: #fff;
+      font-weight: 700;
+      text-shadow: 0 0 2px rgba(0,0,0,0.6), 0 1px 1px rgba(0,0,0,0.4);
+      white-space: nowrap;
+      pointer-events: none;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
     }
     .char-bar .bar-total {
       text-align: right; font-weight: 700;
@@ -409,6 +476,18 @@
       </div>
       <button class="sim-modal-close" id="simModalClose">✕</button>
     </div>
+    <div class="sim-options" id="simEquipOptions">
+      <span class="sim-options-label">장비 옵션</span>
+      <label><input type="checkbox" data-opt="optUko" checked>우코</label>
+      <label><input type="checkbox" data-opt="optAtk" checked>공증</label>
+      <label><input type="checkbox" data-opt="optAmmo">장탄</label>
+      <label><input type="checkbox" data-opt="optCharge">차속</label>
+      <label><input type="checkbox" data-opt="optChargeDmg">차댐</label>
+      <label><input type="checkbox" data-opt="optCritDmg">크댐</label>
+      <label><input type="checkbox" data-opt="optCritRate">크확</label>
+      <label><input type="checkbox" data-opt="optHit">명중</label>
+      <label><input type="checkbox" data-opt="optDef">방증</label>
+    </div>
     <div class="char-bars" id="charBars"></div>
     <div class="kind-legend" id="kindLegend"></div>
   </div>
@@ -417,6 +496,7 @@
 <!-- ═══════════ 데이터 로드 (auth 게이트용) ═══════════ -->
 <script src="data/config.js"></script>
 <script src="data/member.js"></script>
+<script src="data/character.js"></script>
 
 <!-- ═══════════ 인증 필요 시 로그인 페이지로 리다이렉트 ═══════════ -->
 <script>
@@ -445,6 +525,68 @@ function fmt억(n) {
 }
 function charImgPath(name) {
   return "image/" + name.replace(" : ", "_") + ".webp";
+}
+
+// ─── 캐릭터 옵션 표시 헬퍼 (시프티패드/솔레 모달과 동일 컨벤션) ───
+function fmtPct(v) {
+  if (v == null || v === 0) return null;
+  return v.toFixed(2) + "%";
+}
+function upgradeBadgeHTML(val) {
+  if (!val) return '';
+  if (val === "풀코") return '<span class="badge-fullco">풀코</span>';
+  return '<span class="badge-upgrade">' + val + '</span>';
+}
+function itemGradeClass(grade) {
+  if (grade === "SSR") return "item-ssr";
+  if (grade === "SR")  return "item-sr";
+  return "item-r";
+}
+const SIM_EQUIP_FIELDS = [
+  { id: "optUko",       text: ch => { const v = fmtPct(ch.increaseElementDamage);         return v ? '우코 ' + v : null; } },
+  { id: "optAtk",       text: ch => { const v = fmtPct(ch.increaseAtk);                   return v ? '공증 ' + v : null; } },
+  { id: "optAmmo",      text: ch => { const v = fmtPct(ch.increaseMaxAmmunitionCapacity); return v ? '장탄 ' + v : null; } },
+  { id: "optCharge",    text: ch => { const v = fmtPct(ch.increaseChargeSpeed);           return v ? '차속 ' + v : null; } },
+  { id: "optChargeDmg", text: ch => { const v = fmtPct(ch.increaseChargeDamage);          return v ? '차댐 ' + v : null; } },
+  { id: "optCritDmg",   text: ch => { const v = fmtPct(ch.increaseCriticalDamage);        return v ? '크댐 ' + v : null; } },
+  { id: "optCritRate",  text: ch => { const v = fmtPct(ch.increaseCriticalRate);          return v ? '크확 ' + v : null; } },
+  { id: "optHit",       text: ch => { const v = fmtPct(ch.increaseHitRate);               return v ? '명중 ' + v : null; } },
+  { id: "optDef",       text: ch => { const v = fmtPct(ch.increaseDef);                   return v ? '방증 ' + v : null; } },
+];
+function getModalOptionStates() {
+  const map = {};
+  document.querySelectorAll('#simEquipOptions input[data-opt]').forEach(cb => {
+    map[cb.dataset.opt] = cb.checked;
+  });
+  return map;
+}
+function renderCharOptions(ch, optStates) {
+  if (!ch) return '';
+  // 1줄: 항상 표시 — 돌파 / 소장품 / 스킬
+  const basicParts = [];
+  if (ch.upgrade) basicParts.push(upgradeBadgeHTML(ch.upgrade));
+  if (ch.itemGrade) {
+    const item = ch.itemGrade + (ch.itemLevel != null && ch.itemLevel !== "" ? ' ' + ch.itemLevel : '');
+    basicParts.push('<span class="ch-opt ' + itemGradeClass(ch.itemGrade) + '">' + item + '</span>');
+  } else {
+    basicParts.push('<span class="ch-opt">-</span>');
+  }
+  const s1 = ch.skill1 != null ? ch.skill1 : '—';
+  const s2 = ch.skill2 != null ? ch.skill2 : '—';
+  const s3 = ch.skill3 != null ? ch.skill3 : '—';
+  basicParts.push('<span class="ch-opt">' + s1 + '/' + s2 + '/' + s3 + '</span>');
+
+  // 2줄: 장비 옵션 (체크박스 ON 만)
+  const equipParts = [];
+  SIM_EQUIP_FIELDS.forEach(opt => {
+    if (!optStates[opt.id]) return;
+    const t = opt.text(ch);
+    if (t) equipParts.push('<span class="ch-opt">' + t + '</span>');
+  });
+
+  let html = '<div class="ch-options">' + basicParts.join('') + '</div>';
+  if (equipParts.length) html += '<div class="ch-options">' + equipParts.join('') + '</div>';
+  return html;
 }
 
 // ─── 상태 ───────────────────────────────────────────────
@@ -769,7 +911,8 @@ function openDeckModal(uid, deckId) {
 
   const member = memberByUid[uid] || { name: uid, syncro: "" };
   const s = elemSettings(deck.element);
-  document.getElementById("simModalTitle").textContent = member.name + " · " + deck.name;
+  const syncroStr = member.syncro ? ' · Lv.' + member.syncro : '';
+  document.getElementById("simModalTitle").textContent = member.name + syncroStr + " · " + deck.name;
   document.getElementById("simModalSub").innerHTML =
     '<span class="elem-tag ' + deck.element + '">' + deck.element + '</span>' +
     '<span>' + deck.label + '</span>' +
@@ -843,18 +986,26 @@ function renderModalContent() {
     '<span>풀버스트 ' + s.rotKey + '</span>' +
     '<span style="font-weight:700;color:var(--text)">총 ' + fmt억(grandTotal) + '</span>';
 
+  // 옵션 상태 + 멤버의 캐릭터 데이터
+  const optStates = getModalOptionStates();
+  const memberChars = (typeof CHARACTERS !== 'undefined' && CHARACTERS[modalState.uid]) || [];
+
   // 막대
   const wrap = document.getElementById("charBars");
   wrap.innerHTML = "";
   chars.forEach(c => {
     let segHtml = '';
     let acc = 0;
-    c.segs.forEach(s => {
-      const segW = Math.max(0, s.val) / maxTotal * 100;
+    c.segs.forEach(seg => {
+      const segW = Math.max(0, seg.val) / maxTotal * 100;
+      const label = segW > 7 ? '<span class="bar-seg-label">' + fmt억(seg.val) + '</span>' : '';
       segHtml += '<div class="bar-seg" style="left:' + acc + '%;width:' + segW + '%;background:' +
-                 kindColor[s.kind] + '" title="' + (META.kind_labels[s.kind] || s.kind) + ': ' + fmt억(s.val) + '"></div>';
+                 kindColor[seg.kind] + '" title="' + (META.kind_labels[seg.kind] || seg.kind) + ': ' + fmt억(seg.val) + '">' +
+                 label + '</div>';
       acc += segW;
     });
+    const chData = memberChars.find(x => x.name === c.unit.name);
+    const optsHtml = renderCharOptions(chData, optStates);
     const row = document.createElement("div");
     row.className = "char-bar";
     row.innerHTML =
@@ -862,6 +1013,7 @@ function renderModalContent() {
       '<div>' +
         '<div class="ch-name">' + c.unit.name + '</div>' +
         '<div class="ch-meta">' + c.unit.weapon + ' · ' + c.unit.element + '</div>' +
+        optsHtml +
       '</div>' +
       '<div class="bar-area">' + segHtml + '</div>' +
       '<div class="bar-total">' + fmt억(c.total) + '</div>';
@@ -929,6 +1081,13 @@ async function init() {
   });
   document.addEventListener("keydown", e => {
     if (e.key === "Escape" && modalState) closeDeckModal();
+  });
+
+  // 장비 옵션 체크박스 → 모달 재렌더링
+  document.querySelectorAll('#simEquipOptions input[data-opt]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      if (modalState) renderModalContent();
+    });
   });
 
   renderUnion();
