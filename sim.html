@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>시뮬레이션 | 승리의 여신: 니케</title>
+  <meta property="og:type"        content="website" />
+  <meta property="og:title"       content="여우별 시뮬레이션" />
+  <meta property="og:description" content="유니온 멤버 별 보스 대미지 시뮬레이션" />
+  <meta property="og:image"       content="https://foxstar.vercel.app/image/foxstar.png" />
+  <meta property="og:url"         content="https://foxstar.vercel.app/sim.html" />
+  <link rel="icon" type="image/png" href="image/foxstar.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script>if(localStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark");</script>
+  <style>html{background:#eef1f6}html.dark{background:#111827}body:not(.ready){visibility:hidden}</style>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .sim-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      margin-bottom: 16px;
+    }
+    .sim-card-title {
+      font-size: 14px; font-weight: 700;
+      color: var(--text-sub);
+      letter-spacing: .03em;
+      margin-bottom: 10px;
+    }
+
+    /* ── 컨트롤 행 (속성 설정 collapse 안에서 사용) ─────── */
+    .ctrl-row {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px;
+    }
+    .ctrl-row.full { grid-column: 1 / -1; align-items: flex-start; }
+    .ctrl-row > .label {
+      width: 92px; flex-shrink: 0;
+      color: var(--text-sub); font-weight: 600;
+    }
+    .ctrl-row input[type="range"] {
+      flex: 1; min-width: 100px;
+      accent-color: var(--blue);
+    }
+    .ctrl-row .val {
+      min-width: 60px; text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700; color: var(--text);
+    }
+    .ctrl-row select {
+      padding: 5px 10px;
+      border: 1px solid var(--border); border-radius: 6px;
+      background: var(--bg-card); color: var(--text);
+      font-size: 13px;
+    }
+    .ctrl-row input[type="number"] {
+      width: 110px;
+      padding: 5px 10px;
+      border: 1px solid var(--border); border-radius: 6px;
+      background: var(--bg-card); color: var(--text);
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
+    .ctrl-row input[type="number"]:focus { outline: none; border-color: var(--blue); }
+
+    /* 속성 블록 (덱 체크 + collapse 환경 설정) */
+    .elem-block {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      background: var(--bg-card);
+    }
+    .elem-block-head {
+      display: flex; align-items: center; gap: 10px;
+      flex-wrap: wrap;
+    }
+    .elem-block-head .elem-tag { flex-shrink: 0; }
+    .elem-deck-list {
+      display: flex; flex-wrap: wrap; gap: 6px 8px;
+      flex: 1; font-size: 12px;
+    }
+    .deck-chk-label {
+      display: inline-flex; align-items: center; gap: 6px;
+      cursor: pointer; user-select: none;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-card);
+      transition: background 0.12s;
+    }
+    .deck-chk-label:hover { background: var(--bg-muted); }
+    .deck-chk-label input[type="checkbox"] { margin: 0; }
+    .deck-chk-label.checked {
+      border-color: var(--blue);
+      background: rgba(62,99,221,0.08);
+    }
+    .deck-chk-name { font-weight: 600; font-size: 12px; color: var(--text); }
+    .deck-chk-imgs { display: inline-flex; gap: 2px; }
+    .deck-chk-imgs img {
+      width: 22px; height: 22px;
+      border-radius: 3px;
+      object-fit: cover;
+      background: var(--bg-muted);
+    }
+    .elem-settings-toggle {
+      cursor: pointer; user-select: none;
+      color: var(--text-sub);
+      font-size: 11px; font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+    .elem-settings-toggle:hover { background: var(--bg-muted); color: var(--text); }
+    .elem-settings {
+      display: none;
+      border-top: 1px dashed var(--border);
+      margin-top: 10px;
+      padding-top: 10px;
+    }
+    .elem-settings.open { display: block; }
+    .elem-settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px 22px;
+    }
+    @media (max-width: 700px) { .elem-settings-grid { grid-template-columns: 1fr; } }
+
+    /* 무기 사거리 체크 */
+    .weapon-checks { display: flex; flex-wrap: wrap; gap: 6px 12px; }
+    .weapon-checks label { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+
+    /* 토글 (코어) */
+    .toggle-wrap {
+      display: inline-flex; align-items: center; gap: 8px;
+      cursor: pointer; user-select: none;
+    }
+    .toggle-wrap input[type="checkbox"] { display: none; }
+    .toggle-track {
+      position: relative; width: 32px; height: 18px;
+      background: var(--border); border-radius: 9px;
+      transition: background 0.2s;
+    }
+    .toggle-thumb {
+      position: absolute; left: 2px; top: 2px;
+      width: 14px; height: 14px; background: #fff;
+      border-radius: 50%; transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    }
+    .toggle-wrap input:checked + .toggle-track { background: var(--blue); }
+    .toggle-wrap input:checked + .toggle-track .toggle-thumb { transform: translateX(14px); }
+
+    /* 클릭 가능한 셀 */
+    .union-table td.clickable { cursor: pointer; }
+    .union-table td.clickable:hover { background: var(--bg-muted); text-decoration: underline; }
+
+    /* 덱 상세 모달 */
+    .sim-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000; padding: 16px;
+    }
+    .sim-modal-card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      width: min(720px, 100%);
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 18px 22px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .sim-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+    }
+    .sim-modal-title { font-size: 18px; font-weight: 700; color: var(--text); }
+    .sim-modal-sub { font-size: 13px; color: var(--text-sub); margin-top: 4px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+    .sim-modal-close {
+      background: transparent; border: none;
+      font-size: 22px; cursor: pointer; color: var(--text-sub);
+      width: 32px; height: 32px; border-radius: 50%;
+    }
+    .sim-modal-close:hover { background: var(--bg-muted); }
+
+    /* ── 유니온 표 ───────────────────────────────────────── */
+    .union-wrap { overflow-x: auto; }
+    .union-table {
+      border-collapse: collapse;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .union-table th, .union-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--bg-muted);
+    }
+    .union-table thead th {
+      background: var(--bg-muted);
+      font-size: 11px; font-weight: 700;
+      color: var(--text-sub);
+      letter-spacing: .03em;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    /* 속성별 헤더 색상 — 그룹 가독성 */
+    .union-table thead th.elem-head {
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      padding: 8px 6px;
+      border-bottom: none;
+    }
+    .union-table thead th.elem-head.전격 { background: #9457d6; }
+    .union-table thead th.elem-head.작열 { background: #e5484d; }
+    .union-table thead th.elem-head.수냉 { background: #3e63dd; }
+    .union-table thead th.elem-head.철갑 { background: #e0a90a; }
+    .union-table thead th.elem-head.풍압 { background: #2fa84f; }
+    /* 덱 헤더 (속성색 옅은 배경) */
+    .union-table thead th.deck-head.전격 { background: rgba(148,87,214,0.10); }
+    .union-table thead th.deck-head.작열 { background: rgba(229,72,77,0.10); }
+    .union-table thead th.deck-head.수냉 { background: rgba(62,99,221,0.10); }
+    .union-table thead th.deck-head.철갑 { background: rgba(224,169,10,0.10); }
+    .union-table thead th.deck-head.풍압 { background: rgba(47,168,79,0.10); }
+    /* 속성 그룹 사이 세로 구분선 */
+    .union-table th.first-of-elem,
+    .union-table td.first-of-elem {
+      border-left: 2px solid var(--border);
+    }
+    /* 덱 점수 옆 순위 표시 */
+    .deck-rank {
+      display: inline-block;
+      font-size: 10px;
+      color: var(--text-sub);
+      margin-left: 4px;
+      font-weight: 500;
+    }
+    .deck-rank.r1 { color: #f59e0b; font-weight: 700; }
+    .deck-rank.r2 { color: #94a3b8; font-weight: 700; }
+    .deck-rank.r3 { color: #b45309; font-weight: 700; }
+    .union-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .union-table td.rank { text-align: center; font-weight: 700; color: var(--blue); }
+    .union-table tr.r1 td.rank { color: #f59e0b; }
+    .union-table tr.r2 td.rank { color: #94a3b8; }
+    .union-table tr.r3 td.rank { color: #b45309; }
+    .union-table tbody tr { cursor: pointer; }
+    .union-table tbody tr:hover td { background: var(--bg-muted); }
+    .elem-tag {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 11px; font-weight: 700;
+      color: #fff;
+    }
+    .elem-tag.작열 { background: #e5484d; }
+    .elem-tag.풍압 { background: #2fa84f; }
+    .elem-tag.수냉 { background: #3e63dd; }
+    .elem-tag.철갑 { background: #e0a90a; }
+    .elem-tag.전격 { background: #9457d6; }
+
+    /* 덱 컬럼 헤더 (이름 + 5캐릭터 이미지) */
+    .deck-col-header {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 4px;
+      padding: 6px 4px;
+    }
+    .deck-col-header .deck-label {
+      font-size: 12px; font-weight: 700; color: var(--text);
+      white-space: nowrap;
+    }
+    .deck-col-header .deck-imgs {
+      display: flex; gap: 2px;
+    }
+    .deck-col-header .deck-imgs img {
+      width: 24px; height: 24px;
+      border-radius: 4px;
+      object-fit: cover;
+      background: var(--bg-card);
+    }
+
+    /* ── 캐릭터 막대 ───────────────────────────────────── */
+    .char-bars {
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .char-bar {
+      display: grid;
+      grid-template-columns: 50px 130px 1fr 95px;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: var(--bg-muted);
+      border-radius: 8px;
+    }
+    @media (max-width: 600px) {
+      .char-bar { grid-template-columns: 40px 100px 1fr 85px; gap: 6px; }
+    }
+    .char-bar .ch-img {
+      width: 40px; height: 40px;
+      border-radius: 6px;
+      object-fit: cover;
+      background: var(--bg-card);
+    }
+    .char-bar .ch-name {
+      font-size: 12px; font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .char-bar .bar-area {
+      position: relative;
+      height: 22px;
+      background: var(--bg-card);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .char-bar .bar-seg {
+      position: absolute; top: 0; height: 100%;
+    }
+    .char-bar .bar-total {
+      text-align: right; font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+    }
+    .char-bar .ch-meta {
+      font-size: 10px; color: var(--text-sub);
+    }
+
+    .kind-legend {
+      display: flex; flex-wrap: wrap; gap: 4px 10px;
+      font-size: 11px; color: var(--text-sub);
+      margin-top: 10px;
+    }
+    .kind-legend .swatch {
+      display: inline-block; width: 10px; height: 10px;
+      border-radius: 2px; vertical-align: middle;
+      margin-right: 4px;
+    }
+
+    .loading {
+      text-align: center; color: var(--text-sub);
+      padding: 30px; font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ 헤더 ═══════════ -->
+<header>
+  <div class="container">
+    <div class="header-top">
+      <div>
+        <div class="header-eyebrow">승리의 여신: 니케 · UNION PORTAL</div>
+        <div class="header-title" id="headerTitle"><img src="image/foxstar.png" alt="" style="width:22px;height:22px;vertical-align:middle;margin-right:6px;border-radius:4px;"> 여우별 유니온</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="theme-toggle" id="themeToggle" title="다크/라이트 모드 전환">🌙</button>
+        <a id="kakaoBtn" href="#" target="_blank" class="kakao-btn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="#1a1200">
+            <path d="M12 3C6.48 3 2 6.69 2 11.25c0 2.87 1.76 5.4 4.41 6.95L5.25 21 l3.86-2.06A11.3 11.3 0 0012 19.5c5.52 0 10-3.69 10-8.25S17.52 3 12 3z"/>
+          </svg>
+          가입 문의
+        </a>
+      </div>
+    </div>
+    <nav>
+      <a href="index.html">홈</a>
+      <a href="raid.html">유니온레이드</a>
+      <a href="solo.html">솔로레이드</a>
+      <a href="shift.html">시프티패드</a>
+      <a href="stats.html">여우별 통계</a>
+      <a href="sim.html" class="active">시뮬레이션</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ═══════════ 메인 ═══════════ -->
+<main>
+  <div class="container page-content">
+
+    <!-- 환경 설정 -->
+    <div class="sim-card">
+      <div id="elemBlocks"></div>
+    </div>
+
+    <!-- 유니온 현황 -->
+    <div class="sim-card" id="unionCard">
+      <div class="union-wrap">
+        <table class="union-table" id="unionTable">
+          <thead></thead>
+          <tbody><tr><td class="loading" colspan="20">로딩 중...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ═══════════ 덱 상세 모달 ═══════════ -->
+<div id="simModal" class="sim-overlay" style="display:none">
+  <div class="sim-modal-card">
+    <div class="sim-modal-header">
+      <div>
+        <div class="sim-modal-title" id="simModalTitle"></div>
+        <div class="sim-modal-sub" id="simModalSub"></div>
+      </div>
+      <button class="sim-modal-close" id="simModalClose">✕</button>
+    </div>
+    <div class="char-bars" id="charBars"></div>
+    <div class="kind-legend" id="kindLegend"></div>
+  </div>
+</div>
+
+<!-- ═══════════ 데이터 로드 (auth 게이트용) ═══════════ -->
+<script src="data/config.js"></script>
+<script src="data/member.js"></script>
+
+<!-- ═══════════ 인증 필요 시 로그인 페이지로 리다이렉트 ═══════════ -->
+<script>
+if (window.__AUTH_REQUIRED) {
+  location.replace("/login.html?return=" + encodeURIComponent(location.pathname + location.search));
+}
+</script>
+
+<!-- ═══════════ 시뮬레이션 스크립트 ═══════════ -->
+<script>
+if (!window.__AUTH_REQUIRED) {
+document.getElementById("headerTitle").innerHTML = '<img src="image/foxstar.png" alt="" style="width:22px;height:22px;vertical-align:middle;margin-right:6px;border-radius:4px;"> ' + CONFIG.unionName;
+document.getElementById("kakaoBtn").href = CONFIG.kakaoUrl;
+document.title = "시뮬레이션 | " + CONFIG.unionName;
+
+// ─── 상수 ───────────────────────────────────────────────
+const ELEMENTS = ["전격", "작열", "수냉", "철갑", "풍압"];
+const ELEM_COLOR = {
+  "작열": "#e5484d", "풍압": "#2fa84f", "수냉": "#3e63dd",
+  "철갑": "#e0a90a", "전격": "#9457d6"
+};
+function fmt억(n) {
+  if (!isFinite(n)) return "—";
+  const v = n / 1e8;
+  return v.toLocaleString("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "억";
+}
+function charImgPath(name) {
+  return "image/" + name.replace(" : ", "_") + ".webp";
+}
+
+// ─── 상태 ───────────────────────────────────────────────
+let META = null;     // meta.json
+let UNION = null;    // union.json
+const DETAIL_CACHE = {}; // uid → detail json
+
+// 속성별 독립 설정 + 전역 덱 체크 상태
+let settings = {
+  byElement: {},        // { "전격": { D, hasCore, rotKey, pellets, rangeWeapons }, ... }
+  checkedDecks: new Set(),
+};
+function elemSettings(elem) { return settings.byElement[elem]; }
+
+// 멤버 uid → name 매핑
+let memberByUid = {};
+let deckById = {};
+
+// ─── 8-성분 공식 ───────────────────────────────────────
+function apply(v, D, hasCore, cr, rangeOn) {
+  let t = v[0] - D * v[1];
+  if (hasCore) {
+    t += cr * (v[2] - D * v[3]) + (v[4] - D * v[5]);
+  }
+  if (rangeOn) {
+    t += v[6] - D * v[7];
+  }
+  return t;
+}
+
+// 캐릭터 1명 총합 (union: {c, p?}, 덱 속성의 설정 사용)
+function charTotalUnion(entry, unit, s) {
+  if (!entry) return 0;
+  const cr = unit.core_default;
+  const rangeOn = unit.bonusrange[1] > 0 && s.rangeWeapons.has(unit.weapon);
+  let total = apply(entry.c, s.D, s.hasCore, cr, rangeOn);
+  if (entry.p && unit.shot_count > 1) {
+    total += (s.pellets / unit.shot_count) * apply(entry.p, s.D, s.hasCore, cr, rangeOn);
+  }
+  return total;
+}
+
+// 덱 1개 총합 (union) — 덱의 속성 설정을 자동 사용
+function deckTotalUnion(uid, deckId, plan) {
+  const mUnion = UNION[uid];
+  if (!mUnion) return null;
+  const dEntry = mUnion[deckId];
+  if (!dEntry) return null;
+  const planEntry = dEntry[plan];
+  if (!planEntry) return null;
+  const deck = deckById[deckId];
+  const s = elemSettings(deck.element);
+  if (!s) return null;
+  const rotEntry = planEntry[s.rotKey];
+  if (!rotEntry) return null;
+  let total = 0;
+  for (const unit of deck.units) {
+    const ce = rotEntry[unit.name];
+    if (!ce) return null;
+    total += charTotalUnion(ce, unit, s);
+  }
+  return total;
+}
+
+// 덱 필터: 속성별 그룹화 (체크된 것만)
+function checkedDecksByElement() {
+  const out = {};
+  ELEMENTS.forEach(e => out[e] = []);
+  META.decks.forEach(d => {
+    if (settings.checkedDecks.has(d.id)) out[d.element].push(d);
+  });
+  return out;
+}
+
+// ─── 속성 블록 빌드 (체크박스 + collapse 환경 설정) ─────
+function weaponsForElement(el) {
+  const ws = new Set();
+  META.decks.filter(d => d.element === el).forEach(d => {
+    d.units.forEach(u => {
+      if (u.bonusrange && u.bonusrange[1] > 0) ws.add(u.weapon);
+    });
+  });
+  return [...ws].sort();
+}
+
+function buildElemBlocks() {
+  const wrap = document.getElementById("elemBlocks");
+  wrap.innerHTML = "";
+
+  ELEMENTS.forEach(el => {
+    const decks = META.decks.filter(d => d.element === el);
+    if (decks.length === 0) return;
+    const s = elemSettings(el);
+
+    const block = document.createElement("div");
+    block.className = "elem-block";
+    block.dataset.elem = el;
+
+    // 헤더: 속성 태그 + 덱 체크박스들 + 환경 설정 토글
+    let head = '<div class="elem-block-head">';
+    head += '<span class="elem-tag ' + el + '">' + el + '</span>';
+    head += '<div class="elem-deck-list">';
+    decks.forEach(d => {
+      head += '<label class="deck-chk-label" data-deck-label="' + d.id + '">' +
+              '<input type="checkbox" class="deck-chk" data-deck="' + d.id + '">' +
+              '<span class="deck-chk-name">' + d.name + '</span>' +
+              '<span class="deck-chk-imgs">';
+      d.units.forEach(u => {
+        head += '<img src="' + charImgPath(u.name) + '" alt="' + u.name + '" title="' + u.name + '" loading="lazy" onerror="this.style.opacity=0.2">';
+      });
+      head += '</span></label>';
+    });
+    head += '</div>';
+    head += '<span class="elem-settings-toggle" data-elem="' + el + '">▶ 환경 설정</span>';
+    head += '</div>';
+
+    // collapse 환경 설정 (기본 닫힘)
+    let body = '<div class="elem-settings" data-elem="' + el + '"><div class="elem-settings-grid">';
+    body += '<div class="ctrl-row"><span class="label">보스 방어력</span>' +
+            '<input type="number" data-key="D" min="0" step="1" value="' + s.D + '"></div>';
+    body += '<div class="ctrl-row"><span class="label">코어 유무</span>' +
+            '<label class="toggle-wrap"><input type="checkbox" data-key="hasCore"' + (s.hasCore ? ' checked' : '') + '>' +
+            '<span class="toggle-track"><span class="toggle-thumb"></span></span>' +
+            '<span style="font-size:12px;color:var(--text-sub)" data-val="hasCore">' + (s.hasCore ? 'ON' : 'OFF') + '</span></label></div>';
+    body += '<div class="ctrl-row"><span class="label">풀버스트</span><select data-key="rotKey">';
+    META.rotations.forEach(r => {
+      const sel = String(r) === s.rotKey ? ' selected' : '';
+      body += '<option value="' + r + '"' + sel + '>' + r + '</option>';
+    });
+    body += '</select></div>';
+    body += '<div class="ctrl-row"><span class="label">SG 펠릿</span>' +
+            '<input type="range" data-key="pellets" min="1" max="10" step="1" value="' + s.pellets + '">' +
+            '<span class="val" data-val="pellets">' + s.pellets + '</span></div>';
+    const ws = weaponsForElement(el);
+    if (ws.length > 0) {
+      body += '<div class="ctrl-row full"><span class="label">적정사거리</span><div class="weapon-checks">';
+      ws.forEach(w => {
+        const chk = s.rangeWeapons.has(w) ? ' checked' : '';
+        body += '<label><input type="checkbox" data-key="range" data-w="' + w + '"' + chk + '> ' + w + '</label>';
+      });
+      body += '</div></div>';
+    }
+    body += '</div></div>';
+
+    block.innerHTML = head + body;
+    wrap.appendChild(block);
+  });
+
+  // 이벤트 위임 (한 번만)
+  wrap.addEventListener("click", e => {
+    const t = e.target.closest('.elem-settings-toggle');
+    if (!t) return;
+    const block = t.closest('.elem-block');
+    const settingsDiv = block.querySelector('.elem-settings');
+    const isOpen = settingsDiv.classList.toggle('open');
+    t.textContent = (isOpen ? '▼' : '▶') + ' 환경 설정';
+  });
+
+  wrap.addEventListener("input", e => {
+    const inp = e.target;
+    if (!inp.dataset || !inp.dataset.key) return;
+    const block = inp.closest('.elem-block');
+    if (!block) return;
+    const el = block.dataset.elem;
+    const s = elemSettings(el);
+    if (inp.dataset.key === "D") {
+      const v = parseFloat(inp.value);
+      s.D = isFinite(v) ? v : 0;
+      rerender();
+    } else if (inp.dataset.key === "pellets") {
+      s.pellets = +inp.value;
+      block.querySelector('[data-val="pellets"]').textContent = s.pellets;
+      rerender();
+    }
+  });
+
+  wrap.addEventListener("change", e => {
+    const inp = e.target;
+    if (!inp.dataset) return;
+    // 덱 체크박스
+    if (inp.classList.contains('deck-chk')) {
+      if (inp.checked) settings.checkedDecks.add(inp.dataset.deck);
+      else             settings.checkedDecks.delete(inp.dataset.deck);
+      const lbl = inp.closest('.deck-chk-label');
+      if (lbl) lbl.classList.toggle('checked', inp.checked);
+      rerender();
+      return;
+    }
+    if (!inp.dataset.key) return;
+    const block = inp.closest('.elem-block');
+    if (!block) return;
+    const el = block.dataset.elem;
+    const s = elemSettings(el);
+    if (inp.dataset.key === "hasCore") {
+      s.hasCore = inp.checked;
+      block.querySelector('[data-val="hasCore"]').textContent = inp.checked ? 'ON' : 'OFF';
+      rerender();
+    } else if (inp.dataset.key === "rotKey") {
+      s.rotKey = inp.value;
+      rerender();
+    } else if (inp.dataset.key === "range") {
+      const w = inp.dataset.w;
+      if (inp.checked) s.rangeWeapons.add(w);
+      else             s.rangeWeapons.delete(w);
+      rerender();
+    }
+  });
+}
+
+// ─── 화면 1: 유니온 덱별 표 ───────────────────────────
+function renderUnion() {
+  const table = document.getElementById("unionTable");
+  const decksByElem = checkedDecksByElement();
+  const activeElems = ELEMENTS.filter(e => decksByElem[e].length > 0);
+
+  // 2행 헤더: 1행 = 멤버/싱크로 (rowspan) + 속성 (colspan)
+  //          2행 = 덱 이름 + 캐릭터 이미지
+  let h1 = '<tr>';
+  h1 += '<th rowspan="2">순위</th>';
+  h1 += '<th rowspan="2">멤버</th>';
+  h1 += '<th rowspan="2">싱크로</th>';
+  if (activeElems.length === 0) {
+    h1 += '<th>표시할 덱이 없습니다</th>';
+  } else {
+    activeElems.forEach((e, ei) => {
+      const firstCls = ei === 0 ? ' first-of-elem' : '';
+      h1 += '<th class="elem-head ' + e + firstCls + '" colspan="' + decksByElem[e].length + '">' + e + '</th>';
+    });
+  }
+  h1 += '</tr>';
+
+  let h2 = '<tr>';
+  activeElems.forEach((e, ei) => {
+    decksByElem[e].forEach((d, di) => {
+      const firstCls = (di === 0 && ei !== 0) ? ' first-of-elem' : (ei === 0 && di === 0 ? ' first-of-elem' : '');
+      h2 += '<th class="deck-head ' + e + firstCls + '"><div class="deck-col-header">';
+      h2 += '<div class="deck-label" title="' + d.label + '">' + d.name + '</div>';
+      h2 += '<div class="deck-imgs">';
+      d.units.forEach(u => {
+        h2 += '<img src="' + charImgPath(u.name) + '" alt="' + u.name + '" title="' + u.name + '" loading="lazy" onerror="this.style.opacity=0.2">';
+      });
+      h2 += '</div></div></th>';
+    });
+  });
+  h2 += '</tr>';
+
+  table.querySelector("thead").innerHTML = h1 + h2;
+
+  // 데이터: 싱크로레벨 내림차순으로 정렬
+  const rows = META.members.map(m => {
+    const row = { member: m, decks: {} };
+    activeElems.forEach(e => {
+      decksByElem[e].forEach(d => {
+        row.decks[d.id] = deckTotalUnion(m.uid, d.id, d.default_plan);
+      });
+    });
+    return row;
+  }).sort((a, b) => (b.member.syncro || 0) - (a.member.syncro || 0));
+
+  // 덱별 순위 사전 계산: 전 인원 중 이 덱 점수 기준 몇 등인지
+  const deckRanks = {}; // deckId -> { uid -> rank }
+  activeElems.forEach(e => {
+    decksByElem[e].forEach(d => {
+      const arr = META.members
+        .map(m => ({ uid: m.uid, score: deckTotalUnion(m.uid, d.id, d.default_plan) }))
+        .filter(x => x.score != null && x.score > 0)
+        .sort((a, b) => b.score - a.score);
+      const map = {};
+      arr.forEach((x, i) => { map[x.uid] = i + 1; });
+      deckRanks[d.id] = map;
+    });
+  });
+
+  const tbody = table.querySelector("tbody");
+  tbody.innerHTML = "";
+  if (activeElems.length === 0) {
+    tbody.innerHTML = '<tr><td class="loading" colspan="20">덱을 하나 이상 선택해주세요.</td></tr>';
+    return;
+  }
+  rows.forEach((r, idx) => {
+    const tr = document.createElement("tr");
+    const rank = idx + 1;
+    if (rank <= 3) tr.classList.add("r" + rank);
+    let html = '<td class="rank">' + rank + '</td>';
+    html += '<td>' + r.member.name + '</td>';
+    html += '<td class="num">' + r.member.syncro + '</td>';
+    activeElems.forEach((e, ei) => {
+      decksByElem[e].forEach((d, di) => {
+        const firstCls = (di === 0) ? ' first-of-elem' : '';
+        const total = r.decks[d.id];
+        if (total != null && total > 0) {
+          const rank = deckRanks[d.id][r.member.uid];
+          const rankCls = rank <= 3 ? ' r' + rank : '';
+          const rankStr = rank ? ' <span class="deck-rank' + rankCls + '">(' + rank + '위)</span>' : '';
+          html += '<td class="num clickable' + firstCls + '" data-uid="' + r.member.uid + '" data-deck="' + d.id + '">' + fmt억(total) + rankStr + '</td>';
+        } else {
+          html += '<td class="num' + firstCls + '" style="color:var(--text-dim)">—</td>';
+        }
+      });
+    });
+    tr.innerHTML = html;
+    tbody.appendChild(tr);
+  });
+}
+
+// ─── 덱 상세 모달 ─────────────────────────────────────
+async function loadDetail(uid) {
+  if (DETAIL_CACHE[uid]) return DETAIL_CACHE[uid];
+  const r = await fetch("/data/sim/detail/" + uid + ".json");
+  if (!r.ok) throw new Error("detail fetch failed");
+  const j = await r.json();
+  DETAIL_CACHE[uid] = j;
+  return j;
+}
+
+let modalState = null; // { uid, deckId, plan }
+
+function openDeckModal(uid, deckId) {
+  const deck = deckById[deckId];
+  if (!deck) return;
+  modalState = { uid, deckId, plan: deck.default_plan };
+
+  const member = memberByUid[uid] || { name: uid, syncro: "" };
+  const s = elemSettings(deck.element);
+  document.getElementById("simModalTitle").textContent = member.name + " · " + deck.name;
+  document.getElementById("simModalSub").innerHTML =
+    '<span class="elem-tag ' + deck.element + '">' + deck.element + '</span>' +
+    '<span>' + deck.label + '</span>' +
+    '<span>풀버스트 ' + s.rotKey + '</span>';
+  document.getElementById("charBars").innerHTML = '<div class="loading">로딩 중...</div>';
+  document.getElementById("kindLegend").innerHTML = "";
+  document.getElementById("simModal").style.display = "flex";
+
+  loadDetail(uid).then(() => renderModalContent()).catch(() => {
+    document.getElementById("charBars").innerHTML = '<div class="loading">데이터를 불러올 수 없습니다.</div>';
+  });
+}
+
+function closeDeckModal() {
+  modalState = null;
+  document.getElementById("simModal").style.display = "none";
+}
+
+function renderModalContent() {
+  if (!modalState) return;
+  const { uid, deckId, plan } = modalState;
+  const detail = DETAIL_CACHE[uid];
+  if (!detail) return;
+  const planEntry = detail[deckId] && detail[deckId][plan];
+  if (!planEntry) {
+    document.getElementById("charBars").innerHTML = '<div class="loading">해당 데이터가 없습니다.</div>';
+    document.getElementById("kindLegend").innerHTML = "";
+    return;
+  }
+  const deck = deckById[deckId];
+  const s = elemSettings(deck.element);
+  const rotEntry = planEntry[s.rotKey];
+  if (!rotEntry) {
+    document.getElementById("charBars").innerHTML = '<div class="loading">해당 풀버스트 데이터가 없습니다.</div>';
+    document.getElementById("kindLegend").innerHTML = "";
+    return;
+  }
+
+  // 캐릭터별 kind 계산 (덱 속성 설정 사용)
+  const chars = deck.units.map(unit => {
+    const kinds = rotEntry[unit.name] || {};
+    const segs = [];
+    let total = 0;
+    Object.entries(kinds).forEach(([kind, vec]) => {
+      const rangeOn = unit.bonusrange[1] > 0 && s.rangeWeapons.has(unit.weapon);
+      let v = apply(vec, s.D, s.hasCore, unit.core_default, rangeOn);
+      if (kind === "normal" && unit.shot_count > 1) {
+        v *= (s.pellets / unit.shot_count);
+      }
+      segs.push({ kind, val: v });
+      total += v;
+    });
+    segs.sort((a, b) => b.val - a.val);
+    return { unit, segs, total };
+  });
+
+  // 색상
+  const allKinds = new Set();
+  chars.forEach(c => c.segs.forEach(s => allKinds.add(s.kind)));
+  const palette = ["#3e63dd","#9457d6","#e0a90a","#2fa84f","#e5484d","#06b6d4","#f59e0b","#8b5cf6","#10b981","#ec4899"];
+  const kindColor = {};
+  [...allKinds].forEach((k, i) => kindColor[k] = palette[i % palette.length]);
+
+  const maxTotal = Math.max(...chars.map(c => c.total), 1);
+  const grandTotal = chars.reduce((a,c) => a + c.total, 0);
+
+  // 헤더 sub 업데이트 (총합 포함, 설정 변경 반영)
+  document.getElementById("simModalSub").innerHTML =
+    '<span class="elem-tag ' + deck.element + '">' + deck.element + '</span>' +
+    '<span>' + deck.label + '</span>' +
+    '<span>풀버스트 ' + s.rotKey + '</span>' +
+    '<span style="font-weight:700;color:var(--text)">총 ' + fmt억(grandTotal) + '</span>';
+
+  // 막대
+  const wrap = document.getElementById("charBars");
+  wrap.innerHTML = "";
+  chars.forEach(c => {
+    let segHtml = '';
+    let acc = 0;
+    c.segs.forEach(s => {
+      const segW = Math.max(0, s.val) / maxTotal * 100;
+      segHtml += '<div class="bar-seg" style="left:' + acc + '%;width:' + segW + '%;background:' +
+                 kindColor[s.kind] + '" title="' + (META.kind_labels[s.kind] || s.kind) + ': ' + fmt억(s.val) + '"></div>';
+      acc += segW;
+    });
+    const row = document.createElement("div");
+    row.className = "char-bar";
+    row.innerHTML =
+      '<div><img class="ch-img" src="' + charImgPath(c.unit.name) + '" alt="' + c.unit.name + '" onerror="this.style.opacity=0.2"></div>' +
+      '<div>' +
+        '<div class="ch-name">' + c.unit.name + '</div>' +
+        '<div class="ch-meta">' + c.unit.weapon + ' · ' + c.unit.element + '</div>' +
+      '</div>' +
+      '<div class="bar-area">' + segHtml + '</div>' +
+      '<div class="bar-total">' + fmt억(c.total) + '</div>';
+    wrap.appendChild(row);
+  });
+
+  // 범례
+  document.getElementById("kindLegend").innerHTML = [...allKinds].map(k =>
+    '<span><span class="swatch" style="background:' + kindColor[k] + '"></span>' + (META.kind_labels[k] || k) + '</span>'
+  ).join("");
+}
+
+// ─── 전체 재렌더 ────────────────────────────────────────
+function rerender() {
+  renderUnion();
+  if (modalState) renderModalContent();
+}
+
+// ─── 초기화 ────────────────────────────────────────────
+async function init() {
+  try {
+    const [metaR, unionR] = await Promise.all([
+      fetch("/data/sim/meta.json"),
+      fetch("/data/sim/union.json"),
+    ]);
+    if (!metaR.ok || !unionR.ok) throw new Error("로딩 실패");
+    META  = await metaR.json();
+    UNION = await unionR.json();
+  } catch (e) {
+    document.querySelector("#unionTable tbody").innerHTML =
+      '<tr><td class="loading" colspan="20">데이터를 불러올 수 없습니다.</td></tr>';
+    return;
+  }
+
+  META.members.forEach(m => memberByUid[m.uid] = m);
+  META.decks.forEach(d => deckById[d.id] = d);
+
+  // 속성별 기본 설정 (현재 디폴트 값 동일)
+  const d = META.settings_defaults;
+  const maxRot = String(META.rotations[META.rotations.length - 1]);
+  ELEMENTS.forEach(el => {
+    settings.byElement[el] = {
+      D: 100,
+      hasCore: d.has_core,
+      rotKey: maxRot,
+      pellets: d.sg_pellet_hits,
+      rangeWeapons: new Set(),
+    };
+  });
+  // 덱 체크: 기본 모두 해제
+
+  buildElemBlocks();
+
+  // 유니온 셀 클릭 위임 → 모달 오픈
+  document.querySelector("#unionTable tbody").addEventListener("click", e => {
+    const cell = e.target.closest('td.clickable[data-uid][data-deck]');
+    if (!cell) return;
+    openDeckModal(cell.dataset.uid, cell.dataset.deck);
+  });
+
+  // 모달 close 핸들러
+  document.getElementById("simModalClose").addEventListener("click", closeDeckModal);
+  document.getElementById("simModal").addEventListener("click", function(e) {
+    if (e.target === this) closeDeckModal();
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && modalState) closeDeckModal();
+  });
+
+  renderUnion();
+}
+init();
+
+} // if (!window.__AUTH_REQUIRED)
+</script>
+
+<!-- ═══════════ 테마 토글 ═══════════ -->
+<script>
+(function(){
+  const html = document.documentElement;
+  const btn  = document.getElementById("themeToggle");
+  const saved = localStorage.getItem("theme");
+  if (saved === "dark") { html.classList.add("dark"); btn.textContent = "☀️"; }
+  btn.addEventListener("click", function() {
+    const isDark = html.classList.toggle("dark");
+    btn.textContent = isDark ? "☀️" : "🌙";
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  });
+})();
+</script>
+
+<script>
+(function(){
+  document.addEventListener("contextmenu", function(e){ e.preventDefault(); });
+  document.addEventListener("keydown", function(e){
+    if (e.key === "F12") { e.preventDefault(); return; }
+    if (e.ctrlKey && e.shiftKey && ["I","i","J","j","C","c"].includes(e.key)) { e.preventDefault(); return; }
+    if (e.ctrlKey && ["u","U","s","S"].includes(e.key)) { e.preventDefault(); return; }
+  });
+})();
+</script>
+
+<!-- ═══════════ 인증 확정 후 body 공개 ═══════════ -->
+<script>if(!window.__AUTH_REQUIRED)document.body.classList.add("ready");</script>
+
+</body>
+</html>

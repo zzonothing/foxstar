@@ -3,11 +3,17 @@
     { "source": "/data/member.js",    "destination": "/api/data?file=member.js"    },
     { "source": "/data/raid.js",      "destination": "/api/data?file=raid.js"      },
     { "source": "/data/character.js", "destination": "/api/data?file=character.js" },
-    { "source": "/data/solo.js",      "destination": "/api/data?file=solo.js"      }
+    { "source": "/data/solo.js",      "destination": "/api/data?file=solo.js"      },
+    { "source": "/data/sim/meta.json",                    "destination": "/api/sim?file=meta.json"           },
+    { "source": "/data/sim/union.json",                   "destination": "/api/sim?file=union.json"          },
+    { "source": "/data/sim/detail/:uid.json",             "destination": "/api/sim?file=detail/:uid.json"    }
   ],
   "functions": {
     "api/data.js": {
       "includeFiles": "api/_data/**"
+    },
+    "api/sim.js": {
+      "includeFiles": "api/_data/sim/**"
     }
   },
   "headers": [
