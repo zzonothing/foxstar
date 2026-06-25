@@ -895,8 +895,12 @@ html.dark .rd-prof:hover { background: var(--muted); }
   .rd-mobile  { display: flex; flex-direction: column; gap: 16px; }
 }
 
-/* ── 솔로 덱 모달 슬롯: 데스크톱 고정 66px, 모바일 72px + 가로 스크롤 ── */
-.solo-deck-slots { display: grid; grid-template-columns: repeat(5, 66px); gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; min-width: 0; flex: 1 1 auto; max-width: 354px; }
+/* ── 솔로 덱 모달: 덱 넘버 제거, 데스크톱 가로 / 모바일 세로(점수 아래 행) ── */
+.solo-deck { display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: 10px; padding: 8px; background: var(--muted); }
+.solo-deck-slots { display: grid; grid-template-columns: repeat(5, 66px); gap: 6px; }
+.solo-deck-score { font-size: 13px; font-weight: 800; color: var(--text); white-space: nowrap; flex-shrink: 0; }
 @media (max-width: 600px) {
-  .solo-deck-slots { grid-template-columns: repeat(5, 72px); max-width: none; }
+  .solo-deck { flex-direction: column; align-items: stretch; gap: 7px; }
+  .solo-deck-slots { grid-template-columns: repeat(5, 1fr); gap: 4px; }
+  .solo-deck-score { text-align: right; }
 }
