@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script>if(localStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark");</script>
   <style>html{background:#eef1f6}html.dark{background:#111827}body:not(.ready){visibility:hidden}</style>
-  <link rel="stylesheet" href="css/style.css?v=2" />
+  <link rel="stylesheet" href="css/style.css?v=4" />
   <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
 </head>
 <body>
@@ -203,26 +203,64 @@ function updateTable(){
   document.getElementById("tableWrap").innerHTML = '<div class="rd-card" style="overflow:hidden"><div class="rd-scroll"><table class="rd-table" style="white-space:nowrap;min-width:100%"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div></div>';
 }
 
+function mobileChipsHTML(c, extraDefs){
+  const chips = [{ label: "우코", val: pct(c.increaseElementDamage), col: "var(--text)" }, { label: "공증", val: pct(c.increaseAtk), col: "var(--text)" }];
+  extraDefs.forEach(o => chips.push({ label: o[1], val: o[2](c), col: "var(--sub)" }));
+  chips.push({ label: "소장품", val: c.itemGrade ? c.itemGrade + (c.itemLevel != null && c.itemLevel !== "" ? " " + c.itemLevel : "") : "—", col: c.itemGrade ? itemCol(c.itemGrade) : "var(--dim)" });
+  chips.push({ label: "스킬", val: skillText(c), col: "var(--text)" });
+  return chips.map(ch => '<div style="display:flex;flex-direction:column;gap:1px;background:var(--muted);border-radius:7px;padding:5px 10px;min-width:62px"><span style="font-size:9px;color:var(--dim);font-weight:700;text-transform:uppercase">' + ch.label + '</span><span style="font-size:13px;font-weight:800;color:' + ch.col + '" class="tnum">' + ch.val + '</span></div>').join("");
+}
+
+function mobileCharBlockHTML(r, extraDefs){
+  if (r.kind === "missing") {
+    return '<div style="display:flex;align-items:center;gap:7px;padding:9px 0;border-top:1px solid var(--line)"><span style="width:8px;height:8px;border-radius:50%;background:var(--dim)"></span><span style="font-size:13px;font-weight:600;color:var(--text)">' + esc(r.missName) + '</span><span style="font-style:italic;color:var(--dim);font-size:12px;margin-left:auto">— 미보유 —</span></div>';
+  }
+  const c = r.c, m = r.m, primary = r.kind === "primary";
+  const fullco = c.upgrade === "풀코", upgradePlain = !!c.upgrade && c.upgrade !== "풀코";
+  return '<div style="padding:9px 0;border-top:1px solid var(--line)">' +
+    '<div style="display:flex;align-items:center;gap:6px">' +
+      '<span style="width:8px;height:8px;border-radius:50%;background:' + (ECOL[c.element] || "var(--dim)") + '"></span>' +
+      '<span style="font-size:13px;font-weight:700;color:var(--text)">' + esc(c.name) + '</span>' +
+      (primary ? '<span style="font-size:9px;font-weight:700;padding:0 6px;border-radius:4px;background:#334155;color:#fff">기준</span>' : "") +
+      (fullco ? '<span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--role-leader-bg);color:var(--amber);border:1px solid #fde68a">풀코</span>' : upgradePlain ? '<span style="font-size:10px;font-weight:600;color:var(--sub)">' + esc(c.upgrade) + '</span>' : "") +
+      '<span class="rd-detail-mini" data-act="open-equip" data-key="' + esc(m.nickname + "|" + c.name) + '" style="margin-left:auto;padding:4px 10px;border-radius:7px">자세히</span>' +
+    '</div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">' + mobileChipsHTML(c, extraDefs) + '</div></div>';
+}
+
 function updateMobile(){
+  const cr = computeRows();
+  const extraDefs = cr.extraDefs;
+
+  if (cr.groupMode) {
+    const groups = [];
+    cr.rows.forEach(r => { if (r.kind === "primary") groups.push([r]); else if (groups.length) groups[groups.length - 1].push(r); });
+    const cards = groups.map(g => {
+      const p = g[0], m = p.m, c = p.c;
+      return '<div class="rd-card" style="padding:12px 13px;border-left:3px solid ' + (ECOL[c.element] || "var(--dim)") + '">' +
+        '<div style="display:flex;align-items:center;gap:9px">' +
+          '<span style="display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:7px;font-size:11px;font-weight:800;background:var(--muted);color:var(--dim)" class="tnum">' + p.rank + '</span>' +
+          '<span style="font-size:14px;font-weight:800;color:var(--text)">' + esc(m.nickname) + '</span>' +
+          '<span style="font-size:11px;color:var(--dim);font-weight:600" class="tnum">Lv.' + (m.syncro != null ? m.syncro : "—") + '</span>' +
+        '</div>' + g.map(r => mobileCharBlockHTML(r, extraDefs)).join("") + '</div>';
+    }).join("");
+    document.getElementById("mobileWrap").innerHTML = cards || '<div style="text-align:center;color:var(--dim);font-size:12px;padding:20px">결과 없음</div>';
+    return;
+  }
+
   const { element: elem, chars, members } = state;
-  const extraDefs = OPTS.filter(o => state.opts[o[0]]);
   const raw = [];
   D.forEach(m => { if (members.length && !members.includes(m.nickname)) return; m.chars.forEach(c => { if (elem && c.element !== elem) return; if (chars.length && !chars.includes(c.name)) return; raw.push({ m, c }); }); });
   raw.sort((a, b) => sortVal(b.c) - sortVal(a.c) || (b.c.increaseAtk || 0) - (a.c.increaseAtk || 0) || a.c.name.localeCompare(b.c.name, "ko"));
   const cards = raw.slice(0, 30).map((x, i) => {
     const c = x.c, m = x.m; const fullco = c.upgrade === "풀코", upgradePlain = !!c.upgrade && c.upgrade !== "풀코";
-    const chips = [{ label: "우코", val: pct(c.increaseElementDamage), col: "var(--text)" }, { label: "공증", val: pct(c.increaseAtk), col: "var(--text)" }];
-    extraDefs.forEach(o => chips.push({ label: o[1], val: o[2](c), col: "var(--sub)" }));
-    chips.push({ label: "소장품", val: c.itemGrade ? c.itemGrade + (c.itemLevel != null && c.itemLevel !== "" ? " " + c.itemLevel : "") : "—", col: c.itemGrade ? itemCol(c.itemGrade) : "var(--dim)" });
-    chips.push({ label: "스킬", val: skillText(c), col: "var(--text)" });
-    const chipsHTML = chips.map(ch => '<div style="display:flex;flex-direction:column;gap:1px;background:var(--muted);border-radius:7px;padding:5px 10px;min-width:62px"><span style="font-size:9px;color:var(--dim);font-weight:700;text-transform:uppercase">' + ch.label + '</span><span style="font-size:13px;font-weight:800;color:' + ch.col + '" class="tnum">' + ch.val + '</span></div>').join("");
     return '<div class="rd-card" style="padding:12px 13px;border-left:3px solid ' + (ECOL[c.element] || "var(--dim)") + '"><div style="display:flex;align-items:center;gap:9px">' +
       '<span style="display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:7px;font-size:11px;font-weight:800;background:var(--muted);color:var(--dim)" class="tnum">' + (i + 1) + '</span>' +
       '<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><span style="font-size:14px;font-weight:800;color:var(--text)">' + esc(m.nickname) + '</span><span style="font-size:11px;color:var(--dim);font-weight:600" class="tnum">Lv.' + (m.syncro != null ? m.syncro : "—") + '</span></div>' +
         '<div style="display:flex;align-items:center;gap:6px;margin-top:2px"><span style="width:8px;height:8px;border-radius:50%;background:' + (ECOL[c.element] || "var(--dim)") + '"></span><span style="font-size:13px;font-weight:700;color:var(--text)">' + esc(c.name) + '</span>' +
         (fullco ? '<span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--role-leader-bg);color:var(--amber);border:1px solid #fde68a">풀코</span>' : upgradePlain ? '<span style="font-size:10px;font-weight:600;color:var(--sub)">' + esc(c.upgrade) + '</span>' : "") + '</div></div>' +
       '<span class="rd-detail-mini" data-act="open-equip" data-key="' + esc(m.nickname + "|" + c.name) + '" style="padding:4px 10px;border-radius:7px">자세히</span></div>' +
-      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:11px">' + chipsHTML + '</div></div>';
+      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:11px">' + mobileChipsHTML(c, extraDefs) + '</div></div>';
   }).join("");
   document.getElementById("mobileWrap").innerHTML = cards;
 }

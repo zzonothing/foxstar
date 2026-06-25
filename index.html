@@ -15,7 +15,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script>if(localStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark");</script>
   <style>html{background:#eef1f6}html.dark{background:#111827}body:not(.ready){visibility:hidden}</style>
-  <link rel="stylesheet" href="css/style.css?v=2" />
+  <link rel="stylesheet" href="css/style.css?v=4" />
   <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
 </head>
 <body>
@@ -200,8 +200,8 @@ const distBars = STARTS.map((s, i) => ({
   label: String(s), count: counts[i],
   h: counts[i] === 0 ? 0 : Math.round(8 + counts[i] / maxC * 94),
   hMini: counts[i] === 0 ? 0 : Math.round(4 + counts[i] / maxC * 26),
-  fill: i === STARTS.length - 1 ? "var(--bar)" : "var(--bar-l)",
-  fillMini: i === STARTS.length - 1 ? "var(--bar)" : "var(--bar-ll)"
+  fill: "var(--bar-l)",
+  fillMini: "var(--bar-l)"
 }));
 
 const avgLevel = members.reduce((s, m) => s + m.syncroLevel, 0) / members.length;
@@ -438,7 +438,7 @@ function buildPopupHTML(name, season){
     const v = svVals[i], sel = ("S" + k) === season;
     return '<div data-act="popup-season" data-season="S' + k + '" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;cursor:pointer">' +
       '<div style="font-size:8px;font-weight:700;color:var(--text);margin-bottom:3px" class="tnum">' + (v == null ? "—" : v) + '</div>' +
-      '<div style="width:100%;max-width:26px;height:' + (v == null ? 2 : Math.round(10 + (v - (smin - 4)) / ((smax - smin) || 1) * 70)) + 'px;background:' + (sel ? "var(--bar)" : (v != null ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
+      '<div style="width:100%;max-width:26px;height:' + (v == null ? 2 : Math.round(6 + Math.pow(smax > smin ? (v - smin) / (smax - smin) : 1, 1.4) * 84)) + 'px;background:' + (sel ? "var(--bar)" : (v != null ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
       '<div style="font-size:9px;color:' + (sel ? "var(--blue)" : "var(--dim)") + ';font-weight:700;margin-top:5px">' + k + '</div></div>';
   }).join("");
 
@@ -484,12 +484,14 @@ function buildPopupHTML(name, season){
 
   const dmgVals = raidKeys.map(sk => { const mm = (RAID[sk] || []).find(x => x.name === name || (cur && x.openId === cur.blaBlaLinkUId)); return { s: sk, v: mm ? mm.raids.reduce((a, r) => a + r.totalDamage, 0) : 0 }; });
   const dmgMax = Math.max(...dmgVals.map(d => d.v), 1);
+  const _dpos = dmgVals.map(d => d.v).filter(v => v > 0);
+  const dmgMin = _dpos.length ? Math.min(..._dpos) : 0;
   const hasDmgTrend = dmgVals.some(d => d.v > 0);
   const dmgBars = dmgVals.map(d => {
     const sel = d.s === season;
     return '<div data-act="popup-season" data-season="' + d.s + '" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;cursor:pointer">' +
       '<div style="font-size:7px;font-weight:700;color:var(--text);margin-bottom:3px" class="tnum">' + (d.v ? fmtEok(d.v) : "—") + '</div>' +
-      '<div style="width:100%;max-width:26px;height:' + (d.v ? Math.round(8 + d.v / dmgMax * 78) : 2) + 'px;background:' + (sel ? "var(--bar)" : (d.v ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
+      '<div style="width:100%;max-width:26px;height:' + (d.v ? Math.round(6 + (dmgMax > dmgMin ? (d.v - dmgMin) / (dmgMax - dmgMin) : 1) * 86) : 2) + 'px;background:' + (sel ? "var(--bar)" : (d.v ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
       '<div style="font-size:9px;color:' + (sel ? "var(--blue)" : "var(--dim)") + ';font-weight:700;margin-top:5px">' + d.s.slice(1) + '</div></div>';
   }).join("");
 
@@ -525,12 +527,12 @@ function buildPopupHTML(name, season){
       '</div>' +
     '</div>' +
     '<div style="padding:18px 20px 20px;display:flex;flex-direction:column;gap:18px;max-height:580px;overflow-y:auto">' +
-      '<div><div class="rd-uplabel" style="margin-bottom:12px">싱크로레벨 변화</div><div style="display:flex;align-items:flex-end;gap:7px;height:96px">' + syncBars + '</div></div>' +
+      '<div><div class="rd-uplabel" style="margin-bottom:12px">싱크로레벨 변화</div><div style="display:flex;align-items:flex-end;gap:7px;height:110px">' + syncBars + '</div></div>' +
       statsHTML + outpostHTML +
       '<div style="margin-top:2px;padding-top:18px;border-top:2px solid var(--line)">' +
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span class="rd-sec-bar" style="height:14px"></span><span style="font-size:13px;font-weight:800;color:var(--text)">유니온레이드</span><span style="font-size:11px;font-weight:700;color:var(--blue);background:var(--blue-l);padding:1px 8px;border-radius:999px">' + season + '</span></div>' +
         metricsHTML +
-        (hasDmgTrend ? '<div style="margin-bottom:18px"><div class="rd-uplabel" style="margin-bottom:12px">시즌별 총 대미지 추이</div><div style="display:flex;align-items:flex-end;gap:7px;height:96px">' + dmgBars + '</div></div>' : "") +
+        (hasDmgTrend ? '<div style="margin-bottom:18px"><div class="rd-uplabel" style="margin-bottom:12px">시즌별 총 대미지 추이</div><div style="display:flex;align-items:flex-end;gap:7px;height:110px">' + dmgBars + '</div></div>' : "") +
         decksHTML +
       '</div>' +
     '</div>';
