@@ -4,1399 +4,402 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>시프티패드 | 승리의 여신: 니케</title>
-  <meta property="og:type"        content="website" />
-  <meta property="og:title"       content="여우별 시프티패드" />
-  <meta property="og:description" content="여우별 유니온 시프티패드 현황" />
-  <meta property="og:image"       content="https://foxstar.vercel.app/image/foxstar.png" />
-  <meta property="og:url"         content="https://foxstar.vercel.app/shift.html" />
   <link rel="icon" type="image/png" href="image/foxstar.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script>if(localStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark");</script>
   <style>html{background:#eef1f6}html.dark{background:#111827}body:not(.ready){visibility:hidden}</style>
   <link rel="stylesheet" href="css/style.css" />
   <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
-  <style>
-    .shift-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px 22px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-    }
-
-    /* ── 컨트롤 바 ─────────────────────────────────────────── */
-    .shift-controls {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-    .shift-controls label {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      color: var(--text);
-      cursor: pointer;
-      user-select: none;
-      white-space: nowrap;
-    }
-    /* 자기 한 줄을 점유하도록 강제 (다음 항목은 새 줄로 wrap) */
-    .shift-controls label.row-full { flex-basis: 100%; }
-    .shift-controls select {
-      height: 30px;
-      padding: 0 8px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--bg-card);
-      color: var(--text);
-      font-size: 13px;
-      font-family: inherit;
-      cursor: pointer;
-      outline: none;
-      max-width: 160px;
-    }
-    .shift-controls select:focus { border-color: var(--blue); }
-
-    /* ── 캐릭터 검색 드롭다운 ──────────────────────────────────── */
-    .char-dropdown {
-      display: none;
-      position: absolute; top: calc(100% + 3px); left: 0;
-      min-width: 200px; max-height: 260px; overflow-y: auto;
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-      z-index: 500;
-    }
-    .char-dropdown.open { display: block; }
-    .char-dropdown-item {
-      padding: 7px 12px; font-size: 13px; color: var(--text);
-      cursor: pointer; white-space: nowrap;
-    }
-    .char-dropdown-item:hover,
-    .char-dropdown-item.active { background: var(--bg-muted); }
-    .char-dropdown-item.selected { color: var(--blue); font-weight: 600; }
-    .char-dropdown-sep {
-      padding: 4px 12px; font-size: 10px; font-weight: 700;
-      letter-spacing: .05em; color: var(--text-dim);
-      background: var(--bg-muted); pointer-events: none;
-      border-top: 1px solid var(--border);
-    }
-    .char-dropdown-empty {
-      padding: 10px 12px; font-size: 12px; color: var(--text-dim);
-      text-align: center;
-    }
-
-    /* ── 비교 캐릭터 콤보 (다중 선택, 칩 기반) ──────────────── */
-    .sub-char-combo {
-      position: relative;
-      display: inline-flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 3px;
-      padding: 3px 4px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--bg-card);
-      min-width: 220px;
-      box-sizing: border-box;
-    }
-    .sub-char-combo:focus-within { border-color: var(--blue); }
-    .sub-char-combo input {
-      flex: 1;
-      min-width: 80px;
-      height: 22px;
-      border: none;
-      outline: none;
-      background: transparent;
-      color: var(--text);
-      font-size: 13px;
-      font-family: inherit;
-      padding: 0 4px;
-    }
-    .sub-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 2px;
-      background: var(--bg-muted);
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      padding: 1px 2px 1px 8px;
-      font-size: 12px;
-      line-height: 1.2;
-      white-space: nowrap;
-    }
-    .sub-chip-x {
-      cursor: pointer;
-      color: var(--text-sub);
-      font-weight: 700;
-      padding: 0 5px;
-      border-radius: 50%;
-      font-size: 14px;
-      line-height: 1;
-    }
-    .sub-chip-x:hover { background: var(--border); color: var(--text); }
-    /* 캐릭터 멀티 선택 시 첫 칩(=primary, 정렬 기준) 강조 */
-    #charChips .sub-chip:first-child {
-      background: rgba(0,0,0,0.65);
-      color: #fff;
-      border-color: rgba(0,0,0,0.65);
-    }
-    #charChips .sub-chip:first-child .sub-chip-x { color: rgba(255,255,255,0.75); }
-    #charChips .sub-chip:first-child .sub-chip-x:hover { background: rgba(255,255,255,0.22); color: #fff; }
-
-    /* 그룹 모드 (primary + sub 행) */
-    .tr-group-sub td { background: var(--bg-muted); }
-    .tr-group-sub td.td-num,
-    .tr-group-sub td.td-name,
-    .tr-group-sub td.td-level { background: var(--bg-card); }
-    .td-char-missing { color: var(--text-dim); font-style: italic; }
-
-    @media (max-width: 600px) {
-      .shift-controls {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 8px;
-      }
-      .shift-controls label {
-        display: grid;
-        grid-template-columns: 60px 1fr;
-        align-items: center;
-        gap: 8px;
-        font-size: 12px;
-      }
-      .shift-controls label span {
-        text-align: right;
-        white-space: nowrap;
-      }
-      .shift-controls select {
-        width: 100%;
-        max-width: none;
-        height: 34px;
-        font-size: 12px;
-      }
-    }
-
-    /* ── 옵션 체크박스 필터 ─────────────────────────────────── */
-    .shift-options {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 6px 14px;
-      margin-top: 10px;
-      padding: 8px 12px;
-      background: var(--bg-muted);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 12px;
-    }
-    .shift-options-label {
-      font-weight: 700;
-      color: var(--text-sub);
-      white-space: nowrap;
-      margin-right: 2px;
-    }
-    .shift-options-checks {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px 14px;
-      align-items: center;
-    }
-    .opt-check {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      cursor: pointer;
-      user-select: none;
-      color: var(--text);
-      white-space: nowrap;
-    }
-    .opt-check input[type="checkbox"] {
-      width: 14px; height: 14px;
-      accent-color: var(--blue);
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-    @media (max-width: 600px) {
-      .shift-options { gap: 6px 10px; padding: 8px 10px; }
-      .shift-options-checks { gap: 6px 10px; }
-    }
-
-    /* ── 테이블 ────────────────────────────────────────────── */
-    .shift-table-wrap { overflow-x: auto; }
-    .shift-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-      white-space: nowrap;
-    }
-    .shift-table th {
-      padding: 9px 12px;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text);
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      background: var(--bg-muted);
-      text-align: center;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-    }
-    .shift-table th:first-child { border-radius: 8px 0 0 0; }
-    .shift-table th:last-child  { border-radius: 0 8px 0 0; }
-    .shift-table td {
-      padding: 8px 12px;
-      border-bottom: 1px solid var(--bg-muted);
-      color: var(--text);
-      text-align: center;
-      vertical-align: middle;
-    }
-    .shift-table tbody tr:last-child td { border-bottom: none; }
-    .shift-table tbody tr:hover td      { background: var(--bg-muted); }
-
-    /* ── 셀 스타일 ─────────────────────────────────────────── */
-    .td-num      { color: var(--text-sub); font-size: 12px; }
-    .td-name     { font-weight: 700; }
-    .td-char     { font-weight: 600; }
-    .btn-detail {
-      margin-left: auto;
-      flex-shrink: 0;
-      padding: 2px 8px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--bg-muted);
-      color: var(--text-sub);
-      font-size: 11px;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      line-height: 1.4;
-      transition: background 0.12s, border-color 0.12s, color 0.12s;
-      white-space: nowrap;
-    }
-    .btn-detail:hover {
-      background: var(--blue);
-      border-color: var(--blue);
-      color: #fff;
-    }
-    .td-uko      { font-weight: 700; color: var(--blue); }
-    .td-atk      { font-weight: 600; }
-    .td-skill    { font-weight: 600; }
-
-    /* 스킬은 등급 구분 없이 모두 동일 */
-
-    /* 돌파 뱃지 */
-    .badge-fullco {
-      display: inline-block;
-      padding: 2px 7px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 700;
-      line-height: 1;
-      vertical-align: middle;
-      background: var(--amber-light);
-      color: var(--amber);
-      border: 1px solid #fde68a;
-    }
-    .badge-upgrade {
-      display: inline-block;
-      padding: 2px 7px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 600;
-      line-height: 1;
-      vertical-align: middle;
-      background: var(--bg-muted);
-      color: var(--text-sub);
-      border: 1px solid var(--border);
-    }
-
-    /* 소장품 등급 */
-    .item-ssr { color: var(--amber);  font-weight: 700; }
-    .item-sr  { color: #a855f7;       font-weight: 700; }
-    .item-r   { color: var(--blue);   font-weight: 700; }
-
-    .shift-table tbody tr { cursor: default; }
-
-    /* ── 장비 상세 모달 ─────────────────────────────────────── */
-    .equip-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.45);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 1000;
-      padding: 16px;
-    }
-    .equip-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      width: 100%; max-width: 520px;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-    }
-    .equip-header {
-      display: flex; align-items: flex-start; justify-content: space-between;
-      padding: 18px 18px 14px;
-      border-bottom: 1px solid var(--border);
-    }
-    .equip-charname {
-      display: flex; align-items: center;
-      font-size: 16px; font-weight: 700; color: var(--text);
-    }
-    .equip-meta {
-      font-size: 12px; color: var(--text-sub); margin-top: 3px;
-    }
-    .equip-close {
-      background: none; border: none; cursor: pointer;
-      color: var(--text-sub); font-size: 18px; line-height: 1;
-      padding: 2px 6px; border-radius: 6px;
-    }
-    .equip-close:hover { background: var(--bg-muted); color: var(--text); }
-    .equip-totals {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      padding: 12px 18px;
-      border-bottom: 1px solid var(--border);
-      background: var(--bg-muted);
-    }
-    .equip-total-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 4px 10px;
-      font-size: 12px;
-    }
-    .equip-total-name { color: var(--text); }
-    .equip-total-val  { font-weight: 700; color: var(--text); }
-    .equip-total-item.total-max {
-      background: #111827;
-      border-color: #111827;
-    }
-    .equip-total-item.total-max .equip-total-name { color: #ffffff; }
-    .equip-total-item.total-max .equip-total-val  { color: rgb(80,180,255); }
-    .equip-total-item.total-blue .equip-total-val { color: rgb(80,180,255); }
-
-    .equip-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1px;
-      background: var(--border);
-      border-radius: 0 0 14px 14px;
-      overflow: hidden;
-    }
-    .equip-part {
-      background: var(--bg-card);
-      padding: 14px 16px;
-    }
-    .equip-part-title {
-      font-size: 10px; font-weight: 700; letter-spacing: .08em;
-      text-transform: uppercase; color: var(--text-sub);
-      margin-bottom: 10px;
-    }
-    .equip-slot {
-      display: flex; align-items: baseline; justify-content: space-between;
-      gap: 8px;
-      padding: 4px 0;
-      border-bottom: 1px solid var(--bg-muted);
-      font-size: 12px;
-    }
-    .equip-slot:last-child { border-bottom: none; }
-    .equip-slot-name {
-      color: var(--text); flex: 1; min-width: 0;
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    }
-    .equip-slot-name.none { color: var(--text-sub); text-align: center; width: 100%; }
-    .equip-slot-val {
-      color: var(--text); font-weight: 700; white-space: nowrap; flex-shrink: 0;
-    }
-    .equip-slot-val.val-blue {
-      color: rgb(80, 180, 255);
-    }
-    /* 최고 티어: 행 전체에 검정 배경 (텍스트 위치 유지) */
-    .equip-slot.slot-max {
-      background: #111827;
-      border-radius: 5px;
-      margin: 1px -12px;
-      padding: 4px 12px;
-      border-bottom: none;
-    }
-    .equip-slot.slot-max .equip-slot-name {
-      color: #fff;
-    }
-    .equip-slot.slot-max .equip-slot-val {
-      color: rgb(80, 180, 255);
-    }
-
-    @media (max-width: 500px) {
-      .equip-grid { grid-template-columns: 1fr; }
-    }
-  </style>
 </head>
 <body>
 
-<!-- ═══════════ 헤더 ═══════════ -->
-<header>
+<header class="rd-header">
+  <div class="rd-grad"></div>
   <div class="container">
-    <div class="header-top">
-      <div>
-        <div class="header-eyebrow">승리의 여신: 니케 · UNION PORTAL</div>
-        <div class="header-title" id="headerTitle"><img src="image/foxstar.png" alt="" style="width:22px;height:22px;vertical-align:middle;margin-right:6px;border-radius:4px;"> 여우별 유니온</div>
+    <div class="rd-head-inner">
+      <div class="rd-brand">
+        <img src="image/foxstar.png" alt="여우별 유니온" />
+        <div>
+          <div class="rd-eyebrow">승리의 여신: 니케 · UNION PORTAL</div>
+          <div class="rd-title" id="headerTitle">여우별 유니온</div>
+        </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <button class="theme-toggle" id="themeToggle" title="다크/라이트 모드 전환">🌙</button>
-        <a id="kakaoBtn" href="#" target="_blank" class="kakao-btn">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="#1a1200">
-            <path d="M12 3C6.48 3 2 6.69 2 11.25c0 2.87 1.76 5.4 4.41 6.95L5.25 21 l3.86-2.06A11.3 11.3 0 0012 19.5c5.52 0 10-3.69 10-8.25S17.52 3 12 3z"/>
-          </svg>
-          가입 문의
-        </a>
-      </div>
+      <button class="rd-toggle" id="themeToggle" title="다크/라이트 모드 전환">🌙</button>
     </div>
-    <nav>
+    <nav class="rd-nav">
       <a href="index.html">홈</a>
       <a href="raid.html">유니온레이드</a>
       <a href="solo.html">솔로레이드</a>
       <a href="shift.html" class="active">시프티패드</a>
       <a href="stats.html">여우별 통계</a>
-      <a href="sim.html">시뮬레이션</a>
+    </nav>
+    <nav class="rd-nav-mobile">
+      <a href="index.html">홈</a>
+      <a href="raid.html">유레</a>
+      <a href="solo.html">솔레</a>
+      <a href="shift.html" class="active">시프티</a>
+      <a href="stats.html">통계</a>
     </nav>
   </div>
 </header>
 
-<!-- ═══════════ 메인 ═══════════ -->
-<main>
-  <div class="container page-content">
-    <div class="shift-card">
-
-      <!-- 컨트롤 바 -->
-      <div class="shift-controls">
-        <label class="row-full">
-          <span>캐릭터</span>
-          <div class="sub-char-combo" id="charComboWrap">
-            <span id="charChips" style="display:contents;"></span>
-            <input type="text" id="charInput" placeholder="전체" autocomplete="off">
-            <div class="char-dropdown" id="charDropdown"></div>
-          </div>
-        </label>
-        <label class="row-full">
-          <span>　멤버</span>
-          <div class="sub-char-combo" id="memberComboWrap">
-            <span id="memberChips" style="display:contents;"></span>
-            <input type="text" id="memberInput" placeholder="전체" autocomplete="off">
-            <div class="char-dropdown" id="memberDropdown"></div>
-          </div>
-        </label>
-        <label>
-          <span>　속성</span>
-          <select id="elementSelect">
-            <option value="">전체</option>
-            <option value="전격">전격</option>
-            <option value="작열">작열</option>
-            <option value="풍압">풍압</option>
-            <option value="수냉">수냉</option>
-            <option value="철갑">철갑</option>
-          </select>
-        </label>
-        <label>
-          <span>정렬</span>
-          <select id="sortSelect">
-            <option value="uko">우코</option>
-            <option value="atk">공증</option>
-            <option value="sum">우코+공증</option>
-          </select>
-        </label>
-      </div>
-
-      <!-- 옵션 체크박스 -->
-      <div class="shift-options">
-        <span class="shift-options-label">옵션:</span>
-        <div class="shift-options-checks">
-          <label class="opt-check">
-            <input type="checkbox" id="optUko" checked>
-            <span>우코</span>
-          </label>
-          <label class="opt-check">
-            <input type="checkbox" id="optAtk" checked>
-            <span>공증</span>
-          </label>
-          <label class="opt-check">
-            <input type="checkbox" id="optSum" checked>
-            <span>우코+공증</span>
-          </label>
-          <label class="opt-check">
-            <input type="checkbox" id="optAmmo">
-            <span>장탄</span>
-          </label>
-          <label class="opt-check">
-            <input type="checkbox" id="optAmmoApplied">
-            <span>적용장탄</span>
-          </label>
-          <label class="opt-check">
-            <input type="checkbox" id="optCharge">
-            <span>차속</span>
-          </label>
-          <label class="opt-check">
-            <input type="checkbox" id="optChargeApplied">
-            <span>적용차속</span>
-          </label>
-          <label class="opt-check">
-            <input type="checkbox" id="optCritDmg">
-            <span>크댐</span>
-          </label>
-          <label class="opt-check">
-            <input type="checkbox" id="optAtk400">
-            <span>400공</span>
-          </label>
-          <label class="opt-check">
-            <input type="checkbox" id="optAtk40">
-            <span>40공</span>
-          </label>
-        </div>
-      </div>
-
-      <!-- 테이블 -->
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;min-height:1.2em;font-size:0.82em;color:var(--text-sub);">
-        <span id="shiftDateInfo"></span>
-        <span id="shiftRowInfo"></span>
-      </div>
-      <div class="shift-table-wrap">
-        <table class="shift-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>닉네임</th>
-              <th>레벨</th>
-              <th>캐릭터</th>
-              <th>돌파</th>
-              <th id="thUko">우코</th>
-              <th id="thAtk">공증</th>
-              <th id="thSum">우코+공증</th>
-              <th id="thAmmo">장탄</th>
-              <th id="thAmmoApplied">적용장탄</th>
-              <th id="thCharge">차속</th>
-              <th id="thChargeApplied">적용차속</th>
-              <th id="thCritDmg">크댐</th>
-              <th id="thAtk400">400공</th>
-              <th id="thAtk40">40공</th>
-              <th>소장품</th>
-              <th>스킬1</th>
-              <th>스킬2</th>
-              <th>스킬3</th>
-            </tr>
-          </thead>
-          <tbody id="shiftTableBody"></tbody>
-        </table>
-      </div>
-
-    </div>
+<main class="rd-main">
+  <div class="container">
+    <div id="rdContent" class="rd-stack"></div>
   </div>
 </main>
 
-<!-- ═══════════ 장비 상세 모달 ═══════════ -->
-<div id="equipModal" class="equip-overlay" style="display:none">
-  <div class="equip-card">
-    <div class="equip-header">
-      <div>
-        <div class="equip-charname" id="equipCharName"></div>
-        <div class="equip-meta" id="equipMeta"></div>
-      </div>
-      <button class="equip-close" id="equipClose">✕</button>
-    </div>
-    <div class="equip-totals" id="equipTotals"></div>
-    <div class="equip-grid" id="equipGrid"></div>
-  </div>
+<div id="rdShiftOverlay" class="rd-overlay" style="display:none">
+  <div class="rd-modal" id="rdShiftModal" style="max-width:520px"></div>
 </div>
 
-<!-- ═══════════ 데이터 로드 ═══════════ -->
 <script src="data/config.js"></script>
 <script src="data/member.js"></script>
 <script src="data/character.js"></script>
 
-<!-- ═══════════ 인증 필요 시 로그인 페이지로 리다이렉트 ═══════════ -->
 <script>
 if (window.__AUTH_REQUIRED) {
   location.replace("/login.html?return=" + encodeURIComponent(location.pathname + location.search));
 }
 </script>
 
-<!-- ═══════════ 시프티패드 스크립트 ═══════════ -->
 <script>
 if (!window.__AUTH_REQUIRED) {
-// ─── 기본 설정 ───────────────────────────────────────────────────
-document.getElementById("headerTitle").innerHTML = '<img src="image/foxstar.png" alt="" style="width:22px;height:22px;vertical-align:middle;margin-right:6px;border-radius:4px;"> ' + CONFIG.unionName;
-document.getElementById("kakaoBtn").href = CONFIG.kakaoUrl;
-document.title = "시프티패드 | " + CONFIG.unionName;
 
-// ─── 속성 색상 ───────────────────────────────────────────────────
-const ELEMENT_COLOR = {
-  "수냉": "#3b82f6",
-  "작열": "#ef4444",
-  "철갑": "#f59e0b",
-  "전격": "#a855f7",
-  "풍압": "#22c55e",
-};
-const ELEMENT_EMOJI = {
-  "수냉": "🔵",
-  "작열": "🔴",
-  "철갑": "🟡",
-  "전격": "🟣",
-  "풍압": "🟢",
-};
-const ELEMENT_ORDER = ["수냉", "작열", "철갑", "전격", "풍압"];
-
-function elementDot(element) {
-  const color = ELEMENT_COLOR[element] || "#94a3b8";
-  return '<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:' + color + ';margin-right:5px;vertical-align:middle;flex-shrink:0"></span>';
+if (typeof CONFIG !== "undefined") {
+  document.getElementById("headerTitle").textContent = CONFIG.unionName;
+  document.title = "시프티패드 | " + CONFIG.unionName;
 }
 
-// ─── 최신 시즌 고정 ──────────────────────────────────────────────
-const seasonKeys   = Object.keys(UNION).map(Number).sort((a, b) => a - b);
-const latestSeason = seasonKeys[seasonKeys.length - 1];
+const ECOL = {수냉:"var(--el-water)",작열:"var(--el-fire)",철갑:"var(--el-iron)",전격:"var(--el-elec)",풍압:"var(--el-wind)"};
+const EORDER = ["수냉","작열","철갑","전격","풍압"];
+const BRIGHT = "var(--tier-bright)";
+const TIERS = { increaseElementDamage:{blue:24.96,max:29.16}, increaseAtk:{blue:12.52,max:14.63}, increaseHitRate:{blue:12.52,max:14.63}, increaseChargeDamage:{blue:12.52,max:14.63}, increaseDef:{blue:12.52,max:14.63}, increaseMaxAmmunitionCapacity:{blue:73.04,max:85.37}, increaseChargeSpeed:{blue:5.21,max:6.09}, increaseCriticalDamage:{blue:17.42,max:20.36}, increaseCriticalRate:{blue:6.05,max:7.07} };
+const ELABEL = { increaseAtk:"공격력 증가", increaseElementDamage:"우월코드 대미지 증가", increaseCriticalDamage:"크리티컬 대미지 증가", increaseCriticalRate:"크리티컬 확률 증가", increaseMaxAmmunitionCapacity:"최대 장탄 수 증가", increaseDef:"방어력 증가", increaseHitRate:"명중률 증가", increaseChargeSpeed:"차지 속도 증가", increaseChargeDamage:"차지 대미지 증가" };
+const EORDER_EFF = ["increaseElementDamage","increaseAtk","increaseMaxAmmunitionCapacity","increaseCriticalDamage","increaseCriticalRate","increaseChargeSpeed","increaseChargeDamage","increaseDef","increaseHitRate"];
 
-// ─── 캐릭터 / 멤버 셀렉터 ────────────────────────────────────────
-const memberInput     = document.getElementById("memberInput");
-const memberDropdown  = document.getElementById("memberDropdown");
-const memberChipsEl   = document.getElementById("memberChips");
-let memberAllOptions  = [];     // { value, label }
-let memberFilterValues = new Set();
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+function pct(v){ return (v == null || v === 0) ? "—" : v.toFixed(2) + "%"; }
+function tierOf(eff, v){ const t = TIERS[eff]; if (!t || v == null) return "default"; if (Math.abs(v - t.max) < 0.005) return "max"; if (v >= t.blue - 0.005) return "blue"; return "default"; }
+function itemCol(g){ return g === "SSR" ? "var(--grade-ssr)" : g === "SR" ? "var(--grade-sr)" : "var(--grade-r)"; }
+function groupSum(ch, eff){ if (!ch.equipSlots) return null; const g = new Map(); ["head","torso","arm","leg"].forEach(p => (ch.equipSlots[p] || []).forEach(s => { if (s && s.effect === eff && typeof s.value === "number") g.set(s.value, (g.get(s.value) || 0) + 1); })); return g.size ? g : null; }
+function appliedCharge(ch){ const g = groupSum(ch, "increaseChargeSpeed"); if (!g) return null; let t = 0; g.forEach((c, v) => t += Math.round(v * c)); return t; }
+function appliedAmmo(ch){ if (!ch.orgMaxAmmo) return null; const g = groupSum(ch, "increaseMaxAmmunitionCapacity"); if (!g) return null; let t = 0; g.forEach((c, v) => t += Math.round(ch.orgMaxAmmo * (v * c) / 100)); return t; }
+function ammoText(c){ const b = c.increaseMaxAmmunitionCapacity; if (b == null || b === 0) return "—"; const a = appliedAmmo(c); return b.toFixed(2) + "%" + (a ? (" (+" + a + ")") : ""); }
+function chargeText(c){ const b = c.increaseChargeSpeed; if (b == null || b === 0) return "—"; const a = appliedCharge(c); return b.toFixed(2) + "%" + (a ? (" (" + a + "%)") : ""); }
+function skillText(c){ return (c.skill1 != null ? c.skill1 : "—") + " " + (c.skill2 != null ? c.skill2 : "—") + " " + (c.skill3 != null ? c.skill3 : "—"); }
 
-// S39 기준 우선순위 캐릭터 목록
-const PRIORITY_CHARS = new Set([
-  "나가", "나유타", "도로시 : 세렌디피티", "디젤 : 윈터 스위츠",
-  "라피 : 레드 후드", "레드 후드", "레이븐", "루드밀라 : 윈터 오너",
-  "루주", "리버렐리오", "리타", "리틀 머메이드",
-  "마리", "마스트 : 로망틱 메이드", "메이든 : 아이스 로즈", "목단",
-  "미란다", "미하라 : 본딩 체인", "벨벳", "브리드 : 사일런트 트랙",
-  "스노우 화이트", "스노우 화이트 : 헤비암즈", "신데렐라", "아니스 : 스타", "아니스 : 스파클링 서머",
-  "에이드 : 에이전트 바니", "이브", "일레그 : 붐 앤 쇼크", "크라운",
-  "프리바티", "헬름", "헬름 : 아쿠아마린", "홍련 : 흑영",
-]);
+/* ─── 데이터 정규화 (멤버 → 캐릭터 배열) ─── */
+const seasonKeys = Object.keys(UNION).map(Number).sort((a, b) => a - b);
+const latestKey = seasonKeys[seasonKeys.length - 1];
+const D = UNION[latestKey].members.map(m => ({ nickname: m.name, syncro: m.syncroLevel, chars: (typeof CHARACTERS !== "undefined" && CHARACTERS[m.uid]) ? CHARACTERS[m.uid] : [] }));
 
-// ─── 캐릭터 검색 콤보박스 (다중 선택, 첫 칩 = primary 정렬 기준) ─────
-const charInput     = document.getElementById("charInput");
-const charDropdown  = document.getElementById("charDropdown");
-const charChipsEl   = document.getElementById("charChips");
-let charAllOptions  = [];   // { value, label, group }
-let charFilterValues = [];  // 순서 있는 배열, [0] = primary
+const charMap = new Map();
+D.forEach(m => m.chars.forEach(c => { if (!charMap.has(c.name)) charMap.set(c.name, c.element); }));
+const charList = [...charMap.entries()].sort((a, b) => { const d = (EORDER.indexOf(a[1]) + 1 || 99) - (EORDER.indexOf(b[1]) + 1 || 99); return d || a[0].localeCompare(b[0], "ko"); });
+const memberList = [...D].sort((a, b) => (b.syncro || 0) - (a.syncro || 0));
 
-function elemNameSort(a, b) {
-  const ei = ELEMENT_ORDER.indexOf(a[1]);
-  const ej = ELEMENT_ORDER.indexOf(b[1]);
-  const diff = (ei === -1 ? 99 : ei) - (ej === -1 ? 99 : ej);
-  return diff !== 0 ? diff : a[0].localeCompare(b[0], "ko");
-}
+const OPTS = [["ammo","장탄",c => ammoText(c)],["charge","차속",c => chargeText(c)],["critDmg","크댐",c => pct(c.increaseCriticalDamage)],["atk400","400공",c => c.atk400 ? c.atk400.toLocaleString() : "—"],["atk40","40공",c => c.atk40 ? c.atk40.toLocaleString() : "—"]];
 
-function buildCharSelect() {
-  const data = UNION[latestSeason];
-  charAllOptions = [];
+const state = { element: "", sort: "uko", chars: [], members: [], group: false,
+  charQuery: "", charOpen: false, memberQuery: "", memberOpen: false,
+  opts: { ammo: false, charge: false, critDmg: false, atk400: false, atk40: false }, modalKey: null };
 
-  if (data) {
-    const seen = new Map();
-    data.members.forEach(member => {
-      (CHARACTERS[member.uid] || []).forEach(ch => {
-        if (!seen.has(ch.name)) seen.set(ch.name, ch.element || "");
-      });
-    });
+function sortVal(c){ return state.sort === "atk" ? (c.increaseAtk || 0) : (c.increaseElementDamage || 0); }
 
-    const priority = [...seen.entries()].filter(([name]) =>  PRIORITY_CHARS.has(name)).sort(elemNameSort);
-    const rest     = [...seen.entries()].filter(([name]) => !PRIORITY_CHARS.has(name)).sort(elemNameSort);
+/* ═══════════ 결과 계산 ═══════════ */
+function computeRows(){
+  const { element: elem, chars, members, opts } = state;
+  const groupAvailable = chars.length >= 2;
+  const groupMode = groupAvailable && state.group;
+  const extraDefs = OPTS.filter(o => opts[o[0]]);
+  const rows = []; let total = 0;
 
-    if (priority.length > 0 && rest.length > 0) {
-      priority.forEach(([name, element]) => {
-        charAllOptions.push({ value: name, label: (ELEMENT_EMOJI[element] || "⚪") + " " + name, group: "주요" });
-      });
-      rest.forEach(([name, element]) => {
-        charAllOptions.push({ value: name, label: (ELEMENT_EMOJI[element] || "⚪") + " " + name, group: "기타" });
-      });
-    } else {
-      [...priority, ...rest].forEach(([name, element]) => {
-        charAllOptions.push({ value: name, label: (ELEMENT_EMOJI[element] || "⚪") + " " + name, group: null });
-      });
-    }
-  }
-
-  // 선택 초기화
-  charFilterValues = [];
-  charInput.value = "";
-  renderCharChips();
-}
-
-// ─── 캐릭터 칩 (선택된 다중 항목, 첫 번째 = primary 정렬 기준) ───
-function renderCharChips() {
-  charChipsEl.innerHTML = "";
-  charFilterValues.forEach(name => {
-    const opt = charAllOptions.find(o => o.value === name);
-    const chip = document.createElement("span");
-    chip.className = "sub-chip";
-    chip.innerHTML = (opt ? opt.label : name) + ' <span class="sub-chip-x" data-name="' + name + '">×</span>';
-    charChipsEl.appendChild(chip);
-  });
-}
-charChipsEl.addEventListener("click", e => {
-  const x = e.target.closest(".sub-chip-x");
-  if (!x) return;
-  const idx = charFilterValues.indexOf(x.dataset.name);
-  if (idx >= 0) charFilterValues.splice(idx, 1);
-  renderCharChips();
-  renderTable();
-});
-
-function renderCharDropdown(query) {
-  const q = (query || "").trim().toLowerCase();
-  charDropdown.innerHTML = "";
-
-  const filtered = q
-    ? charAllOptions.filter(o => o.value.toLowerCase().includes(q))
-    : charAllOptions.slice();
-
-  if (filtered.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "char-dropdown-empty";
-    empty.textContent = "검색 결과 없음";
-    charDropdown.appendChild(empty);
-    return;
-  }
-
-  let lastGroup = null;
-  filtered.forEach(o => {
-    if (!q && o.group && o.group !== lastGroup) {
-      const sep = document.createElement("div");
-      sep.className = "char-dropdown-sep";
-      sep.textContent = o.group === "주요" ? "── 주요 캐릭터" : "── 기타 캐릭터";
-      charDropdown.appendChild(sep);
-      lastGroup = o.group;
-    }
-    const item = document.createElement("div");
-    const checked = charFilterValues.includes(o.value);
-    item.className = "char-dropdown-item" + (checked ? " selected" : "");
-    item.textContent = (checked ? "✓ " : "") + o.label;
-    item.dataset.value = o.value;
-    charDropdown.appendChild(item);
-  });
-}
-
-charInput.addEventListener("focus", () => {
-  renderCharDropdown(charInput.value);
-  charDropdown.classList.add("open");
-});
-charInput.addEventListener("input", () => {
-  renderCharDropdown(charInput.value);
-  charDropdown.classList.add("open");
-});
-charInput.addEventListener("blur", () => {
-  setTimeout(() => charDropdown.classList.remove("open"), 150);
-});
-charDropdown.addEventListener("mousedown", e => {
-  const item = e.target.closest(".char-dropdown-item");
-  if (!item) return;
-  e.preventDefault();
-  const val = item.dataset.value;
-  if (!val) return;
-  const idx = charFilterValues.indexOf(val);
-  if (idx >= 0) charFilterValues.splice(idx, 1);
-  else charFilterValues.push(val);
-  renderCharChips();
-  renderCharDropdown(charInput.value);
-  charInput.value = "";
-  charInput.focus();
-  renderTable();
-});
-
-document.addEventListener("keydown", e => {
-  if (e.key === "Escape") charDropdown.classList.remove("open");
-});
-
-function buildMemberSelect() {
-  const data = UNION[latestSeason];
-  memberAllOptions = [];
-  if (!data) return;
-  // 싱크로레벨 내림차순 정렬
-  const sorted = [...data.members].sort((a, b) => b.syncroLevel - a.syncroLevel);
-  sorted.forEach(m => {
-    memberAllOptions.push({ value: m.name, label: m.name + " (" + m.syncroLevel + ")" });
-  });
-}
-
-// ─── 멤버 다중 선택 드롭다운/칩 ─────────────────────────────────
-function renderMemberChips() {
-  memberChipsEl.innerHTML = "";
-  memberFilterValues.forEach(name => {
-    const opt = memberAllOptions.find(o => o.value === name);
-    const chip = document.createElement("span");
-    chip.className = "sub-chip";
-    chip.innerHTML = (opt ? opt.label : name) + ' <span class="sub-chip-x" data-name="' + name + '">×</span>';
-    memberChipsEl.appendChild(chip);
-  });
-}
-memberChipsEl.addEventListener("click", e => {
-  const x = e.target.closest(".sub-chip-x");
-  if (!x) return;
-  memberFilterValues.delete(x.dataset.name);
-  renderMemberChips();
-  renderTable();
-});
-
-function renderMemberDropdown(q) {
-  memberDropdown.innerHTML = "";
-  q = (q || "").trim().toLowerCase();
-  const filtered = q
-    ? memberAllOptions.filter(o => o.value.toLowerCase().includes(q))
-    : memberAllOptions.slice();
-  if (filtered.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "char-dropdown-empty";
-    empty.textContent = "검색 결과 없음";
-    memberDropdown.appendChild(empty);
-    return;
-  }
-  filtered.forEach(o => {
-    const item = document.createElement("div");
-    const checked = memberFilterValues.has(o.value);
-    item.className = "char-dropdown-item" + (checked ? " selected" : "");
-    item.textContent = (checked ? "✓ " : "") + o.label;
-    item.dataset.value = o.value;
-    memberDropdown.appendChild(item);
-  });
-}
-memberInput.addEventListener("focus", () => {
-  renderMemberDropdown(memberInput.value);
-  memberDropdown.classList.add("open");
-});
-memberInput.addEventListener("input", () => {
-  renderMemberDropdown(memberInput.value);
-  memberDropdown.classList.add("open");
-});
-memberInput.addEventListener("blur", () => {
-  setTimeout(() => memberDropdown.classList.remove("open"), 150);
-});
-memberDropdown.addEventListener("mousedown", e => {
-  const item = e.target.closest(".char-dropdown-item");
-  if (!item) return;
-  e.preventDefault();
-  const val = item.dataset.value;
-  if (!val) return;
-  if (memberFilterValues.has(val)) memberFilterValues.delete(val);
-  else memberFilterValues.add(val);
-  renderMemberChips();
-  renderMemberDropdown(memberInput.value);
-  memberInput.value = "";
-  memberInput.focus();
-  renderTable();
-});
-
-// ─── 돌파 뱃지 HTML ──────────────────────────────────────────────
-function upgradeBadge(val) {
-  if (!val) return "—";
-  if (val === "풀코") return '<span class="badge-fullco">풀코</span>';
-  return '<span class="badge-upgrade">' + val + '</span>';
-}
-
-// ─── 소장품 표시 ─────────────────────────────────────────────────
-function itemHtml(grade, level) {
-  if (!grade) return "—";
-  const cls = grade === "SSR" ? "item-ssr" : grade === "SR" ? "item-sr" : "item-r";
-  const lvStr = (level != null) ? level : "—";
-  return '<span class="' + cls + '">' + grade + ' ' + lvStr + '</span>';
-}
-
-// ─── 스킬 표시 ───────────────────────────────────────────────────
-function skillHtml(val) {
-  return val != null ? val : "—";
-}
-
-// ─── 장비 상세 모달 ──────────────────────────────────────────────
-const EQUIP_PART_LABELS = [
-  { new: "head",  old: ["head",  "body_head"], label: "헤드" },
-  { new: "torso", old: ["body"],               label: "몸통" },
-  { new: "arm",   old: ["hand"],               label: "팔"   },
-  { new: "leg",   old: ["foot"],               label: "다리" }
-];
-
-// 구 포맷 파트키 (headOption1... bodyValue3... 등)
-const OLD_PART_KEYS = {
-  head:  { opts: ["headOption1","headOption2","headOption3"], vals: ["headValue1","headValue2","headValue3"] },
-  body:  { opts: ["bodyOption1","bodyOption2","bodyOption3"], vals: ["bodyValue1","bodyValue2","bodyValue3"] },
-  hand:  { opts: ["handOption1","handOption2","handOption3"], vals: ["handValue1","handValue2","handValue3"] },
-  foot:  { opts: ["FootOption1","FootOption2","FootOption3"], vals: ["FootValue1","FootValue2","FootValue3"] }
-};
-
-// effect 값 → 티어 (blue: 1~3단계, max: 최고단계)
-const VALUE_TIERS = {
-  increaseElementDamage:         { blue: 24.96, max: 29.16 },
-  increaseAtk:                   { blue: 12.52, max: 14.63 },
-  increaseHitRate:               { blue: 12.52, max: 14.63 },
-  increaseChargeDamage:          { blue: 12.52, max: 14.63 },
-  increaseDef:                   { blue: 12.52, max: 14.63 },
-  increaseMaxAmmunitionCapacity: { blue: 73.04, max: 85.37 },
-  increaseChargeSpeed:           { blue: 5.21,  max: 6.09  },
-  increaseCriticalDamage:        { blue: 17.42, max: 20.36 },
-  increaseCriticalRate:          { blue: 6.05,  max: 7.07  }
-};
-
-function valueTier(effect, value) {
-  const t = VALUE_TIERS[effect];
-  if (!t || value == null) return "default";
-  const v = parseFloat(value);
-  if (Math.abs(v - t.max) < 0.005) return "max";
-  if (v >= t.blue - 0.005)         return "blue";
-  return "default";
-}
-
-// effect 키 → 한국어 라벨
-const EFFECT_LABEL = {
-  increaseAtk:                  "공격력 증가",
-  increaseElementDamage:        "우월코드 대미지 증가",
-  increaseCriticalDamage:       "크리티컬 대미지 증가",
-  increaseCriticalRate:         "크리티컬 확률 증가",
-  increaseMaxAmmunitionCapacity:"최대 장탄 수 증가",
-  increaseDef:                  "방어력 증가",
-  increaseHitRate:              "명중률 증가",
-  increaseChargeSpeed:          "차지 속도 증가",
-  increaseChargeDamage:         "차지 대미지 증가"
-};
-
-function buildPartSlots(ch, partLabel) {
-  const newKey = partLabel.new;
-  const slots  = ch.equipSlots && ch.equipSlots[newKey];
-
-  if (slots) {
-    // 신 포맷: equipSlots.head/torso/arm/leg → [{effect, value}, ...]
-    const result = [];
-    for (let i = 0; i < 3; i++) {
-      const s = slots[i];
-      if (!s) { result.push({ text: null, val: null, effect: null }); continue; }
-      result.push({ text: EFFECT_LABEL[s.effect] || s.effect, val: s.value, effect: s.effect });
-    }
-    return result;
-  }
-
-  // 구 포맷 폴백: headOption1/2/3 + headValue1/2/3 ...
-  const oldKey = partLabel.old[0];
-  const pk     = OLD_PART_KEYS[oldKey];
-  if (!pk) return [{ text: null, val: null, effect: null }, { text: null, val: null, effect: null }, { text: null, val: null, effect: null }];
-  return pk.opts.map((oKey, i) => {
-    const raw  = ch[oKey];
-    const val  = ch[pk.vals[i]];
-    const text = raw ? raw.replace(/^\[|\]$/g, "").trim() : null;
-    // 구 포맷은 effect 키가 없으므로 option 텍스트로 역매핑
-    const effect = Object.keys(EFFECT_LABEL).find(k => EFFECT_LABEL[k] === text) || null;
-    return { text: (text === "효과 없음" ? null : text), val, effect };
-  });
-}
-
-function openEquipModal(member, ch) {
-  const modal  = document.getElementById("equipModal");
-  const grid   = document.getElementById("equipGrid");
-  const charEl = document.getElementById("equipCharName");
-  const metaEl = document.getElementById("equipMeta");
-
-  charEl.innerHTML = elementDot(ch.element) + (ch.name + (ch.subName ? " · " + ch.subName : ""));
-  metaEl.textContent = member.name + "  ·  " + (ch.upgrade || "—") + "  ·  " + (ch.element || "—");
-
-  // ── 총합 옵션 수치 계산 ──────────────────────────────────────
-  const EFFECT_ORDER = [
-    "increaseElementDamage", "increaseAtk", "increaseMaxAmmunitionCapacity",
-    "increaseCriticalDamage", "increaseCriticalRate",
-    "increaseChargeSpeed", "increaseChargeDamage",
-    "increaseDef", "increaseHitRate"
-  ];
-  const totalsMap = {};
-  const tierMap   = {}; // effect → 최고 tier ("max" > "blue" > "default")
-  EQUIP_PART_LABELS.forEach(p => {
-    buildPartSlots(ch, p).forEach(function({ effect, val }) {
-      if (!effect || val == null || val === 0) return;
-      totalsMap[effect] = (totalsMap[effect] || 0) + parseFloat(val);
-      const t = valueTier(effect, val);
-      const cur = tierMap[effect] || "default";
-      if (t === "max" || (t === "blue" && cur !== "max")) tierMap[effect] = t;
-    });
-  });
-
-  const totalsEl = document.getElementById("equipTotals");
-  totalsEl.innerHTML = "";
-  Object.entries(totalsMap)
-    .sort(function(a, b) {
-      const ia = EFFECT_ORDER.indexOf(a[0]), ib = EFFECT_ORDER.indexOf(b[0]);
-      return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-    })
-    .forEach(function([effect, sum]) {
-      const tier = tierMap[effect] || "default";
-      const item = document.createElement("div");
-      item.className = "equip-total-item" +
-        (tier === "max" ? " total-max" : tier === "blue" ? " total-blue" : "");
-      item.innerHTML =
-        '<span class="equip-total-name">' + (EFFECT_LABEL[effect] || effect) + '</span>' +
-        '<span class="equip-total-val">' + sum.toFixed(2) + '%</span>';
-      totalsEl.appendChild(item);
-    });
-
-  grid.innerHTML = "";
-  EQUIP_PART_LABELS.forEach(p => {
-    const part = document.createElement("div");
-    part.className = "equip-part";
-
-    const title = document.createElement("div");
-    title.className = "equip-part-title";
-    title.textContent = p.label;
-    part.appendChild(title);
-
-    buildPartSlots(ch, p).forEach(({ text, val, effect }) => {
-      const isNone = !text;
-      const tier   = (!isNone && val != null && val !== 0) ? valueTier(effect, val) : "default";
-      const row    = document.createElement("div");
-      row.className = "equip-slot" + (tier === "max" ? " slot-max" : "");
-
-      const nameEl = document.createElement("span");
-      nameEl.className = "equip-slot-name" + (isNone ? " none" : "");
-      nameEl.textContent = isNone ? "효과 없음" : text;
-      row.appendChild(nameEl);
-
-      if (!isNone && val != null && val !== 0) {
-        const valEl = document.createElement("span");
-        valEl.className = "equip-slot-val" + (tier === "blue" ? " val-blue" : "");
-        valEl.textContent = val + "%";
-        row.appendChild(valEl);
-      }
-
-      part.appendChild(row);
-    });
-
-    grid.appendChild(part);
-  });
-
-  modal.style.display = "flex";
-}
-
-function closeEquipModal() {
-  document.getElementById("equipModal").style.display = "none";
-}
-
-document.getElementById("equipClose").addEventListener("click", closeEquipModal);
-document.getElementById("equipModal").addEventListener("click", function(e) {
-  if (e.target === this) closeEquipModal();
-});
-document.addEventListener("keydown", function(e) {
-  if (e.key === "Escape") closeEquipModal();
-});
-
-// ─── 적용차속 계산 ───────────────────────────────────────────────
-// 같은 수치의 차속 옵션끼리 합산 후 반올림하고, 그 결과들을 모두 더한다.
-function calcAppliedChargeSpeed(ch) {
-  if (!ch.equipSlots) return null;
-  const groups = new Map(); // value → 개수
-  ["head", "torso", "arm", "leg"].forEach(part => {
-    const slots = ch.equipSlots[part] || [];
-    slots.forEach(s => {
-      if (s && s.effect === "increaseChargeSpeed" && typeof s.value === "number") {
-        groups.set(s.value, (groups.get(s.value) || 0) + 1);
-      }
-    });
-  });
-  if (groups.size === 0) return null;
-  let total = 0;
-  groups.forEach((count, value) => {
-    total += Math.round(value * count);
-  });
-  return total;
-}
-
-// ─── 적용장탄 계산 ───────────────────────────────────────────────
-// 같은 수치의 장탄 증가 옵션끼리 합산 후 (기본 장탄 × 합%) 반올림하고, 그 결과들을 모두 더한다.
-function calcAppliedAmmo(ch) {
-  if (!ch.equipSlots || typeof ch.orgMaxAmmo !== "number" || ch.orgMaxAmmo <= 0) return null;
-  const groups = new Map();
-  ["head", "torso", "arm", "leg"].forEach(part => {
-    const slots = ch.equipSlots[part] || [];
-    slots.forEach(s => {
-      if (s && s.effect === "increaseMaxAmmunitionCapacity" && typeof s.value === "number") {
-        groups.set(s.value, (groups.get(s.value) || 0) + 1);
-      }
-    });
-  });
-  if (groups.size === 0) return null;
-  let total = 0;
-  groups.forEach((count, value) => {
-    total += Math.round(ch.orgMaxAmmo * (value * count) / 100);
-  });
-  return total;
-}
-
-// ─── 캐릭터 행 HTML (캐릭터/돌파/옵션/소장품/스킬 셀들) ─────────
-function buildCharCells(ch, opts) {
-  if (!ch) {
-    let html = '<td class="td-char-missing">— 미보유 —</td><td>—</td>';
-    if (opts.showUko)           html += '<td class="td-uko">—</td>';
-    if (opts.showAtk)           html += '<td class="td-atk">—</td>';
-    if (opts.showSum)           html += '<td class="td-uko">—</td>';
-    if (opts.showAmmo)          html += '<td class="td-atk">—</td>';
-    if (opts.showAmmoApplied)   html += '<td class="td-atk">—</td>';
-    if (opts.showCharge)        html += '<td class="td-atk">—</td>';
-    if (opts.showChargeApplied) html += '<td class="td-atk">—</td>';
-    if (opts.showCritDmg)       html += '<td class="td-atk">—</td>';
-    if (opts.showAtk400)        html += '<td class="td-atk">—</td>';
-    if (opts.showAtk40)         html += '<td class="td-atk">—</td>';
-    html += '<td>—</td><td class="td-skill">—</td><td class="td-skill">—</td><td class="td-skill">—</td>';
-    return html;
-  }
-
-  let html = '<td class="td-char" style="display:flex;align-items:center;justify-content:flex-start;gap:6px;">' +
-    elementDot(ch.element) + ch.name +
-    '<button class="btn-detail">자세히</button>' +
-    '</td>';
-  html += '<td>' + upgradeBadge(ch.upgrade) + '</td>';
-  if (opts.showUko)  html += '<td class="td-uko">' + (ch.increaseElementDamage != null ? ch.increaseElementDamage.toFixed(2) + "%" : "—") + '</td>';
-  if (opts.showAtk)  html += '<td class="td-atk">' + (ch.increaseAtk           != null ? ch.increaseAtk.toFixed(2)           + "%" : "—") + '</td>';
-  if (opts.showSum) {
-    const uko = ch.increaseElementDamage || 0;
-    const atk = ch.increaseAtk || 0;
-    const sum = uko + atk;
-    html += '<td class="td-uko">' + (uko || atk ? sum.toFixed(2) + "%" : "—") + '</td>';
-  }
-  if (opts.showAmmo) html += '<td class="td-atk">' + (ch.increaseMaxAmmunitionCapacity != null ? ch.increaseMaxAmmunitionCapacity.toFixed(2) + "%" : "—") + '</td>';
-  if (opts.showAmmoApplied) {
-    const v = calcAppliedAmmo(ch);
-    html += '<td class="td-atk">' + (v != null && v > 0 ? "+" + v : "—") + '</td>';
-  }
-  if (opts.showCharge) html += '<td class="td-atk">' + (ch.increaseChargeSpeed != null ? ch.increaseChargeSpeed.toFixed(2) + "%" : "—") + '</td>';
-  if (opts.showChargeApplied) {
-    const v = calcAppliedChargeSpeed(ch);
-    html += '<td class="td-atk">' + (v != null && v > 0 ? v + "%" : "—") + '</td>';
-  }
-  if (opts.showCritDmg) html += '<td class="td-atk">' + (ch.increaseCriticalDamage != null ? ch.increaseCriticalDamage.toFixed(2) + "%" : "—") + '</td>';
-  if (opts.showAtk400)  html += '<td class="td-atk">' + (ch.atk400 != null && ch.atk400 !== 0 ? ch.atk400.toLocaleString() : "—") + '</td>';
-  if (opts.showAtk40)   html += '<td class="td-atk">' + (ch.atk40  != null && ch.atk40  !== 0 ? ch.atk40.toLocaleString()  : "—") + '</td>';
-  html += '<td>' + itemHtml(ch.itemGrade, ch.itemLevel) + '</td>';
-  html += '<td class="td-skill">' + skillHtml(ch.skill1) + '</td>';
-  html += '<td class="td-skill">' + skillHtml(ch.skill2) + '</td>';
-  html += '<td class="td-skill">' + skillHtml(ch.skill3) + '</td>';
-  return html;
-}
-
-// ─── 테이블 렌더링 ───────────────────────────────────────────────
-function renderTable() {
-  // 캐릭터 다중 선택: [0] = primary(정렬 기준), 나머지 = sub
-  const filterChar    = charFilterValues[0] || "";
-  const subList       = charFilterValues.slice(1);
-  const filterMembers = memberFilterValues;
-  const filterElement = document.getElementById("elementSelect").value;
-  const data          = UNION[latestSeason];
-  const tbody         = document.getElementById("shiftTableBody");
-  tbody.innerHTML     = "";
-  if (!data) return;
-
-  const isGroupMode = !!filterChar && subList.length > 0;
-
-  // 정렬 기준
-  const sortKey = document.getElementById("sortSelect").value;
-  function sortVal(ch) {
-    const uko = ch.increaseElementDamage || 0;
-    const atk = ch.increaseAtk || 0;
-    if (sortKey === "atk") return atk;
-    if (sortKey === "sum") return uko + atk;
-    return uko;
-  }
-  function tieBreakerVal(ch) {
-    const uko = ch.increaseElementDamage || 0;
-    const atk = ch.increaseAtk || 0;
-    if (sortKey === "uko") return atk;
-    if (sortKey === "atk") return uko;
-    return 0;
-  }
-
-  // 옵션 체크박스 상태
-  const opts = {
-    showUko:           document.getElementById("optUko").checked,
-    showAtk:           document.getElementById("optAtk").checked,
-    showSum:           document.getElementById("optSum").checked,
-    showAmmo:          document.getElementById("optAmmo").checked,
-    showAmmoApplied:   document.getElementById("optAmmoApplied").checked,
-    showCharge:        document.getElementById("optCharge").checked,
-    showChargeApplied: document.getElementById("optChargeApplied").checked,
-    showCritDmg:       document.getElementById("optCritDmg").checked,
-    showAtk400:        document.getElementById("optAtk400").checked,
-    showAtk40:         document.getElementById("optAtk40").checked,
-  };
-
-  // 컬럼 헤더 show/hide
-  const colToggle = [
-    { id: "thUko",           show: opts.showUko           },
-    { id: "thAtk",           show: opts.showAtk           },
-    { id: "thSum",           show: opts.showSum           },
-    { id: "thAmmo",          show: opts.showAmmo          },
-    { id: "thAmmoApplied",   show: opts.showAmmoApplied   },
-    { id: "thCharge",        show: opts.showCharge        },
-    { id: "thChargeApplied", show: opts.showChargeApplied },
-    { id: "thCritDmg",       show: opts.showCritDmg       },
-    { id: "thAtk400",        show: opts.showAtk400        },
-    { id: "thAtk40",         show: opts.showAtk40         },
-  ];
-  colToggle.forEach(({ id, show }) => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = show ? "" : "none";
-  });
-
-  // 헤더 정렬 화살표
-  ["thUko", "thAtk", "thSum"].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = el.textContent.replace(" ▼", "");
-  });
-  const arrowMap = { uko: "thUko", atk: "thAtk", sum: "thSum" };
-  const activeThId = arrowMap[sortKey];
-  if (activeThId) {
-    const th = document.getElementById(activeThId);
-    if (th) th.textContent += " ▼";
-  }
-
-  const dateEl = document.getElementById("shiftDateInfo");
-  if (dateEl) {
-    dateEl.textContent = CHARACTERS.actionDate ? "기준: " + CHARACTERS.actionDate : "";
-  }
-  const infoEl = document.getElementById("shiftRowInfo");
-
-  if (isGroupMode) {
-    // ─── 그룹 모드: primary + sub ───────────────────────────────
+  if (groupMode) {
+    const primary = chars[0], subs = chars.slice(1);
     const groups = [];
-    data.members.forEach(member => {
-      if (filterMembers.size > 0 && !filterMembers.has(member.name)) return;
-      const memberChars = CHARACTERS[member.uid] || [];
-      const primary = memberChars.find(c => c.name === filterChar);
-      if (!primary) return;
-      if (filterElement && primary.element !== filterElement) return;
-      const subs = subList.map(name => memberChars.find(c => c.name === name) || null);
-      groups.push({ member, primary, subs });
+    D.forEach(m => {
+      if (members.length && !members.includes(m.nickname)) return;
+      const pc = m.chars.find(c => c.name === primary); if (!pc) return;
+      if (elem && pc.element !== elem) return;
+      groups.push({ m, pc });
     });
-
-    groups.sort((a, b) => {
-      const diff = sortVal(b.primary) - sortVal(a.primary);
-      if (diff !== 0) return diff;
-      const tieDiff = tieBreakerVal(b.primary) - tieBreakerVal(a.primary);
-      if (tieDiff !== 0) return tieDiff;
-      return a.primary.name.localeCompare(b.primary.name, "ko");
-    });
-
-    const MAX_GROUPS = 100;
-    const totalGroups = groups.length;
-    const displayGroups = groups.slice(0, MAX_GROUPS);
-    if (infoEl) {
-      infoEl.textContent = totalGroups > MAX_GROUPS
-        ? "총 " + totalGroups + "명 중 " + MAX_GROUPS + "명 표시"
-        : "";
-    }
-
-    displayGroups.forEach(({ member, primary, subs }, i) => {
-      // primary 행
-      const tr = document.createElement("tr");
-      tr.innerHTML =
-        '<td class="td-num">' + (i + 1) + '</td>' +
-        '<td class="td-name">' + member.name + '</td>' +
-        '<td class="td-level">' + member.syncroLevel + '</td>' +
-        buildCharCells(primary, opts);
-      const btn = tr.querySelector(".btn-detail");
-      if (btn) btn.addEventListener("click", function(e) {
-        e.stopPropagation();
-        openEquipModal(member, primary);
-      });
-      tbody.appendChild(tr);
-
-      // sub 행들
-      subs.forEach(sub => {
-        const trSub = document.createElement("tr");
-        trSub.className = "tr-group-sub";
-        trSub.innerHTML =
-          '<td class="td-num"></td>' +
-          '<td class="td-name"></td>' +
-          '<td class="td-level"></td>' +
-          buildCharCells(sub, opts);
-        if (sub) {
-          const btn2 = trSub.querySelector(".btn-detail");
-          if (btn2) btn2.addEventListener("click", function(e) {
-            e.stopPropagation();
-            openEquipModal(member, sub);
-          });
-        }
-        tbody.appendChild(trSub);
+    groups.sort((a, b) => sortVal(b.pc) - sortVal(a.pc) || (b.pc.increaseAtk || 0) - (a.pc.increaseAtk || 0) || a.m.nickname.localeCompare(b.m.nickname, "ko"));
+    total = groups.length;
+    groups.slice(0, 20).forEach((g, i) => {
+      rows.push({ kind: "primary", topBorder: i > 0, rank: i + 1, m: g.m, c: g.pc, scrollBg: "transparent", extraDefs });
+      subs.forEach(sn => {
+        const sc = g.m.chars.find(c => c.name === sn);
+        if (sc) rows.push({ kind: "sub", rank: "", m: g.m, c: sc, scrollBg: "var(--muted)", extraDefs });
+        else rows.push({ kind: "missing", rank: "", m: g.m, missName: sn, scrollBg: "var(--muted)", extraDefs });
       });
     });
-    return;
-  }
-
-  // ─── 평면 모드 (기존 동작) ─────────────────────────────────
-  const rows = [];
-  data.members.forEach(member => {
-    if (filterMembers.size > 0 && !filterMembers.has(member.name)) return;
-    (CHARACTERS[member.uid] || []).forEach(ch => {
-      if (filterChar && ch.name !== filterChar) return;
-      if (filterElement && ch.element !== filterElement) return;
-      rows.push({ member, ch });
+  } else {
+    const raw = [];
+    D.forEach(m => {
+      if (members.length && !members.includes(m.nickname)) return;
+      m.chars.forEach(c => { if (elem && c.element !== elem) return; if (chars.length && !chars.includes(c.name)) return; raw.push({ m, c }); });
     });
-  });
-  rows.sort((a, b) => {
-    const diff = sortVal(b.ch) - sortVal(a.ch);
-    if (diff !== 0) return diff;
-    const tieDiff = tieBreakerVal(b.ch) - tieBreakerVal(a.ch);
-    if (tieDiff !== 0) return tieDiff;
-    return a.ch.name.localeCompare(b.ch.name, "ko");
-  });
-
-  const MAX_ROWS = 200;
-  const totalRows = rows.length;
-  const displayRows = rows.slice(0, MAX_ROWS);
-  if (infoEl) {
-    infoEl.textContent = totalRows > MAX_ROWS
-      ? "총 " + totalRows + "개 중 " + MAX_ROWS + "개 표시"
-      : "";
+    raw.sort((a, b) => sortVal(b.c) - sortVal(a.c) || (b.c.increaseAtk || 0) - (a.c.increaseAtk || 0) || a.c.name.localeCompare(b.c.name, "ko"));
+    total = raw.length;
+    raw.slice(0, 40).forEach((x, i) => rows.push({ kind: "row", rank: i + 1, m: x.m, c: x.c, scrollBg: "transparent", extraDefs }));
   }
-
-  displayRows.forEach(({ member, ch }, i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML =
-      '<td class="td-num">' + (i + 1) + '</td>' +
-      '<td class="td-name">' + member.name + '</td>' +
-      '<td class="td-level">' + member.syncroLevel + '</td>' +
-      buildCharCells(ch, opts);
-    const btn = tr.querySelector(".btn-detail");
-    if (btn) btn.addEventListener("click", function(e) {
-      e.stopPropagation();
-      openEquipModal(member, ch);
-    });
-    tbody.appendChild(tr);
-  });
+  return { rows, total, groupAvailable, groupMode, extraDefs };
 }
 
-// ─── 이벤트 ──────────────────────────────────────────────────────
-document.getElementById("elementSelect").addEventListener("change", renderTable);
-document.getElementById("sortSelect").addEventListener("change", renderTable);
-["optUko","optAtk","optSum","optAmmo","optAmmoApplied","optCharge","optChargeApplied","optCritDmg","optAtk400","optAtk40"].forEach(id => {
-  document.getElementById(id).addEventListener("change", renderTable);
+function rowHTML(r){
+  const sticky0 = 'position:sticky;z-index:3;background:var(--card)';
+  if (r.kind === "missing") {
+    const extra = r.extraDefs.map(() => '<td style="padding:9px 10px;text-align:center;color:var(--sub);background:' + r.scrollBg + '">—</td>').join("");
+    return '<tr style="border-bottom:1px solid var(--line)">' +
+      '<td style="' + sticky0 + ';left:0;padding:9px 8px;text-align:center;color:var(--dim);font-size:12px"></td>' +
+      '<td style="' + sticky0 + ';left:36px;padding:9px 10px"></td>' +
+      '<td style="' + sticky0 + ';left:132px;padding:9px 8px;text-align:center"></td>' +
+      '<td style="' + sticky0 + ';left:180px;padding:9px 12px;box-shadow:1px 0 0 var(--border)"><span style="font-style:italic;color:var(--dim)">— 미보유 —</span></td>' +
+      '<td style="padding:9px 10px;text-align:center;background:' + r.scrollBg + '"></td>' +
+      '<td style="padding:9px 10px;text-align:center;background:' + r.scrollBg + '">—</td>' +
+      '<td style="padding:9px 10px;text-align:center;background:' + r.scrollBg + '">—</td>' + extra +
+      '<td style="padding:9px 10px;text-align:center;background:' + r.scrollBg + '">—</td>' +
+      '<td style="padding:9px 10px;text-align:center;background:' + r.scrollBg + '">—</td></tr>';
+  }
+  const c = r.c, m = r.m;
+  const member = r.kind === "sub" ? "" : esc(m.nickname);
+  const syncro = r.kind === "sub" ? "" : (m.syncro != null ? m.syncro : "—");
+  const fullco = c.upgrade === "풀코";
+  const upgradePlain = !!c.upgrade && c.upgrade !== "풀코";
+  const breakCell = fullco
+    ? '<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;background:var(--role-leader-bg);color:var(--amber);border:1px solid #fde68a">풀코</span>'
+    : upgradePlain ? '<span style="display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;background:var(--muted);color:var(--sub);border:1px solid var(--border)">' + esc(c.upgrade) + '</span>' : "";
+  const extra = r.extraDefs.map(o => '<td style="padding:9px 10px;text-align:center;font-weight:600;color:var(--sub);background:' + r.scrollBg + '" class="tnum">' + o[2](c) + '</td>').join("");
+  return '<tr style="' + (r.topBorder ? "border-top:2px solid var(--border);" : "") + 'border-bottom:1px solid var(--line)">' +
+    '<td style="' + sticky0 + ';left:0;padding:9px 8px;text-align:center;color:var(--dim);font-size:12px" class="tnum">' + r.rank + '</td>' +
+    '<td style="' + sticky0 + ';left:36px;padding:9px 10px;text-align:left;font-weight:700;color:var(--text);max-width:96px;overflow:hidden;text-overflow:ellipsis">' + member + '</td>' +
+    '<td style="' + sticky0 + ';left:132px;padding:9px 8px;text-align:center;color:var(--sub)" class="tnum">' + syncro + '</td>' +
+    '<td style="' + sticky0 + ';left:180px;padding:9px 12px;text-align:left;box-shadow:1px 0 0 var(--border)">' +
+      '<span style="display:inline-flex;align-items:center;gap:7px"><span style="width:9px;height:9px;border-radius:50%;background:' + (ECOL[c.element] || "var(--dim)") + ';flex-shrink:0"></span>' +
+      '<span style="font-weight:600;color:var(--text)">' + esc(c.name) + '</span>' +
+      '<span class="rd-detail-mini" data-act="open-equip" data-key="' + esc(m.nickname + "|" + c.name) + '">자세히</span></span></td>' +
+    '<td style="padding:9px 10px;text-align:center;background:' + r.scrollBg + '">' + breakCell + '</td>' +
+    '<td style="padding:9px 10px;text-align:center;font-weight:700;color:var(--text);background:' + r.scrollBg + '" class="tnum">' + pct(c.increaseElementDamage) + '</td>' +
+    '<td style="padding:9px 10px;text-align:center;font-weight:600;color:var(--text);background:' + r.scrollBg + '" class="tnum">' + pct(c.increaseAtk) + '</td>' + extra +
+    '<td style="padding:9px 10px;text-align:center;font-weight:700;color:' + (c.itemGrade ? itemCol(c.itemGrade) : "var(--dim)") + ';background:' + r.scrollBg + '">' + (c.itemGrade ? c.itemGrade + (c.itemLevel != null && c.itemLevel !== "" ? " " + c.itemLevel : "") : "—") + '</td>' +
+    '<td style="padding:9px 10px;text-align:center;color:var(--text);background:' + r.scrollBg + '" class="tnum">' + skillText(c) + '</td></tr>';
+}
+
+function updateTable(){
+  const { rows, extraDefs } = computeRows();
+  const extraTh = extraDefs.map(o => '<th class="rd-th-c" style="font-size:10px">' + o[1] + '</th>').join("");
+  const sth = 'position:sticky;z-index:4;background:var(--muted);padding:10px 10px;font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase';
+  const head = '<tr style="background:var(--muted);border-bottom:1.5px solid var(--border)">' +
+    '<th style="' + sth + ';left:0;text-align:center;width:36px;min-width:36px">#</th>' +
+    '<th style="' + sth + ';left:36px;text-align:left;width:96px;min-width:96px">닉네임</th>' +
+    '<th style="' + sth + ';left:132px;text-align:center;width:48px;min-width:48px">레벨</th>' +
+    '<th style="' + sth + ';left:180px;text-align:left;width:158px;min-width:158px;box-shadow:1px 0 0 var(--border)">캐릭터</th>' +
+    '<th class="rd-th-c" style="font-size:10px">돌파</th><th class="rd-th-c" style="font-size:10px">우코</th><th class="rd-th-c" style="font-size:10px">공증</th>' +
+    extraTh + '<th class="rd-th-c" style="font-size:10px">소장품</th><th class="rd-th-c" style="font-size:10px">스킬</th></tr>';
+  const body = rows.map(rowHTML).join("");
+  document.getElementById("tableWrap").innerHTML = '<div class="rd-card" style="overflow:hidden"><div class="rd-scroll"><table class="rd-table" style="white-space:nowrap;min-width:100%"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div></div>';
+}
+
+function updateMobile(){
+  const { element: elem, chars, members } = state;
+  const extraDefs = OPTS.filter(o => state.opts[o[0]]);
+  const raw = [];
+  D.forEach(m => { if (members.length && !members.includes(m.nickname)) return; m.chars.forEach(c => { if (elem && c.element !== elem) return; if (chars.length && !chars.includes(c.name)) return; raw.push({ m, c }); }); });
+  raw.sort((a, b) => sortVal(b.c) - sortVal(a.c) || (b.c.increaseAtk || 0) - (a.c.increaseAtk || 0) || a.c.name.localeCompare(b.c.name, "ko"));
+  const cards = raw.slice(0, 30).map((x, i) => {
+    const c = x.c, m = x.m; const fullco = c.upgrade === "풀코", upgradePlain = !!c.upgrade && c.upgrade !== "풀코";
+    const chips = [{ label: "우코", val: pct(c.increaseElementDamage), col: "var(--text)" }, { label: "공증", val: pct(c.increaseAtk), col: "var(--text)" }];
+    extraDefs.forEach(o => chips.push({ label: o[1], val: o[2](c), col: "var(--sub)" }));
+    chips.push({ label: "소장품", val: c.itemGrade ? c.itemGrade + (c.itemLevel != null && c.itemLevel !== "" ? " " + c.itemLevel : "") : "—", col: c.itemGrade ? itemCol(c.itemGrade) : "var(--dim)" });
+    chips.push({ label: "스킬", val: skillText(c), col: "var(--text)" });
+    const chipsHTML = chips.map(ch => '<div style="display:flex;flex-direction:column;gap:1px;background:var(--muted);border-radius:7px;padding:5px 10px;min-width:62px"><span style="font-size:9px;color:var(--dim);font-weight:700;text-transform:uppercase">' + ch.label + '</span><span style="font-size:13px;font-weight:800;color:' + ch.col + '" class="tnum">' + ch.val + '</span></div>').join("");
+    return '<div class="rd-card" style="padding:12px 13px;border-left:3px solid ' + (ECOL[c.element] || "var(--dim)") + '"><div style="display:flex;align-items:center;gap:9px">' +
+      '<span style="display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:7px;font-size:11px;font-weight:800;background:var(--muted);color:var(--dim)" class="tnum">' + (i + 1) + '</span>' +
+      '<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><span style="font-size:14px;font-weight:800;color:var(--text)">' + esc(m.nickname) + '</span><span style="font-size:11px;color:var(--dim);font-weight:600" class="tnum">Lv.' + (m.syncro != null ? m.syncro : "—") + '</span></div>' +
+        '<div style="display:flex;align-items:center;gap:6px;margin-top:2px"><span style="width:8px;height:8px;border-radius:50%;background:' + (ECOL[c.element] || "var(--dim)") + '"></span><span style="font-size:13px;font-weight:700;color:var(--text)">' + esc(c.name) + '</span>' +
+        (fullco ? '<span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--role-leader-bg);color:var(--amber);border:1px solid #fde68a">풀코</span>' : upgradePlain ? '<span style="font-size:10px;font-weight:600;color:var(--sub)">' + esc(c.upgrade) + '</span>' : "") + '</div></div>' +
+      '<span class="rd-detail-mini" data-act="open-equip" data-key="' + esc(m.nickname + "|" + c.name) + '" style="padding:4px 10px;border-radius:7px">자세히</span></div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:11px">' + chipsHTML + '</div></div>';
+  }).join("");
+  document.getElementById("mobileWrap").innerHTML = cards;
+}
+
+/* ─── 컨트롤(속성/정렬/보기) + 옵션 토글 ─── */
+function seg(items){ return '<div class="rd-seg">' + items.map(it => '<span class="' + (it.on ? "on" : "") + '" ' + it.attrs + '>' + it.label + '</span>').join("") + '</div>'; }
+function updateControls(){
+  const { groupAvailable } = computeRows();
+  const elementTabs = [{ key: "", label: "전체" }].concat(EORDER.map(e => ({ key: e, label: e }))).map(e => {
+    const on = state.element === e.key;
+    return '<span class="' + (on ? "on" : "") + '" data-act="set-element" data-val="' + e.key + '" style="display:inline-flex;align-items:center;gap:4px">' + (e.key ? '<span style="width:8px;height:8px;border-radius:50%;background:' + ECOL[e.key] + '"></span>' : "") + e.label + '</span>';
+  }).join("");
+  const sortTabs = [["uko","우코"],["atk","공증"]].map(([k, l]) => '<span class="' + (state.sort === k ? "on" : "") + '" data-act="set-sort" data-val="' + k + '">' + l + ' ▼</span>').join("");
+  let html = '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:700;color:var(--sub);width:42px;flex-shrink:0">속성</span><div class="rd-seg" style="flex-wrap:wrap">' + elementTabs + '</div></div>' +
+    '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:700;color:var(--sub)">정렬</span><div class="rd-seg">' + sortTabs + '</div></div>';
+  if (groupAvailable) {
+    const viewTabs = [["ind","개별"],["grp","멤버별 그룹"]].map(([k, l]) => { const on = (k === "grp") === state.group; return '<span class="' + (on ? "on" : "") + '" data-act="set-view" data-val="' + k + '">' + l + '</span>'; }).join("");
+    html += '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:11px;font-weight:700;color:var(--sub)">보기</span><div class="rd-seg">' + viewTabs + '</div></div>';
+  }
+  document.getElementById("controlsRow").innerHTML = html;
+}
+function updateOptRow(){
+  const toggles = OPTS.map(([k, l]) => { const on = state.opts[k];
+    return '<span data-act="toggle-opt" data-opt="' + k + '" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:' + (on ? "var(--text)" : "var(--sub)") + ';cursor:pointer;user-select:none"><span style="width:15px;height:15px;border-radius:4px;border:1.5px solid ' + (on ? "var(--blue)" : "#cbd5e1") + ';background:' + (on ? "var(--blue)" : "transparent") + ';display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:10px">' + (on ? "✓" : "") + '</span>' + l + '</span>';
+  }).join("");
+  document.getElementById("optRow").innerHTML = '<span style="font-size:11px;font-weight:700;color:var(--sub);width:42px;flex-shrink:0">추가 열</span>' + toggles;
+}
+
+function updateResultInfo(){
+  const { total, groupMode } = computeRows();
+  const info = groupMode
+    ? ("멤버별 그룹 · " + total + "명" + (total > 20 ? " 중 상위 20명" : "") + " · 기준 " + state.chars[0] + (state.members.length ? " · 멤버 " + state.members.length : ""))
+    : ("총 " + total + "행" + (total > 40 ? " 중 상위 40행" : "") + (state.members.length ? " · 멤버 " + state.members.length : "") + (state.chars.length ? " · 캐릭터 " + state.chars.length : "") + (state.element ? " · " + state.element : ""));
+  document.getElementById("resultInfo").innerHTML = '<span>' + esc(info) + '</span><span style="color:var(--dim)">닉네임·캐릭터 고정 · 좌우로 밀어 모든 열 확인 ⇄</span>';
+}
+
+/* ─── 콤보 칩/드롭다운 ─── */
+function updateMemberChips(){
+  document.getElementById("memberChips").innerHTML = state.members.map(name =>
+    '<span class="combo-chip" style="background:var(--chip-gray-bg);border:1px solid var(--chip-gray-bd);color:var(--chip-gray-col)">' + esc(name) + '<span class="x" data-act="rm-member" data-name="' + esc(name) + '">×</span></span>').join("");
+}
+function updateCharChips(){
+  document.getElementById("charChips").innerHTML = state.chars.map((name, i) => {
+    const primary = state.chars.length >= 2 && i === 0;
+    return '<span class="combo-chip" style="background:' + (primary ? "var(--chip-base-bg)" : "var(--chip-gray-bg)") + ';border:1px solid ' + (primary ? "var(--chip-base-bd)" : "var(--chip-gray-bd)") + ';color:' + (primary ? "var(--chip-base-col)" : "var(--chip-gray-col)") + '">' +
+      '<span style="width:7px;height:7px;border-radius:50%;background:' + (ECOL[charMap.get(name)] || "var(--dim)") + '"></span>' + esc(name) +
+      (primary ? '<span style="font-size:9px;font-weight:700;padding:0 5px;border-radius:4px;background:#334155;color:#fff">기준</span>' : "") +
+      '<span class="x" data-act="rm-char" data-name="' + esc(name) + '">×</span></span>';
+  }).join("");
+}
+function updateMemberDrop(){
+  const box = document.getElementById("memberBox");
+  const drop = document.getElementById("memberDrop");
+  box.classList.toggle("open", state.memberOpen);
+  if (!state.memberOpen) { drop.style.display = "none"; return; }
+  drop.style.display = "block";
+  const q = state.memberQuery.trim().toLowerCase();
+  const filtered = memberList.filter(m => !q || m.nickname.toLowerCase().includes(q));
+  drop.innerHTML = filtered.length ? filtered.map(m => { const on = state.members.includes(m.nickname);
+    return '<div class="combo-item" data-pick="member" data-name="' + esc(m.nickname) + '" style="justify-content:space-between;font-weight:' + (on ? "700" : "500") + ';background:' + (on ? "var(--muted)" : "transparent") + '"><span>' + (on ? "✓ " : "") + esc(m.nickname) + '</span><span style="font-size:11px;color:var(--dim)" class="tnum">' + (m.syncro != null ? m.syncro : "—") + '</span></div>';
+  }).join("") : '<div style="padding:10px 12px;font-size:12px;color:var(--dim);text-align:center">검색 결과 없음</div>';
+}
+function updateCharDrop(){
+  const box = document.getElementById("charBox");
+  const drop = document.getElementById("charDrop");
+  box.classList.toggle("open", state.charOpen);
+  if (!state.charOpen) { drop.style.display = "none"; return; }
+  drop.style.display = "block";
+  const q = state.charQuery.trim().toLowerCase();
+  const filtered = charList.filter(([n]) => !q || n.toLowerCase().includes(q));
+  drop.innerHTML = filtered.length ? filtered.map(([name, el]) => { const on = state.chars.includes(name);
+    return '<div class="combo-item" data-pick="char" data-name="' + esc(name) + '" style="font-weight:' + (on ? "700" : "500") + ';background:' + (on ? "var(--muted)" : "transparent") + '"><span style="width:8px;height:8px;border-radius:50%;background:' + (ECOL[el] || "var(--dim)") + ';flex-shrink:0"></span>' + (on ? "✓ " : "") + esc(name) + '</div>';
+  }).join("") : '<div style="padding:10px 12px;font-size:12px;color:var(--dim);text-align:center">검색 결과 없음</div>';
+}
+
+function refresh(){ updateControls(); updateOptRow(); updateResultInfo(); updateTable(); updateMobile(); }
+
+/* ═══════════ 장비 상세 모달 ═══════════ */
+function buildModalHTML(){
+  let modalM = null, modalC = null;
+  if (state.modalKey) { const idx = state.modalKey.indexOf("|"); const mn = state.modalKey.slice(0, idx), cn = state.modalKey.slice(idx + 1); const mm = D.find(m => m.nickname === mn); if (mm) { modalM = mm; modalC = mm.chars.find(c => c.name === cn) || null; } }
+  if (!modalC) return '<div style="padding:40px;text-align:center;color:var(--dim)">데이터 없음</div>';
+  const PARTS = [["head","헤드"],["torso","몸통"],["arm","팔"],["leg","다리"]];
+  const totalsMap = {}, tierMap = {};
+  PARTS.forEach(([k]) => (modalC.equipSlots && modalC.equipSlots[k] || []).forEach(s => {
+    if (!s || !s.effect || s.value == null || s.value === 0) return;
+    totalsMap[s.effect] = (totalsMap[s.effect] || 0) + s.value;
+    const t = tierOf(s.effect, s.value), cur = tierMap[s.effect] || "default";
+    if (t === "max" || (t === "blue" && cur !== "max")) tierMap[s.effect] = t;
+  }));
+  const totals = Object.entries(totalsMap).sort((a, b) => (EORDER_EFF.indexOf(a[0]) + 1 || 999) - (EORDER_EFF.indexOf(b[0]) + 1 || 999)).map(([eff, sum]) => {
+    const t = tierMap[eff] || "default";
+    return '<div style="display:flex;align-items:center;gap:6px;border-radius:7px;padding:5px 11px;font-size:12px;background:' + (t === "max" ? "var(--tier-max-bg)" : "var(--card)") + ';border:1px solid ' + (t === "max" ? "var(--tier-max-bg)" : "var(--border)") + '">' +
+      '<span style="color:' + (t === "max" ? "#fff" : "var(--text)") + '">' + (ELABEL[eff] || eff) + '</span><span style="font-weight:800;color:' + ((t === "max" || t === "blue") ? BRIGHT : "var(--text)") + '" class="tnum">' + sum.toFixed(2) + "%" + '</span></div>';
+  }).join("");
+  const parts = PARTS.map(([k, label]) => {
+    const arr = (modalC.equipSlots && modalC.equipSlots[k]) || [];
+    let slots = "";
+    for (let i = 0; i < 3; i++) {
+      const s = arr[i];
+      if (!s || !s.effect) { slots += '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:5px 10px;margin:1px -4px;border-radius:6px;font-size:12px"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--sub)">효과 없음</span></div>'; continue; }
+      const t = tierOf(s.effect, s.value);
+      slots += '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:5px 10px;margin:1px -4px;border-radius:6px;font-size:12px;background:' + (t === "max" ? "var(--tier-max-bg)" : "transparent") + '">' +
+        '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:' + (t === "max" ? "#fff" : "var(--text)") + '">' + (ELABEL[s.effect] || s.effect) + '</span>' +
+        (s.value != null && s.value !== 0 ? '<span style="font-weight:700;white-space:nowrap;flex-shrink:0;color:' + ((t === "max" || t === "blue") ? BRIGHT : "var(--text)") + '">' + s.value + "%" + '</span>' : "") + '</div>';
+    }
+    return '<div style="background:var(--card);padding:13px 15px"><div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--sub);margin-bottom:9px">' + label + '</div>' + slots + '</div>';
+  }).join("");
+  return '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 18px 13px;border-bottom:1px solid var(--border)">' +
+      '<div><div style="display:flex;align-items:center;gap:7px;font-size:16px;font-weight:800;color:var(--text)"><span style="width:10px;height:10px;border-radius:50%;background:' + (ECOL[modalC.element] || "var(--dim)") + '"></span>' + esc(modalC.name) + '</div>' +
+        '<div style="font-size:12px;color:var(--sub);margin-top:4px">' + esc(modalM.nickname) + '  ·  ' + esc(modalC.upgrade || "—") + '  ·  ' + esc(modalC.element || "—") + '</div></div>' +
+      '<span class="rd-modal-close" data-act="close-equip">✕</span></div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:6px;padding:12px 18px;border-bottom:1px solid var(--border);background:var(--muted)">' + (totals || '<span style="font-size:12px;color:var(--dim)">장착 옵션 없음</span>') + '</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)">' + parts + '</div>';
+}
+function openEquipModal(key){ state.modalKey = key; document.getElementById("rdShiftModal").innerHTML = buildModalHTML(); document.getElementById("rdShiftOverlay").style.display = "flex"; document.body.style.overflow = "hidden"; }
+function closeEquipModal(){ document.getElementById("rdShiftOverlay").style.display = "none"; document.body.style.overflow = ""; }
+
+/* ═══════════ 셸 빌드(1회) + 이벤트 ═══════════ */
+function buildShell(){
+  document.getElementById("rdContent").innerHTML =
+    '<div class="rd-card" style="padding:14px 16px;display:flex;flex-direction:column;gap:11px">' +
+      '<div class="combo-row"><span class="combo-label">멤버</span><div class="combo-box" id="memberBox"><span class="combo-chips" id="memberChips"></span><input class="combo-input" id="memberInput" placeholder="멤버 검색" autocomplete="off"><div class="combo-drop" id="memberDrop" style="display:none"></div></div></div>' +
+      '<div class="combo-row"><span class="combo-label">캐릭터</span><div class="combo-box" id="charBox"><span class="combo-chips" id="charChips"></span><input class="combo-input" id="charInput" placeholder="캐릭터 검색" autocomplete="off"><div class="combo-drop" id="charDrop" style="display:none"></div></div></div>' +
+      '<div id="controlsRow" style="display:flex;align-items:center;gap:18px;flex-wrap:wrap"></div>' +
+      '<div id="optRow" style="display:flex;align-items:center;gap:8px 13px;flex-wrap:wrap;padding-top:11px;border-top:1px solid var(--line)"></div>' +
+    '</div>' +
+    '<div class="rd-resultinfo" id="resultInfo"></div>' +
+    '<div id="tableWrap" class="rd-desktop"></div>' +
+    '<div id="mobileWrap" class="rd-mobile rd-stack"></div>';
+
+  const mi = document.getElementById("memberInput"), ci = document.getElementById("charInput");
+  mi.addEventListener("input", e => { state.memberQuery = e.target.value; state.memberOpen = true; updateMemberDrop(); });
+  mi.addEventListener("focus", () => { state.memberOpen = true; updateMemberDrop(); });
+  mi.addEventListener("blur", () => setTimeout(() => { state.memberOpen = false; updateMemberDrop(); }, 160));
+  ci.addEventListener("input", e => { state.charQuery = e.target.value; state.charOpen = true; updateCharDrop(); });
+  ci.addEventListener("focus", () => { state.charOpen = true; updateCharDrop(); });
+  ci.addEventListener("blur", () => setTimeout(() => { state.charOpen = false; updateCharDrop(); }, 160));
+
+  updateMemberChips(); updateCharChips(); refresh();
+}
+
+document.addEventListener("mousedown", e => {
+  const t = e.target.closest("[data-pick]"); if (!t) return;
+  e.preventDefault();
+  const name = t.dataset.name;
+  if (t.dataset.pick === "member") { state.members = state.members.includes(name) ? state.members.filter(x => x !== name) : [...state.members, name]; state.memberQuery = ""; document.getElementById("memberInput").value = ""; updateMemberChips(); updateMemberDrop(); refresh(); }
+  else { state.chars = state.chars.includes(name) ? state.chars.filter(x => x !== name) : [...state.chars, name]; state.charQuery = ""; document.getElementById("charInput").value = ""; updateCharChips(); updateCharDrop(); refresh(); }
 });
 
-buildCharSelect();
-buildMemberSelect();
-renderTable();
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-act]"); if (!t) return;
+  const act = t.dataset.act;
+  if (act === "set-element") { state.element = t.dataset.val; refresh(); }
+  else if (act === "set-sort") { state.sort = t.dataset.val; refresh(); }
+  else if (act === "set-view") { state.group = t.dataset.val === "grp"; refresh(); }
+  else if (act === "toggle-opt") { state.opts[t.dataset.opt] = !state.opts[t.dataset.opt]; refresh(); }
+  else if (act === "rm-member") { state.members = state.members.filter(x => x !== t.dataset.name); updateMemberChips(); refresh(); }
+  else if (act === "rm-char") { state.chars = state.chars.filter(x => x !== t.dataset.name); updateCharChips(); refresh(); }
+  else if (act === "open-equip") openEquipModal(t.dataset.key);
+  else if (act === "close-equip") closeEquipModal();
+});
+document.getElementById("rdShiftOverlay").addEventListener("click", e => { if (e.target === e.currentTarget) closeEquipModal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && document.getElementById("rdShiftOverlay").style.display !== "none") closeEquipModal(); });
+
+buildShell();
+
 } // if (!window.__AUTH_REQUIRED)
 </script>
 
 <script>
 (function() {
-  const html  = document.documentElement;
-  const btn   = document.getElementById("themeToggle");
-  const saved = localStorage.getItem("theme");
+  const html = document.documentElement, btn = document.getElementById("themeToggle"), saved = localStorage.getItem("theme");
   if (saved === "dark") { html.classList.add("dark"); btn.textContent = "☀️"; }
-  btn.addEventListener("click", function() {
-    const isDark = html.classList.toggle("dark");
-    btn.textContent = isDark ? "☀️" : "🌙";
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-  });
+  btn.addEventListener("click", function() { const isDark = html.classList.toggle("dark"); btn.textContent = isDark ? "☀️" : "🌙"; localStorage.setItem("theme", isDark ? "dark" : "light"); });
 })();
 </script>
-
 <script>
 (function(){
   document.addEventListener("contextmenu", function(e){ e.preventDefault(); });
@@ -1405,14 +408,8 @@ renderTable();
     if (e.ctrlKey && e.shiftKey && ["I","i","J","j","C","c"].includes(e.key)) { e.preventDefault(); return; }
     if (e.ctrlKey && ["u","U","s","S"].includes(e.key)) { e.preventDefault(); return; }
   });
-  // DevTools 열림 감지(폐기): outerWidth/innerWidth 차이로 추정하던 폴링이
-  // iOS 줌(innerWidth 변동) / 스크롤 시 URL 바 숨김(innerHeight 변동) 에서
-  // 오탐을 일으켜 document.body.innerHTML="" 로 페이지 통째 블랭크 발생.
-  // 키보드 단축키 차단만 유지.
 })();
 </script>
-
-<!-- ═══════════ 인증 확정 후 body 공개 (FOUC 방지) ═══════════ -->
 <script>if(!window.__AUTH_REQUIRED)document.body.classList.add("ready");</script>
 
 </body>

@@ -4,1445 +4,457 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>유니온레이드 | 승리의 여신: 니케</title>
-  <meta property="og:type"        content="website" />
-  <meta property="og:title"       content="여우별 유니온레이드" />
-  <meta property="og:description" content="여우별 유니온 레이드 현황" />
-  <meta property="og:image"       content="https://foxstar.vercel.app/image/foxstar.png" />
-  <meta property="og:url"         content="https://foxstar.vercel.app/raid.html" />
   <link rel="icon" type="image/png" href="image/foxstar.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script>if(localStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark");</script>
   <style>html{background:#eef1f6}html.dark{background:#111827}body:not(.ready){visibility:hidden}</style>
   <link rel="stylesheet" href="css/style.css" />
   <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
-  <style>
-    .container { max-width: 1320px; }
-
-    /* ── 카드 ───────────────────────────────────────────────── */
-    .raid-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px 22px 28px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
-    }
-    html.dark .raid-card {
-      box-shadow: 0 4px 24px rgba(0,0,0,0.3);
-    }
-
-    /* ── 툴바 ───────────────────────────────────────────────── */
-    .raid-toolbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-      background: var(--bg-muted);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 16px;
-      margin-bottom: 14px;
-    }
-    .toolbar-left, .toolbar-right {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .toolbar-divider {
-      width: 1px; height: 20px;
-      background: var(--border);
-      flex-shrink: 0;
-    }
-
-    /* 시즌 셀렉트 */
-    .toolbar-group {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .toolbar-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-sub);
-      white-space: nowrap;
-    }
-    .toolbar-select {
-      height: 30px;
-      padding: 0 8px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--bg-card);
-      color: var(--text);
-      font-size: 13px;
-      font-family: inherit;
-      cursor: pointer;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-    .toolbar-select:focus { border-color: var(--blue); }
-
-    /* 타입 pill 버튼 */
-    .type-pills {
-      display: flex;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .type-pills input[type="radio"] { display: none; }
-    .type-pills label {
-      padding: 5px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-sub);
-      cursor: pointer;
-      transition: all 0.15s;
-      user-select: none;
-      white-space: nowrap;
-    }
-    .type-pills input[type="radio"]:checked + label {
-      background: var(--blue);
-      color: #fff;
-    }
-
-    /* 토글 스위치 */
-    .toggle-wrap {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      cursor: pointer;
-      user-select: none;
-    }
-    .toggle-wrap input[type="checkbox"] { display: none; }
-    .toggle-track {
-      position: relative;
-      width: 32px; height: 18px;
-      background: var(--border);
-      border-radius: 9px;
-      transition: background 0.2s;
-      flex-shrink: 0;
-    }
-    .toggle-thumb {
-      position: absolute;
-      left: 2px; top: 2px;
-      width: 14px; height: 14px;
-      background: #fff;
-      border-radius: 50%;
-      transition: transform 0.2s;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.25);
-    }
-    .toggle-wrap input:checked + .toggle-track { background: var(--blue); }
-    .toggle-wrap input:checked + .toggle-track .toggle-thumb { transform: translateX(14px); }
-    .toggle-text {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-sub);
-      white-space: nowrap;
-    }
-
-    /* ── 순위 배지 ──────────────────────────────────────────── */
-    .rank-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--bg-muted);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 8px 20px;
-      margin-bottom: 16px;
-    }
-    .rank-badge-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-sub);
-      letter-spacing: .03em;
-    }
-    .rank-badge-sep {
-      width: 1px; height: 16px;
-      background: var(--border);
-    }
-    .rank-badge-value {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text);
-      letter-spacing: -.01em;
-    }
-    .rank-badge-value.unknown {
-      font-size: 14px;
-      color: var(--text-sub);
-    }
-
-    /* ── 보스 뷰 타이틀 행 ───────────────────────────────────── */
-    .boss-view-title-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-    .boss-view-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    /* ── 테이블 공통 ─────────────────────────────────────────── */
-    .raid-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .raid-table {
-      width: auto;
-      border-collapse: collapse;
-      font-size: 13px;
-      white-space: nowrap;
-      table-layout: fixed;
-    }
-    .raid-table th {
-      padding: 10px 14px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      color: var(--text-sub);
-      background: var(--bg-muted);
-      text-align: center;
-      border-top: 1px solid var(--border);
-      border-bottom: 2px solid var(--border);
-      border-right: 1px solid var(--border);
-    }
-    .raid-table th:first-child { border-left: 1px solid var(--border); border-radius: 10px 0 0 0; }
-    .raid-table th:last-child  { border-radius: 0 10px 0 0; }
-    html.dark .raid-table th { border-bottom-color: #4b5563; }
-
-    .raid-table td {
-      padding: 11px 14px;
-      border-bottom: 1px solid var(--border);
-      border-right: 1px solid var(--border);
-      color: var(--text);
-      text-align: center;
-      vertical-align: middle;
-      transition: background 0.1s;
-    }
-    .raid-table td:first-child { border-left: 1px solid var(--border); }
-    .raid-table tbody tr:last-child td { border-bottom: 2px solid var(--border); }
-    .raid-table tbody tr:hover td { background: var(--bg-muted); }
-
-    .td-name   { font-weight: 700; color: var(--text); text-align: left !important; }
-    .td-damage { font-weight: 600; font-variant-numeric: tabular-nums; }
-    .td-total  { font-weight: 700; color: var(--blue); font-variant-numeric: tabular-nums; }
-    .td-empty  { color: var(--text-dim); }
-
-    /* 레벨 컬럼 – 좁은 컬럼에 맞게 좌우 padding 축소 */
-    .raid-table .col-lv { padding-left: 4px; padding-right: 4px; }
-    /* 요약 모드 – 폰트 축소 + 압축 padding + td-boss-* 의 160px 제약 해제 */
-    .raid-table .td-summary {
-      padding-left: 3px;
-      padding-right: 3px;
-      font-size: 11px;
-      width: auto;
-      min-width: 0;
-      max-width: none;
-    }
-    .raid-table th.td-summary { font-size: 10px; }
-
-    /* 푸터 */
-    .raid-table tfoot td {
-      padding: 10px 14px;
-      border: none;
-      border-right: 1px solid var(--border);
-      background: var(--bg-muted);
-      font-weight: 700;
-      text-align: center;
-      vertical-align: top;
-      font-size: 13px;
-      color: var(--text-sub);
-    }
-    .raid-table tfoot td:first-child { border-left: 1px solid var(--border); border-radius: 0 0 0 10px; }
-    .raid-table tfoot td:last-child  { border-radius: 0 0 10px 0; }
-    .td-foot-sub { font-size: 11px; font-weight: 500; color: var(--text-dim); margin-top: 2px; }
-
-    /* 약점 태그 */
-    .elem-수냉 { color: #3b82f6; }
-    .elem-전격 { color: #a855f7; }
-    .elem-풍압 { color: #22c55e; }
-    .elem-작열 { color: #ef4444; }
-    .elem-철갑 { color: #f59e0b; }
-
-    /* 보스 셀 배경 */
-    .td-boss-수냉 { background: rgba(59,130,246,0.06);  }
-    .td-boss-전격 { background: rgba(168,85,247,0.06);  }
-    .td-boss-풍압 { background: rgba(34,197,94,0.06);   }
-    .td-boss-작열 { background: rgba(239,68,68,0.06);   }
-    .td-boss-철갑 { background: rgba(245,158,11,0.06);  }
-    html.dark .td-boss-수냉 { background: rgba(59,130,246,0.1);  }
-    html.dark .td-boss-전격 { background: rgba(168,85,247,0.1);  }
-    html.dark .td-boss-풍압 { background: rgba(34,197,94,0.1);   }
-    html.dark .td-boss-작열 { background: rgba(239,68,68,0.1);   }
-    html.dark .td-boss-철갑 { background: rgba(245,158,11,0.1);  }
-
-    /* ── 보스 HP 현황 테이블 ─────────────────────────────────── */
-    .boss-hp-table {
-      border-collapse: collapse;
-      font-size: 13px;
-      white-space: nowrap;
-      table-layout: fixed;
-      width: auto;
-    }
-    .boss-hp-table col.col-name  { width: 130px; }
-    .boss-hp-table col.col-hp    { width: 200px; }
-    .boss-hp-table th {
-      padding: 8px 12px;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      color: var(--text-sub);
-      background: var(--bg-muted);
-      text-align: center;
-      border-top: 1px solid var(--border);
-      border-bottom: 2px solid var(--border);
-      border-right: 1px solid var(--border);
-    }
-    .boss-hp-table th:first-child { border-left: 1px solid var(--border); border-radius: 10px 0 0 0; }
-    .boss-hp-table th:last-child  { border-radius: 0 10px 0 0; }
-    html.dark .boss-hp-table th { border-bottom-color: #4b5563; }
-    .boss-hp-table td {
-      padding: 9px 12px;
-      border-bottom: 1px solid var(--border);
-      border-right: 1px solid var(--border);
-      color: var(--text);
-      font-size: 13px;
-      text-align: center;
-      vertical-align: middle;
-    }
-    .boss-hp-table td:first-child { border-left: 1px solid var(--border); }
-    .boss-hp-table tbody tr:last-child td { border-bottom: 2px solid var(--border); }
-    .boss-hp-table tbody tr:hover td { background: var(--bg-muted); }
-
-    .hp-pct-cell {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      width: 104px;
-    }
-    .hp-pct-text {
-      display: inline-block;
-      width: 38px;
-      text-align: left;
-    }
-    .hp-bar-wrap {
-      width: 58px; flex-shrink: 0;
-      height: 6px;
-      background: var(--border);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .hp-bar-fill {
-      height: 100%;
-      border-radius: 3px;
-      transition: width 0.3s;
-    }
-
-    /* 보스 컬럼 고정 너비 */
-    .th-boss, .td-boss-수냉, .td-boss-전격, .td-boss-풍압,
-    .td-boss-작열, .td-boss-철갑, .td-boss-empty {
-      width: 160px; min-width: 160px; max-width: 160px;
-    }
-
-    /* ── 보스 뷰 그리드 ─────────────────────────────────────── */
-    #bossView {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      align-items: start;
-    }
-    @media (max-width: 1100px) {
-      #bossView { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 720px) {
-      #bossView { grid-template-columns: 1fr; }
-    }
-
-    /* ── 반응형 ─────────────────────────────────────────────── */
-    @media (max-width: 720px) {
-      .raid-card { padding: 14px 14px 22px; border-radius: 12px; }
-      .raid-toolbar { padding: 10px 12px; gap: 8px; }
-      .toolbar-left, .toolbar-right { gap: 8px; }
-      .toolbar-divider { display: none; }
-      .rank-badge { padding: 7px 14px; }
-      .rank-badge-value { font-size: 17px; }
-      /* 좁은 화면에서 대미지 컬럼에 덱 이미지 한 줄이 들어가도록 가로 padding 축소 */
-      .raid-table th, .raid-table td { padding-left: 8px; padding-right: 8px; }
-      .raid-table .col-lv { padding-left: 3px; padding-right: 3px; }
-    }
-    @media (max-width: 480px) {
-      .raid-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .toolbar-left, .toolbar-right {
-        justify-content: flex-start;
-      }
-    }
-  </style>
 </head>
 <body>
 
-<!-- ═══════════ 헤더 ═══════════ -->
-<header>
+<header class="rd-header">
+  <div class="rd-grad"></div>
   <div class="container">
-    <div class="header-top">
-      <div>
-        <div class="header-eyebrow">승리의 여신: 니케 · UNION PORTAL</div>
-        <div class="header-title" id="headerTitle"><img src="image/foxstar.png" alt="" style="width:22px;height:22px;vertical-align:middle;margin-right:6px;border-radius:4px;"> 여우별 유니온</div>
+    <div class="rd-head-inner">
+      <div class="rd-brand">
+        <img src="image/foxstar.png" alt="여우별 유니온" />
+        <div>
+          <div class="rd-eyebrow">승리의 여신: 니케 · UNION PORTAL</div>
+          <div class="rd-title" id="headerTitle">여우별 유니온</div>
+        </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <button class="theme-toggle" id="themeToggle" title="다크/라이트 모드 전환">🌙</button>
-        <a id="kakaoBtn" href="#" target="_blank" class="kakao-btn">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="#1a1200">
-            <path d="M12 3C6.48 3 2 6.69 2 11.25c0 2.87 1.76 5.4 4.41 6.95L5.25 21 l3.86-2.06A11.3 11.3 0 0012 19.5c5.52 0 10-3.69 10-8.25S17.52 3 12 3z"/>
-          </svg>
-          가입 문의
-        </a>
-      </div>
+      <button class="rd-toggle" id="themeToggle" title="다크/라이트 모드 전환">🌙</button>
     </div>
-    <nav>
+    <nav class="rd-nav">
       <a href="index.html">홈</a>
       <a href="raid.html" class="active">유니온레이드</a>
       <a href="solo.html">솔로레이드</a>
       <a href="shift.html">시프티패드</a>
       <a href="stats.html">여우별 통계</a>
-      <a href="sim.html">시뮬레이션</a>
+    </nav>
+    <nav class="rd-nav-mobile">
+      <a href="index.html">홈</a>
+      <a href="raid.html" class="active">유레</a>
+      <a href="solo.html">솔레</a>
+      <a href="shift.html">시프티</a>
+      <a href="stats.html">통계</a>
     </nav>
   </div>
 </header>
 
-<!-- ═══════════ 메인 ═══════════ -->
-<main>
-  <div class="container page-content">
-    <div class="raid-card">
-
-      <!-- 툴바 -->
-      <div class="raid-toolbar">
-        <div class="toolbar-left">
-          <div class="toolbar-group">
-            <span class="toolbar-label">시즌</span>
-            <select id="seasonSelect" class="toolbar-select"></select>
-          </div>
-          <div class="toolbar-divider"></div>
-          <div class="type-pills">
-            <input type="radio" id="typeBasic" name="typeSelect" value="basic" checked>
-            <label for="typeBasic">기본</label>
-            <input type="radio" id="typeBoss" name="typeSelect" value="boss">
-            <label for="typeBoss">보스</label>
-          </div>
-          <div class="toolbar-divider"></div>
-          <label class="toggle-wrap" for="summaryToggle">
-            <input type="checkbox" id="summaryToggle">
-            <span class="toggle-track"><span class="toggle-thumb"></span></span>
-            <span class="toggle-text">요약</span>
-          </label>
-        </div>
-        <div class="toolbar-right">
-          <label class="toggle-wrap" for="compactToggle">
-            <input type="checkbox" id="compactToggle" checked>
-            <span class="toggle-track"><span class="toggle-thumb"></span></span>
-            <span class="toggle-text">대미지 간략히</span>
-          </label>
-          <label class="toggle-wrap" for="deckToggle">
-            <input type="checkbox" id="deckToggle" checked>
-            <span class="toggle-track"><span class="toggle-thumb"></span></span>
-            <span class="toggle-text">덱 보기</span>
-          </label>
-          <label class="toggle-wrap" for="lv400Toggle">
-            <input type="checkbox" id="lv400Toggle">
-            <span class="toggle-track"><span class="toggle-thumb"></span></span>
-            <span class="toggle-text">400 Lv 고정</span>
-          </label>
-        </div>
-      </div>
-
-      <!-- 순위 배지 -->
-      <div id="raidRankBadge"></div>
-
-      <!-- 복사 대상 영역 (보스 HP + 멤버 테이블) -->
-      <div id="basicCaptureArea">
-        <!-- 보스 HP 현황 -->
-        <div id="bossHpSummary" style="margin-bottom:20px;"></div>
-
-        <!-- 기본 뷰 테이블 -->
-        <div id="basicView">
-          <div class="raid-table-wrap">
-            <table class="raid-table" id="raidTable">
-              <thead id="raidTableHead"></thead>
-              <tbody id="raidTableBody"></tbody>
-              <tfoot id="raidTableFoot"></tfoot>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- 보스 뷰 -->
-      <div id="bossView" style="display:none;"></div>
-
-      <!-- 덱 사용 현황 -->
-      <div id="deckUsageSection"></div>
-
-      <!-- 캐릭터 사용 현황 -->
-      <div id="charUsageSection"></div>
-
-    </div>
+<main class="rd-main">
+  <div class="container">
+    <div id="rdContent" class="rd-stack"></div>
   </div>
 </main>
 
-<!-- ═══════════ 데이터 로드 ═══════════ -->
+<div id="rdMemberOverlay" class="rd-overlay" style="display:none">
+  <div class="rd-modal" id="rdMemberModal" style="max-width:470px"></div>
+</div>
+
 <script src="data/config.js"></script>
 <script src="data/member.js"></script>
 <script src="data/raid.js"></script>
 
-<!-- ═══════════ 인증 필요 시 로그인 페이지로 리다이렉트 ═══════════ -->
 <script>
 if (window.__AUTH_REQUIRED) {
   location.replace("/login.html?return=" + encodeURIComponent(location.pathname + location.search));
 }
 </script>
 
-<!-- ═══════════ 레이드 스크립트 ═══════════ -->
 <script>
 if (!window.__AUTH_REQUIRED) {
-// ─── 기본 설정 ───────────────────────────────────────────────────
-document.getElementById("headerTitle").innerHTML = '<img src="image/foxstar.png" alt="" style="width:22px;height:22px;vertical-align:middle;margin-right:6px;border-radius:4px;"> ' + CONFIG.unionName;
-document.getElementById("kakaoBtn").href = CONFIG.kakaoUrl;
-document.title = "유니온레이드 | " + CONFIG.unionName;
 
-// ─── 대미지 포맷 ─────────────────────────────────────────────────
-function fmtCompact(num) {
+if (typeof CONFIG !== "undefined") {
+  document.getElementById("headerTitle").textContent = CONFIG.unionName;
+  document.title = "유니온레이드 | " + CONFIG.unionName;
+}
+
+/* ─── 공통 헬퍼 ─── */
+const OFFSET = 35066789198;
+const ELEM_TAG = {"Z.E.U.S.":"철갑","H.S.T.A.":"수냉","D.M.T.R.":"풍압","A.N.M.I.":"작열","A.N.M.I":"작열","P.S.I.D.":"전격"};
+const EL_COL = {수냉:"var(--el-water)",작열:"var(--el-fire)",철갑:"var(--el-iron)",전격:"var(--el-elec)",풍압:"var(--el-wind)"};
+const EL_BG  = {수냉:"var(--elbg-water)",작열:"var(--elbg-fire)",철갑:"var(--elbg-iron)",전격:"var(--elbg-elec)",풍압:"var(--elbg-wind)"};
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+function imgOf(name){ return "image/" + name.replace(" : ", "_").replace(/ /g, "%20") + ".webp"; }
+function fmtEok(num){
   if (num == null || num === 0) return "—";
-  const uk    = num / 100000000;
-  const fixed = uk.toFixed(2);
-  const parts = fixed.split(".");
-  parts[0]    = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return parts.join(".") + "억";
+  const neg = num < 0; num = Math.abs(num);
+  const jo = Math.floor(num / 1e12), eok = Math.round((num - jo * 1e12) / 1e8);
+  const e = eok.toLocaleString("en-US");
+  return (neg ? "-" : "") + (jo > 0 ? (jo + "조 " + e + "억") : (e + "억"));
 }
-function fmtFull(num) {
-  if (num == null || num === 0) return "—";
-  return num.toLocaleString("ko-KR");
+function medal(i){
+  return i === 0 ? {bg:"var(--medal1-bg)",col:"var(--medal1)"}
+       : i === 1 ? {bg:"var(--medal2-bg)",col:"var(--medal2)"}
+       : i === 2 ? {bg:"var(--medal3-bg)",col:"var(--medal3)"}
+       : {bg:"transparent",col:"var(--dim)"};
+}
+function bossShort(bn){ return bn.replace(/\s*\[[^\]]*\]\s*$/, "").trim(); }
+function bossElem(bn){ const m = bn.match(/\[([^\]]+)\]\s*$/); return m ? (ELEM_TAG[m[1]] || "") : ""; }
+const _bossCache = {};
+function bossesOf(season){
+  if (_bossCache[season]) return _bossCache[season];
+  const map = {};
+  (RAID[season] || []).forEach(mm => mm.raids.forEach(r => {
+    const sh = bossShort(r.bossName);
+    if (!map[sh]) map[sh] = { short: sh, elem: bossElem(r.bossName), minStep: r.step, hits: 0, low: 0, high: 0 };
+    const b = map[sh]; b.minStep = Math.min(b.minStep, r.step); b.hits++; if (r.bossLevel >= 4) b.high++; else b.low++;
+  }));
+  const arr = Object.values(map).sort((a, b) => a.minStep - b.minStep);
+  _bossCache[season] = arr; return arr;
+}
+function seasonRaw(sk){ return (RAID[sk] || []).reduce((a, mm) => a + mm.raids.reduce((x, r) => x + r.totalDamage, 0), 0); }
+
+/* ─── 시즌/멤버 데이터 (팝업 공유) ─── */
+const seasonKeys = Object.keys(UNION).map(Number).sort((a, b) => a - b);
+const latestKey = seasonKeys[seasonKeys.length - 1];
+const members = UNION[latestKey].members;
+const lvlMaps = {};
+seasonKeys.forEach(k => { const mp = {}; (UNION[k].members || []).forEach(m => { mp[m.name] = m.syncroLevel; }); lvlMaps[k] = mp; });
+const ROLE_OVERRIDE = { "유화": "Leader", "SUM": "Officer" };
+const ROLE_KO = { Leader: "리더", Officer: "서브리더" };
+function roleOf(m){ const r = ROLE_OVERRIDE[m.name] || m.role; return (r === "Leader" || r === "Officer") ? r : ""; }
+const OPF = [["공용","common"],["화력형","attack"],["방어형","defense"],["지원형","support"],["미실리스","missilis"],["엘리시온","elysion"],["테트라","tetra"],["필그림","pilgrim"],["어브노멀","abnormal"]];
+
+const raidKeys = Object.keys(RAID).sort((a, b) => parseInt(a.slice(1)) - parseInt(b.slice(1)));
+const correctedScore = {}; raidKeys.forEach(s => { correctedScore[s] = seasonRaw(s) + OFFSET; });
+const rankOfSeason = {}; seasonKeys.forEach(k => { rankOfSeason["S" + k] = UNION[k].rank; });
+
+/* ─── 시즌별 계산 ─── */
+const _seasonCache = {};
+function computeSeason(ps){
+  if (_seasonCache[ps]) return _seasonCache[ps];
+  const arr = RAID[ps] || [];
+  const bosses = bossesOf(ps);
+  const order = bosses.map(b => b.short);
+  const us = UNION[parseInt(ps.slice(1))];
+  const syncByName = {}, syncByOpen = {};
+  if (us) us.members.forEach(m => { syncByName[m.name] = m.syncroLevel; if (m.blaBlaLinkUId) syncByOpen[m.blaBlaLinkUId] = m.syncroLevel; });
+  const memberData = {};
+  arr.forEach(mm => {
+    const cells = {}; let total = 0;
+    mm.raids.forEach(r => {
+      const sh = bossShort(r.bossName);
+      (cells[sh] = cells[sh] || []).push({ lv: r.bossLevel, dmg: r.totalDamage, final: r.isFinalHit, chars: [...r.squad].sort((a, b) => a.slot - b.slot).map(s => s.name) });
+      total += r.totalDamage;
+    });
+    Object.values(cells).forEach(list => list.sort((a, b) => a.lv - b.lv));
+    memberData[mm.name] = { name: mm.name, total, cells, syncro: syncByName[mm.name] != null ? syncByName[mm.name] : (syncByOpen[mm.openId] != null ? syncByOpen[mm.openId] : null) };
+  });
+  const membersSorted = Object.keys(memberData).sort((a, b) => memberData[b].total - memberData[a].total);
+  const decksTop = {};
+  order.forEach(sh => {
+    const cnt = {};
+    arr.forEach(mm => mm.raids.forEach(r => {
+      if (bossShort(r.bossName) !== sh) return;
+      const names = [...r.squad].sort((a, b) => a.slot - b.slot).map(s => s.name);
+      const key = names.join("|");
+      if (!cnt[key]) cnt[key] = { chars: names, count: 0 };
+      cnt[key].count++;
+    }));
+    decksTop[sh] = Object.values(cnt).sort((a, b) => b.count - a.count).slice(0, 3);
+  });
+  const ucnt = {};
+  arr.forEach(mm => mm.raids.forEach(r => r.squad.forEach(s => { ucnt[s.name] = (ucnt[s.name] || 0) + 1; })));
+  const charUsage = Object.entries(ucnt).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+  const res = { bosses, order, memberData, membersSorted, decksTop, charUsage, count: arr.length };
+  _seasonCache[ps] = res; return res;
 }
 
-// ─── 캐릭터 이미지 경로 ──────────────────────────────────────────
-function charImgPath(name) {
-  return "image/" + name.replace(" : ", "_") + ".webp";
+function rankLineSVG(ranksArr, dotR, selR, selIdx){
+  const W = 232, PX = 16, PT = 12, PH = 44;
+  const rmin = Math.min(...ranksArr), rmax = Math.max(...ranksArr);
+  const step = ranksArr.length > 1 ? (W - 2 * PX) / (ranksArr.length - 1) : 0;
+  const co = ranksArr.map((r, i) => ({ x: PX + i * step, y: PT + (r - rmin) / ((rmax - rmin) || 1) * PH }));
+  const pts = co.map(p => p.x.toFixed(1) + "," + p.y.toFixed(1)).join(" ");
+  const dots = co.map((p, i) => '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="' +
+    (i === selIdx ? selR : dotR) + '" fill="' + (i === selIdx ? "#2563eb" : "#93c5fd") + '"></circle>').join("");
+  return '<polyline points="' + pts + '" fill="none" stroke="#2563eb" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.45"></polyline>' + dots;
 }
 
-const DECK_IMG_FALLBACK = "data:image/svg+xml," + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">' +
-  '<rect width="24" height="24" fill="#94a3b8" rx="3"/>' +
-  '<text x="12" y="17" text-anchor="middle" fill="white" font-size="14" font-family="sans-serif">?</text>' +
-  '</svg>'
-);
+/* ═══════════ 상태 + 렌더 ═══════════ */
+const state = { season: raidKeys[raidKeys.length - 1], deck: true };
+function setState(p){ Object.assign(state, p); render(); }
 
-function deckImagesHtml(squads) {
-  if (!squads || !squads.length) return "";
-  return squads.map(squad => {
-    if (!squad || !squad.length) return "";
-    const sorted = [...squad].sort((a, b) => a.slot - b.slot);
-    const imgs = sorted.map(c =>
-      '<img src="' + charImgPath(c.name) + '" title="' + c.name + '" ' +
-      'style="width:24px;height:24px;border-radius:3px;object-fit:cover;flex-shrink:0;" ' +
-      'onerror="this.onerror=null;this.src=\'' + DECK_IMG_FALLBACK + '\'">'
-    ).join("");
-    return '<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:5px;justify-content:center;">' + imgs + '</div>';
+function bossCardsHTML(SD){
+  return SD.bosses.map(b => {
+    const ec = EL_COL[b.elem] || "var(--dim)", eb = EL_BG[b.elem] || "var(--muted)";
+    const rows = b.high > 0 ? [["Lv1~3", b.low], ["Lv4", b.high]] : [["투입", b.hits]];
+    return '<div class="rd-card" style="padding:13px 14px;border-top:3px solid ' + ec + '">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px">' +
+        '<span style="font-size:12px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(b.short) + '</span>' +
+        '<span style="font-size:10px;font-weight:700;color:' + ec + ';background:' + eb + ';padding:1px 6px;border-radius:5px;white-space:nowrap">' + b.elem + '</span>' +
+      '</div>' +
+      '<div style="display:flex;gap:14px;margin-top:12px">' + rows.map(r =>
+        '<div><div style="font-size:9px;color:var(--dim);font-weight:700;text-transform:uppercase">' + r[0] + '</div>' +
+        '<div style="font-size:21px;font-weight:800;color:var(--text);line-height:1.1" class="tnum">' + r[1] + '<span style="font-size:10px;color:var(--dim);font-weight:600;margin-left:1px">타격</span></div></div>').join("") +
+      '</div></div>';
   }).join("");
 }
 
-// ─── 400 Lv 보정 헬퍼 ────────────────────────────────────────────
-// squad의 각 캐릭터에 대해 (400 / characterLevel) 비율을 구해 평균 반환
-function getLv400Ratio(squad) {
-  if (!squad || !squad.length) return 1;
-  const valid = squad.filter(c => c.characterLevel > 0);
-  if (!valid.length) return 1;
-  return valid.reduce((s, c) => s + 400 / c.characterLevel, 0) / valid.length;
+function matrixHTML(SD){
+  const head = '<tr style="border-bottom:1.5px solid var(--border)">' +
+    '<th class="rd-th-sticky" style="left:0;width:40px;box-shadow:none">#</th>' +
+    '<th class="rd-th-sticky" style="left:40px;min-width:120px">닉네임</th>' +
+    '<th class="rd-th-c">Lv</th>' +
+    '<th style="text-align:right;padding:9px 12px;font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase">총 대미지</th>' +
+    SD.bosses.map(b => { const ec = EL_COL[b.elem] || "var(--dim)", eb = EL_BG[b.elem] || "var(--muted)";
+      return '<th class="rd-th-c" style="color:' + ec + ';background:' + eb + ';min-width:120px">' + esc(b.short) + '</th>'; }).join("") + '</tr>';
+  const body = SD.membersSorted.map((name, i) => {
+    const m = SD.memberData[name], md = medal(i);
+    const cells = SD.order.map(bn => {
+      const hits = m.cells[bn]; const b = SD.bosses.find(x => x.short === bn); const bg = b ? (EL_BG[b.elem] || "var(--card)") : "var(--card)";
+      if (!hits || !hits.length) return '<td style="padding:8px 10px;text-align:center;vertical-align:top;background:' + bg + '"><span style="color:var(--dim)">·</span></td>';
+      const inner = hits.map((h, k) =>
+        '<div style="margin-bottom:' + (k < hits.length - 1 ? "7px" : "0") + '">' +
+          '<div><span style="font-size:10px;color:var(--dim);font-weight:600;margin-right:3px">Lv.' + h.lv + '</span><span style="font-weight:' + (h.final ? "800" : "600") + ';color:' + (h.final ? "var(--red)" : "var(--text)") + '" class="tnum">' + fmtEok(h.dmg) + '</span></div>' +
+          (state.deck && h.chars.length ? '<div style="display:flex;gap:2px;justify-content:center;margin-top:3px">' + h.chars.map(c => '<img src="' + imgOf(c) + '" style="width:20px;height:20px;border-radius:4px;object-fit:cover" loading="lazy" onerror="this.style.opacity=0.15">').join("") + '</div>' : "") +
+        '</div>').join("");
+      return '<td style="padding:8px 10px;text-align:center;vertical-align:top;white-space:nowrap;background:' + bg + '">' + inner + '</td>';
+    }).join("");
+    return '<tr style="border-bottom:1px solid var(--line)">' +
+      '<td class="rd-td-sticky" style="left:0;padding:9px 10px;vertical-align:top;box-shadow:none"><span class="rd-rankpill" style="min-width:23px;height:23px;background:' + md.bg + ';color:' + md.col + '">' + (i + 1) + '</span></td>' +
+      '<td class="rd-td-sticky" style="left:40px;padding:9px 10px;vertical-align:top"><span class="rd-name" data-act="open-member" data-name="' + esc(name) + '">' + esc(name) + '</span></td>' +
+      '<td style="padding:9px 8px;text-align:center;color:var(--sub);font-size:12px;vertical-align:top" class="tnum">' + (m.syncro != null ? m.syncro : "—") + '</td>' +
+      '<td style="padding:9px 12px;text-align:right;font-weight:800;color:var(--text);vertical-align:top;white-space:nowrap" class="tnum">' + fmtEok(m.total) + '</td>' +
+      cells + '</tr>';
+  }).join("");
+  return '<div class="rd-scroll"><table class="rd-table"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div>';
 }
 
-// ─── 보스 HP 테이블 ──────────────────────────────────────────────
-// step 1·2·4 → bossLevel 1/2/3 HP
-// step 3·5   → bossLevel 1/2/3 HP
-const BOSS_HP = {
-  1: [99856279200,  149784418800,  292445295750],
-  2: [99856279200,  149784418800,  292445295750],
-  4: [99856279200,  149784418800,  292445295750],
-  3: [150841813600, 226262720400,  349230901500],
-  5: [150841813600, 226262720400,  349230901500],
-};
-
-// ─── 보스 HP 현황 렌더링 ─────────────────────────────────────────
-function renderBossHpSummary(seasonKey) {
-  const compact   = document.getElementById("compactToggle").checked;
-  const fmt       = compact ? fmtCompact : fmtFull;
-  const members   = RAID[seasonKey] || [];
-  const container = document.getElementById("bossHpSummary");
-  container.innerHTML = "";
-
-  // 보스별 히트 수집
-  const bossData = new Map(); // bossName → { step, hits[] }
-  members.forEach(m => {
-    m.raids.forEach(r => {
-      if (!bossData.has(r.bossName)) bossData.set(r.bossName, { step: r.step, hits: [] });
-      bossData.get(r.bossName).hits.push({
-        bossLevel: r.bossLevel,
-        dmg: r.totalDamage,
-        finalHit: r.isFinalHit,
-      });
-    });
-  });
-
-  const bosses = [...bossData.entries()].sort((a, b) => a[1].step - b[1].step);
-
-  // 각 보스의 레벨/HP 정보 선계산
-  const bossesInfo = bosses.map(([bossName, { step, hits }]) => {
-    const elem     = getBossElem(bossName);
-    const short    = shortBossName(bossName);
-    const hpArr    = BOSS_HP[step];
-    const maxLevel = Math.max(...hits.map(h => h.bossLevel));
-    const hitsAtMax     = hits.filter(h => h.bossLevel === maxLevel);
-    const totalDmgAtMax = hitsAtMax.reduce((s, h) => s + h.dmg, 0);
-    const isKilled      = hitsAtMax.some(h => h.finalHit);
-
-    // LV4 = 무한 HP 보스 (5번 보스만 오픈, 피해량 누적 모드)
-    if (maxLevel >= 4) {
-      return {
-        elem, short,
-        displayLevel: maxLevel,
-        infinite: true,
-        damage: totalDmgAtMax,
-      };
-    }
-
-    const nextHp = hpArr ? (hpArr[maxLevel] ?? null) : null;
-    const displayLevel = (isKilled && nextHp != null) ? maxLevel + 1 : maxLevel;
-    const totalHp = hpArr ? (hpArr[displayLevel - 1] ?? null) : null;
-    const slain = isKilled && nextHp == null;
-    const remaining = slain ? 0
-                    : (isKilled ? totalHp
-                    : (totalHp != null ? Math.max(0, totalHp - totalDmgAtMax) : null));
-    const pct = (totalHp && remaining != null) ? (remaining / totalHp * 100) : null;
-    return { elem, short, displayLevel, totalHp, remaining, pct, slain };
-  });
-
-  // LV4 도달 시: LV4 보스만 표시 (LV1~3 처치된 보스는 숨김)
-  const hasLv4 = bossesInfo.some(b => b.infinite);
-  const visibleBosses = hasLv4 ? bossesInfo.filter(b => b.infinite) : bossesInfo;
-
-  const wrap  = document.createElement("div");
-  wrap.style.cssText = "display:block; overflow-x:auto; -webkit-overflow-scrolling:touch;";
-  const table = document.createElement("table");
-  table.className = "boss-hp-table";
-
-  // colgroup (보스명 / HP 2컬럼)
-  const colgroup = document.createElement("colgroup");
-  const colDefs = [
-    { cls: "col-name" },
-    { cls: "col-hp",  width: compact ? "200px" : "270px" },
-  ];
-  colDefs.forEach(({ cls, width }) => {
-    const col = document.createElement("col");
-    col.className = cls;
-    if (width) col.style.width = width;
-    colgroup.appendChild(col);
-  });
-  table.appendChild(colgroup);
-
-  // 헤더: 보스 (Lv.X) / HP
-  const maxDisplayLevel = visibleBosses.length
-    ? Math.max(...visibleBosses.map(b => b.displayLevel))
-    : null;
-  const bossHeaderLabel = maxDisplayLevel != null
-    ? '보스 (Lv.' + maxDisplayLevel + ')'
-    : '보스';
-  const thead  = document.createElement("thead");
-  const hRow   = document.createElement("tr");
-  [bossHeaderLabel, "HP"].forEach(label => {
-    const th = document.createElement("th");
-    th.textContent = label;
-    hRow.appendChild(th);
-  });
-  thead.appendChild(hRow);
-  table.appendChild(thead);
-
-  // 바디
-  const tbody = document.createElement("tbody");
-  visibleBosses.forEach(b => {
-    const { elem, short, totalHp, remaining, pct, slain, infinite, damage } = b;
-    const tr = document.createElement("tr");
-
-    // 보스명
-    const tdName = document.createElement("td");
-    tdName.style.textAlign = "left";
-    tdName.innerHTML = '<span style="font-weight:700;">' + short + '</span>' +
-      (elem ? ' <span class="elem-' + elem + '">[' + elem + ']</span>' : "");
-    tr.appendChild(tdName);
-
-    // HP (위: 게이지바+% / 아래: 남은/총 피통)
-    const tdHp = document.createElement("td");
-    tdHp.style.fontVariantNumeric = "tabular-nums";
-
-    const barCell = (fillStyle, labelHtml) =>
-      '<div class="hp-pct-cell">' +
-        '<div class="hp-bar-wrap">' +
-          '<div class="hp-bar-fill" style="' + fillStyle + '"></div>' +
-        '</div>' +
-        '<span class="hp-pct-text">' + labelHtml + '</span>' +
-      '</div>';
-
-    let barHtml, hpNumHtml;
-    if (infinite) {
-      barHtml = barCell(
-        'width:100%;background:#f59e0b;',
-        '<span style="color:#f59e0b;font-weight:700;font-size:14px;">∞</span>'
-      );
-      hpNumHtml = fmt(damage) + ' <span style="color:var(--text-sub);">/ ∞</span>';
-    } else {
-      if (slain || pct === 0) {
-        barHtml = barCell(
-          'width:100%;background:var(--border);',
-          '<span style="color:var(--red);font-weight:700;">0%</span>'
-        );
-      } else if (pct != null) {
-        barHtml = barCell(
-          'width:' + Math.min(pct, 100).toFixed(1) + '%;background:#f59e0b;',
-          pct.toFixed(2) + '%'
-        );
-      } else {
-        barHtml = '';
-      }
-
-      const totalStr = totalHp ? fmt(totalHp) : "—";
-      if (slain) {
-        hpNumHtml = '<span style="color:var(--red);font-weight:700;">처치</span>' +
-          ' <span style="color:var(--text-sub);">/ ' + totalStr + '</span>';
-      } else {
-        const remStr = remaining != null ? fmt(remaining) : "—";
-        hpNumHtml = remStr + ' <span style="color:var(--text-sub);">/ ' + totalStr + '</span>';
-      }
-    }
-
-    tdHp.innerHTML = barHtml + '<div style="margin-top:4px;">' + hpNumHtml + '</div>';
-    tr.appendChild(tdHp);
-
-    tbody.appendChild(tr);
-  });
-
-  table.appendChild(tbody);
-  wrap.appendChild(table);
-  container.appendChild(wrap);
+function deckUsageHTML(SD){
+  const MED = ["🥇", "🥈", "🥉"];
+  return SD.order.map(bn => {
+    const b = SD.bosses.find(x => x.short === bn); const ec = b ? (EL_COL[b.elem] || "var(--dim)") : "var(--dim)";
+    const decks = (SD.decksTop[bn] || []).map((dk, i) =>
+      '<div style="display:flex;align-items:center;gap:6px;padding:7px 10px;border-bottom:1px solid var(--line)">' +
+        '<span style="font-size:11px;width:14px;text-align:center;flex-shrink:0">' + (MED[i] || (i + 1)) + '</span>' +
+        '<div style="display:flex;gap:2px;flex:1">' + dk.chars.map(c => '<img src="' + imgOf(c) + '" title="' + esc(c) + '" style="width:25px;height:25px;border-radius:4px;object-fit:cover" loading="lazy" onerror="this.style.opacity=0.15">').join("") + '</div>' +
+        '<span style="flex-shrink:0;background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px">' + dk.count + '회</span>' +
+      '</div>').join("");
+    return '<div class="rd-card" style="overflow:hidden"><div style="padding:8px 11px;background:var(--muted);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:5px">' +
+      '<span style="font-size:11px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(bn) + '</span>' +
+      '<span style="font-size:9px;font-weight:700;color:' + ec + '">[' + (b ? b.elem : "") + ']</span></div>' + decks + '</div>';
+  }).join("");
 }
 
-// ─── 보스 코드 → 약점 속성 매핑 ─────────────────────────────────
-const BOSS_ELEM = {
-  "[Z.E.U.S.]": "철갑",
-  "[H.S.T.A.]": "수냉",
-  "[D.M.T.R.]": "풍압",
-  "[A.N.M.I.]": "작열",
-  "[A.N.M.I]":  "작열",
-  "[P.S.I.D.]": "전격",
-};
-
-function getBossElem(fullName) {
-  const m = fullName.match(/\[([^\]]+)\]$/);
-  if (!m) return null;
-  return BOSS_ELEM["[" + m[1] + "]"] || null;
+function charUsageHTML(SD){
+  const MED = ["🥇", "🥈", "🥉"], TB = ["#f59e0b", "#94a3b8", "#b45309"];
+  return SD.charUsage.slice(0, 14).map((c, i) =>
+    '<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--card);border:1.5px solid ' + (i < 3 ? TB[i] : "var(--border)") + ';border-radius:12px;padding:11px 8px 9px;width:74px">' +
+      (i < 3 ? '<span style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:14px">' + MED[i] + '</span>' : "") +
+      '<img src="' + imgOf(c.name) + '" title="' + esc(c.name) + '" style="width:46px;height:46px;border-radius:8px;object-fit:cover" loading="lazy" onerror="this.style.opacity=0.15">' +
+      '<span style="font-size:12px;font-weight:700;color:var(--blue)">' + c.count + '회</span>' +
+    '</div>').join("");
 }
 
-function shortBossName(name) {
-  return name.replace(/\s*\[.*?\]$/, "").trim();
-}
-
-// ─── 시즌 셀렉터 초기화 ──────────────────────────────────────────
-const seasonKeys   = Object.keys(RAID).sort((a, b) => {
-  const na = Number(a.replace("S", ""));
-  const nb = Number(b.replace("S", ""));
-  return nb - na;
-});
-const seasonSelect = document.getElementById("seasonSelect");
-seasonKeys.forEach(k => {
-  const opt  = document.createElement("option");
-  const rank = UNION[k.replace("S", "")] && UNION[k.replace("S", "")].rank;
-  opt.value       = k;
-  opt.textContent = rank != null ? k + " (" + rank + "위)" : k;
-  seasonSelect.appendChild(opt);
-});
-seasonSelect.value = seasonKeys[0];
-
-// ─── 렌더링 ──────────────────────────────────────────────────────
-function renderRaidTable(seasonKey) {
-  const summary   = document.getElementById("summaryToggle").checked;
-  // 요약 모드는 대미지 간략히 ON / 덱 보기 OFF 상태를 강제해서 압축 표시
-  const compact   = summary ? true : document.getElementById("compactToggle").checked;
-  const fmt       = compact ? fmtCompact : fmtFull;
-  const members   = RAID[seasonKey] || [];
-  const thead     = document.getElementById("raidTableHead");
-  const tbody     = document.getElementById("raidTableBody");
-  thead.innerHTML = "";
-  tbody.innerHTML = "";
-
-  // ── UNION에서 싱크로레벨 조회 (openId ↔ blaBlaLinkUId) ──────
-  const unionKey  = seasonKey.replace("S", "");
-  const unionData = UNION[unionKey];
-  const syncroMap = {};
-  if (unionData) {
-    unionData.members.forEach(m => {
-      if (m.blaBlaLinkUId) syncroMap[m.blaBlaLinkUId] = m.syncroLevel;
-    });
-  }
-
-  // ── 시즌 내 보스 목록 수집 (step 오름차순) ──────────────────
-  const bossMap = new Map(); // bossName → step
-  members.forEach(m => m.raids.forEach(r => {
-    if (!bossMap.has(r.bossName)) bossMap.set(r.bossName, r.step);
-  }));
-  const bosses = [...bossMap.entries()].sort((a, b) => a[1] - b[1]);
-  // bosses = [["스프레드 [H.S.T.A.]", 1], ["크리스탈 아머 [P.S.I.D.]", 2], ...]
-
-  // ── 헤더 구성 ────────────────────────────────────────────────
-  const headerRow = document.createElement("tr");
-  const fixedCols = summary
-    ? [{ label: "닉네임", width: "60px", cls: "td-summary" }]
-    : [
-        { label: "#",         width: "40px"  },
-        { label: "닉네임",    width: "160px" },
-        { label: "레벨",      width: "40px", cls: "col-lv" },
-        { label: "총 대미지",  width: "150px" },
-      ];
-  fixedCols.forEach(({ label, width, cls }) => {
-    const th = document.createElement("th");
-    th.textContent   = label;
-    th.style.width    = width;
-    th.style.minWidth = width;
-    if (cls) th.className = cls;
-    headerRow.appendChild(th);
-  });
-  const summaryBossW = summary ? "52px" : null;
-  bosses.forEach(([bossName]) => {
-    const elem  = getBossElem(bossName);
-    const short = shortBossName(bossName);
-    const th    = document.createElement("th");
-    th.className = "th-boss" + (summary ? " td-summary" : "");
-    th.title     = bossName;
-    if (summary) {
-      th.style.width    = summaryBossW;
-      th.style.minWidth = summaryBossW;
-      th.style.maxWidth = summaryBossW;
-      th.innerHTML = elem ? '<span class="elem-' + elem + '">[' + elem + ']</span>' : short;
-    } else {
-      th.innerHTML = short +
-        (elem ? '<br><span class="elem-' + elem + '">[' + elem + ']</span>' : "");
-    }
-    headerRow.appendChild(th);
-  });
-  thead.appendChild(headerRow);
-
-  // ── 멤버 데이터 가공 (총대미지 합산 → 내림차순 정렬) ────────
-  const lv400 = document.getElementById("lv400Toggle").checked;
-
-  const rows = members.map(m => {
-    const raidMap = {}; // bossName → { dmg, dmgAdj, hits[] }
-    let total = 0;
-    let totalAdj = 0;
-    m.raids.forEach(r => {
-      const ratio = getLv400Ratio(r.squad);
-      if (!raidMap[r.bossName]) raidMap[r.bossName] = { dmg: 0, dmgAdj: 0, hits: [] };
-      raidMap[r.bossName].dmg    += r.totalDamage;
-      raidMap[r.bossName].dmgAdj += r.totalDamage * ratio;
-      raidMap[r.bossName].hits.push({
-        dmg:       r.totalDamage,
-        dmgAdj:    r.totalDamage * ratio,
-        finalHit:  r.isFinalHit,
-        squad:     r.squad,
-        bossLevel: r.bossLevel,
-      });
-      total    += r.totalDamage;
-      totalAdj += r.totalDamage * ratio;
-    });
-    return { ...m, total, totalAdj, raidMap };
-  }).sort((a, b) => lv400 ? b.totalAdj - a.totalAdj : b.total - a.total);
-
-  // ── 행 렌더 ──────────────────────────────────────────────────
-  rows.forEach((member, idx) => {
-    const syncroLevel = syncroMap[member.openId] || "—";
-
-    const tr = document.createElement("tr");
-
-    if (!summary) {
-      // 순위
-      const tdRank = document.createElement("td");
-      tdRank.textContent = idx + 1;
-      tr.appendChild(tdRank);
-    }
-
-    // 닉네임
-    const tdName = document.createElement("td");
-    tdName.className   = "td-name" + (summary ? " td-summary" : "");
-    tdName.textContent = member.name;
-    tr.appendChild(tdName);
-
-    if (!summary) {
-      // 싱크로레벨
-      const tdSync = document.createElement("td");
-      tdSync.className = "col-lv";
-      tdSync.textContent = syncroLevel;
-      tr.appendChild(tdSync);
-
-      // 총 대미지
-      const tdTotal = document.createElement("td");
-      tdTotal.className   = "td-total";
-      tdTotal.textContent = fmt(lv400 ? member.totalAdj : member.total);
-      tr.appendChild(tdTotal);
-    }
-
-    // 보스별 대미지
-    const showDeck = document.getElementById("deckToggle").checked && !summary;
-    bosses.forEach(([bossName]) => {
-      const td    = document.createElement("td");
-      const entry = member.raidMap[bossName];
-      const elem  = getBossElem(bossName);
-      const elemCls = elem ? "td-boss-" + elem : "td-boss";
-      if (entry) {
-        td.className = "td-damage " + elemCls + (summary ? " td-summary" : "");
-        if (summary) {
-          td.textContent = fmt(lv400 ? entry.dmgAdj : entry.dmg);
-        } else {
-          td.innerHTML = entry.hits.map(hit => {
-            const dmgStyle = hit.finalHit ? ' style="color:var(--red);font-weight:700;"' : "";
-            return '<span style="font-size:11px;color:var(--text-sub);margin-right:4px;">Lv.' + hit.bossLevel + '</span>' +
-              '<span' + dmgStyle + '>' + fmt(lv400 ? hit.dmgAdj : hit.dmg) + '</span>' +
-              (showDeck ? deckImagesHtml([hit.squad]) : "");
-          }).join('<div style="margin-top:6px;"></div>');
-        }
-      } else {
-        td.className   = "td-empty td-boss-empty" + (summary ? " td-summary" : "");
-        td.textContent = "";
-      }
-      tr.appendChild(td);
-    });
-
-    tbody.appendChild(tr);
-  });
-
-  // ── 푸터 렌더 ────────────────────────────────────────────────
-  const tfoot = document.getElementById("raidTableFoot");
-  tfoot.innerHTML = "";
-  const tfr = document.createElement("tr");
-
-  if (!summary) {
-    // # 셀 (빈칸)
-    const tfEmpty = document.createElement("td");
-    tfEmpty.textContent = "";
-    tfr.appendChild(tfEmpty);
-  }
-
-  // 닉네임 셀 (빈칸)
-  const tfName = document.createElement("td");
-  if (summary) tfName.className = "td-summary";
-  tfName.textContent = "";
-  tfr.appendChild(tfName);
-
-  if (!summary) {
-    // 싱크로레벨 → 평균
-    const validLevels = rows.map(m => syncroMap[m.openId]).filter(v => v != null);
-    const avgLevel = validLevels.length
-      ? (validLevels.reduce((s, v) => s + v, 0) / validLevels.length).toFixed(1)
-      : "—";
-    const tfSync = document.createElement("td");
-    tfSync.className = "col-lv";
-    tfSync.innerHTML = avgLevel + '<div class="td-foot-sub">평균</div>';
-    tfr.appendChild(tfSync);
-
-    // 총 대미지 → 합산
-    const grandTotal = rows.reduce((s, m) => s + (lv400 ? m.totalAdj : m.total), 0);
-    const tfTotal = document.createElement("td");
-    tfTotal.textContent = fmt(grandTotal);
-    tfr.appendChild(tfTotal);
-  }
-
-  // 보스별 합산 (요약 모드에서는 타격 회수 생략)
-  bosses.forEach(([bossName]) => {
-    const elem  = getBossElem(bossName);
-    let sumDmg  = 0;
-    let totalHits = 0;
-    rows.forEach(m => {
-      const entry = m.raidMap[bossName];
-      if (entry) { sumDmg += lv400 ? entry.dmgAdj : entry.dmg; totalHits += entry.hits.length; }
-    });
-    const td = document.createElement("td");
-    td.className = (elem ? "td-boss-" + elem : "") + (summary ? " td-summary" : "");
-    if (sumDmg) {
-      td.innerHTML = summary
-        ? fmt(sumDmg)
-        : fmt(sumDmg) + '<div class="td-foot-sub">' + totalHits + '회 타격</div>';
-    } else {
-      td.textContent = "";
-    }
-    tfr.appendChild(td);
-  });
-
-  tfoot.appendChild(tfr);
-}
-
-// ─── 보스 뷰 렌더링 (보스별 개별 테이블, 세로 나열) ─────────────
-function renderBossView(seasonKey) {
-  const compact  = document.getElementById("compactToggle").checked;
-  const fmt      = compact ? fmtCompact : fmtFull;
-  const lv400    = document.getElementById("lv400Toggle").checked;
-  const members  = RAID[seasonKey] || [];
-  const bossView = document.getElementById("bossView");
-  bossView.innerHTML = "";
-
-  // UNION 싱크로레벨 조회
-  const unionKey  = seasonKey.replace("S", "");
-  const unionData = UNION[unionKey];
-  const syncroMap = {};
-  if (unionData) {
-    unionData.members.forEach(m => {
-      if (m.blaBlaLinkUId) syncroMap[m.blaBlaLinkUId] = m.syncroLevel;
-    });
-  }
-
-  // 시즌 내 보스 목록 (step 오름차순)
-  const bossMap = new Map();
-  members.forEach(m => m.raids.forEach(r => {
-    if (!bossMap.has(r.bossName)) bossMap.set(r.bossName, r.step);
-  }));
-  const bosses = [...bossMap.entries()].sort((a, b) => a[1] - b[1]);
-
-  const BOSS_MEDAL = ["🥇", "🥈", "🥉"];
-
-  bosses.forEach(([bossName]) => {
-    const elem  = getBossElem(bossName);
-    const short = shortBossName(bossName);
-
-    // 이 보스에 대한 타격을 개별 row로 분리
-    const bossRows = [];
-    members.forEach(m => {
-      m.raids.filter(r => r.bossName === bossName).forEach(r => {
-        const ratio = getLv400Ratio(r.squad);
-        bossRows.push({
-          name:      m.name,
-          openId:    m.openId,
-          dmg:       r.totalDamage,
-          dmgAdj:    r.totalDamage * ratio,
-          finalHit:  r.isFinalHit,
-          squad:     r.squad,
-          bossLevel: r.bossLevel,
-        });
-      });
-    });
-    bossRows.sort((a, b) => lv400 ? b.dmgAdj - a.dmgAdj : b.dmg - a.dmg);
-
-    // ── 카드 래퍼 ────────────────────────────────────────────────
-    const card = document.createElement("div");
-    card.style.cssText =
-      "min-width:0;background:var(--bg-card);border:1px solid var(--border);" +
-      "border-radius:14px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.06);";
-
-    // ── 카드 헤더 (보스명) ───────────────────────────────────────
-    const cardHeader = document.createElement("div");
-    cardHeader.style.cssText =
-      "display:flex;align-items:center;gap:6px;" +
-      "padding:10px 14px;border-bottom:1px solid var(--border);background:var(--bg-muted);";
-    cardHeader.innerHTML =
-      '<span style="font-size:13px;font-weight:700;color:var(--text);">' + short + '</span>' +
-      (elem ? '<span class="elem-' + elem + '" style="font-size:12px;font-weight:600;">[' + elem + ']</span>' : "");
-
-    card.appendChild(cardHeader);
-
-    // ── 행 목록 ──────────────────────────────────────────────────
-    const showDeckBoss = document.getElementById("deckToggle").checked;
-    const tableWrap    = document.createElement("div");
-    tableWrap.className = "raid-table-wrap";
-
-    const table = document.createElement("table");
-    table.className = "raid-table";
-    table.style.width = "100%";
-
-    // thead
-    const thead     = document.createElement("thead");
-    const headerRow = document.createElement("tr");
-    [
-      { label: "#",      width: "30px",  fixed: true  },
-      { label: "닉네임", width: "100px", fixed: true  },
-      { label: "레벨",   width: "40px",  fixed: true, cls: "col-lv" },
-      { label: "대미지", width: null,    fixed: false },
-    ].forEach(({ label, width, fixed, cls }) => {
-      const th = document.createElement("th");
-      th.textContent = label;
-      if (cls) th.className = cls;
-      if (fixed) { th.style.width = width; th.style.minWidth = width; }
-      headerRow.appendChild(th);
-    });
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
-
-    // tbody
-    const tbody = document.createElement("tbody");
-    bossRows.forEach((row, idx) => {
-      const tr          = document.createElement("tr");
-      const syncroLevel = syncroMap[row.openId] || "—";
-      const medal       = BOSS_MEDAL[idx] || null;
-      const isTop1      = idx === 0;
-
-      if (isTop1) tr.style.background = "rgba(245,158,11,0.05)";
-
-      // 순위
-      const tdRank = document.createElement("td");
-      tdRank.style.cssText = "text-align:center;padding:11px 6px;" + (medal ? "font-size:16px;line-height:1;" : "font-size:12px;color:var(--text-sub);");
-      tdRank.textContent   = medal || (idx + 1);
-      tr.appendChild(tdRank);
-
-      // 닉네임
-      const tdName = document.createElement("td");
-      tdName.className   = "td-name";
-      tdName.style.fontWeight = isTop1 ? "800" : "";
-      tdName.textContent = row.name;
-      tr.appendChild(tdName);
-
-      // 싱크로
-      const tdSync = document.createElement("td");
-      tdSync.className = "col-lv";
-      tdSync.textContent = syncroLevel;
-      tr.appendChild(tdSync);
-
-      // 대미지
-      const tdDmg    = document.createElement("td");
-      tdDmg.className = "td-damage" + (elem ? " td-boss-" + elem : "");
-      const dmgColor  = row.finalHit ? "color:var(--red);font-weight:700;" : (isTop1 ? "color:var(--blue);font-weight:700;" : "");
-      tdDmg.innerHTML =
-        '<span style="font-size:10px;color:var(--text-sub);margin-right:3px;">Lv.' + row.bossLevel + '</span>' +
-        '<span style="' + dmgColor + '">' + fmt(lv400 ? row.dmgAdj : row.dmg) + '</span>' +
-        (showDeckBoss ? deckImagesHtml([row.squad]) : "");
-      tr.appendChild(tdDmg);
-
-      tbody.appendChild(tr);
-    });
-    table.appendChild(tbody);
-
-    // tfoot
-    const tfoot = document.createElement("tfoot");
-    const tfr   = document.createElement("tr");
-
-    const tfEmpty = document.createElement("td"); tfEmpty.textContent = ""; tfr.appendChild(tfEmpty);
-    const tfName  = document.createElement("td"); tfName.textContent  = "합계"; tfName.style.cssText = "text-align:left;font-size:11px;color:var(--text-sub);"; tfr.appendChild(tfName);
-
-    const validLevels = bossRows.map(r => syncroMap[r.openId]).filter(v => v != null);
-    const avgLevel = validLevels.length
-      ? (validLevels.reduce((s, v) => s + v, 0) / validLevels.length).toFixed(1)
-      : "—";
-    const tfSync = document.createElement("td");
-    tfSync.className = "col-lv";
-    tfSync.innerHTML = avgLevel + '<div class="td-foot-sub">평균</div>';
-    tfr.appendChild(tfSync);
-
-    const sumDmg   = bossRows.reduce((s, r) => s + (lv400 ? r.dmgAdj : r.dmg), 0);
-    const hitTotal = bossRows.length;
-    const tfDmg  = document.createElement("td");
-    tfDmg.className = elem ? "td-boss-" + elem : "";
-    tfDmg.innerHTML  = fmt(sumDmg) + '<div class="td-foot-sub">' + hitTotal + '회 타격</div>';
-    tfr.appendChild(tfDmg);
-
-    tfoot.appendChild(tfr);
-    table.appendChild(tfoot);
-
-
-    tableWrap.appendChild(table);
-    card.appendChild(tableWrap);
-    bossView.appendChild(card);
-  });
-}
-
-// ─── 덱 key (슬롯 무관, 캐릭터 이름 집합으로 정규화) ────────────
-function deckKey(squad) {
-  if (!squad || !squad.length) return "";
-  return [...squad].map(function(c) { return c.name; }).sort().join("|");
-}
-
-// ─── 덱 사용 현황 렌더링 ──────────────────────────────────────────
-function renderDeckUsage(seasonKey) {
-  const members   = RAID[seasonKey] || [];
-  const container = document.getElementById("deckUsageSection");
-  container.innerHTML = "";
-
-  // 보스 목록 (step 오름차순)
-  const bossMap = new Map();
-  members.forEach(function(m) {
-    m.raids.forEach(function(r) {
-      if (!bossMap.has(r.bossName)) bossMap.set(r.bossName, r.step);
-    });
-  });
-  const bosses = [...bossMap.entries()].sort(function(a, b) { return a[1] - b[1]; });
-  if (!bosses.length) return;
-
-  // 덱 데이터가 아예 없으면 섹션 자체 숨김
-  let hasAnyDeck = false;
-  members.forEach(function(m) {
-    m.raids.forEach(function(r) { if (r.squad && r.squad.length) hasAnyDeck = true; });
-  });
-  if (!hasAnyDeck) return;
-
-  // 구분선 + 섹션 제목
-  const sep = document.createElement("div");
-  sep.style.cssText = "border-top:1px solid var(--border);margin:28px 0 20px;";
-  container.appendChild(sep);
-
-  const sectionTitle = document.createElement("div");
-  sectionTitle.style.cssText = "font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;";
-  sectionTitle.textContent = "덱 사용 현황";
-  container.appendChild(sectionTitle);
-
-  // 보스별 그리드 (auto-fit 으로 카드 최소 width 보장 → 좁은 뷰포트에선 줄바꿈)
-  // 보스 수만큼 고정 열을 잡으면 모바일에서 칸이 너무 좁아져 캐릭터 이미지/pill
-  // 이 잘림. minmax(240px,1fr) 로 카드 최소폭 보장하고 공간 부족 시 다음 줄 wrap.
-  const grid = document.createElement("div");
-  grid.style.cssText = "display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;align-items:start;";
-  container.appendChild(grid);
-
-  const MEDAL = ["🥇", "🥈", "🥉"];
-  const TOP1_BG     = "rgba(245,158,11,0.06)";
-  const TOP1_BG_DK  = "rgba(245,158,11,0.10)";
-
-  bosses.forEach(function([bossName]) {
-    const elem  = getBossElem(bossName);
-    const short = shortBossName(bossName);
-
-    // 보스별 덱 집계
-    const deckMap = new Map();
-    members.forEach(function(m) {
-      m.raids.filter(function(r) { return r.bossName === bossName; }).forEach(function(r) {
-        if (!r.squad || !r.squad.length) return;
-        const key = deckKey(r.squad);
-        if (!deckMap.has(key)) deckMap.set(key, { squad: r.squad, count: 0 });
-        deckMap.get(key).count++;
-      });
-    });
-    if (!deckMap.size) return;
-
-    const sorted = [...deckMap.values()].sort(function(a, b) { return b.count - a.count; });
-
-    // 보스 카드
-    const card = document.createElement("div");
-    card.style.cssText =
-      "min-width:0;background:var(--bg-card);border:1px solid var(--border);" +
-      "border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.05);";
-
-    // 카드 헤더
-    const header = document.createElement("div");
-    header.style.cssText =
-      "padding:8px 10px;border-bottom:1px solid var(--border);" +
-      "background:var(--bg-muted);display:flex;align-items:center;gap:5px;flex-wrap:wrap;";
-    header.innerHTML =
-      '<span style="font-size:12px;font-weight:700;color:var(--text);">' + short + '</span>' +
-      (elem ? '<span class="elem-' + elem + '" style="font-size:11px;font-weight:600;">[' + elem + ']</span>' : "");
-    card.appendChild(header);
-
-    // 덱 행들
-    sorted.forEach(function(item, idx) {
-      const medal  = MEDAL[idx] || null;
-      const isTop1 = idx === 0;
-
-      const row = document.createElement("div");
-      row.style.cssText =
-        "display:flex;align-items:center;gap:6px;padding:7px 10px;" +
-        "border-bottom:1px solid var(--bg-muted);" +
-        (isTop1 ? "background:" + TOP1_BG + ";" : "");
-
-      // 순위
-      const rankEl = document.createElement("div");
-      rankEl.style.cssText = "width:18px;text-align:center;flex-shrink:0;" +
-        (medal ? "font-size:14px;line-height:1;" : "font-size:10px;font-weight:600;color:var(--text-dim);");
-      rankEl.textContent = medal || (idx + 1);
-      row.appendChild(rankEl);
-
-      // 캐릭터 이미지
-      const bySlot = [...item.squad].sort(function(a, b) { return a.slot - b.slot; });
-      const imgs = document.createElement("div");
-      imgs.style.cssText = "display:flex;gap:2px;flex:1;";
-      imgs.innerHTML = bySlot.map(function(c) {
-        return '<img src="' + charImgPath(c.name) + '" title="' + c.name + '" ' +
-          'style="width:28px;height:28px;border-radius:4px;object-fit:cover;" ' +
-          'onerror="this.onerror=null;this.src=\'' + DECK_IMG_FALLBACK + '\'">';
-      }).join("");
-      row.appendChild(imgs);
-
-      // 횟수 pill
-      const pill = document.createElement("div");
-      pill.style.cssText =
-        "flex-shrink:0;background:var(--blue);color:#fff;" +
-        "font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap;";
-      pill.textContent = item.count + "회";
-      row.appendChild(pill);
-
-      card.appendChild(row);
-    });
-
-    grid.appendChild(card);
-  });
-}
-
-// ─── 캐릭터 사용 현황 렌더링 ──────────────────────────────────────
-function renderCharUsage(seasonKey) {
-  const members   = RAID[seasonKey] || [];
-  const container = document.getElementById("charUsageSection");
-  container.innerHTML = "";
-
-  // 캐릭터별 사용 횟수 집계
-  const charCount = new Map();
-  members.forEach(function(m) {
-    m.raids.forEach(function(r) {
-      if (!r.squad || !r.squad.length) return;
-      r.squad.forEach(function(c) {
-        charCount.set(c.name, (charCount.get(c.name) || 0) + 1);
-      });
-    });
-  });
-  if (!charCount.size) return;
-
-  const sorted = [...charCount.entries()]
-    .map(function([name, count]) { return { name: name, count: count }; })
-    .sort(function(a, b) { return b.count - a.count; });
-
-  // 구분선 + 섹션 제목
-  const sep = document.createElement("div");
-  sep.style.cssText = "border-top:1px solid var(--border);margin:28px 0 20px;";
-  container.appendChild(sep);
-
-  const sectionTitle = document.createElement("div");
-  sectionTitle.style.cssText = "font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;";
-  sectionTitle.textContent = "캐릭터 사용 현황";
-  container.appendChild(sectionTitle);
-
-  const MEDAL = ["🥇", "🥈", "🥉"];
-  const TOP_BORDER = ["#f59e0b", "#94a3b8", "#b45309"];
-
-  // 아이콘 카드 그리드
-  const cardGrid = document.createElement("div");
-  cardGrid.style.cssText = "display:flex;flex-wrap:wrap;gap:10px;";
-  container.appendChild(cardGrid);
-
-  sorted.forEach(function(item, idx) {
-    const medal = MEDAL[idx] || null;
-
-    const card = document.createElement("div");
-    card.style.cssText =
-      "position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;" +
-      "background:var(--bg-card);border:1.5px solid " + (idx < 3 ? TOP_BORDER[idx] : "var(--border)") + ";" +
-      "border-radius:12px;padding:12px 8px 10px;width:76px;box-sizing:border-box;" +
-      "box-shadow:0 1px 4px rgba(0,0,0,0.05);";
-
-    // 메달 배지
-    if (medal) {
-      const medalEl = document.createElement("div");
-      medalEl.style.cssText =
-        "position:absolute;top:-10px;left:50%;transform:translateX(-50%);" +
-        "font-size:15px;line-height:1;";
-      medalEl.textContent = medal;
-      card.appendChild(medalEl);
-    }
-
-    // 캐릭터 이미지
-    const img = document.createElement("img");
-    img.src   = charImgPath(item.name);
-    img.title = item.name;
-    img.style.cssText = "width:48px;height:48px;border-radius:8px;object-fit:cover;";
-    img.onerror = function() { this.onerror = null; this.src = DECK_IMG_FALLBACK; };
-    card.appendChild(img);
-
-    // 횟수
-    const countEl = document.createElement("div");
-    countEl.style.cssText = "font-size:12px;font-weight:700;color:var(--blue);";
-    countEl.textContent = item.count + "회";
-    card.appendChild(countEl);
-
-    cardGrid.appendChild(card);
-  });
-}
-
-// ─── 뷰 전환 ─────────────────────────────────────────────────────
-function renderView(seasonKey) {
-  renderBossHpSummary(seasonKey);
-  const type = (document.querySelector('input[name="typeSelect"]:checked') || {value:"basic"}).value;
-  if (type === "boss") {
-    document.getElementById("basicCaptureArea").style.display = "none";
-    document.getElementById("bossView").style.display         = "";
-    renderBossView(seasonKey);
-  } else {
-    document.getElementById("basicCaptureArea").style.display = "";
-    document.getElementById("bossView").style.display         = "none";
-    renderRaidTable(seasonKey);
-  }
-  renderDeckUsage(seasonKey);
-  renderCharUsage(seasonKey);
-}
-
-// ─── 시즌 등수 배지 ──────────────────────────────────────────────
-function renderRank(seasonKey) {
-  const el       = document.getElementById("raidRankBadge");
-  const unionKey = seasonKey.replace("S", "");
-  const rank     = UNION[unionKey] && UNION[unionKey].rank;
-
-  // LV1 ~ LV4 전체 누적 대미지 (compact 토글과 무관하게 항상 전체 숫자)
-  const members = RAID[seasonKey] || [];
-  let totalDmg = 0;
-  members.forEach(m => {
-    (m.raids || []).forEach(r => {
-      totalDmg += r.totalDamage || 0;
-    });
-  });
-
-  el.innerHTML =
-    '<div class="rank-badge">' +
-      '<span class="rank-badge-label">순위</span>' +
-      '<span class="rank-badge-sep"></span>' +
-      (rank != null
-        ? '<span class="rank-badge-value">🏆 ' + rank + '위</span>'
-        : '<span class="rank-badge-value unknown">미정</span>') +
-      '<span class="rank-badge-sep"></span>' +
-      '<span class="rank-badge-label">총 대미지</span>' +
-      '<span class="rank-badge-sep"></span>' +
-      '<span class="rank-badge-value">' + (totalDmg > 0 ? fmtFull(totalDmg) : "—") + '</span>' +
+function render(){
+  const ps = state.season;
+  const SD = computeSeason(ps);
+  const psIdx = raidKeys.indexOf(ps);
+  const cur = correctedScore[ps], prevS = raidKeys[psIdx - 1], prev = prevS ? correctedScore[prevS] : null;
+  const delta = prev == null ? null : cur - prev;
+  const cv = raidKeys.map(s => correctedScore[s]); const cmin = Math.min(...cv), cmax = Math.max(...cv);
+  const scoreBars = raidKeys.map(s => ({ s: s.slice(1), h: Math.round(10 + (correctedScore[s] - cmin) / ((cmax - cmin) || 1) * 60), hMini: Math.round(6 + (correctedScore[s] - cmin) / ((cmax - cmin) || 1) * 26), sel: s === ps }));
+
+  const rankedRaid = raidKeys.filter(s => rankOfSeason[s] != null);
+  const rankArr = rankedRaid.map(s => rankOfSeason[s]);
+  const rankSelIdx = rankedRaid.indexOf(ps);
+  const rankNow = rankOfSeason[ps];
+
+  const seasonOptions = [...raidKeys].reverse().map(s => '<option value="' + s + '"' + (s === ps ? " selected" : "") + '>' + s + (rankOfSeason[s] != null ? " (" + rankOfSeason[s] + "위)" : "") + '</option>').join("");
+
+  const toolbar =
+    '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--muted);border:1px solid var(--border);border-radius:12px;padding:10px 14px">' +
+      '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;font-weight:700;color:var(--sub)">시즌</span>' +
+        '<select class="rd-select" id="rdSeason" style="height:32px;padding:0 10px;font-size:13px">' + seasonOptions + '</select></div>' +
+      '<span data-act="toggle-deck" style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;user-select:none">' +
+        '<span style="position:relative;width:32px;height:18px;border-radius:9px;background:' + (state.deck ? "var(--blue)" : "var(--bar-empty)") + '"><span style="position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transform:' + (state.deck ? "translateX(14px)" : "translateX(0)") + '"></span></span>' +
+        '<span style="font-size:12px;font-weight:600;color:var(--sub)">덱 보기</span></span>' +
     '</div>';
+
+  const scoreCard =
+    '<div class="rd-card" style="padding:16px 20px">' +
+      '<div style="display:flex;align-items:baseline;justify-content:space-between"><div class="rd-uplabel">시즌 최종 점수</div><div style="font-size:11px;color:var(--dim);font-weight:600">' + ps + ' · ' + SD.count + '명</div></div>' +
+      '<div style="font-size:28px;font-weight:800;color:var(--text);line-height:1.05;margin-top:6px" class="tnum">' + fmtEok(cur) + (delta != null ? ' <span style="font-size:13px;color:' + (delta >= 0 ? "var(--green)" : "var(--red)") + ';font-weight:700">' + (delta >= 0 ? "+" : "-") + fmtEok(Math.abs(delta)) + '</span>' : "") + '</div>' +
+      '<div style="font-size:10px;color:var(--dim);margin-top:3px" class="tnum">' + cur.toLocaleString("en-US") + ' · 전 시즌 대비</div>' +
+      '<div style="display:flex;align-items:flex-end;gap:5px;height:46px;margin-top:12px">' + scoreBars.map(b => '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div style="width:100%;max-width:24px;height:' + b.h + 'px;background:' + (b.sel ? "var(--bar)" : "var(--bar-score)") + ';border-radius:3px 3px 0 0"></div><div style="font-size:8px;color:var(--dim);font-weight:600;margin-top:4px">' + b.s + '</div></div>').join("") + '</div>' +
+    '</div>';
+  const rankCard =
+    '<div class="rd-card" style="padding:16px 20px">' +
+      '<div class="rd-uplabel" style="margin-bottom:8px">유니온 순위 추이</div>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px">' +
+        '<div><div style="font-size:28px;font-weight:800;color:var(--text);line-height:1" class="tnum">' + (rankNow != null ? rankNow + "위" : "—") + '</div><div style="font-size:11px;color:var(--dim);font-weight:600;margin-top:3px">' + ps + ' 시즌</div></div>' +
+        (rankArr.length ? '<svg viewBox="0 0 232 78" style="width:230px;height:74px;flex-shrink:0;overflow:visible">' + rankLineSVG(rankArr, 2.6, 4, rankSelIdx) + '</svg>' : "") +
+      '</div></div>';
+
+  const desktop =
+    '<div class="rd-desktop rd-stack">' +
+      '<div style="display:grid;grid-template-columns:1.1fr 1fr;gap:14px">' + scoreCard + rankCard + '</div>' +
+      '<div><div class="rd-sec-head"><span class="rd-sec-bar"></span><span class="rd-sec-title">보스</span><span class="rd-sec-note">투입 타격 수</span></div>' +
+        '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">' + bossCardsHTML(SD) + '</div></div>' +
+      '<div class="rd-card" style="padding:18px 20px 14px">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;flex-wrap:wrap;gap:8px">' +
+          '<div style="display:flex;align-items:center;gap:10px"><span class="rd-sec-bar"></span><span class="rd-sec-title">멤버별 대미지</span><span class="rd-pill">총 대미지순</span></div>' +
+          '<span style="font-size:11px;color:var(--dim);font-weight:600">닉네임 클릭 → 팝업 · <span style="color:var(--red)">막타</span></span>' +
+        '</div>' + matrixHTML(SD) +
+      '</div>' +
+      '<div><div class="rd-sec-head"><span class="rd-sec-bar"></span><span class="rd-sec-title">덱 사용 현황</span><span class="rd-sec-note">보스별 최다 편성</span></div>' +
+        '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">' + deckUsageHTML(SD) + '</div></div>' +
+      '<div><div class="rd-sec-head"><span class="rd-sec-bar"></span><span class="rd-sec-title">캐릭터 사용 현황</span><span class="rd-sec-note">최다 출전 TOP</span></div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:9px">' + charUsageHTML(SD) + '</div></div>' +
+    '</div>';
+
+  const bossChips = SD.bosses.map(b => { const ec = EL_COL[b.elem] || "var(--dim)";
+    const chip = b.high > 0 ? (b.low + " / " + b.high + "타격") : (b.hits + "타격");
+    return '<div style="min-width:0;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 4px 7px;border-top:2px solid ' + ec + ';text-align:center;display:flex;flex-direction:column"><div style="font-size:9px;font-weight:800;color:var(--text);line-height:1.25;word-break:keep-all;flex:1">' + esc(b.short) + '</div><div style="font-size:9px;color:' + ec + ';font-weight:700;margin-top:5px">' + chip + '</div></div>';
+  }).join("");
+  const mobileCards = SD.membersSorted.map((name, i) => {
+    const m = SD.memberData[name], md = medal(i);
+    const bossBlocks = SD.order.filter(bn => m.cells[bn]).map(bn => {
+      const b = SD.bosses.find(x => x.short === bn); const ec = EL_COL[b.elem] || "var(--dim)";
+      const decks = m.cells[bn].map(h =>
+        '<div style="display:flex;align-items:center;gap:9px;padding-left:13px"><div style="display:flex;gap:2px">' +
+          h.chars.map(c => '<img src="' + imgOf(c) + '" style="width:23px;height:23px;border-radius:4px;object-fit:cover" loading="lazy" onerror="this.style.opacity=0.15">').join("") +
+          '</div><span style="margin-left:auto;font-size:13px;font-weight:' + (h.final ? "800" : "600") + ';color:' + (h.final ? "var(--red)" : "var(--text)") + '" class="tnum">' + fmtEok(h.dmg) + '</span></div>').join("");
+      return '<div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:' + ec + ';flex-shrink:0"></span><span style="font-size:12px;font-weight:700;color:var(--text)">' + esc(bn) + '</span><span style="font-size:9px;font-weight:700;color:' + ec + '">[' + b.elem + ']</span></div>' + decks + '</div>';
+    }).join("");
+    return '<div class="rd-card" style="padding:13px 14px"><div style="display:flex;align-items:center;gap:10px">' +
+      '<span class="rd-rankpill" style="background:' + md.bg + ';color:' + md.col + '">' + (i + 1) + '</span>' +
+      '<span class="rd-name" data-act="open-member" data-name="' + esc(name) + '" style="font-size:15px">' + esc(name) + '</span>' +
+      '<span style="margin-left:auto;font-size:15px;font-weight:800;color:var(--blue)" class="tnum">' + fmtEok(m.total) + '</span></div>' +
+      '<div style="display:flex;flex-direction:column;gap:10px;margin-top:11px;padding-top:11px;border-top:1px solid var(--line)">' + bossBlocks + '</div></div>';
+  }).join("");
+  const mobile =
+    '<div class="rd-mobile rd-stack">' +
+      '<div class="rd-card" style="padding:14px 16px"><div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase">' + ps + ' 시즌 최종 점수</span><span style="font-size:11px;font-weight:700;color:var(--blue);background:var(--blue-l);padding:2px 9px;border-radius:999px">' + (rankNow != null ? rankNow + "위" : "—") + '</span></div>' +
+        '<div style="font-size:23px;font-weight:800;color:var(--text);margin-top:6px" class="tnum">' + fmtEok(cur) + (delta != null ? ' <span style="font-size:12px;color:' + (delta >= 0 ? "var(--green)" : "var(--red)") + ';font-weight:700">' + (delta >= 0 ? "+" : "-") + fmtEok(Math.abs(delta)) + '</span>' : "") + '</div>' +
+        '<div style="display:flex;align-items:flex-end;gap:3px;height:34px;margin-top:10px">' + scoreBars.map(b => '<div style="flex:1;height:' + b.hMini + 'px;background:' + (b.sel ? "var(--bar)" : "var(--bar-score)") + ';border-radius:2px 2px 0 0"></div>').join("") + '</div></div>' +
+      '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">' + bossChips + '</div>' +
+      '<div style="font-size:13px;font-weight:800;color:var(--text);padding:2px 2px 0">멤버별 대미지 <span style="color:var(--dim);font-weight:600;font-size:11px">닉네임 탭 → 상세</span></div>' +
+      mobileCards +
+    '</div>';
+
+  document.getElementById("rdContent").innerHTML = toolbar + desktop + mobile;
+  const sel = document.getElementById("rdSeason");
+  if (sel) sel.addEventListener("change", e => setState({ season: e.target.value }));
 }
 
-// ─── 이벤트 ──────────────────────────────────────────────────────
-seasonSelect.addEventListener("change", () => {
-  renderView(seasonSelect.value);
-  renderRank(seasonSelect.value);
+/* ═══════════ 멤버 상세 팝업 (홈·레이드 공통) ═══════════ */
+let popupState = { name: null, season: null };
+function buildPopupHTML(name, season){
+  const cur = members.find(m => m.name === name) || null;
+  const roleKo = cur ? (ROLE_KO[roleOf(cur)] || "") : "";
+  const syncNow = cur ? cur.syncroLevel : (lvlMaps[parseInt(season.slice(1))] ? lvlMaps[parseInt(season.slice(1))][name] : "—");
+  const svVals = seasonKeys.map(k => lvlMaps[k][name] != null ? lvlMaps[k][name] : null);
+  const valid = svVals.filter(v => v != null);
+  const smin = valid.length ? Math.min(...valid) : 0, smax = valid.length ? Math.max(...valid) : 1;
+  const syncBars = seasonKeys.map((k, i) => {
+    const v = svVals[i], sel = ("S" + k) === season;
+    return '<div data-act="popup-season" data-season="S' + k + '" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;cursor:pointer">' +
+      '<div style="font-size:8px;font-weight:700;color:var(--text);margin-bottom:3px" class="tnum">' + (v == null ? "—" : v) + '</div>' +
+      '<div style="width:100%;max-width:26px;height:' + (v == null ? 2 : Math.round(10 + (v - (smin - 4)) / ((smax - smin) || 1) * 70)) + 'px;background:' + (sel ? "var(--bar)" : (v != null ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
+      '<div style="font-size:9px;color:' + (sel ? "var(--blue)" : "var(--dim)") + ';font-weight:700;margin-top:5px">' + k + '</div></div>';
+  }).join("");
+  const hasStats = !!(cur && cur.normal);
+  let statsHTML = "", outpostHTML = "";
+  if (hasStats) {
+    const sc = (label, val, col) => '<div style="background:var(--muted);border:1px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center"><div style="font-size:9px;color:var(--dim);font-weight:700;margin-bottom:3px">' + label + '</div><div style="font-size:13px;font-weight:800;color:' + col + '" class="tnum">' + val + '</div></div>';
+    statsHTML = '<div><div class="rd-uplabel" style="margin-bottom:10px">스탯 요약</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">' +
+      sc("노말", cur.normal, cur.normal === "46-40" ? "var(--red)" : "var(--text)") + sc("하드", cur.hard, cur.hard === "46-40" ? "var(--red)" : "var(--text)") +
+      sc("타워", cur.tribeTower, cur.tribeTower === 1450 ? "var(--red)" : "var(--text)") + sc("오버클럭", cur.overclock >= 51 ? "∞" : cur.overclock, cur.overclock >= 51 ? "var(--red)" : "var(--text)") + '</div></div>';
+    if (cur.outpost) outpostHTML = '<div><div class="rd-uplabel" style="margin-bottom:10px">거점 연구</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">' +
+      OPF.map(([label, key]) => { const v = cur.outpost[key]; const isMax = key !== "common" && v === cur.outpost.common;
+        return '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--muted);border:1px solid var(--border);border-radius:9px;padding:8px 10px"><span style="font-size:10px;color:var(--sub);font-weight:600">' + label + '</span><span style="font-size:13px;font-weight:800;color:' + (isMax ? "var(--red)" : "var(--ink)") + '" class="tnum">' + (v == null ? "—" : v) + '</span></div>'; }).join("") + '</div></div>';
+  }
+  const rseason = RAID[season] || null;
+  const rmember = rseason ? rseason.find(mm => mm.name === name || (cur && mm.openId === cur.blaBlaLinkUId)) : null;
+  let rankLabel = "유니온 멤버", total = 0, contrib = "0.00", finalCount = 0, decks = [];
+  if (rmember) {
+    total = rmember.raids.reduce((a, r) => a + r.totalDamage, 0);
+    finalCount = rmember.raids.filter(r => r.isFinalHit).length;
+    contrib = (total / (seasonRaw(season) || 1) * 100).toFixed(2);
+    const totals = rseason.map(mm => mm.raids.reduce((a, r) => a + r.totalDamage, 0)).sort((a, b) => b - a);
+    rankLabel = "유니온 #" + (totals.findIndex(t => t <= total) + 1);
+    const bosses = bossesOf(season); const byBoss = {};
+    rmember.raids.forEach(r => { const sh = bossShort(r.bossName); (byBoss[sh] = byBoss[sh] || []).push(r); });
+    bosses.forEach(b => (byBoss[b.short] || []).sort((a, c) => a.bossLevel - c.bossLevel).forEach(r => decks.push({ short: b.short, step: b.minStep, elem: b.elem, dmg: r.totalDamage, final: r.isFinalHit, chars: [...r.squad].sort((x, y) => x.slot - y.slot).map(s => s.name) })));
+  } else {
+    const us = UNION[parseInt(season.slice(1))];
+    if (us) { const rr = [...us.members].sort((a, b) => b.syncroLevel - a.syncroLevel).findIndex(x => x.name === name); if (rr >= 0) rankLabel = "유니온 #" + (rr + 1); }
+  }
+  const dmgVals = raidKeys.map(sk => { const mm = (RAID[sk] || []).find(x => x.name === name || (cur && x.openId === cur.blaBlaLinkUId)); return { s: sk, v: mm ? mm.raids.reduce((a, r) => a + r.totalDamage, 0) : 0 }; });
+  const dmgMax = Math.max(...dmgVals.map(d => d.v), 1), hasDmgTrend = dmgVals.some(d => d.v > 0);
+  const dmgBars = dmgVals.map(d => { const sel = d.s === season;
+    return '<div data-act="popup-season" data-season="' + d.s + '" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;cursor:pointer">' +
+      '<div style="font-size:7px;font-weight:700;color:var(--text);margin-bottom:3px" class="tnum">' + (d.v ? fmtEok(d.v) : "—") + '</div>' +
+      '<div style="width:100%;max-width:26px;height:' + (d.v ? Math.round(8 + d.v / dmgMax * 78) : 2) + 'px;background:' + (sel ? "var(--bar)" : (d.v ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
+      '<div style="font-size:9px;color:' + (sel ? "var(--blue)" : "var(--dim)") + ';font-weight:700;margin-top:5px">' + d.s.slice(1) + '</div></div>';
+  }).join("");
+  const metricsHTML = rmember ? '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px">' +
+    [["시즌 총 대미지", fmtEok(total), "var(--blue)"], ["유니온 기여", contrib + "%", "var(--text)"], ["막타", finalCount + "회", "var(--red)"]].map(m =>
+      '<div style="background:var(--muted);border:1px solid var(--border);border-radius:10px;padding:9px 11px"><div style="font-size:9px;color:var(--dim);font-weight:700;text-transform:uppercase">' + m[0] + '</div><div style="font-size:15px;font-weight:800;color:' + m[2] + ';margin-top:2px" class="tnum">' + m[1] + '</div></div>').join("") + '</div>' : "";
+  const decksHTML = decks.length ? '<div><div class="rd-uplabel" style="margin-bottom:12px">사용 덱</div><div style="display:flex;flex-direction:column;gap:8px">' +
+    decks.map(d => '<div style="display:flex;flex-direction:column;gap:7px;background:var(--muted);border:1px solid var(--border);border-radius:10px;padding:9px 11px">' +
+      '<div style="display:flex;align-items:center;gap:7px"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;border-radius:4px;background:' + (EL_BG[d.elem] || "var(--muted)") + ';color:' + (EL_COL[d.elem] || "var(--dim)") + ';font-size:9px;font-weight:800;flex-shrink:0">' + d.step + '</span>' +
+        '<span style="font-size:12px;font-weight:700;color:var(--text)">' + esc(d.short) + '</span>' + (d.elem ? '<span style="font-size:9px;font-weight:700;color:' + (EL_COL[d.elem] || "var(--dim)") + '">[' + d.elem + ']</span>' : "") + (d.final ? '<span style="font-size:9px;font-weight:800;color:var(--red)">막타</span>' : "") +
+        '<span style="margin-left:auto;font-size:12px;font-weight:800;color:' + (d.final ? "var(--red)" : "var(--text)") + '" class="tnum">' + fmtEok(d.dmg) + '</span></div>' +
+      '<div style="display:flex;gap:3px">' + d.chars.map(c => '<img src="' + imgOf(c) + '" title="' + esc(c) + '" style="width:29px;height:29px;border-radius:5px;object-fit:cover" loading="lazy" onerror="this.style.opacity=0.15">').join("") + '</div></div>').join("") + '</div>' :
+    '<div style="padding:14px;text-align:center;color:var(--dim);font-size:12px;font-weight:600;background:var(--muted);border-radius:10px">' + season + ' 시즌 레이드 기록 없음</div>';
+  const seasonOptions = [...raidKeys].reverse().map(sk => { const rk = rankOfSeason[sk]; return '<option value="' + sk + '"' + (sk === season ? " selected" : "") + '>' + sk + (rk != null ? " (" + rk + "위)" : "") + '</option>'; }).join("");
+  return '<div style="padding:18px 20px 16px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,var(--muted),var(--card))">' +
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px"><div style="min-width:0"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:20px;font-weight:800;color:var(--text)">' + esc(name) + '</span>' +
+        (roleKo ? '<span class="rd-role" style="font-size:11px;padding:2px 9px;background:' + (roleKo === "리더" ? "var(--role-leader-bg)" : "var(--role-officer-bg)") + ';color:' + (roleKo === "리더" ? "var(--role-leader)" : "var(--role-officer)") + '">' + roleKo + '</span>' : "") + '</div>' +
+        '<div style="font-size:12px;color:var(--sub);margin-top:4px">' + rankLabel + ' · 싱크로레벨 <b style="color:var(--text)">' + syncNow + '</b></div></div>' +
+        '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0"><select class="rd-select" id="rdPopupSeason">' + seasonOptions + '</select><span class="rd-modal-close" data-act="close-popup">✕</span></div></div>' +
+    '</div>' +
+    '<div style="padding:18px 20px 20px;display:flex;flex-direction:column;gap:18px;max-height:580px;overflow-y:auto">' +
+      '<div><div class="rd-uplabel" style="margin-bottom:12px">싱크로레벨 변화</div><div style="display:flex;align-items:flex-end;gap:7px;height:96px">' + syncBars + '</div></div>' +
+      statsHTML + outpostHTML +
+      '<div style="margin-top:2px;padding-top:18px;border-top:2px solid var(--line)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span class="rd-sec-bar" style="height:14px"></span><span style="font-size:13px;font-weight:800;color:var(--text)">유니온레이드</span><span style="font-size:11px;font-weight:700;color:var(--blue);background:var(--blue-l);padding:1px 8px;border-radius:999px">' + season + '</span></div>' +
+        metricsHTML + (hasDmgTrend ? '<div style="margin-bottom:18px"><div class="rd-uplabel" style="margin-bottom:12px">시즌별 총 대미지 추이</div><div style="display:flex;align-items:flex-end;gap:7px;height:96px">' + dmgBars + '</div></div>' : "") + decksHTML +
+      '</div></div>';
+}
+function renderPopup(){
+  document.getElementById("rdMemberModal").innerHTML = buildPopupHTML(popupState.name, popupState.season);
+  const sel = document.getElementById("rdPopupSeason");
+  if (sel) sel.addEventListener("change", e => { popupState.season = e.target.value; renderPopup(); });
+}
+function openMemberModal(name, season){
+  popupState.name = name; popupState.season = season || state.season;
+  renderPopup();
+  document.getElementById("rdMemberOverlay").style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+function closeMemberModal(){ document.getElementById("rdMemberOverlay").style.display = "none"; document.body.style.overflow = ""; }
+
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-act]"); if (!t) return;
+  const act = t.dataset.act;
+  if (act === "toggle-deck") setState({ deck: !state.deck });
+  else if (act === "open-member") openMemberModal(t.dataset.name, state.season);
+  else if (act === "close-popup") closeMemberModal();
+  else if (act === "popup-season") { popupState.season = t.dataset.season; renderPopup(); }
 });
-document.getElementById("compactToggle").addEventListener("change", () => renderView(seasonSelect.value));
-document.getElementById("summaryToggle").addEventListener("change", () => renderView(seasonSelect.value));
-document.querySelectorAll('input[name="typeSelect"]').forEach(r =>
-  r.addEventListener("change", () => renderView(seasonSelect.value))
-);
-document.getElementById("deckToggle").addEventListener("change", () => renderView(seasonSelect.value));
-document.getElementById("lv400Toggle").addEventListener("change", () => renderView(seasonSelect.value));
+document.getElementById("rdMemberOverlay").addEventListener("click", e => { if (e.target === e.currentTarget) closeMemberModal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && document.getElementById("rdMemberOverlay").style.display !== "none") closeMemberModal(); });
 
+render();
 
-renderView(seasonSelect.value);
-renderRank(seasonSelect.value);
 } // if (!window.__AUTH_REQUIRED)
 </script>
 
 <script>
 (function() {
-  const html  = document.documentElement;
-  const btn   = document.getElementById("themeToggle");
-  const saved = localStorage.getItem("theme");
+  const html = document.documentElement, btn = document.getElementById("themeToggle"), saved = localStorage.getItem("theme");
   if (saved === "dark") { html.classList.add("dark"); btn.textContent = "☀️"; }
-  btn.addEventListener("click", function() {
-    const isDark = html.classList.toggle("dark");
-    btn.textContent = isDark ? "☀️" : "🌙";
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-  });
+  btn.addEventListener("click", function() { const isDark = html.classList.toggle("dark"); btn.textContent = isDark ? "☀️" : "🌙"; localStorage.setItem("theme", isDark ? "dark" : "light"); });
 })();
 </script>
-
 <script>
 (function(){
   document.addEventListener("contextmenu", function(e){ e.preventDefault(); });
@@ -1451,14 +463,8 @@ renderRank(seasonSelect.value);
     if (e.ctrlKey && e.shiftKey && ["I","i","J","j","C","c"].includes(e.key)) { e.preventDefault(); return; }
     if (e.ctrlKey && ["u","U","s","S"].includes(e.key)) { e.preventDefault(); return; }
   });
-  // DevTools 열림 감지(폐기): outerWidth/innerWidth 차이로 추정하던 폴링이
-  // iOS 줌(innerWidth 변동) / 스크롤 시 URL 바 숨김(innerHeight 변동) 에서
-  // 오탐을 일으켜 document.body.innerHTML="" 로 페이지 통째 블랭크 발생.
-  // 키보드 단축키 차단만 유지.
 })();
 </script>
-
-<!-- ═══════════ 인증 확정 후 body 공개 (FOUC 방지) ═══════════ -->
 <script>if(!window.__AUTH_REQUIRED)document.body.classList.add("ready");</script>
 
 </body>

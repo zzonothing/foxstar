@@ -690,3 +690,207 @@ html.dark .chip-iron { background: #1c1407; color: #fde047; border-color: #713f1
 @media (max-width: 960px) {
   .col-outpost { display: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   리디자인 (Foxstar Redesign) — 디자인 토큰 + 공통 셸
+   기존 변수는 보존하고 신규 토큰만 추가 (sim/login 영향 없음).
+   라이트 = 핸드오프 정확 hex / 다크 = 기존 다크 팔레트 대응.
+══════════════════════════════════════════════════════════════════ */
+:root {
+  --card:#ffffff;
+  --muted:#f5f7fa;
+  --line:#eef1f6;
+  --sub:#64748b;
+  --dim:#9aa4b2;
+  --blue-l:#eff6ff;
+  --ink:#475569;
+  /* 속성색 */
+  --el-water:#3b82f6; --el-fire:#ef4444; --el-iron:#f59e0b; --el-elec:#a855f7; --el-wind:#22c55e;
+  --elbg-water:#eff5ff; --elbg-fire:#fef1f1; --elbg-iron:#fff7ea; --elbg-elec:#f7f0fe; --elbg-wind:#edfcf2;
+  /* 소장품 등급 */
+  --grade-ssr:#d97706; --grade-sr:#a855f7; --grade-r:#2563eb;
+  /* 메달(순위) */
+  --medal1:#b45309; --medal1-bg:#fffbeb; --medal2:#64748b; --medal2-bg:#f1f5f9; --medal3:#c2620c; --medal3-bg:#fff7ed;
+  /* 역할 */
+  --role-leader-bg:#fffbeb; --role-leader:#b45309; --role-officer-bg:#eff6ff; --role-officer:#2563eb;
+  /* 차트 막대 */
+  --bar:#2563eb; --bar-l:#93c5fd; --bar-ll:#bcd3f7; --bar-empty:#e6eaf0; --bar-score:#cbd9ef;
+  /* 시프티 장비 티어 강조 */
+  --tier-max-bg:#111827; --tier-bright:rgb(80,180,255);
+  /* 세그먼트 토글 활성 */
+  --seg-bg:#fff; --seg-col:#0f172a; --seg-sh:0 1px 2px rgba(15,23,42,.12);
+  /* 콤보 칩(연회색 / 기준 진회색) */
+  --chip-gray-bg:#eef1f5; --chip-gray-bd:#dfe4ec; --chip-gray-col:#475569;
+  --chip-base-bg:#d6dde8; --chip-base-bd:#aab4c4; --chip-base-col:#0f172a;
+  --overlay:rgba(15,23,42,.5);
+}
+html.dark {
+  --card:#1f2937;
+  --muted:#283548;
+  --line:#374151;
+  --sub:#9ca3af;
+  --dim:#6b7280;
+  --blue-l:#1e3a5f;
+  --ink:#94a3b8;
+  --elbg-water:#16243b; --elbg-fire:#33201f; --elbg-iron:#33280f; --elbg-elec:#271a3a; --elbg-wind:#13301e;
+  --medal1-bg:#2a210a; --medal2-bg:#222b38; --medal3-bg:#2c2110;
+  --role-leader-bg:#2a210a; --role-officer-bg:#1e3a5f;
+  --bar-empty:#374151; --bar-score:#2c3e5e;
+  --tier-max-bg:#0b1426;
+  --seg-bg:#0f172a; --seg-col:#f9fafb;
+  --chip-gray-bg:#283548; --chip-gray-bd:#3a475c; --chip-gray-col:#cbd5e1;
+  --chip-base-bg:#334155; --chip-base-bd:#475569; --chip-base-col:#f1f5f9;
+  --overlay:rgba(0,0,0,.6);
+}
+
+/* ── 공통 셸: 헤더 (그라데이션 바 + 브랜드 + 토글 + 탭 네비) ── */
+.rd-header { background: var(--card); border-bottom: 1px solid var(--border); }
+html.dark .rd-header { background: var(--card); }
+.rd-grad { height: 3px; background: linear-gradient(90deg,#2563eb,#7c3aed 60%,#0891b2); }
+.rd-head-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0 0;
+}
+.rd-brand { display: flex; align-items: center; gap: 13px; }
+.rd-brand img { width: 38px; height: 38px; object-fit: contain; border-radius: 6px; }
+.rd-eyebrow {
+  font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--dim); font-weight: 700;
+}
+.rd-title { font-size: 19px; font-weight: 800; color: var(--text); line-height: 1.15; }
+.rd-toggle {
+  width: 37px; height: 37px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--muted);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; cursor: pointer; flex-shrink: 0; color: var(--text);
+  transition: background .15s;
+}
+.rd-toggle:hover { background: var(--border); }
+.rd-nav { display: flex; gap: 6px; padding: 13px 0 0; }
+.rd-nav a {
+  padding: 9px 17px; color: var(--sub); font-size: 13px; font-weight: 600;
+  border-radius: 10px 10px 0 0; white-space: nowrap; transition: color .15s, background .15s;
+}
+.rd-nav a:hover { color: var(--text); }
+.rd-nav a.active { background: var(--blue); color: #fff; font-weight: 700; }
+html.dark .rd-nav a.active { color: #fff; }
+
+/* 모바일 탭 네비 (밑줄형) */
+.rd-nav-mobile { display: none; }
+.rd-nav-mobile a {
+  flex: 1; text-align: center; padding: 10px 2px; font-size: 12px; font-weight: 600;
+  color: var(--sub); border-bottom: 2px solid transparent;
+}
+.rd-nav-mobile a.active { color: var(--blue); font-weight: 700; border-bottom-color: var(--blue); }
+
+/* ── 데스크톱/모바일 헤더 전환 (표시 토글은 스타일시트 맨 끝) ── */
+@media (max-width: 760px) {
+  .rd-nav { display: none; }
+  .rd-nav-mobile { display: flex; }
+  .rd-head-inner { padding: 12px 0 0; }
+  .rd-title { font-size: 16px; }
+  .rd-brand img { width: 31px; height: 31px; }
+  .rd-eyebrow { display: none; }
+}
+
+/* ── 리디자인 본문 공통 ── */
+.rd-main { padding: 22px 0 40px; }
+.rd-stack { display: flex; flex-direction: column; gap: 16px; }
+.rd-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+}
+.rd-sec-head { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; }
+.rd-sec-bar { width: 4px; height: 16px; border-radius: 2px; background: var(--blue); }
+.rd-sec-title { font-size: 15px; font-weight: 800; color: var(--text); }
+.rd-sec-note { font-size: 11px; color: var(--dim); font-weight: 600; }
+.rd-pill {
+  font-size: 11px; font-weight: 700; color: var(--sub);
+  background: var(--muted); border: 1px solid var(--border);
+  padding: 2px 9px; border-radius: 999px;
+}
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* 세그먼트 토글 */
+.rd-seg { display: flex; gap: 3px; background: var(--muted); border: 1px solid var(--border); border-radius: 9px; padding: 3px; }
+.rd-seg > * {
+  font-size: 12px; font-weight: 700; padding: 6px 15px; border-radius: 6px; cursor: pointer;
+  color: var(--sub); background: transparent; transition: background .12s, color .12s; user-select: none;
+}
+.rd-seg > *.on { background: var(--seg-bg); color: var(--seg-col); box-shadow: var(--seg-sh); }
+
+/* 모달 오버레이 (리디자인) */
+.rd-overlay {
+  position: fixed; inset: 0; z-index: 9000; background: var(--overlay);
+  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.rd-modal {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  box-shadow: 0 10px 36px rgba(15,23,42,.28); overflow: hidden; width: 100%;
+  display: flex; flex-direction: column; max-height: 90vh;
+}
+@media (max-width: 600px) { .rd-overlay { padding: 12px; } }
+
+/* 표 가로 스크롤 */
+.rd-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.rd-table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.rd-table th { font-weight: 700; color: var(--sub); text-transform: uppercase; }
+
+/* ── 리디자인 표/공통 헬퍼 ── */
+.rd-th-sticky { position: sticky; z-index: 3; background: var(--card); text-align: left; padding: 9px 12px; font-size: 11px; font-weight: 700; color: var(--sub); text-transform: uppercase; box-shadow: 1px 0 0 var(--border); }
+.rd-td-sticky { position: sticky; left: 0; z-index: 2; background: var(--card); padding: 10px 12px; box-shadow: 1px 0 0 var(--border); }
+.rd-th-l { text-align: left; padding: 9px 12px; font-size: 11px; font-weight: 700; color: var(--sub); text-transform: uppercase; white-space: nowrap; }
+.rd-th-c { text-align: center; padding: 9px 10px; font-size: 11px; font-weight: 700; color: var(--sub); text-transform: uppercase; white-space: nowrap; }
+.rd-td-c { padding: 10px 10px; text-align: center; font-size: 12px; }
+.rd-rankpill { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; padding: 0 6px; border-radius: 7px; font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.rd-name { font-weight: 700; color: var(--text); white-space: nowrap; cursor: pointer; border-bottom: 1px dotted var(--dim); padding-bottom: 1px; }
+.rd-name:hover { color: var(--blue); border-bottom-color: var(--blue); }
+.rd-role { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.rd-prof { display: inline-flex; width: 29px; height: 29px; border-radius: 9px; background: var(--blue-l); color: var(--blue); border: 1px solid #cfe0ff; align-items: center; justify-content: center; cursor: pointer; }
+html.dark .rd-prof { border-color: var(--border); }
+.rd-prof:hover { background: #dbe8ff; }
+html.dark .rd-prof:hover { background: var(--muted); }
+.rd-prof svg { display: block; }
+.rd-modal-close { width: 30px; height: 30px; border-radius: 9px; background: var(--muted); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--sub); font-size: 14px; cursor: pointer; flex-shrink: 0; }
+.rd-modal-close:hover { background: var(--border); }
+.rd-select { height: 30px; padding: 0 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); font-size: 12px; font-weight: 700; color: var(--text); cursor: pointer; font-family: inherit; }
+.rd-uplabel { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--sub); }
+
+/* ── 솔로 자세히 버튼 ── */
+.rd-detail-btn { display: inline-block; padding: 6px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background .12s, border-color .12s, color .12s; }
+.rd-detail-btn:hover { background: var(--muted); border-color: var(--blue); color: var(--blue); }
+.rd-detail-wide { margin-top: 11px; text-align: center; padding: 8px; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 700; color: var(--blue); cursor: pointer; }
+.rd-detail-wide:hover { background: var(--muted); }
+
+/* ── 시프티 검색 콤보 ── */
+.combo-row { display: flex; align-items: flex-start; gap: 10px; }
+.combo-label { font-size: 11px; font-weight: 700; color: var(--sub); padding-top: 8px; width: 42px; flex-shrink: 0; }
+.combo-box { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 4px 5px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); flex: 1; max-width: 560px; }
+.combo-box.open { border-color: var(--blue); }
+.combo-chips { display: contents; }
+.combo-input { flex: 1; min-width: 110px; height: 24px; border: none; outline: none; background: transparent; color: var(--text); font-size: 13px; font-family: inherit; padding: 0 4px; }
+.combo-drop { position: absolute; top: calc(100% + 4px); left: 0; min-width: 230px; max-height: 260px; overflow-y: auto; background: var(--card); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 6px 22px rgba(0,0,0,.18); z-index: 60; }
+.combo-chip { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 2px 3px 2px 9px; font-size: 12px; font-weight: 600; }
+.combo-chip .x { cursor: pointer; padding: 0 4px; font-size: 14px; line-height: 1; }
+.combo-item { padding: 8px 12px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.combo-item:hover { background: var(--muted); }
+.rd-resultinfo { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--sub); font-weight: 600; padding: 0 2px; gap: 10px; }
+.rd-detail-mini { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 6px; border: 1px solid var(--border); background: var(--muted); color: var(--sub); cursor: pointer; flex-shrink: 0; }
+.rd-detail-mini:hover { background: var(--blue); border-color: var(--blue); color: #fff; }
+@media (max-width: 760px) { .combo-box { max-width: none; } }
+
+/* ── 통계 섹션 그리드 ── */
+.rd-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 760px) { .rd-stats-grid { grid-template-columns: 1fr; } }
+
+/* ══════════════════════════════════════════════════════════════════
+   데스크톱/모바일 표시 토글 — 반드시 스타일시트 맨 끝.
+   .rd-desktop/.rd-mobile 가 함께 쓰인 .rd-stack(display:flex) 보다
+   소스 순서상 뒤에 와야 표시 토글이 우선 적용됨.
+══════════════════════════════════════════════════════════════════ */
+.rd-desktop { display: flex; flex-direction: column; gap: 16px; }
+.rd-mobile  { display: none; }
+@media (max-width: 760px) {
+  .rd-desktop { display: none; }
+  .rd-mobile  { display: flex; flex-direction: column; gap: 16px; }
+}

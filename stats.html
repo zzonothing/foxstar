@@ -4,636 +4,172 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>여우별 통계 | 승리의 여신: 니케</title>
-  <meta property="og:type"        content="website" />
-  <meta property="og:title"       content="여우별 통계" />
-  <meta property="og:description" content="여우별 유니온 멤버 통계" />
-  <meta property="og:image"       content="https://foxstar.vercel.app/image/foxstar.png" />
-  <meta property="og:url"         content="https://foxstar.vercel.app/stats.html" />
   <link rel="icon" type="image/png" href="image/foxstar.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script>if(localStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark");</script>
   <style>html{background:#eef1f6}html.dark{background:#111827}body:not(.ready){visibility:hidden}</style>
   <link rel="stylesheet" href="css/style.css" />
   <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
-  <style>
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      align-items: start;
-    }
-    @media (max-width: 900px) {
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 600px) {
-      .stats-grid { grid-template-columns: 1fr; }
-    }
-
-    .stats-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px 26px 28px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-    }
-    html.dark .stats-card { box-shadow: 0 1px 6px rgba(0,0,0,0.3); }
-
-    .stats-section-title {
-      font-size: 18px; font-weight: 700;
-      color: var(--text);
-      margin-bottom: 18px;
-      text-align: center;
-    }
-
-    /* ── 시상대 포디엄 ──────────────────────────────────────── */
-    .podium-wrap {
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-    .podium-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-    }
-    .podium-img-wrap {
-      position: relative;
-    }
-    .podium-img-wrap img {
-      border-radius: 12px;
-      object-fit: cover;
-      display: block;
-    }
-    .podium-medal {
-      position: absolute;
-      bottom: -8px; right: -8px;
-      width: 26px; height: 26px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px; font-weight: 700;
-      border: 2px solid var(--bg-card);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }
-    .podium-medal.gold   { background: #f59e0b; color: #fff; }
-    .podium-medal.silver { background: #94a3b8; color: #fff; }
-    .podium-medal.bronze { background: #b45309; color: #fff; }
-    .podium-name {
-      font-size: 12px; font-weight: 700; color: var(--text);
-      text-align: center; max-width: 90px;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .podium-val {
-      font-size: 13px; font-weight: 700; color: var(--blue);
-    }
-    .podium-platform {
-      border-radius: 10px 10px 4px 4px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px; font-weight: 900; color: rgba(255,255,255,0.85);
-      width: 80px;
-    }
-    .podium-platform.p1 { height: 72px; background: linear-gradient(160deg,#f59e0b,#d97706); }
-    .podium-platform.p2 { height: 52px; background: linear-gradient(160deg,#94a3b8,#64748b); }
-    .podium-platform.p3 { height: 36px; background: linear-gradient(160deg,#c08040,#92580a); }
-
-    /* ── 우코 순위표 ────────────────────────────────────────── */
-    .uko-table-wrap {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      display: flex;
-      justify-content: center;
-    }
-    .uko-table {
-      width: auto;
-      min-width: 320px;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-    .uko-table th {
-      padding: 8px 12px;
-      font-size: 10px; font-weight: 700; letter-spacing: .05em;
-      text-transform: uppercase; color: var(--text-sub);
-      background: var(--bg-muted);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      white-space: nowrap;
-    }
-    .uko-table th:first-child { text-align: center; width: 40px; }
-    .uko-table th.col-name  { text-align: left; width: 160px; }
-    .uko-table th.col-num   { text-align: right; width: 100px; }
-    .uko-table td {
-      padding: 7px 12px;
-      border-bottom: 1px solid var(--bg-muted);
-      color: var(--text); vertical-align: middle;
-    }
-    .uko-table tbody tr:last-child td { border-bottom: none; }
-    .uko-table tbody tr:hover td { background: var(--bg-muted); }
-    .uko-table td:first-child { text-align: center; font-size: 12px; color: var(--text-sub); }
-    .uko-rank-1 td:first-child { color: #f59e0b; font-weight: 800; font-size: 14px; }
-    .uko-rank-2 td:first-child { color: #94a3b8; font-weight: 800; font-size: 13px; }
-    .uko-rank-3 td:first-child { color: #b45309; font-weight: 800; font-size: 13px; }
-    .uko-name-cell {
-      display: flex; align-items: center; gap: 8px;
-    }
-    .uko-name-cell img {
-      width: 30px; height: 30px;
-      border-radius: 6px; object-fit: cover; flex-shrink: 0;
-    }
-    .uko-bar-cell { min-width: 120px; }
-    .uko-bar-bg {
-      background: var(--bg-muted);
-      border-radius: 4px; height: 8px; overflow: hidden;
-    }
-    .uko-bar-fill {
-      height: 100%; border-radius: 4px;
-      background: var(--blue); opacity: 0.7;
-      transition: width 0.4s;
-    }
-    .uko-val {
-      font-weight: 700; color: var(--blue);
-      font-variant-numeric: tabular-nums;
-      text-align: right;
-      white-space: nowrap;
-    }
-    .uko-count {
-      font-size: 11px; color: var(--text-dim);
-      text-align: right;
-      white-space: nowrap;
-    }
-    .elem-dot {
-      display: inline-block;
-      width: 8px; height: 8px;
-      border-radius: 50%; flex-shrink: 0;
-    }
-
-    @media (max-width: 600px) {
-      .stats-card { padding: 16px; }
-      .podium-platform.p1 { width: 68px; }
-      .podium-platform.p2 { width: 68px; }
-      .podium-platform.p3 { width: 68px; }
-      .uko-bar-cell { display: none; }
-    }
-  </style>
 </head>
 <body>
 
-<!-- ═══════════ 헤더 ═══════════ -->
-<header>
+<header class="rd-header">
+  <div class="rd-grad"></div>
   <div class="container">
-    <div class="header-top">
-      <div>
-        <div class="header-eyebrow">승리의 여신: 니케 · UNION PORTAL</div>
-        <div class="header-title" id="headerTitle"><img src="image/foxstar.png" alt="" style="width:22px;height:22px;vertical-align:middle;margin-right:6px;border-radius:4px;"> 여우별 유니온</div>
+    <div class="rd-head-inner">
+      <div class="rd-brand">
+        <img src="image/foxstar.png" alt="여우별 유니온" />
+        <div>
+          <div class="rd-eyebrow">승리의 여신: 니케 · UNION PORTAL</div>
+          <div class="rd-title" id="headerTitle">여우별 유니온</div>
+        </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <button class="theme-toggle" id="themeToggle" title="다크/라이트 모드 전환">🌙</button>
-        <a id="kakaoBtn" href="#" target="_blank" class="kakao-btn">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="#1a1200">
-            <path d="M12 3C6.48 3 2 6.69 2 11.25c0 2.87 1.76 5.4 4.41 6.95L5.25 21 l3.86-2.06A11.3 11.3 0 0012 19.5c5.52 0 10-3.69 10-8.25S17.52 3 12 3z"/>
-          </svg>
-          가입 문의
-        </a>
-      </div>
+      <button class="rd-toggle" id="themeToggle" title="다크/라이트 모드 전환">🌙</button>
     </div>
-    <nav>
+    <nav class="rd-nav">
       <a href="index.html">홈</a>
       <a href="raid.html">유니온레이드</a>
       <a href="solo.html">솔로레이드</a>
       <a href="shift.html">시프티패드</a>
       <a href="stats.html" class="active">여우별 통계</a>
-      <a href="sim.html">시뮬레이션</a>
+    </nav>
+    <nav class="rd-nav-mobile">
+      <a href="index.html">홈</a>
+      <a href="raid.html">유레</a>
+      <a href="solo.html">솔레</a>
+      <a href="shift.html">시프티</a>
+      <a href="stats.html" class="active">통계</a>
     </nav>
   </div>
 </header>
 
-<!-- ═══════════ 메인 ═══════════ -->
-<main>
-  <div class="container page-content">
-    <div class="stats-grid">
-
-      <!-- 카드 1: 캐릭터 평균 우코 TOP 10 -->
-      <div class="stats-card">
-        <div class="stats-section-title" id="ukoCardTitle">캐릭터 평균 우코 TOP 10</div>
-        <div class="podium-wrap" id="podiumWrap"></div>
-        <div style="border-top:1px solid var(--border);margin:20px 0 16px;"></div>
-        <div class="uko-table-wrap">
-          <table class="uko-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th class="col-name">캐릭터</th>
-                <th class="col-num">평균 우코</th>
-              </tr>
-            </thead>
-            <tbody id="ukoTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- 카드 2: 여우별 평균 우코 TOP 10 -->
-      <div class="stats-card">
-        <div class="stats-section-title">여우별 평균 우코 TOP 10<br><span style="font-size:12px;font-weight:400;color:var(--text-sub);">상위 10개 캐릭터</span></div>
-        <div class="podium-wrap" id="podiumWrap2"></div>
-        <div style="border-top:1px solid var(--border);margin:20px 0 16px;"></div>
-        <div class="uko-table-wrap">
-          <table class="uko-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th class="col-name">닉네임</th>
-                <th class="col-num">평균 우코</th>
-              </tr>
-            </thead>
-            <tbody id="memberUkoTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- 카드 3: 여우별 평균 우코 TOP 10 (상위 20개 캐릭터) -->
-      <div class="stats-card">
-        <div class="stats-section-title">여우별 평균 우코 TOP 10<br><span style="font-size:12px;font-weight:400;color:var(--text-sub);">상위 20개 캐릭터</span></div>
-        <div class="podium-wrap" id="podiumWrap3"></div>
-        <div style="border-top:1px solid var(--border);margin:20px 0 16px;"></div>
-        <div class="uko-table-wrap">
-          <table class="uko-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th class="col-name">닉네임</th>
-                <th class="col-num">평균 우코</th>
-              </tr>
-            </thead>
-            <tbody id="memberUkoTableBody20"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- 카드 4: 여우별 철갑 TOP 10 -->
-      <div class="stats-card">
-        <div class="stats-section-title">여우별 <span style="color:#f59e0b;">철갑</span> TOP 10<br><span style="font-size:11px;font-weight:400;color:var(--text-sub);">라피 / 이브 / 레이븐 / 스화 / 레후</span></div>
-        <div class="podium-wrap" id="podiumWrap4"></div>
-        <div style="border-top:1px solid var(--border);margin:20px 0 16px;"></div>
-        <div class="uko-table-wrap">
-          <table class="uko-table"><thead><tr><th>#</th><th class="col-name">닉네임</th><th class="col-num">평균 우코</th></tr></thead><tbody id="elemTbody0"></tbody></table>
-        </div>
-      </div>
-
-      <!-- 카드 5: 여우별 작열 TOP 10 -->
-      <div class="stats-card">
-        <div class="stats-section-title">여우별 <span style="color:#ef4444;">작열</span> TOP 10<br><span style="font-size:11px;font-weight:400;color:var(--text-sub);">라피 / 미하라 / 클디젤 / 앨리스</span></div>
-        <div class="podium-wrap" id="podiumWrap5"></div>
-        <div style="border-top:1px solid var(--border);margin:20px 0 16px;"></div>
-        <div class="uko-table-wrap">
-          <table class="uko-table"><thead><tr><th>#</th><th class="col-name">닉네임</th><th class="col-num">평균 우코</th></tr></thead><tbody id="elemTbody1"></tbody></table>
-        </div>
-      </div>
-
-      <!-- 카드 6: 여우별 수냉 TOP 10 -->
-      <div class="stats-card">
-        <div class="stats-section-title">여우별 <span style="color:#3b82f6;">수냉</span> TOP 10<br><span style="font-size:11px;font-weight:400;color:var(--text-sub);">수화 / 수로시 / 프리바티 / 헬름 / 수레그 / 클루드</span></div>
-        <div class="podium-wrap" id="podiumWrap6"></div>
-        <div style="border-top:1px solid var(--border);margin:20px 0 16px;"></div>
-        <div class="uko-table-wrap">
-          <table class="uko-table"><thead><tr><th>#</th><th class="col-name">닉네임</th><th class="col-num">평균 우코</th></tr></thead><tbody id="elemTbody2"></tbody></table>
-        </div>
-      </div>
-
-      <!-- 카드 7: 여우별 전격 TOP 10 -->
-      <div class="stats-card">
-        <div class="stats-section-title">여우별 <span style="color:#a855f7;">전격</span> TOP 10<br><span style="font-size:11px;font-weight:400;color:var(--text-sub);">신데 / 수니스 / 클이든 / 이사벨 / 각니스 / 각네온</span></div>
-        <div class="podium-wrap" id="podiumWrap7"></div>
-        <div style="border-top:1px solid var(--border);margin:20px 0 16px;"></div>
-        <div class="uko-table-wrap">
-          <table class="uko-table"><thead><tr><th>#</th><th class="col-name">닉네임</th><th class="col-num">평균 우코</th></tr></thead><tbody id="elemTbody3"></tbody></table>
-        </div>
-      </div>
-
-      <!-- 카드 8: 여우별 풍압 TOP 10 -->
-      <div class="stats-card">
-        <div class="stats-section-title">여우별 <span style="color:#22c55e;">풍압</span> TOP 10<br><span style="font-size:11px;font-weight:400;color:var(--text-sub);">흑영 / 리버 / 나유타 / 세이렌 / 풍스카 / 풍레이</span></div>
-        <div class="podium-wrap" id="podiumWrap8"></div>
-        <div style="border-top:1px solid var(--border);margin:20px 0 16px;"></div>
-        <div class="uko-table-wrap">
-          <table class="uko-table"><thead><tr><th>#</th><th class="col-name">닉네임</th><th class="col-num">평균 우코</th></tr></thead><tbody id="elemTbody4"></tbody></table>
-        </div>
-      </div>
-
-      <!-- 카드 9: 여우별 모든 속성 TOP 10 -->
-      <div class="stats-card">
-        <div class="stats-section-title">여우별 ALL 속성 TOP 10<br><span style="font-size:11px;font-weight:400;color:var(--text-sub);">5개 속성 언급 캐릭터 전체 평균</span></div>
-        <div class="podium-wrap" id="podiumWrapAllElem"></div>
-        <div style="border-top:1px solid var(--border);margin:20px 0 16px;"></div>
-        <div class="uko-table-wrap">
-          <table class="uko-table"><thead><tr><th>#</th><th class="col-name">닉네임</th><th class="col-num">평균 우코</th></tr></thead><tbody id="elemTbodyAll"></tbody></table>
-        </div>
-      </div>
-
-      <!-- 카드 10: 여우별 우코 100 이상 TOP 10 -->
-      <div class="stats-card">
-        <div class="stats-section-title">여우별 우코 100 이상 TOP 10</div>
-        <div class="podium-wrap" id="podiumWrapCount"></div>
-        <div style="border-top:1px solid var(--border);margin:20px 0 16px;"></div>
-        <div class="uko-table-wrap">
-          <table class="uko-table"><thead><tr><th>#</th><th class="col-name">닉네임</th><th class="col-num">개수</th></tr></thead><tbody id="ukoCountTbody"></tbody></table>
-        </div>
-      </div>
-
-      <!-- 카드 10: 여우별 풀코 TOP 10 -->
-      <div class="stats-card">
-        <div class="stats-section-title">여우별 풀코 TOP 10<br><span style="font-size:11px;font-weight:400;color:var(--text-sub);">풀코 캐릭터 개수</span></div>
-        <div class="podium-wrap" id="podiumWrapFullco"></div>
-        <div style="border-top:1px solid var(--border);margin:20px 0 16px;"></div>
-        <div class="uko-table-wrap">
-          <table class="uko-table"><thead><tr><th>#</th><th class="col-name">닉네임</th><th class="col-num">개수</th></tr></thead><tbody id="fullcoTbody"></tbody></table>
-        </div>
-      </div>
-
-      <!-- 카드 11: 여우별 소장품 TOP 10 -->
-      <div class="stats-card">
-        <div class="stats-section-title">여우별 소장품 TOP 10<br><span style="font-size:11px;font-weight:400;color:var(--text-sub);">SR 15 & 애장품(SSR) 개수</span></div>
-        <div class="podium-wrap" id="podiumWrapItem"></div>
-        <div style="border-top:1px solid var(--border);margin:20px 0 16px;"></div>
-        <div class="uko-table-wrap">
-          <table class="uko-table"><thead><tr><th>#</th><th class="col-name">닉네임</th><th class="col-num">개수</th></tr></thead><tbody id="itemTbody"></tbody></table>
-        </div>
-      </div>
-
-    </div>
+<main class="rd-main">
+  <div class="container">
+    <div id="rdContent" class="rd-stack"></div>
   </div>
 </main>
 
-<!-- ═══════════ 데이터 로드 ═══════════ -->
 <script src="data/config.js"></script>
 <script src="data/member.js"></script>
 <script src="data/character.js"></script>
 
-<!-- ═══════════ 인증 필요 시 로그인 페이지로 리다이렉트 ═══════════ -->
 <script>
 if (window.__AUTH_REQUIRED) {
   location.replace("/login.html?return=" + encodeURIComponent(location.pathname + location.search));
 }
 </script>
 
-<!-- ═══════════ 통계 스크립트 ═══════════ -->
 <script>
 if (!window.__AUTH_REQUIRED) {
-// ─── 기본 설정 ───────────────────────────────────────────────────
-document.getElementById("headerTitle").innerHTML = '<img src="image/foxstar.png" alt="" style="width:22px;height:22px;vertical-align:middle;margin-right:6px;border-radius:4px;"> ' + CONFIG.unionName;
-document.getElementById("kakaoBtn").href = CONFIG.kakaoUrl;
-document.title = "여우별 통계 | " + CONFIG.unionName;
 
-// ─── 상수 ────────────────────────────────────────────────────────
-const ELEM_COLOR = {
-  "수냉": "#3b82f6",
-  "작열": "#ef4444",
-  "철갑": "#f59e0b",
-  "전격": "#a855f7",
-  "풍압": "#22c55e",
+if (typeof CONFIG !== "undefined") {
+  document.getElementById("headerTitle").textContent = CONFIG.unionName;
+  document.title = "여우별 통계 | " + CONFIG.unionName;
+}
+
+const EL_COL = {수냉:"var(--el-water)",작열:"var(--el-fire)",철갑:"var(--el-iron)",전격:"var(--el-elec)",풍압:"var(--el-wind)"};
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+
+const seasonKeys = Object.keys(UNION).map(Number).sort((a, b) => a - b);
+const latestKey = seasonKeys[seasonKeys.length - 1];
+const members = UNION[latestKey].members.map(m => ({ nickname: m.name, syncro: m.syncroLevel, chars: (typeof CHARACTERS !== "undefined" && CHARACTERS[m.uid]) ? CHARACTERS[m.uid] : [] }));
+
+function rankCol(i){ return i === 0 ? "var(--medal1)" : i === 1 ? "var(--medal2)" : i === 2 ? "var(--medal3)" : "var(--dim)"; }
+const pctText = v => v.toFixed(2) + "%";
+const cntText = v => v + "개";
+
+/* 캐릭터 평균 우코 (멤버 보유 기준) */
+const charAgg = {};
+members.forEach(m => m.chars.forEach(c => { if (!charAgg[c.name]) charAgg[c.name] = { total: 0, count: 0 }; charAgg[c.name].total += (c.increaseElementDamage || 0); charAgg[c.name].count++; }));
+const charUko = Object.entries(charAgg).map(([name, v]) => ({ name, val: v.count ? v.total / v.count : 0 })).filter(r => r.val > 0).sort((a, b) => b.val - a.val);
+
+/* 멤버 평균 우코 (상위 N개 캐릭터 평균) */
+function memberUko(topN){
+  return members.map(m => { const u = m.chars.map(c => c.increaseElementDamage || 0).filter(v => v > 0).sort((a, b) => b - a).slice(0, topN); const val = u.length ? u.reduce((s, v) => s + v, 0) / u.length : 0; return { name: m.nickname, val, syncro: m.syncro || 0 }; })
+    .filter(r => r.val > 0).sort((a, b) => b.val - a.val || b.syncro - a.syncro);
+}
+
+/* 속성별 대표 캐릭터 평균 우코 (보유한 것만, 0%도 분모 포함) */
+const ELEM_CHARS = {
+  "철갑": ["라피 : 레드 후드","이브","레이븐","스노우 화이트","레드 후드"],
+  "작열": ["라피 : 레드 후드","미하라 : 본딩 체인","디젤 : 윈터 스위츠","앨리스"],
+  "수냉": ["스노우 화이트 : 헤비암즈","도로시 : 세렌디피티","프리바티","헬름","일레그 : 붐 앤 쇼크","루드밀라 : 윈터 오너"],
+  "전격": ["신데렐라","아니스 : 스파클링 서머","메이든 : 아이스 로즈","이사벨","아니스 : 스타","네온 : 비전 아이"],
+  "풍압": ["홍련 : 흑영","리버렐리오","나유타","세이렌","아스카 : WILLE","레이 (가칭)"],
 };
+function elemRank(names){
+  const set = new Set(names);
+  return members.map(m => { const u = m.chars.filter(c => set.has(c.name)).map(c => c.increaseElementDamage || 0); const val = u.length ? u.reduce((s, v) => s + v, 0) / u.length : 0; return { name: m.nickname, val, syncro: m.syncro || 0 }; })
+    .filter(r => r.val > 0).sort((a, b) => b.val - a.val || b.syncro - a.syncro);
+}
+const elemData = {}; Object.keys(ELEM_CHARS).forEach(e => elemData[e] = elemRank(ELEM_CHARS[e]));
+const allElem = elemRank([].concat.apply([], Object.values(ELEM_CHARS)));
 
-function charImgPath(name) {
-  return "image/" + name.replace(" : ", "_") + ".webp";
+/* 개수 통계 */
+function cntRank(fn){ return members.map(m => ({ name: m.nickname, val: m.chars.filter(fn).length, syncro: m.syncro || 0 })).filter(r => r.val > 0).sort((a, b) => b.val - a.val || b.syncro - a.syncro); }
+const fullco = cntRank(c => c.upgrade === "풀코");
+const item = cntRank(c => (c.itemGrade === "SR" && c.itemLevel === 15) || c.itemGrade === "SSR");
+const uko100 = cntRank(c => (c.increaseElementDamage || 0) >= 100);
+
+function mkRows(list, count, barColor){
+  const max = list.length ? list[0].val : 1;
+  return list.slice(0, 10).map((r, i) => ({ rank: i + 1, rankCol: rankCol(i), name: r.name, barW: Math.round(Math.max(4, r.val / max * 100)) + "%", text: count ? cntText(r.val) : pctText(r.val), barColor }));
 }
 
-// ─── 최신 시즌 키 ────────────────────────────────────────────────
-const seasonKeys = Object.keys(UNION).sort((a, b) => Number(a) - Number(b));
-const latestKey  = seasonKeys[seasonKeys.length - 1];
-const latestData = UNION[latestKey];
-
-document.getElementById("ukoCardTitle").textContent = "캐릭터 평균 우코 TOP 10";
-
-// ─── 캐릭터별 우코 집계 ──────────────────────────────────────────
-const charMap = {}; // name → { total, count, element }
-
-(latestData.members || []).forEach(member => {
-  (CHARACTERS[member.uid] || []).forEach(ch => {
-    const uko = ch.increaseElementDamage || 0;
-    if (!charMap[ch.name]) {
-      charMap[ch.name] = { total: 0, count: 0, element: ch.element || "" };
-    }
-    charMap[ch.name].total += uko;
-    charMap[ch.name].count += 1;
-  });
-});
-
-const ranked = Object.entries(charMap)
-  .map(([name, v]) => ({
-    name,
-    element: v.element,
-    avg: v.count > 0 ? v.total / v.count : 0,
-    count: v.count,
-  }))
-  .filter(r => r.count > 0)
-  .sort((a, b) => b.avg - a.avg);
-
-
-// ─── 공통: 순위 테이블 렌더링 헬퍼 ─────────────────────────────
-function renderRankTable(tbodyId, list, nameKey, valKey, dotFn, fmtFn) {
-  const tbody = document.getElementById(tbodyId);
-  const fmt = fmtFn || function(v) { return v.toFixed(2) + '%'; };
-  list.slice(0, 10).forEach(function(r, i) {
-    const rank = i + 1;
-    const tr   = document.createElement("tr");
-    if (rank === 1) tr.className = "uko-rank-1";
-    else if (rank === 2) tr.className = "uko-rank-2";
-    else if (rank === 3) tr.className = "uko-rank-3";
-    const rankMark = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank;
-    const dot = dotFn ? dotFn(r) : "";
-    tr.innerHTML =
-      '<td>' + rankMark + '</td>' +
-      '<td><div class="uko-name-cell">' + dot + '<span>' + r[nameKey] + '</span></div></td>' +
-      '<td class="uko-val">' + fmt(r[valKey]) + '</td>';
-    tbody.appendChild(tr);
-  });
-}
-
-// ─── 공통: 포디엄 렌더링 헬퍼 ───────────────────────────────────
-function renderPodium(podiumId, list, nameKey, valKey, imgFn, fmtFn) {
-  const podium = document.getElementById(podiumId);
-  if (!podium || list.length < 3) return;
-  const order = [list[1], list[0], list[2]];
-  const platformClass = ["p2", "p1", "p3"];
-  const medalClass    = ["silver", "gold", "bronze"];
-  const rankNums      = [2, 1, 3];
-  const imgSize       = [76, 96, 68];
-
-  order.forEach(function(r, i) {
-    const wrap = document.createElement("div");
-    wrap.className = "podium-item";
-
-    if (imgFn) {
-      const imgWrap = document.createElement("div");
-      imgWrap.className = "podium-img-wrap";
-      const img = document.createElement("img");
-      img.src = imgFn(r[nameKey]); img.alt = r[nameKey];
-      img.width = imgSize[i]; img.height = imgSize[i];
-      img.onerror = function() { this.style.display = "none"; };
-      const medal = document.createElement("div");
-      medal.className = "podium-medal " + medalClass[i];
-      medal.textContent = rankNums[i];
-      imgWrap.appendChild(img); imgWrap.appendChild(medal);
-      wrap.appendChild(imgWrap);
-    }
-
-    const nameEl = document.createElement("div");
-    nameEl.className = "podium-name";
-    nameEl.title = r[nameKey];
-    nameEl.textContent = r[nameKey];
-
-    const valEl = document.createElement("div");
-    valEl.className = "podium-val";
-    valEl.textContent = fmtFn ? fmtFn(r[valKey]) : r[valKey].toFixed(2) + "%";
-
-    const platform = document.createElement("div");
-    platform.className = "podium-platform " + platformClass[i];
-    platform.textContent = rankNums[i];
-
-    wrap.appendChild(nameEl);
-    wrap.appendChild(valEl);
-    wrap.appendChild(platform);
-    podium.appendChild(wrap);
-  });
-}
-
-// ─── 카드 1: 캐릭터 평균 우코 TOP 10 ────────────────────────────
-renderPodium("podiumWrap", ranked, "name", "avg", charImgPath);
-renderRankTable("ukoTableBody", ranked, "name", "avg", function(r) {
-  return r.element
-    ? '<span class="elem-dot" style="background:' + (ELEM_COLOR[r.element] || "#94a3b8") + '"></span>'
-    : "";
-});
-
-// ─── 카드 2: 여우별 평균 우코 TOP 10 (상위 10개 캐릭터) ──────────
-const memberRanked = (latestData.members || []).map(function(member) {
-  const ukos = (CHARACTERS[member.uid] || [])
-    .map(function(ch) { return ch.increaseElementDamage || 0; })
-    .filter(function(v) { return v > 0; })
-    .sort(function(a, b) { return b - a; })
-    .slice(0, 10);
-  const avg = ukos.length > 0 ? ukos.reduce(function(s, v) { return s + v; }, 0) / ukos.length : 0;
-  return { name: member.name, avg: avg, syncro: member.syncroLevel || 0 };
-}).filter(function(r) { return r.avg > 0; })
-  .sort(function(a, b) { return b.avg - a.avg || b.syncro - a.syncro; });
-
-renderPodium("podiumWrap2", memberRanked, "name", "avg", null);
-renderRankTable("memberUkoTableBody", memberRanked, "name", "avg", null);
-
-// ─── 카드 3: 여우별 평균 우코 TOP 10 (상위 20개 캐릭터) ──────────
-const memberRanked20 = (latestData.members || []).map(function(member) {
-  const ukos = (CHARACTERS[member.uid] || [])
-    .map(function(ch) { return ch.increaseElementDamage || 0; })
-    .filter(function(v) { return v > 0; })
-    .sort(function(a, b) { return b - a; })
-    .slice(0, 20);
-  const avg = ukos.length > 0 ? ukos.reduce(function(s, v) { return s + v; }, 0) / ukos.length : 0;
-  return { name: member.name, avg: avg, syncro: member.syncroLevel || 0 };
-}).filter(function(r) { return r.avg > 0; })
-  .sort(function(a, b) { return b.avg - a.avg || b.syncro - a.syncro; });
-
-renderPodium("podiumWrap3", memberRanked20, "name", "avg", null);
-renderRankTable("memberUkoTableBody20", memberRanked20, "name", "avg", null);
-
-// ─── 개수 포맷 (공통) ────────────────────────────────────────────
-const cntFmt = function(v) { return v + "개"; };
-
-// ─── 카드 10: 여우별 풀코 TOP 10 ─────────────────────────────────
-const fullcoRanked = (latestData.members || []).map(function(member) {
-  const count = (CHARACTERS[member.uid] || [])
-    .filter(function(ch) { return ch.upgrade === "풀코"; })
-    .length;
-  return { name: member.name, count: count, syncro: member.syncroLevel || 0 };
-}).filter(function(r) { return r.count > 0; })
-  .sort(function(a, b) { return b.count - a.count || b.syncro - a.syncro; });
-
-renderPodium("podiumWrapFullco", fullcoRanked, "name", "count", null, cntFmt);
-renderRankTable("fullcoTbody", fullcoRanked, "name", "count", null, cntFmt);
-
-// ─── 카드 9: 여우별 우코 100 이상 개수 TOP 10 ────────────────────
-const ukoCountRanked = (latestData.members || []).map(function(member) {
-  const count = (CHARACTERS[member.uid] || [])
-    .filter(function(ch) { return (ch.increaseElementDamage || 0) >= 100; })
-    .length;
-  return { name: member.name, count: count, syncro: member.syncroLevel || 0 };
-}).filter(function(r) { return r.count > 0; })
-  .sort(function(a, b) { return b.count - a.count || b.syncro - a.syncro; });
-
-renderPodium("podiumWrapCount", ukoCountRanked, "name", "count", null, cntFmt);
-renderRankTable("ukoCountTbody", ukoCountRanked, "name", "count", null, cntFmt);
-
-// ─── 카드 4~8: 속성별 특정 캐릭터 평균 우코 ─────────────────────
-const ELEM_CHARS = [
-  ["라피 : 레드 후드", "이브", "레이븐", "스노우 화이트", "레드 후드"],
-  ["라피 : 레드 후드", "미하라 : 본딩 체인", "디젤 : 윈터 스위츠", "앨리스"],
-  ["스노우 화이트 : 헤비암즈", "도로시 : 세렌디피티", "프리바티", "헬름", "일레그 : 붐 앤 쇼크", "루드밀라 : 윈터 오너"],
-  ["신데렐라", "아니스 : 스파클링 서머", "메이든 : 아이스 로즈", "이사벨", "아니스 : 스타", "네온 : 비전 아이"],
-  ["홍련 : 흑영", "리버렐리오", "나유타", "세이렌", "아스카 : WILLE", "레이 (가칭)"],
+const INK = "var(--ink)", GRAY = "var(--text-dim)";
+const cardsOverview = [
+  { title: "캐릭터 평균 우코", sub: "멤버 보유 기준 평균", accent: GRAY, rows: mkRows(charUko, false, INK) },
+  { title: "멤버 평균 우코", sub: "상위 10개 캐릭터", accent: GRAY, rows: mkRows(memberUko(10), false, INK) },
+  { title: "멤버 평균 우코", sub: "상위 20개 캐릭터", accent: GRAY, rows: mkRows(memberUko(20), false, INK) },
+];
+const elemOrder = ["철갑","작열","수냉","전격","풍압"];
+const elemSubs = { "철갑": "라피·이브·레이븐·스화·레후", "작열": "라피·미하라·클디젤·앨리스", "수냉": "헤비스화·세렌도로시·프리바티·헬름 외", "전격": "신데·각니스·이사벨·각네온 외", "풍압": "흑영·리버·나유타·세이렌 외" };
+const cardsElement = elemOrder.map(e => { const col = EL_COL[e]; return { title: e, accent: col, dot: col, sub: elemSubs[e], rows: mkRows(elemData[e], false, col), empty: elemData[e].length === 0 }; });
+cardsElement.push({ title: "ALL 속성", accent: INK, sub: "대표 캐릭터 전체 평균", rows: mkRows(allElem, false, INK), empty: allElem.length === 0 });
+const cardsCollection = [
+  { title: "풀코 개수", sub: "풀 코어 강화 캐릭터", accent: GRAY, rows: mkRows(fullco, true, INK) },
+  { title: "소장품 개수", sub: "SR 15 · 애장품(SSR)", accent: GRAY, rows: mkRows(item, true, INK) },
+  { title: "우코 100+ 개수", sub: "우월코드 100% 이상", accent: GRAY, rows: mkRows(uko100, true, INK) },
 ];
 
-ELEM_CHARS.forEach(function(charNames, idx) {
-  const charSet = new Set(charNames);
-  const rankList = (latestData.members || []).map(function(member) {
-    // 보유한 캐릭터 중 charSet에 해당하는 것만 추출 (0%도 분모에 포함)
-    const ukos = (CHARACTERS[member.uid] || [])
-      .filter(function(ch) { return charSet.has(ch.name); })
-      .map(function(ch) { return ch.increaseElementDamage || 0; });
-    const avg = ukos.length > 0 ? ukos.reduce(function(s, v) { return s + v; }, 0) / ukos.length : 0;
-    return { name: member.name, avg: avg, syncro: member.syncroLevel || 0 };
-  }).filter(function(r) { return r.avg > 0; })
-    .sort(function(a, b) { return b.avg - a.avg || b.syncro - a.syncro; });
+function rowsHTML(rows){
+  return rows.map(r =>
+    '<div style="display:flex;align-items:center;gap:9px">' +
+      '<span style="width:18px;text-align:center;font-size:12px;font-weight:800;color:' + r.rankCol + ';flex-shrink:0" class="tnum">' + r.rank + '</span>' +
+      '<span style="flex:1;min-width:0;font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(r.name) + '</span>' +
+      '<div style="width:60px;height:6px;background:var(--muted);border-radius:3px;overflow:hidden;flex-shrink:0"><div style="height:100%;width:' + r.barW + ';background:' + r.barColor + ';border-radius:3px"></div></div>' +
+      '<span style="width:58px;text-align:right;font-size:12px;font-weight:700;color:var(--text);flex-shrink:0" class="tnum">' + r.text + '</span>' +
+    '</div>').join("");
+}
+function cardHTML(c){
+  return '<div class="rd-card" style="padding:16px 18px;border-top:3px solid ' + c.accent + '">' +
+    '<div style="margin-bottom:13px"><div style="font-size:13px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:6px">' +
+      (c.dot ? '<span style="width:9px;height:9px;border-radius:50%;background:' + c.dot + '"></span>' : "") + esc(c.title) + '</div>' +
+      '<div style="font-size:10px;color:var(--dim);font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(c.sub) + '</div></div>' +
+    '<div style="display:flex;flex-direction:column;gap:8px">' + (c.rows.length ? rowsHTML(c.rows) : '<div style="font-size:11px;color:var(--dim);text-align:center;padding:8px">표본 부족</div>') + '</div></div>';
+}
+function sectionHTML(title, note, cards){
+  return '<div><div class="rd-sec-head"><span class="rd-sec-bar"></span><span class="rd-sec-title">' + title + '</span><span class="rd-sec-note">' + note + '</span></div>' +
+    '<div class="rd-stats-grid">' + cards.map(cardHTML).join("") + '</div></div>';
+}
 
-  renderPodium("podiumWrap" + (idx + 4), rankList, "name", "avg", null);
-  renderRankTable("elemTbody" + idx, rankList, "name", "avg", null);
-});
+document.getElementById("rdContent").innerHTML =
+  sectionHTML("개요", "우월코드 종합", cardsOverview) +
+  sectionHTML("속성", "대표 캐릭터 평균 우코", cardsElement) +
+  sectionHTML("기타", "풀코 · 소장품 · 고우코 개수", cardsCollection);
 
-// ─── 카드 9: 여우별 모든 속성 TOP 10 ────────────────────────────
-const ALL_ELEM_CHARS = new Set(ELEM_CHARS.flat());
-
-const allElemRanked = (latestData.members || []).map(function(member) {
-  const ukos = (CHARACTERS[member.uid] || [])
-    .filter(function(ch) { return ALL_ELEM_CHARS.has(ch.name); })
-    .map(function(ch) { return ch.increaseElementDamage || 0; });
-  const avg = ukos.length > 0 ? ukos.reduce(function(s, v) { return s + v; }, 0) / ukos.length : 0;
-  return { name: member.name, avg: avg, syncro: member.syncroLevel || 0 };
-}).filter(function(r) { return r.avg > 0; })
-  .sort(function(a, b) { return b.avg - a.avg || b.syncro - a.syncro; });
-
-renderPodium("podiumWrapAllElem", allElemRanked, "name", "avg", null);
-renderRankTable("elemTbodyAll", allElemRanked, "name", "avg", null);
-
-// ─── 카드 11: 여우별 소장품 TOP 10 ───────────────────────────────
-const itemRanked = (latestData.members || []).map(function(member) {
-  const count = (CHARACTERS[member.uid] || []).filter(function(ch) {
-    return (ch.itemGrade === "SR" && ch.itemLevel === 15) || ch.itemGrade === "SSR";
-  }).length;
-  return { name: member.name, count: count, syncro: member.syncroLevel || 0 };
-}).filter(function(r) { return r.count > 0; })
-  .sort(function(a, b) { return b.count - a.count || b.syncro - a.syncro; });
-
-renderPodium("podiumWrapItem", itemRanked, "name", "count", null, cntFmt);
-renderRankTable("itemTbody", itemRanked, "name", "count", null, cntFmt);
 } // if (!window.__AUTH_REQUIRED)
 </script>
 
-<!-- ═══════════ 테마 토글 ═══════════ -->
 <script>
 (function() {
-  const html  = document.documentElement;
-  const btn   = document.getElementById("themeToggle");
-  const saved = localStorage.getItem("theme");
+  const html = document.documentElement, btn = document.getElementById("themeToggle"), saved = localStorage.getItem("theme");
   if (saved === "dark") { html.classList.add("dark"); btn.textContent = "☀️"; }
-  btn.addEventListener("click", function() {
-    const isDark = html.classList.toggle("dark");
-    btn.textContent = isDark ? "☀️" : "🌙";
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-  });
+  btn.addEventListener("click", function() { const isDark = html.classList.toggle("dark"); btn.textContent = isDark ? "☀️" : "🌙"; localStorage.setItem("theme", isDark ? "dark" : "light"); });
 })();
 </script>
-
-
 <script>
 (function(){
   document.addEventListener("contextmenu", function(e){ e.preventDefault(); });
@@ -642,14 +178,8 @@ renderRankTable("itemTbody", itemRanked, "name", "count", null, cntFmt);
     if (e.ctrlKey && e.shiftKey && ["I","i","J","j","C","c"].includes(e.key)) { e.preventDefault(); return; }
     if (e.ctrlKey && ["u","U","s","S"].includes(e.key)) { e.preventDefault(); return; }
   });
-  // DevTools 열림 감지(폐기): outerWidth/innerWidth 차이로 추정하던 폴링이
-  // iOS 줌(innerWidth 변동) / 스크롤 시 URL 바 숨김(innerHeight 변동) 에서
-  // 오탐을 일으켜 document.body.innerHTML="" 로 페이지 통째 블랭크 발생.
-  // 키보드 단축키 차단만 유지.
 })();
 </script>
-
-<!-- ═══════════ 인증 확정 후 body 공개 (FOUC 방지) ═══════════ -->
 <script>if(!window.__AUTH_REQUIRED)document.body.classList.add("ready");</script>
 
 </body>

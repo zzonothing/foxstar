@@ -4,767 +4,264 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>솔로레이드 | 승리의 여신: 니케</title>
-  <meta property="og:type"        content="website" />
-  <meta property="og:title"       content="솔로레이드" />
-  <meta property="og:description" content="여우별 유니온 솔로레이드 점수 및 덱" />
-  <meta property="og:image"       content="https://foxstar.vercel.app/image/foxstar.png" />
-  <meta property="og:url"         content="https://foxstar.vercel.app/solo.html" />
   <link rel="icon" type="image/png" href="image/foxstar.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script>if(localStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark");</script>
   <style>html{background:#eef1f6}html.dark{background:#111827}body:not(.ready){visibility:hidden}</style>
   <link rel="stylesheet" href="css/style.css" />
   <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
-  <style>
-    /* ── 상단 셀렉터 영역 ─────────────────────────────────── */
-    .solo-toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
-    .solo-toolbar > label.field {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-size: 13px; color: var(--text-sub);
-    }
-    .solo-toolbar select {
-      padding: 6px 28px 6px 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--bg-card);
-      color: var(--text);
-      font-size: 14px;
-      min-width: 220px;
-    }
-
-    /* 토글 스위치 (덱 보기) */
-    .toggle-wrap {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      cursor: pointer;
-      user-select: none;
-    }
-    .toggle-wrap input[type="checkbox"] { display: none; }
-    .toggle-track {
-      position: relative;
-      width: 32px; height: 18px;
-      background: var(--border);
-      border-radius: 9px;
-      transition: background 0.2s;
-      flex-shrink: 0;
-    }
-    .toggle-thumb {
-      position: absolute;
-      left: 2px; top: 2px;
-      width: 14px; height: 14px;
-      background: #fff;
-      border-radius: 50%;
-      transition: transform 0.2s;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.25);
-    }
-    .toggle-wrap input:checked + .toggle-track { background: var(--blue); }
-    .toggle-wrap input:checked + .toggle-track .toggle-thumb { transform: translateX(14px); }
-    .toggle-text {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-sub);
-      white-space: nowrap;
-    }
-
-    /* 덱 컬럼 (5×5 썸네일) */
-    .solo-table.hide-deck-col .th-deck,
-    .solo-table.hide-deck-col .td-deck {
-      display: none;
-    }
-    .deck-mini-grid {
-      display: inline-flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-    .deck-mini-row {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-    }
-    .deck-mini-thumbs {
-      display: flex;
-      gap: 3px;
-    }
-    .deck-mini-thumb {
-      width: 28px; height: 28px;
-      border-radius: 4px;
-      object-fit: cover;
-      display: block;
-      background: var(--bg-muted);
-    }
-    .deck-mini-thumb-empty {
-      width: 28px; height: 28px;
-      border-radius: 4px;
-      background: var(--bg-muted);
-      opacity: 0.3;
-    }
-    .deck-mini-score {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text);
-      font-variant-numeric: tabular-nums;
-      margin-left: auto;
-      padding-left: 12px;
-      white-space: nowrap;
-      text-align: right;
-    }
-
-    /* ── 속성 배지 (덱 모달 헤더에서 사용) ──────────────── */
-    .solo-elem-badge {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 999px;
-      font-size: 12px; font-weight: 700;
-      color: #fff;
-    }
-
-    /* ── 순위 테이블 ─────────────────────────────────────── */
-    .solo-table-wrap {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-    .solo-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-      background: var(--bg-card);
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-    }
-    html.dark .solo-table { box-shadow: 0 1px 6px rgba(0,0,0,0.3); }
-    .solo-table th {
-      padding: 10px 14px;
-      font-size: 11px; font-weight: 700;
-      letter-spacing: .05em;
-      color: var(--text-sub);
-      background: var(--bg-muted);
-      border-bottom: 1px solid var(--border);
-      text-align: center;
-      white-space: nowrap;
-    }
-    .solo-table td {
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--bg-muted);
-      color: var(--text);
-      text-align: center;
-      vertical-align: middle;
-      font-variant-numeric: tabular-nums;
-    }
-    .solo-table tbody tr:last-child td { border-bottom: none; }
-    .solo-table tbody tr:hover td { background: var(--bg-muted); }
-    .solo-table td.td-name { text-align: left; font-weight: 600; }
-    .solo-table td.td-rank-foxstar { font-weight: 700; color: var(--blue); }
-    .solo-table tr.rank-1 td.td-rank-foxstar { color: #f59e0b; }
-    .solo-table tr.rank-2 td.td-rank-foxstar { color: #94a3b8; }
-    .solo-table tr.rank-3 td.td-rank-foxstar { color: #b45309; }
-    .solo-table td.td-score { font-weight: 700; }
-
-    .deck-btn {
-      padding: 5px 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: var(--bg-card);
-      color: var(--text);
-      font-size: 12px;
-      cursor: pointer;
-    }
-    .deck-btn:hover { background: var(--bg-muted); }
-
-    /* ── 덱 상세 모달 ─────────────────────────────────────── */
-    .deck-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.55);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 1000;
-      padding: 16px;
-    }
-    .deck-card {
-      background: var(--bg-card);
-      border-radius: 16px;
-      width: min(760px, 100%);
-      max-height: 90vh;
-      overflow-y: auto;
-      padding: 16px 18px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    }
-    .deck-header {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 12px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 12px;
-      margin-bottom: 14px;
-    }
-    .deck-header-title {
-      font-size: 20px; font-weight: 700; color: var(--text);
-    }
-    .deck-header-sub {
-      font-size: 15px; color: var(--text-sub);
-      margin-top: 6px;
-    }
-    .deck-close {
-      background: transparent; border: none;
-      font-size: 22px; cursor: pointer; color: var(--text-sub);
-      width: 32px; height: 32px; border-radius: 50%;
-    }
-    .deck-close:hover { background: var(--bg-muted); }
-
-    .deck-row {
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 6px 10px;
-      margin-bottom: 6px;
-      background: var(--bg-muted);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .deck-row-idx {
-      font-size: 12px; font-weight: 700; color: var(--text);
-      width: 36px;
-      flex-shrink: 0;
-    }
-    .deck-squad {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 6px;
-      flex: 1;
-      max-width: 470px;
-    }
-    .deck-row-score {
-      font-size: 13px; font-weight: 700; color: var(--text);
-      font-variant-numeric: tabular-nums;
-      flex-shrink: 0;
-      margin-left: auto;
-      white-space: nowrap;
-    }
-    @media (max-width: 480px) {
-      .deck-row { padding: 6px 8px; gap: 6px; }
-      .deck-row-idx { width: 30px; font-size: 11px; }
-      .deck-squad { gap: 3px; }
-      .deck-row-score { font-size: 12px; }
-    }
-    .deck-slot {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 2px;
-      display: flex; flex-direction: column; align-items: center; gap: 1px;
-      min-width: 0;
-    }
-    .deck-slot-img {
-      width: 100%;
-      position: relative;
-      padding-bottom: 100%; /* 1:1 비율 강제 */
-      border-radius: 6px;
-      overflow: hidden;
-      background: var(--bg-muted);
-    }
-    .deck-slot-img img {
-      position: absolute;
-      inset: 0;
-      width: 100%; height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .deck-slot-meta {
-      font-size: 11px;
-      color: var(--text);
-      display: flex; flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      width: 100%;
-      margin-top: 3px;
-      line-height: 1.25;
-      font-variant-numeric: tabular-nums;
-    }
-    .deck-slot-meta .row {
-      max-width: 100%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      text-align: center;
-    }
-    .deck-slot-meta .row.row-inline {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-    }
-    /* 소장품 등급 색상 — 시프티패드 컬럼과 동일 */
-    .deck-slot-meta .item-ssr { color: var(--amber); font-weight: 700; }
-    .deck-slot-meta .item-sr  { color: #a855f7;     font-weight: 700; }
-    .deck-slot-meta .item-r   { color: var(--blue); font-weight: 700; }
-    /* 돌파 뱃지 — 시프티패드 컬럼과 동일 스타일 (사이즈만 압축) */
-    .badge-fullco {
-      display: inline-block;
-      padding: 1px 6px;
-      border-radius: 999px;
-      font-size: 10px;
-      font-weight: 700;
-      line-height: 1;
-      vertical-align: middle;
-      background: var(--amber-light);
-      color: var(--amber);
-      border: 1px solid #fde68a;
-    }
-    .badge-upgrade {
-      display: inline-block;
-      padding: 1px 6px;
-      border-radius: 999px;
-      font-size: 10px;
-      font-weight: 600;
-      line-height: 1;
-      vertical-align: middle;
-      background: var(--bg-muted);
-      color: var(--text-sub);
-      border: 1px solid var(--border);
-    }
-    .deck-empty {
-      grid-column: 1 / -1;
-      text-align: center;
-      color: var(--text-sub);
-      font-size: 12px;
-      padding: 20px 0;
-    }
-
-    /* 옵션 체크박스 (덱 모달 상단) */
-    .deck-options {
-      display: flex; flex-wrap: wrap;
-      gap: 6px 12px;
-      padding: 8px 10px;
-      margin-bottom: 10px;
-      background: var(--bg-muted);
-      border-radius: 8px;
-      font-size: 11px;
-      color: var(--text-sub);
-    }
-    .deck-options-label {
-      font-weight: 700; color: var(--text);
-      margin-right: 2px;
-    }
-    .deck-options label {
-      display: inline-flex; align-items: center; gap: 4px;
-      cursor: pointer;
-      user-select: none;
-    }
-    .deck-options input[type="checkbox"] { margin: 0; cursor: pointer; }
-  </style>
 </head>
 <body>
 
-<!-- ═══════════ 헤더 ═══════════ -->
-<header>
+<header class="rd-header">
+  <div class="rd-grad"></div>
   <div class="container">
-    <div class="header-top">
-      <div>
-        <div class="header-eyebrow">승리의 여신: 니케 · UNION PORTAL</div>
-        <div class="header-title" id="headerTitle"><img src="image/foxstar.png" alt="" style="width:22px;height:22px;vertical-align:middle;margin-right:6px;border-radius:4px;"> 여우별 유니온</div>
+    <div class="rd-head-inner">
+      <div class="rd-brand">
+        <img src="image/foxstar.png" alt="여우별 유니온" />
+        <div>
+          <div class="rd-eyebrow">승리의 여신: 니케 · UNION PORTAL</div>
+          <div class="rd-title" id="headerTitle">여우별 유니온</div>
+        </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <button class="theme-toggle" id="themeToggle" title="다크/라이트 모드 전환">🌙</button>
-        <a id="kakaoBtn" href="#" target="_blank" class="kakao-btn">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="#1a1200">
-            <path d="M12 3C6.48 3 2 6.69 2 11.25c0 2.87 1.76 5.4 4.41 6.95L5.25 21 l3.86-2.06A11.3 11.3 0 0012 19.5c5.52 0 10-3.69 10-8.25S17.52 3 12 3z"/>
-          </svg>
-          가입 문의
-        </a>
-      </div>
+      <button class="rd-toggle" id="themeToggle" title="다크/라이트 모드 전환">🌙</button>
     </div>
-    <nav>
+    <nav class="rd-nav">
       <a href="index.html">홈</a>
       <a href="raid.html">유니온레이드</a>
       <a href="solo.html" class="active">솔로레이드</a>
       <a href="shift.html">시프티패드</a>
       <a href="stats.html">여우별 통계</a>
-      <a href="sim.html">시뮬레이션</a>
+    </nav>
+    <nav class="rd-nav-mobile">
+      <a href="index.html">홈</a>
+      <a href="raid.html">유레</a>
+      <a href="solo.html" class="active">솔레</a>
+      <a href="shift.html">시프티</a>
+      <a href="stats.html">통계</a>
     </nav>
   </div>
 </header>
 
-<!-- ═══════════ 메인 ═══════════ -->
-<main>
-  <div class="container page-content">
-
-    <div class="solo-toolbar">
-      <label class="field">
-        <span>시즌</span>
-        <select id="soloSeasonSelect"></select>
-      </label>
-      <label class="toggle-wrap" for="viewDeckToggle">
-        <input type="checkbox" id="viewDeckToggle">
-        <span class="toggle-track"><span class="toggle-thumb"></span></span>
-        <span class="toggle-text">덱 보기</span>
-      </label>
-    </div>
-
-    <div class="solo-table-wrap">
-      <table class="solo-table">
-        <thead>
-          <tr>
-            <th>여우별 순위</th>
-            <th>솔레 순위</th>
-            <th>닉네임</th>
-            <th>점수</th>
-            <th class="th-deck">덱</th>
-            <th>버튼</th>
-          </tr>
-        </thead>
-        <tbody id="soloTbody"></tbody>
-      </table>
-    </div>
-
+<main class="rd-main">
+  <div class="container">
+    <div id="rdContent" class="rd-stack"></div>
   </div>
 </main>
 
-<!-- ═══════════ 덱 상세 모달 ═══════════ -->
-<div id="deckModal" class="deck-overlay" style="display:none">
-  <div class="deck-card">
-    <div class="deck-header">
-      <div>
-        <div class="deck-header-title" id="deckHeaderTitle"></div>
-        <div class="deck-header-sub" id="deckHeaderSub"></div>
-      </div>
-      <button class="deck-close" id="deckClose">✕</button>
-    </div>
-    <div class="deck-options" id="deckBaseOptions">
-      <span class="deck-options-label">기본 옵션</span>
-      <label><input type="checkbox" data-opt="optUpgrade">돌파</label>
-      <label><input type="checkbox" data-opt="optItem">소장품</label>
-      <label><input type="checkbox" data-opt="optAtk400">공격력</label>
-      <label><input type="checkbox" data-opt="optHp400">체력</label>
-      <label><input type="checkbox" data-opt="optDef400">방어력</label>
-      <label><input type="checkbox" data-opt="optSkill">스킬</label>
-    </div>
-    <div class="deck-options" id="deckOptions">
-      <span class="deck-options-label">장비 옵션</span>
-      <label><input type="checkbox" data-opt="optUko">우코</label>
-      <label><input type="checkbox" data-opt="optAtk">공증</label>
-      <label><input type="checkbox" data-opt="optAmmo">장탄</label>
-      <label><input type="checkbox" data-opt="optCharge">차속</label>
-      <label><input type="checkbox" data-opt="optChargeDmg">차댐</label>
-      <label><input type="checkbox" data-opt="optCritDmg">크댐</label>
-      <label><input type="checkbox" data-opt="optCritRate">크확</label>
-      <label><input type="checkbox" data-opt="optHit">명중</label>
-      <label><input type="checkbox" data-opt="optDef">방증</label>
-    </div>
-    <div id="deckBody"></div>
-  </div>
+<div id="rdSoloOverlay" class="rd-overlay" style="display:none">
+  <div class="rd-modal" id="rdSoloModal" style="max-width:760px"></div>
 </div>
 
-<!-- ═══════════ 데이터 로드 ═══════════ -->
 <script src="data/config.js"></script>
 <script src="data/solo.js"></script>
 
-<!-- ═══════════ 인증 필요 시 로그인 페이지로 리다이렉트 ═══════════ -->
 <script>
 if (window.__AUTH_REQUIRED) {
   location.replace("/login.html?return=" + encodeURIComponent(location.pathname + location.search));
 }
 </script>
 
-<!-- ═══════════ 솔로레이드 스크립트 ═══════════ -->
 <script>
 if (!window.__AUTH_REQUIRED) {
-// ─── 기본 설정 ───────────────────────────────────────────────────
-document.getElementById("headerTitle").innerHTML = '<img src="image/foxstar.png" alt="" style="width:22px;height:22px;vertical-align:middle;margin-right:6px;border-radius:4px;"> ' + CONFIG.unionName;
-document.getElementById("kakaoBtn").href = CONFIG.kakaoUrl;
-document.title = "솔로레이드 | " + CONFIG.unionName;
 
-// ─── 상수 ────────────────────────────────────────────────────────
-const ELEM_COLOR = {
-  "수냉": "#3b82f6",
-  "작열": "#ef4444",
-  "철갑": "#f59e0b",
-  "전격": "#a855f7",
-  "풍압": "#22c55e",
-};
-
-function charImgPath(name) {
-  return "image/" + name.replace(" : ", "_") + ".webp";
+if (typeof CONFIG !== "undefined") {
+  document.getElementById("headerTitle").textContent = CONFIG.unionName;
+  document.title = "솔로레이드 | " + CONFIG.unionName;
 }
 
-function fmtScore(n) {
-  if (n == null) return "—";
-  return n.toLocaleString("ko-KR");
+const EL_COL = {수냉:"var(--el-water)",작열:"var(--el-fire)",철갑:"var(--el-iron)",전격:"var(--el-elec)",풍압:"var(--el-wind)"};
+const EL_BG  = {수냉:"var(--elbg-water)",작열:"var(--elbg-fire)",철갑:"var(--elbg-iron)",전격:"var(--elbg-elec)",풍압:"var(--elbg-wind)"};
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+function imgOf(name){ return "image/" + name.replace(" : ", "_").replace(/ /g, "%20") + ".webp"; }
+function fmt(n){ return n == null ? "—" : n.toLocaleString("ko-KR"); }
+function fmtRank(r){ return r == null ? "—" : (typeof r === "number" ? r + "위" : r); }
+function medal(i){
+  return i === 0 ? {bg:"var(--medal1-bg)",col:"var(--medal1)"}
+       : i === 1 ? {bg:"var(--medal2-bg)",col:"var(--medal2)"}
+       : i === 2 ? {bg:"var(--medal3-bg)",col:"var(--medal3)"}
+       : {bg:"transparent",col:"var(--dim)"};
+}
+function gradeCol(g){ return g === "SSR" ? "var(--grade-ssr)" : g === "SR" ? "var(--grade-sr)" : "var(--grade-r)"; }
+
+const soloKeys = Object.keys(SOLO).sort((a, b) => parseInt(a.slice(1)) - parseInt(b.slice(1)));
+
+const state = { season: soloKeys[soloKeys.length - 1], selected: null,
+  opts: { upgrade: true, item: true, atk400: false, hp400: false, def400: false, skill: false,
+          uko: false, atk: false, ammo: false, charge: false, chargeDmg: false, critDmg: false, critRate: false, hit: false, def: false } };
+
+function curSeason(){ return SOLO[state.season]; }
+function sortedMembers(){ return [...curSeason().members].sort((a, b) => b.totalScore - a.totalScore); }
+
+function deckRowsHTML(m){
+  return m.decks.map((d, di) => {
+    const thumbs = d.squad.map(c => c ? '<img src="' + imgOf(c.name) + '" style="width:28px;height:28px;border-radius:4px;object-fit:cover;background:var(--muted)" loading="lazy" onerror="this.style.opacity=0.15">' : "").join("");
+    return '<div style="display:flex;align-items:center;gap:11px"><div style="display:flex;gap:3px">' + thumbs + '</div>' +
+      '<span style="font-size:12px;font-weight:700;color:var(--text)" class="tnum">' + fmt(d.deckScore) + '</span></div>';
+  }).join("");
 }
 
-// 솔레 순위 표기: 숫자는 "N위", 문자열("N.NN%")은 그대로
-function fmtSoloRank(r) {
-  if (r == null) return "—";
-  if (typeof r === "number") return r + "위";
-  return r;
+function tableHTML(){
+  const members = sortedMembers();
+  const head = '<tr style="border-bottom:1.5px solid var(--border);background:var(--muted)">' +
+    '<th style="padding:11px 14px;text-align:center" class="rd-th-c">여우별 순위</th>' +
+    '<th style="padding:11px 14px;text-align:center" class="rd-th-c">솔레 순위</th>' +
+    '<th style="padding:11px 14px;text-align:center" class="rd-th-c">닉네임</th>' +
+    '<th style="padding:11px 14px;text-align:center" class="rd-th-c">덱</th>' +
+    '<th style="padding:11px 14px;text-align:center" class="rd-th-c">점수</th>' +
+    '<th style="padding:11px 14px;text-align:center" class="rd-th-c"></th></tr>';
+  const body = members.map((m, i) => {
+    const md = medal(i);
+    return '<tr style="border-bottom:1px solid var(--line)">' +
+      '<td style="padding:11px 14px;text-align:center;vertical-align:middle"><span class="rd-rankpill" style="min-width:26px;height:26px;padding:0 8px;border-radius:8px;font-size:13px;background:' + md.bg + ';color:' + md.col + '">' + (i + 1) + '</span></td>' +
+      '<td style="padding:11px 14px;text-align:center;color:var(--sub);font-weight:600;vertical-align:middle" class="tnum">' + fmtRank(m.soloRank) + '</td>' +
+      '<td style="padding:11px 14px;text-align:left;font-weight:700;color:var(--text);vertical-align:middle;white-space:nowrap">' + esc(m.nickname) + '</td>' +
+      '<td style="padding:9px 14px;vertical-align:middle"><div style="display:flex;flex-direction:column;gap:3px">' + deckRowsHTML(m) + '</div></td>' +
+      '<td style="padding:11px 14px;text-align:right;font-weight:800;font-size:16px;color:var(--text);vertical-align:middle;white-space:nowrap" class="tnum">' + fmt(m.totalScore) + '</td>' +
+      '<td style="padding:11px 14px;text-align:center;vertical-align:middle"><span class="rd-detail-btn" data-act="open-deck" data-idx="' + i + '">자세히</span></td>' +
+      '</tr>';
+  }).join("");
+  return '<div class="rd-card" style="overflow:hidden"><div class="rd-scroll"><table class="rd-table"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div></div>';
 }
 
-function elemBadge(elem) {
-  if (!elem) return '';
-  const c = ELEM_COLOR[elem] || "#94a3b8";
-  return '<span class="solo-elem-badge" style="background:' + c + '">' + elem + '</span>';
+function render(){
+  const SD = curSeason();
+  const members = sortedMembers();
+  const ec = EL_COL[SD.element] || "var(--dim)", eb = EL_BG[SD.element] || "var(--muted)";
+  const top = members[0];
+
+  const seasonOptions = [...soloKeys].reverse().map(s => { const sd = SOLO[s]; return '<option value="' + s + '"' + (s === state.season ? " selected" : "") + '>' + s + " " + esc(sd.bossName) + " · " + sd.element + '</option>'; }).join("");
+
+  const toolbar =
+    '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--muted);border:1px solid var(--border);border-radius:12px;padding:10px 14px">' +
+      '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;font-weight:700;color:var(--sub)">시즌</span>' +
+        '<select class="rd-select" id="rdSeason" style="height:32px;padding:0 10px;font-size:13px">' + seasonOptions + '</select>' +
+        '<span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:' + ec + '"><span style="width:9px;height:9px;border-radius:50%;background:' + ec + '"></span>' + SD.element + '</span>' +
+      '</div></div>';
+
+  const summary =
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">' +
+      '<div class="rd-card" style="padding:15px 18px;display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:12px;background:' + eb + ';display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:11px;font-weight:800;color:' + ec + '">' + SD.element + '</span></div>' +
+        '<div><div class="rd-uplabel">이번 보스</div><div style="font-size:17px;font-weight:800;color:var(--text)">' + esc(SD.bossName) + '</div></div></div>' +
+      '<div class="rd-card" style="padding:15px 18px"><div class="rd-uplabel">참여 인원</div><div style="font-size:21px;font-weight:800;color:var(--text);margin-top:2px" class="tnum">' + members.length + '<span style="font-size:12px;color:var(--dim);font-weight:600">명</span></div></div>' +
+      '<div class="rd-card" style="padding:15px 18px"><div class="rd-uplabel">최고 기록</div><div style="font-size:21px;font-weight:800;color:var(--blue);margin-top:2px" class="tnum">' + fmt(top ? top.totalScore : null) + '</div></div>' +
+    '</div>';
+
+  const desktop = '<div class="rd-desktop rd-stack">' + summary + tableHTML() + '</div>';
+
+  /* 모바일 */
+  const mobileCards = members.map((m, i) => {
+    const md = medal(i);
+    const decks = m.decks.map((d, di) =>
+      '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;font-weight:800;color:var(--dim);width:18px;flex-shrink:0">#' + (di + 1) + '</span>' +
+        '<div style="display:flex;gap:2px;flex:1">' + d.squad.map(c => c ? '<img src="' + imgOf(c.name) + '" style="width:30px;height:30px;border-radius:4px;object-fit:cover;background:var(--muted)" loading="lazy" onerror="this.style.opacity=0.15">' : "").join("") + '</div>' +
+        '<span style="font-size:13px;font-weight:800;color:var(--text);white-space:nowrap" class="tnum">' + fmt(d.deckScore) + '</span></div>').join("");
+    return '<div class="rd-card" style="padding:13px 14px"><div style="display:flex;align-items:center;gap:11px">' +
+      '<span class="rd-rankpill" style="min-width:26px;height:26px;padding:0 7px;border-radius:8px;font-size:13px;background:' + md.bg + ';color:' + md.col + '">' + (i + 1) + '</span>' +
+      '<div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:800;color:var(--text)">' + esc(m.nickname) + '</div><div style="font-size:11px;color:var(--sub);font-weight:600;margin-top:1px">솔레 ' + fmtRank(m.soloRank) + '</div></div>' +
+      '<div style="text-align:right"><div style="font-size:15px;font-weight:800;color:var(--text)" class="tnum">' + fmt(m.totalScore) + '</div></div></div>' +
+      '<div style="display:flex;flex-direction:column;gap:5px;margin-top:11px;padding-top:11px;border-top:1px solid var(--line)">' + decks + '</div>' +
+      '<div class="rd-detail-wide" data-act="open-deck" data-idx="' + i + '">덱 빌드 자세히</div></div>';
+  }).join("");
+  const mobile =
+    '<div class="rd-mobile rd-stack">' +
+      '<div class="rd-card" style="padding:13px 15px;display:flex;align-items:center;gap:12px"><div style="width:42px;height:42px;border-radius:11px;background:' + eb + ';display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:11px;font-weight:800;color:' + ec + '">' + SD.element + '</span></div>' +
+        '<div style="flex:1"><div style="font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase">' + state.season + ' 솔로레이드</div><div style="font-size:16px;font-weight:800;color:var(--text)">' + esc(SD.bossName) + ' <span style="font-size:11px;color:var(--dim);font-weight:600">· ' + members.length + '명</span></div></div></div>' +
+      mobileCards +
+    '</div>';
+
+  document.getElementById("rdContent").innerHTML = toolbar + desktop + mobile;
+  const sel = document.getElementById("rdSeason");
+  if (sel) sel.addEventListener("change", e => { state.season = e.target.value; state.selected = null; render(); });
 }
 
-// ─── 시즌 셀렉터 ─────────────────────────────────────────────────
-const seasonSelect = document.getElementById("soloSeasonSelect");
-const seasonKeys = Object.keys(SOLO).sort((a, b) => {
-  return Number(b.replace("S", "")) - Number(a.replace("S", ""));
-});
-seasonKeys.forEach(k => {
-  const s   = SOLO[k];
-  const opt = document.createElement("option");
-  opt.value = k;
-  opt.textContent = k + " " + s.bossName + " [" + s.element + "]";
-  seasonSelect.appendChild(opt);
-});
-if (seasonKeys.length) seasonSelect.value = seasonKeys[0];
+/* ═══════════ 덱 상세 모달 ═══════════ */
+const BASE_OPTS = [["upgrade","돌파"],["item","소장품"],["atk400","공격력"],["hp400","체력"],["def400","방어력"],["skill","스킬"]];
+const EQ_OPTS = [["uko","우코","increaseElementDamage"],["atk","공증","increaseAtk"],["ammo","장탄","increaseMaxAmmunitionCapacity"],["charge","차속","increaseChargeSpeed"],["chargeDmg","차댐","increaseChargeDamage"],["critDmg","크댐","increaseCriticalDamage"],["critRate","크확","increaseCriticalRate"],["hit","명중","increaseHitRate"],["def","방증","increaseDef"]];
+function pct(v){ return (v == null || v === 0) ? null : v.toFixed(2) + "%"; }
 
-// ─── 렌더링 ──────────────────────────────────────────────────────
-function renderDeckMiniGrid(decks) {
-  const rows = [];
-  for (let d = 0; d < 5; d++) {
-    const deck = decks[d];
-    const squad = (deck && deck.squad) || [];
-    const slots = [];
-    for (let i = 0; i < 5; i++) {
-      const ch = squad[i];
-      if (ch) {
-        slots.push('<img class="deck-mini-thumb" src="' + charImgPath(ch.name) + '" alt="' + ch.name + '" title="' + ch.name + '" loading="lazy" onerror="this.style.opacity=0.2">');
-      } else {
-        slots.push('<div class="deck-mini-thumb-empty"></div>');
+function optChipHTML(items){
+  return items.map(o => {
+    const on = state.opts[o[0]];
+    return '<span data-act="toggle-opt" data-opt="' + o[0] + '" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:' + (on ? "var(--text)" : "var(--sub)") + ';cursor:pointer;user-select:none">' +
+      '<span style="width:15px;height:15px;border-radius:4px;border:1.5px solid ' + (on ? "var(--blue)" : "#cbd5e1") + ';background:' + (on ? "var(--blue)" : "transparent") + ';display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:10px">' + (on ? "✓" : "") + '</span>' + o[1] + '</span>';
+  }).join("");
+}
+
+function buildModalHTML(){
+  const SD = curSeason();
+  const members = sortedMembers();
+  const m = members[state.selected] || members[0];
+  const ec = EL_COL[SD.element] || "var(--dim)";
+  const opt = state.opts;
+
+  const decks = m.decks.map((d, di) => {
+    const slots = [0, 1, 2, 3, 4].map(j => {
+      const c = d.squad[j];
+      if (!c) return '<div style="background:var(--card);border:1px solid var(--border);border-radius:7px;padding:3px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0"><div style="position:relative;width:100%;padding-bottom:100%;border-radius:6px;overflow:hidden;background:var(--muted)"></div></div>';
+      const rows = [];
+      if ((opt.upgrade || opt.item)) {
+        if (opt.upgrade && c.upgrade) rows.push({ text: c.upgrade, w: "700", col: c.upgrade === "풀코" ? "var(--grade-ssr)" : "var(--sub)" });
+        if (opt.item && c.itemGrade) rows.push({ text: c.itemGrade + (c.itemLevel ? (" " + c.itemLevel) : ""), w: "700", col: gradeCol(c.itemGrade) });
       }
-    }
-    const scoreHtml = (deck && deck.deckScore != null)
-      ? '<span class="deck-mini-score">' + fmtScore(deck.deckScore) + '</span>'
-      : '';
-    rows.push(
-      '<div class="deck-mini-row">' +
-        '<div class="deck-mini-thumbs">' + slots.join('') + '</div>' +
-        scoreHtml +
-      '</div>'
-    );
-  }
-  return '<div class="deck-mini-grid">' + rows.join('') + '</div>';
+      if (opt.atk400 && c.atk400 != null) rows.push({ text: "공 " + c.atk400.toLocaleString(), w: "500", col: "var(--text)" });
+      if (opt.hp400 && c.hp400 != null) rows.push({ text: "체 " + c.hp400.toLocaleString(), w: "500", col: "var(--text)" });
+      if (opt.def400 && c.def400 != null) rows.push({ text: "방 " + c.def400.toLocaleString(), w: "500", col: "var(--text)" });
+      if (opt.skill) rows.push({ text: "스킬 " + (c.skill1 != null ? c.skill1 : "—") + " " + (c.skill2 != null ? c.skill2 : "—") + " " + (c.skill3 != null ? c.skill3 : "—"), w: "500", col: "var(--text)" });
+      EQ_OPTS.forEach(([id, label, field]) => { if (opt[id]) { const p = pct(c[field]); if (p) rows.push({ text: label + " " + p, w: "500", col: "var(--ink)" }); } });
+      const rowsHTML = rows.map(r => '<div style="max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;font-weight:' + r.w + ';color:' + r.col + '">' + r.text + '</div>').join("");
+      return '<div style="background:var(--card);border:1px solid var(--border);border-radius:7px;padding:3px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0">' +
+        '<div style="position:relative;width:100%;padding-bottom:100%;border-radius:6px;overflow:hidden;background:var(--muted)"><img src="' + imgOf(c.name) + '" title="' + esc(c.name) + (c.upgrade ? " · " + c.upgrade : "") + '" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.style.opacity=0.15"></div>' +
+        (rowsHTML ? '<div style="display:flex;flex-direction:column;align-items:center;gap:1px;width:100%;margin-top:2px;line-height:1.25">' + rowsHTML + '</div>' : "") +
+      '</div>';
+    }).join("");
+    return '<div style="display:flex;align-items:stretch;gap:10px;border:1px solid var(--border);border-radius:10px;padding:8px;background:var(--muted)">' +
+      '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:34px;flex-shrink:0"><span style="font-size:12px;font-weight:800;color:var(--text)">#' + (di + 1) + '</span></div>' +
+      '<div style="display:grid;grid-template-columns:repeat(5,minmax(0,66px));gap:6px;min-width:0">' + slots + '</div>' +
+      '<div style="display:flex;align-items:center;flex-shrink:0"><span style="font-size:13px;font-weight:800;color:var(--text);white-space:nowrap" class="tnum">' + fmt(d.deckScore) + '</span></div>' +
+    '</div>';
+  }).join("");
+
+  return '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 20px 14px;border-bottom:1px solid var(--border)">' +
+      '<div><div style="font-size:20px;font-weight:800;color:var(--text)">' + esc(m.nickname) + '</div>' +
+        '<div style="font-size:13px;color:var(--sub);margin-top:5px;display:flex;align-items:center;gap:7px;flex-wrap:wrap"><span style="font-weight:700;color:var(--text)">' + state.season + ' ' + esc(SD.bossName) + '</span>' +
+          '<span style="display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;color:#fff;background:' + ec + '">' + SD.element + '</span>' +
+          '<span>· 솔레 순위 <b style="color:var(--text)">' + fmtRank(m.soloRank) + '</b></span><span>· 총점 <b style="color:var(--text)">' + fmt(m.totalScore) + '</b></span></div></div>' +
+      '<span class="rd-modal-close" data-act="close-deck" style="border-radius:50%">✕</span></div>' +
+    '<div style="padding:12px 20px;display:flex;flex-direction:column;gap:8px;background:var(--muted);border-bottom:1px solid var(--border)">' +
+      '<div style="display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap"><span style="font-size:11px;font-weight:800;color:var(--text)">기본 옵션</span>' + optChipHTML(BASE_OPTS) + '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap"><span style="font-size:11px;font-weight:800;color:var(--text)">장비 옵션</span>' + optChipHTML(EQ_OPTS) + '</div>' +
+    '</div>' +
+    '<div style="padding:14px 18px 18px;display:flex;flex-direction:column;gap:7px;overflow-y:auto">' + decks + '</div>';
 }
+function renderModal(){ document.getElementById("rdSoloModal").innerHTML = buildModalHTML(); }
+function openDeckModal(idx){ state.selected = idx; renderModal(); document.getElementById("rdSoloOverlay").style.display = "flex"; document.body.style.overflow = "hidden"; }
+function closeDeckModal(){ document.getElementById("rdSoloOverlay").style.display = "none"; document.body.style.overflow = ""; }
 
-function renderSeason(seasonKey) {
-  const data = SOLO[seasonKey];
-  const table = document.querySelector(".solo-table");
-  const tbody = document.getElementById("soloTbody");
-  tbody.innerHTML = "";
-  if (!data) return;
-
-  const deckView = document.getElementById("viewDeckToggle").checked;
-  if (table) table.classList.toggle("hide-deck-col", !deckView);
-
-  // 멤버 순위 (점수 내림차순) — 여우별 순위 산출
-  const sorted = [...(data.members || [])].sort((a, b) =>
-    (b.totalScore || 0) - (a.totalScore || 0)
-  );
-
-  sorted.forEach((m, idx) => {
-    const tr = document.createElement("tr");
-    const foxRank = idx + 1;
-    if (foxRank <= 3) tr.classList.add("rank-" + foxRank);
-    const deckCellContent = deckView ? renderDeckMiniGrid(m.decks || []) : '';
-    tr.innerHTML =
-      '<td class="td-rank-foxstar">' + foxRank + '</td>' +
-      '<td>' + fmtSoloRank(m.soloRank) + '</td>' +
-      '<td class="td-name">' + m.nickname + '</td>' +
-      '<td class="td-score">' + fmtScore(m.totalScore) + '</td>' +
-      '<td class="td-deck">' + deckCellContent + '</td>' +
-      '<td><button class="deck-btn" data-uid="' + m.uid + '">자세히</button></td>';
-    tr.querySelector(".deck-btn").addEventListener("click", () => openDeckModal(seasonKey, m));
-    tbody.appendChild(tr);
-  });
-}
-
-// ─── 덱 모달 ─────────────────────────────────────────────────────
-function upgradeBadge(val) {
-  if (!val) return '';
-  if (val === "풀코") return '<span class="badge-fullco">풀코</span>';
-  return '<span class="badge-upgrade">' + val + '</span>';
-}
-
-function fmtPct(v) {
-  if (v == null || v === 0) return null;
-  return v.toFixed(2) + "%";
-}
-
-// 장비 옵션(체크박스) 정의 — id 는 체크박스 data-opt 와 일치
-const OPTION_FIELDS = [
-  { id: "optUko",       text: ch => { const v = fmtPct(ch.increaseElementDamage);         return v ? '우코 ' + v : null; } },
-  { id: "optAtk",       text: ch => { const v = fmtPct(ch.increaseAtk);                   return v ? '공증 ' + v : null; } },
-  { id: "optAmmo",      text: ch => { const v = fmtPct(ch.increaseMaxAmmunitionCapacity); return v ? '장탄 ' + v : null; } },
-  { id: "optCharge",    text: ch => { const v = fmtPct(ch.increaseChargeSpeed);           return v ? '차속 ' + v : null; } },
-  { id: "optChargeDmg", text: ch => { const v = fmtPct(ch.increaseChargeDamage);          return v ? '차댐 ' + v : null; } },
-  { id: "optCritDmg",   text: ch => { const v = fmtPct(ch.increaseCriticalDamage);        return v ? '크댐 ' + v : null; } },
-  { id: "optCritRate",  text: ch => { const v = fmtPct(ch.increaseCriticalRate);          return v ? '크확 ' + v : null; } },
-  { id: "optHit",       text: ch => { const v = fmtPct(ch.increaseHitRate);               return v ? '명중 ' + v : null; } },
-  { id: "optDef",       text: ch => { const v = fmtPct(ch.increaseDef);                   return v ? '방증 ' + v : null; } },
-];
-
-function getOptionStates() {
-  const map = {};
-  document.querySelectorAll('#deckBaseOptions input[data-opt], #deckOptions input[data-opt]').forEach(cb => {
-    map[cb.dataset.opt] = cb.checked;
-  });
-  return map;
-}
-
-function itemGradeClass(grade) {
-  if (grade === "SSR") return "item-ssr";
-  if (grade === "SR")  return "item-sr";
-  return "item-r";
-}
-
-function renderSlot(ch, optStates) {
-  if (!ch) {
-    return '<div class="deck-slot"><div class="deck-slot-img" style="opacity:.3"></div></div>';
-  }
-  const rows = [];
-
-  // 기본 옵션 (체크박스 ON 일 때만 표시, 기본 ON)
-  // 돌파 + 소장품은 한 줄에 함께 표시
-  if (optStates.optUpgrade || optStates.optItem) {
-    const parts = [];
-    if (optStates.optUpgrade) {
-      parts.push(ch.upgrade ? upgradeBadge(ch.upgrade) : '');
-    }
-    if (optStates.optItem) {
-      if (ch.itemGrade) {
-        const item = ch.itemGrade + (ch.itemLevel != null && ch.itemLevel !== "" ? ' ' + ch.itemLevel : '');
-        parts.push('<span class="' + itemGradeClass(ch.itemGrade) + '">' + item + '</span>');
-      } else {
-        parts.push('<span>-</span>');
-      }
-    }
-    rows.push('<div class="row row-inline">' + parts.filter(Boolean).join(' ') + '</div>');
-  }
-  if (optStates.optAtk400) {
-    rows.push(ch.atk400 ? '<div class="row">공 ' + ch.atk400.toLocaleString() + '</div>' : '<div class="row">&nbsp;</div>');
-  }
-  if (optStates.optHp400) {
-    rows.push(ch.hp400 ? '<div class="row">체 ' + ch.hp400.toLocaleString() + '</div>' : '<div class="row">&nbsp;</div>');
-  }
-  if (optStates.optDef400) {
-    rows.push(ch.def400 ? '<div class="row">방 ' + ch.def400.toLocaleString() + '</div>' : '<div class="row">&nbsp;</div>');
-  }
-  if (optStates.optSkill) {
-    const s1 = ch.skill1 != null ? ch.skill1 : '—';
-    const s2 = ch.skill2 != null ? ch.skill2 : '—';
-    const s3 = ch.skill3 != null ? ch.skill3 : '—';
-    rows.push('<div class="row">스킬 ' + s1 + ' ' + s2 + ' ' + s3 + '</div>');
-  }
-
-  // 장비 옵션 (체크박스 ON 일 때만 추가)
-  OPTION_FIELDS.forEach(opt => {
-    if (!optStates[opt.id]) return;
-    const text = opt.text(ch);
-    if (!text) return;
-    rows.push('<div class="row">' + text + '</div>');
-  });
-
-  return (
-    '<div class="deck-slot" title="' + ch.name + (ch.upgrade ? ' · ' + ch.upgrade : '') + '">' +
-      '<div class="deck-slot-img"><img src="' + charImgPath(ch.name) + '" alt="' + ch.name + '" loading="lazy" onerror="this.style.opacity=0.2"></div>' +
-      '<div class="deck-slot-meta">' + rows.join('') + '</div>' +
-    '</div>'
-  );
-}
-
-// 현재 모달에 띄워진 시즌/멤버 (체크박스 변경 시 재렌더링용)
-let currentOpenSeason = null;
-let currentOpenMember = null;
-
-function renderDeckBody() {
-  if (!currentOpenSeason || !currentOpenMember) return;
-  const data = SOLO[currentOpenSeason];
-  const member = currentOpenMember;
-
-  document.getElementById("deckHeaderTitle").textContent = member.nickname;
-  document.getElementById("deckHeaderSub").innerHTML =
-    data.season + ' ' + data.bossName + ' ' + elemBadge(data.element) +
-    ' · 솔레 순위 ' + fmtSoloRank(member.soloRank) +
-    ' · 총점 ' + fmtScore(member.totalScore);
-
-  const body = document.getElementById("deckBody");
-  body.innerHTML = "";
-  const decks = member.decks || [];
-  if (decks.length === 0) {
-    body.innerHTML = '<div class="deck-empty">덱 데이터가 없습니다.</div>';
-    return;
-  }
-  const optStates = getOptionStates();
-  decks.forEach((deck, i) => {
-    const row = document.createElement("div");
-    row.className = "deck-row";
-    const squad = deck.squad || [];
-    const slots = [];
-    for (let j = 0; j < 5; j++) slots.push(renderSlot(squad[j] || null, optStates));
-    row.innerHTML =
-      '<span class="deck-row-idx">#' + (i + 1) + '</span>' +
-      '<div class="deck-squad">' + slots.join("") + '</div>' +
-      '<div class="deck-row-score">' + fmtScore(deck.deckScore) + '</div>';
-    body.appendChild(row);
-  });
-}
-
-function openDeckModal(seasonKey, member) {
-  currentOpenSeason = seasonKey;
-  currentOpenMember = member;
-  renderDeckBody();
-
-  document.getElementById("deckModal").style.display = "flex";
-}
-
-function closeDeckModal() {
-  document.getElementById("deckModal").style.display = "none";
-}
-
-document.getElementById("deckClose").addEventListener("click", closeDeckModal);
-document.getElementById("deckModal").addEventListener("click", function(e) {
-  if (e.target === this) closeDeckModal();
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-act]"); if (!t) return;
+  const act = t.dataset.act;
+  if (act === "open-deck") openDeckModal(parseInt(t.dataset.idx));
+  else if (act === "close-deck") closeDeckModal();
+  else if (act === "toggle-opt") { state.opts[t.dataset.opt] = !state.opts[t.dataset.opt]; renderModal(); }
 });
-document.addEventListener("keydown", function(e) {
-  if (e.key === "Escape") closeDeckModal();
-});
+document.getElementById("rdSoloOverlay").addEventListener("click", e => { if (e.target === e.currentTarget) closeDeckModal(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && document.getElementById("rdSoloOverlay").style.display !== "none") closeDeckModal(); });
 
-// ─── 이벤트 ──────────────────────────────────────────────────────
-seasonSelect.addEventListener("change", () => renderSeason(seasonSelect.value));
-document.getElementById("viewDeckToggle").addEventListener("change", () => renderSeason(seasonSelect.value));
-
-// 옵션 체크박스 — 변경 시 덱 모달 재렌더링
-document.querySelectorAll('#deckBaseOptions input[data-opt], #deckOptions input[data-opt]').forEach(cb => {
-  cb.addEventListener('change', renderDeckBody);
-});
-
-if (seasonKeys.length) renderSeason(seasonSelect.value);
+render();
 
 } // if (!window.__AUTH_REQUIRED)
 </script>
 
-<!-- ═══════════ 테마 토글 ═══════════ -->
 <script>
-(function(){
-  const html = document.documentElement;
-  const btn  = document.getElementById("themeToggle");
-  const saved = localStorage.getItem("theme");
+(function() {
+  const html = document.documentElement, btn = document.getElementById("themeToggle"), saved = localStorage.getItem("theme");
   if (saved === "dark") { html.classList.add("dark"); btn.textContent = "☀️"; }
-  btn.addEventListener("click", function() {
-    const isDark = html.classList.toggle("dark");
-    btn.textContent = isDark ? "☀️" : "🌙";
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-  });
+  btn.addEventListener("click", function() { const isDark = html.classList.toggle("dark"); btn.textContent = isDark ? "☀️" : "🌙"; localStorage.setItem("theme", isDark ? "dark" : "light"); });
 })();
 </script>
-
 <script>
 (function(){
   document.addEventListener("contextmenu", function(e){ e.preventDefault(); });
@@ -775,8 +272,6 @@ if (seasonKeys.length) renderSeason(seasonSelect.value);
   });
 })();
 </script>
-
-<!-- ═══════════ 인증 확정 후 body 공개 (FOUC 방지) ═══════════ -->
 <script>if(!window.__AUTH_REQUIRED)document.body.classList.add("ready");</script>
 
 </body>
