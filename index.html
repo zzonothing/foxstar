@@ -139,14 +139,8 @@ function roleOf(m){ const r = ROLE_OVERRIDE[m.name] || m.role; return (r === "Le
 
 const OPF = [["공용","common"],["화력형","attack"],["방어형","defense"],["지원형","support"],["미실리스","missilis"],["엘리시온","elysion"],["테트라","tetra"],["필그림","pilgrim"],["어브노멀","abnormal"]];
 
-/* 시즌 상승: 최신 제외 직전 5시즌, 각 시즌 전시즌 대비 상승량 */
+/* 시즌 상승: 최신 제외 직전 5시즌, 각 시즌 전시즌 대비 상승량 (멤버별 스케일) */
 const TREND_KEYS = seasonKeys.slice(0, -1).slice(-5);
-let maxDelta = 1;
-members.forEach(m => TREND_KEYS.forEach(k => {
-  const i = seasonKeys.indexOf(k), pk = seasonKeys[i - 1];
-  const a = lvlMaps[k][m.name], b = pk != null ? lvlMaps[pk][m.name] : null;
-  if (a != null && b != null) maxDelta = Math.max(maxDelta, a - b);
-}));
 
 const sortedMembers = [...members].sort((a, b) => b.syncroLevel - a.syncroLevel || a.name.localeCompare(b.name, "ko"));
 
@@ -155,13 +149,17 @@ const membersVM = sortedMembers.map((m, i) => {
   const isNew0 = prevLvl == null, diff = isNew0 ? null : m.syncroLevel - prevLvl;
   const dText = isNew0 ? "New" : (diff > 0 ? "+" + diff : diff < 0 ? String(diff) : "+0");
   const dCol  = isNew0 ? "var(--role-officer)" : (diff > 0 ? "var(--green)" : diff < 0 ? "var(--red)" : "var(--dim)");
-  const riseSlots = TREND_KEYS.map(k => {
+  const riseDeltas = TREND_KEYS.map(k => {
     const idx = seasonKeys.indexOf(k), pk = seasonKeys[idx - 1];
     const a = lvlMaps[k][m.name], b = pk != null ? lvlMaps[pk][m.name] : null;
-    if (a == null || b == null) return { bar: false, s: "S" + k };
-    const dv = a - b;
+    return (a == null || b == null) ? null : a - b;
+  });
+  const memMax = Math.max(12, ...riseDeltas.filter(d => d != null).map(d => Math.max(0, d)));
+  const riseSlots = TREND_KEYS.map((k, ri) => {
+    const dv = riseDeltas[ri];
+    if (dv == null) return { bar: false, s: "S" + k };
     return { bar: true, s: "S" + k, val: (dv >= 0 ? "+" : "") + dv,
-             h: Math.max(3, Math.round(3 + dv / maxDelta * 44)), hMini: Math.max(2, Math.round(2 + dv / maxDelta * 22)),
+             h: Math.max(3, Math.round(4 + Math.max(0, dv) / memMax * 28)), hMini: Math.max(2, Math.round(2 + Math.max(0, dv) / memMax * 20)),
              col: dv > 0 ? "var(--green)" : "var(--dim)" };
   });
   const hasTrend = riseSlots.some(x => x.bar);
@@ -265,9 +263,9 @@ function memberTableDesktop(){
       mid = m.outpostFull.map(op => '<td class="rd-td-c tnum" style="color:' + op.col + ';font-weight:' + op.w + '">' + op.v + '</td>').join("");
     } else {
       const trend = m.hasTrend
-        ? '<td style="padding:8px 12px"><div style="display:flex;align-items:flex-end;gap:6px;height:50px">' +
+        ? '<td style="padding:8px 12px"><div style="display:flex;align-items:flex-end;gap:6px;height:62px">' +
             m.riseSlots.map(r => r.bar
-              ? '<div style="width:22px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div style="font-size:9px;font-weight:700;color:' + r.col + ';margin-bottom:2px" class="tnum">' + r.val + '</div><div style="width:15px;height:' + r.h + 'px;background:' + r.col + ';border-radius:3px 3px 0 0"></div><div style="font-size:8px;color:var(--dim);font-weight:600;margin-top:3px">' + r.s + '</div></div>'
+              ? '<div style="width:22px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div style="font-size:9px;font-weight:700;color:' + r.col + ';margin-bottom:2px" class="tnum">' + r.val + '</div><div style="width:15px;flex-shrink:0;height:' + r.h + 'px;background:' + r.col + ';border-radius:3px 3px 0 0"></div><div style="font-size:8px;color:var(--dim);font-weight:600;margin-top:3px">' + r.s + '</div></div>'
               : '<div style="width:22px"></div>').join("") +
           '</div></td>'
         : '<td style="padding:10px 12px"><span style="font-size:13px;font-weight:700;color:var(--dim);padding-left:6px">-</span></td>';
