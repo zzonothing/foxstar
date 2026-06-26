@@ -188,7 +188,7 @@ function deckUsageHTML(SD){
 
 function charUsageHTML(SD){
   const MED = ["🥇", "🥈", "🥉"], TB = ["#f59e0b", "#94a3b8", "#b45309"];
-  return SD.charUsage.slice(0, 14).map((c, i) =>
+  return SD.charUsage.map((c, i) =>
     '<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--card);border:1.5px solid ' + (i < 3 ? TB[i] : "var(--border)") + ';border-radius:12px;padding:11px 8px 9px;width:74px">' +
       (i < 3 ? '<span style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);font-size:14px">' + MED[i] + '</span>' : "") +
       charImg(c.name, { style: "width:46px;height:46px;border-radius:8px;object-fit:cover" }) +
@@ -250,7 +250,7 @@ function render(){
       '</div>' +
       '<div><div class="rd-sec-head"><span class="rd-sec-bar"></span><span class="rd-sec-title">덱 사용 현황</span><span class="rd-sec-note">보스별 편성 · 사용 횟수순</span></div>' +
         '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">' + deckUsageHTML(SD) + '</div></div>' +
-      '<div><div class="rd-sec-head"><span class="rd-sec-bar"></span><span class="rd-sec-title">캐릭터 사용 현황</span><span class="rd-sec-note">최다 출전 TOP</span></div>' +
+      '<div><div class="rd-sec-head"><span class="rd-sec-bar"></span><span class="rd-sec-title">캐릭터 사용 현황</span><span class="rd-sec-note">출전 횟수순</span></div>' +
         '<div style="display:flex;flex-wrap:wrap;gap:9px">' + charUsageHTML(SD) + '</div></div>' +
     '</div>';
 
