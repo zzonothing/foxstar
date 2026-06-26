@@ -38,7 +38,7 @@
 <script src="js/common.js?v=1"></script>
 
 <script>
-if (window.__DATA_ERROR || typeof UNION === "undefined" || typeof CONFIG === "undefined") {
+if (window.__DATA_ERROR) {
   if (typeof showDataError === "function") showDataError();
 } else if (!authGuardOrRedirect()) {
 try {
