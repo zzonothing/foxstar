@@ -91,11 +91,16 @@ function computeSeason(ps){
     arr.forEach(mm => mm.raids.forEach(r => {
       if (bossShort(r.bossName) !== sh) return;
       const names = [...r.squad].sort((a, b) => a.slot - b.slot).map(s => s.name);
-      const key = names.join("|");
-      if (!cnt[key]) cnt[key] = { chars: names, count: 0 };
-      cnt[key].count++;
+      const comp = [...names].sort().join("|");   // 캐릭터 구성(배치 무관) 기준 — 배치만 다르면 같은 덱
+      const layout = names.join("|");              // 실제 배치(슬롯 순서)
+      if (!cnt[comp]) cnt[comp] = { count: 0, layouts: {} };
+      cnt[comp].count++;
+      cnt[comp].layouts[layout] = (cnt[comp].layouts[layout] || 0) + 1;
     }));
-    decksTop[sh] = Object.values(cnt).sort((a, b) => b.count - a.count).slice(0, 3);
+    decksTop[sh] = Object.values(cnt).map(d => {
+      const top = Object.entries(d.layouts).sort((a, b) => b[1] - a[1])[0][0];  // 제일 많이 쓴 배치로 이미지 나열
+      return { chars: top.split("|"), count: d.count };
+    }).sort((a, b) => b.count - a.count);          // 모든 덱, 사용 횟수 내림차순
   });
   const ucnt = {};
   arr.forEach(mm => mm.raids.forEach(r => r.squad.forEach(s => { ucnt[s.name] = (ucnt[s.name] || 0) + 1; })));
@@ -243,7 +248,7 @@ function render(){
           '<span style="font-size:11px;color:var(--dim);font-weight:600">닉네임 클릭 → 팝업 · <span style="color:var(--red)">막타</span></span>' +
         '</div>' + matrixHTML(SD) +
       '</div>' +
-      '<div><div class="rd-sec-head"><span class="rd-sec-bar"></span><span class="rd-sec-title">덱 사용 현황</span><span class="rd-sec-note">보스별 최다 편성</span></div>' +
+      '<div><div class="rd-sec-head"><span class="rd-sec-bar"></span><span class="rd-sec-title">덱 사용 현황</span><span class="rd-sec-note">보스별 편성 · 사용 횟수순</span></div>' +
         '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">' + deckUsageHTML(SD) + '</div></div>' +
       '<div><div class="rd-sec-head"><span class="rd-sec-bar"></span><span class="rd-sec-title">캐릭터 사용 현황</span><span class="rd-sec-note">최다 출전 TOP</span></div>' +
         '<div style="display:flex;flex-wrap:wrap;gap:9px">' + charUsageHTML(SD) + '</div></div>' +
