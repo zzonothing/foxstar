@@ -37,13 +37,14 @@ const RAID_GUIDE = {
 
   // ── 역할별 "저육성(🟡)" 판정 기준 ──────────────────────────────
   //  보유했지만 아래 중 하나라도 해당하면 저육성으로 본다.
-  //   fullco   : true 면 upgrade 가 "풀코" 가 아닐 때 부족으로 표시
+  //  ※ 현재 정책: 돌파/코어 상태·레벨은 무관 → 우코 + 스킬작만 본다.
+  //   fullco   : true 면 upgrade 가 "풀코" 가 아닐 때 부족으로 표시 (false=무관)
   //   skillSum : skillTargets 에 없는 캐릭터의 스킬 부족 판정(합) 폴백
-  //   levelGap : (본인 최고 캐릭터 레벨 − 해당 캐릭터 레벨) 이 값 초과면 레벨 부족
-  //   uko      : increaseElementDamage 가 이 값 미만이면 우코 부족 (null 이면 검사 안 함)
+  //   levelGap : (본인 최고 레벨 − 캐릭터 레벨) 이 값 초과면 레벨 부족 (null=무관)
+  //   uko      : increaseElementDamage 가 이 값 미만이면 우코 부족 (null=무관)
   roleRules: {
-    dealer:  { fullco: true, skillSum: 10, levelGap: 60, uko: 80 },   // 딜러: 우코·코어 중심
-    support: { fullco: true, skillSum: 15, levelGap: 60, uko: null }, // 서포터: 스킬 중심, 우코 무관
+    dealer:  { fullco: false, skillSum: 10, levelGap: null, uko: 80 },   // 딜러: 우코 + 스킬작
+    support: { fullco: false, skillSum: 15, levelGap: null, uko: null }, // 서포터: 스킬작만
   },
 
   // ── 캐릭터별 스킬 목표치 [1스킬, 2스킬, 3스킬] ──────────────────
