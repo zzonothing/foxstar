@@ -76,7 +76,7 @@ const seasonKeys = Object.keys(UNION).map(Number).sort((a, b) => a - b);
 const latestKey = seasonKeys[seasonKeys.length - 1];
 const members = UNION[latestKey].members.map(m => ({ nickname: m.name, syncro: m.syncroLevel, chars: (typeof CHARACTERS !== "undefined" && CHARACTERS[m.uid]) ? CHARACTERS[m.uid] : [] }));
 
-function rankCol(i){ return i === 0 ? "var(--medal1)" : i === 1 ? "var(--medal2)" : i === 2 ? "var(--medal3)" : "var(--dim)"; }
+function rankCol(i){ return "var(--sub)"; }
 const pctText = v => v.toFixed(2) + "%";
 const cntText = v => v + "개";
 

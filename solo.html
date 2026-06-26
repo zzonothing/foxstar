@@ -79,10 +79,7 @@ function imgOf(name){ return "image/" + name.replace(" : ", "_").replace(/ /g, "
 function fmt(n){ return n == null ? "—" : n.toLocaleString("ko-KR"); }
 function fmtRank(r){ return r == null ? "—" : (typeof r === "number" ? r + "위" : r); }
 function medal(i){
-  return i === 0 ? {bg:"var(--medal1-bg)",col:"var(--medal1)"}
-       : i === 1 ? {bg:"var(--medal2-bg)",col:"var(--medal2)"}
-       : i === 2 ? {bg:"var(--medal3-bg)",col:"var(--medal3)"}
-       : {bg:"transparent",col:"var(--dim)"};
+  return { bg: "var(--muted)", col: "var(--sub)" };
 }
 function gradeCol(g){ return g === "SSR" ? "var(--grade-ssr)" : g === "SR" ? "var(--grade-sr)" : "var(--grade-r)"; }
 
