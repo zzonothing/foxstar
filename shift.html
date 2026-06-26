@@ -153,8 +153,7 @@ function rowHTML(r){
     '<td style="' + sticky0 + ';left:132px;padding:9px 8px;text-align:center;color:var(--sub)" class="tnum">' + syncro + '</td>' +
     '<td style="' + sticky0 + ';left:180px;padding:9px 12px;text-align:left;box-shadow:1px 0 0 var(--border)">' +
       '<span style="display:inline-flex;align-items:center;gap:7px"><span style="width:9px;height:9px;border-radius:50%;background:' + (ECOL[c.element] || "var(--dim)") + ';flex-shrink:0"></span>' +
-      '<span style="font-weight:600;color:var(--text)">' + esc(c.name) + '</span>' +
-      '<span class="rd-detail-mini" data-act="open-equip" data-key="' + esc(m.nickname + "|" + c.name) + '">자세히</span></span></td>' +
+      '<span class="rd-name" style="font-weight:600" data-act="open-equip" data-key="' + esc(m.nickname + "|" + c.name) + '" title="장비 상세 보기">' + esc(c.name) + '</span></span></td>' +
     '<td style="padding:9px 10px;text-align:center;background:' + r.scrollBg + '">' + breakCell + '</td>' +
     '<td style="padding:9px 10px;text-align:center;font-weight:700;color:var(--text);background:' + r.scrollBg + '" class="tnum">' + pct(c.increaseElementDamage) + '</td>' +
     '<td style="padding:9px 10px;text-align:center;font-weight:600;color:var(--text);background:' + r.scrollBg + '" class="tnum">' + pct(c.increaseAtk) + '</td>' + extra +
@@ -181,8 +180,8 @@ function updateTable(){
 const M_ECELL = 'padding:8px 9px;text-align:center';
 function mDot(c){ return '<span style="width:7px;height:7px;border-radius:50%;background:' + (ECOL[c.element] || "var(--dim)") + ';flex-shrink:0"></span>'; }
 function mNick(m){ return '<span style="font-size:14px;font-weight:800;color:var(--text)">' + esc(m.nickname) + '</span><span style="font-size:10px;color:var(--dim);font-weight:600;margin-left:5px" class="tnum">Lv.' + (m.syncro != null ? m.syncro : "—") + '</span>'; }
-function mDetail(m, c){ return '<span class="rd-detail-mini" data-act="open-equip" data-key="' + esc(m.nickname + "|" + c.name) + '" style="font-size:9px;padding:1px 6px;margin-left:auto;flex-shrink:0">자세히</span>'; }
-function mIdCell(inner){ return '<td style="position:sticky;left:0;z-index:3;background:var(--card);box-shadow:1px 0 0 var(--border);padding:8px 9px;min-width:128px;max-width:168px">' + inner + '</td>'; }
+function mName(m, c){ return '<span class="rd-name" style="font-size:12px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis" data-act="open-equip" data-key="' + esc(m.nickname + "|" + c.name) + '">' + esc(c.name) + '</span>'; }
+function mIdCell(inner){ return '<td style="position:sticky;left:0;z-index:3;background:var(--card);box-shadow:1px 0 0 var(--border);padding:8px 9px;min-width:116px;max-width:158px">' + inner + '</td>'; }
 
 function mStatCells(c, extraDefs){
   const fullco = c.upgrade === "풀코", upgradePlain = !!c.upgrade && c.upgrade !== "풀코";
@@ -204,7 +203,7 @@ function mIndivRow(r, extraDefs){
   const c = r.c, m = r.m;
   const id = '<div style="display:flex;align-items:center">' + mNick(m) + '</div>' +
     '<div style="display:flex;align-items:center;gap:5px;margin-top:3px">' + mDot(c) +
-      '<span style="font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis">' + esc(c.name) + '</span>' + mDetail(m, c) + '</div>';
+      mName(m, c) + '</div>';
   return '<tr style="border-bottom:1px solid var(--line)">' + mIdCell(id) + mStatCells(c, extraDefs) + '</tr>';
 }
 
@@ -214,7 +213,7 @@ function mMemberRow(r, ncol, first){
   const id = '<div style="display:flex;align-items:center;gap:6px"><span style="width:3px;height:15px;border-radius:2px;background:' + accent + ';flex-shrink:0"></span>' + mNick(m) + '</div>';
   let band = ""; for (let i = 0; i < ncol; i++) band += '<td style="background:var(--muted)"></td>';
   return '<tr style="' + (first ? "" : "border-top:2px solid var(--border);") + '">' +
-    '<td style="position:sticky;left:0;z-index:3;background:var(--muted);box-shadow:1px 0 0 var(--border);padding:7px 9px;min-width:128px;max-width:168px">' + id + '</td>' + band + '</tr>';
+    '<td style="position:sticky;left:0;z-index:3;background:var(--muted);box-shadow:1px 0 0 var(--border);padding:7px 9px;min-width:116px;max-width:158px">' + id + '</td>' + band + '</tr>';
 }
 
 /* 그룹 모드: 캐릭터 행(캐릭터만 식별열) */
@@ -225,9 +224,9 @@ function mGroupCharRow(r, extraDefs){
   }
   const c = r.c, m = r.m;
   const id = '<div style="display:flex;align-items:center;gap:5px;padding-left:11px">' + mDot(c) +
-    '<span style="font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis">' + esc(c.name) + '</span>' +
+    mName(m, c) +
     (r.kind === "primary" ? '<span style="font-size:8px;font-weight:700;padding:0 4px;border-radius:3px;background:#334155;color:#fff;flex-shrink:0">기준</span>' : "") +
-    mDetail(m, c) + '</div>';
+    '</div>';
   return '<tr style="border-bottom:1px solid var(--line)">' + mIdCell(id) + mStatCells(c, extraDefs) + '</tr>';
 }
 
