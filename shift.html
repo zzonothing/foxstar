@@ -177,56 +177,58 @@ function updateTable(){
   document.getElementById("tableWrap").innerHTML = '<div class="rd-card" style="overflow:hidden"><div class="rd-scroll"><table class="rd-table" style="white-space:nowrap;min-width:100%"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div></div>';
 }
 
-/* ─── 모바일: 데스크톱처럼 표로(가로 스크롤 · 캐릭터/멤버 열 고정) ─── */
-function mIdentity(r){
-  const idBg = (r.kind === "sub" || r.kind === "missing") ? "var(--muted)" : "var(--card)";
-  const sticky = 'position:sticky;left:0;z-index:3;background:' + idBg + ';box-shadow:1px 0 0 var(--border)';
-  if (r.kind === "missing") {
-    return '<td style="' + sticky + ';padding:8px 9px;min-width:122px;max-width:152px">' +
-      '<div style="display:flex;align-items:center;gap:5px"><span style="width:10px;flex-shrink:0"></span><span style="width:7px;height:7px;border-radius:50%;background:var(--dim);flex-shrink:0"></span><span style="font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis">' + esc(r.missName) + '</span></div>' +
-      '<div style="font-size:10px;color:var(--dim);font-style:italic;margin-top:2px;padding-left:15px">미보유</div></td>';
-  }
-  const c = r.c, m = r.m;
-  const detail = '<span class="rd-detail-mini" data-act="open-equip" data-key="' + esc(m.nickname + "|" + c.name) + '" style="font-size:9px;padding:1px 6px;margin-left:auto;flex-shrink:0">자세히</span>';
-  const dot = '<span style="width:7px;height:7px;border-radius:50%;background:' + (ECOL[c.element] || "var(--dim)") + ';flex-shrink:0"></span>';
-  let top, bottom;
-  if (r.kind === "primary") {
-    top = '<span style="font-size:13px;font-weight:800;color:var(--text)">' + esc(m.nickname) + '</span><span style="font-size:10px;color:var(--dim);margin-left:5px" class="tnum">Lv.' + (m.syncro != null ? m.syncro : "—") + '</span>';
-    bottom = dot + '<span style="font-size:11px;font-weight:600;color:var(--sub);overflow:hidden;text-overflow:ellipsis">' + esc(c.name) + '</span><span style="font-size:8px;font-weight:700;padding:0 4px;border-radius:3px;background:#334155;color:#fff;flex-shrink:0">기준</span>';
-  } else if (r.kind === "sub") {
-    top = null;
-    bottom = '<span style="width:10px;flex-shrink:0"></span>' + dot + '<span style="font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis">' + esc(c.name) + '</span>';
-  } else {
-    top = dot + '<span style="font-size:12px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis">' + esc(c.name) + '</span>';
-    bottom = '<span style="font-size:10px;color:var(--dim);font-weight:600;overflow:hidden;text-overflow:ellipsis">' + esc(m.nickname) + ' · Lv.' + (m.syncro != null ? m.syncro : "—") + '</span>';
-  }
-  const topRow = '<div style="display:flex;align-items:center;gap:4px">' + (top != null ? top : bottom) + detail + '</div>';
-  const botRow = top != null ? '<div style="display:flex;align-items:center;gap:5px;margin-top:2px">' + bottom + '</div>' : "";
-  return '<td style="' + sticky + ';padding:8px 9px;min-width:122px;max-width:152px">' + topRow + botRow + '</td>';
-}
+/* ─── 모바일: 데스크톱처럼 표로(가로 스크롤 · 식별열 고정) ─── */
+const M_ECELL = 'padding:8px 9px;text-align:center';
+function mDot(c){ return '<span style="width:7px;height:7px;border-radius:50%;background:' + (ECOL[c.element] || "var(--dim)") + ';flex-shrink:0"></span>'; }
+function mNick(m){ return '<span style="font-size:14px;font-weight:800;color:var(--text)">' + esc(m.nickname) + '</span><span style="font-size:10px;color:var(--dim);font-weight:600;margin-left:5px" class="tnum">Lv.' + (m.syncro != null ? m.syncro : "—") + '</span>'; }
+function mDetail(m, c){ return '<span class="rd-detail-mini" data-act="open-equip" data-key="' + esc(m.nickname + "|" + c.name) + '" style="font-size:9px;padding:1px 6px;margin-left:auto;flex-shrink:0">자세히</span>'; }
+function mIdCell(inner){ return '<td style="position:sticky;left:0;z-index:3;background:var(--card);box-shadow:1px 0 0 var(--border);padding:8px 9px;min-width:128px;max-width:168px">' + inner + '</td>'; }
 
-function mTableRow(r, extraDefs){
-  const bg = r.scrollBg;
-  if (r.kind === "missing") {
-    const dash = '<td style="padding:8px 9px;text-align:center;color:var(--dim);background:' + bg + '">—</td>';
-    return '<tr style="border-bottom:1px solid var(--line)">' + mIdentity(r) + dash + dash + dash + extraDefs.map(() => dash).join("") + dash + dash + '</tr>';
-  }
-  const c = r.c;
+function mStatCells(c, extraDefs){
   const fullco = c.upgrade === "풀코", upgradePlain = !!c.upgrade && c.upgrade !== "풀코";
   const breakCell = fullco
     ? '<span style="display:inline-block;padding:1px 7px;border-radius:999px;font-size:10px;font-weight:700;background:var(--role-leader-bg);color:var(--amber);border:1px solid #fde68a">풀코</span>'
     : upgradePlain ? '<span style="font-size:10px;font-weight:600;color:var(--sub)">' + esc(c.upgrade) + '</span>' : '<span style="color:var(--dim)">—</span>';
-  const cell = (html, st) => '<td style="padding:8px 9px;text-align:center;background:' + bg + ';' + (st || "") + '" class="tnum">' + html + '</td>';
+  const cell = (html, st) => '<td style="' + M_ECELL + ';' + (st || "") + '" class="tnum">' + html + '</td>';
   const extra = extraDefs.map(o => cell(o[2](c), "font-weight:600;color:var(--sub)")).join("");
-  return '<tr style="' + (r.topBorder ? "border-top:2px solid var(--border);" : "") + 'border-bottom:1px solid var(--line)">' +
-    mIdentity(r) +
-    cell(pct(c.increaseElementDamage), "font-weight:800;color:var(--text)") +
+  return cell(pct(c.increaseElementDamage), "font-weight:800;color:var(--text)") +
     cell(pct(c.increaseAtk), "font-weight:700;color:var(--text)") +
-    '<td style="padding:8px 9px;text-align:center;background:' + bg + '">' + breakCell + '</td>' +
-    extra +
-    '<td style="padding:8px 9px;text-align:center;background:' + bg + ';font-weight:700;color:' + (c.itemGrade ? itemCol(c.itemGrade) : "var(--dim)") + '">' + (c.itemGrade ? c.itemGrade + (c.itemLevel != null && c.itemLevel !== "" ? " " + c.itemLevel : "") : "—") + '</td>' +
-    cell(skillText(c), "color:var(--text)") +
-    '</tr>';
+    '<td style="' + M_ECELL + '">' + breakCell + '</td>' + extra +
+    '<td style="' + M_ECELL + ';font-weight:700;color:' + (c.itemGrade ? itemCol(c.itemGrade) : "var(--dim)") + '">' + (c.itemGrade ? c.itemGrade + (c.itemLevel != null && c.itemLevel !== "" ? " " + c.itemLevel : "") : "—") + '</td>' +
+    cell(skillText(c), "color:var(--text)");
+}
+function mDashCells(extraDefs){ const dash = '<td style="' + M_ECELL + ';color:var(--dim)">—</td>'; return dash + dash + dash + extraDefs.map(() => dash).join("") + dash + dash; }
+
+/* 개별 모드: 닉네임·레벨(위) + 캐릭터(아래) */
+function mIndivRow(r, extraDefs){
+  const c = r.c, m = r.m;
+  const id = '<div style="display:flex;align-items:center">' + mNick(m) + '</div>' +
+    '<div style="display:flex;align-items:center;gap:5px;margin-top:3px">' + mDot(c) +
+      '<span style="font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis">' + esc(c.name) + '</span>' + mDetail(m, c) + '</div>';
+  return '<tr style="border-bottom:1px solid var(--line)">' + mIdCell(id) + mStatCells(c, extraDefs) + '</tr>';
+}
+
+/* 그룹 모드: 멤버 헤더 행(닉네임·레벨) */
+function mMemberRow(r, ncol, first){
+  const m = r.m, accent = ECOL[r.c.element] || "var(--dim)";
+  const id = '<div style="display:flex;align-items:center;gap:6px"><span style="width:3px;height:15px;border-radius:2px;background:' + accent + ';flex-shrink:0"></span>' + mNick(m) + '</div>';
+  let band = ""; for (let i = 0; i < ncol; i++) band += '<td style="background:var(--muted)"></td>';
+  return '<tr style="' + (first ? "" : "border-top:2px solid var(--border);") + '">' +
+    '<td style="position:sticky;left:0;z-index:3;background:var(--muted);box-shadow:1px 0 0 var(--border);padding:7px 9px;min-width:128px;max-width:168px">' + id + '</td>' + band + '</tr>';
+}
+
+/* 그룹 모드: 캐릭터 행(캐릭터만 식별열) */
+function mGroupCharRow(r, extraDefs){
+  if (r.kind === "missing") {
+    const id = '<div style="display:flex;align-items:center;gap:5px;padding-left:11px"><span style="width:7px;height:7px;border-radius:50%;background:var(--dim);flex-shrink:0"></span><span style="font-size:12px;font-weight:600;color:var(--text)">' + esc(r.missName) + '</span><span style="font-size:10px;color:var(--dim);font-style:italic;margin-left:auto">미보유</span></div>';
+    return '<tr style="border-bottom:1px solid var(--line)">' + mIdCell(id) + mDashCells(extraDefs) + '</tr>';
+  }
+  const c = r.c, m = r.m;
+  const id = '<div style="display:flex;align-items:center;gap:5px;padding-left:11px">' + mDot(c) +
+    '<span style="font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis">' + esc(c.name) + '</span>' +
+    (r.kind === "primary" ? '<span style="font-size:8px;font-weight:700;padding:0 4px;border-radius:3px;background:#334155;color:#fff;flex-shrink:0">기준</span>' : "") +
+    mDetail(m, c) + '</div>';
+  return '<tr style="border-bottom:1px solid var(--line)">' + mIdCell(id) + mStatCells(c, extraDefs) + '</tr>';
 }
 
 function updateMobile(){
@@ -234,12 +236,23 @@ function updateMobile(){
   if (!rows.length) { document.getElementById("mobileWrap").innerHTML = '<div class="rd-card" style="padding:20px;text-align:center;color:var(--dim);font-size:12px">결과 없음</div>'; return; }
   const sth = 'background:var(--muted);padding:9px;font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;white-space:nowrap;text-align:center';
   const extraTh = extraDefs.map(o => '<th style="' + sth + '">' + o[1] + '</th>').join("");
+  const ncol = 5 + extraDefs.length;
   const head = '<tr style="border-bottom:1.5px solid var(--border)">' +
-    '<th style="' + sth + ';position:sticky;left:0;z-index:4;text-align:left;box-shadow:1px 0 0 var(--border)">' + (groupMode ? "멤버 · 캐릭터" : "캐릭터") + '</th>' +
+    '<th style="' + sth + ';position:sticky;left:0;z-index:4;text-align:left;box-shadow:1px 0 0 var(--border)">' + (groupMode ? "멤버 · 캐릭터" : "닉네임 · 캐릭터") + '</th>' +
     '<th style="' + sth + '">우코</th><th style="' + sth + '">공증</th><th style="' + sth + '">돌파</th>' +
     extraTh +
     '<th style="' + sth + '">소장품</th><th style="' + sth + '">스킬</th></tr>';
-  const body = rows.map(r => mTableRow(r, extraDefs)).join("");
+  let body;
+  if (groupMode) {
+    let out = "", first = true;
+    rows.forEach(r => {
+      if (r.kind === "primary") { out += mMemberRow(r, ncol, first); first = false; out += mGroupCharRow(r, extraDefs); }
+      else out += mGroupCharRow(r, extraDefs);
+    });
+    body = out;
+  } else {
+    body = rows.map(r => mIndivRow(r, extraDefs)).join("");
+  }
   document.getElementById("mobileWrap").innerHTML = '<div class="rd-card" style="overflow:hidden;padding:0"><div class="rd-scroll"><table class="rd-table" style="white-space:nowrap;min-width:100%"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div></div>';
 }
 
