@@ -15,41 +15,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script>if(localStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark");</script>
   <style>html{background:#eef1f6}html.dark{background:#111827}body:not(.ready){visibility:hidden}</style>
-  <link rel="stylesheet" href="css/style.css?v=4" />
+  <link rel="stylesheet" href="css/style.css?v=5" />
   <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
 </head>
 <body>
 
-<!-- ═══════════ 헤더 ═══════════ -->
-<header class="rd-header">
-  <div class="rd-grad"></div>
-  <div class="container">
-    <div class="rd-head-inner">
-      <div class="rd-brand">
-        <img src="image/foxstar.png" alt="여우별 유니온" width="38" height="38" />
-        <div>
-          <div class="rd-eyebrow">승리의 여신: 니케 · UNION PORTAL</div>
-          <div class="rd-title" id="headerTitle">여우별 유니온</div>
-        </div>
-      </div>
-      <button class="rd-toggle" id="themeToggle" title="다크/라이트 모드 전환">🌙</button>
-    </div>
-    <nav class="rd-nav">
-      <a href="index.html" class="active">홈</a>
-      <a href="raid.html">유니온레이드</a>
-      <a href="solo.html">솔로레이드</a>
-      <a href="shift.html">시프티패드</a>
-      <a href="stats.html">여우별 통계</a>
-    </nav>
-    <nav class="rd-nav-mobile">
-      <a href="index.html" class="active">홈</a>
-      <a href="raid.html">유레</a>
-      <a href="solo.html">솔레</a>
-      <a href="shift.html">시프티</a>
-      <a href="stats.html">통계</a>
-    </nav>
-  </div>
-</header>
+<div id="fstarLoader" aria-live="polite"><div class="fstar-spin" aria-hidden="true"></div><span>불러오는 중…</span></div>
+
+<!-- ═══════════ 헤더 (js/common.js: renderHeader 주입) ═══════════ -->
+<header class="rd-header" id="rdHeader"></header>
 
 <!-- ═══════════ 메인 ═══════════ -->
 <main class="rd-main">
@@ -64,65 +38,24 @@
 </div>
 
 <!-- ═══════════ 데이터 로드 ═══════════ -->
-<script src="data/config.js"></script>
-<script src="data/member.js"></script>
-<script src="data/raid.js"></script>
+<script src="data/config.js" onerror="window.__DATA_ERROR=1"></script>
+<script src="data/member.js" onerror="window.__DATA_ERROR=1"></script>
+<script src="data/raid.js" onerror="window.__DATA_ERROR=1"></script>
 
-<!-- ═══════════ 인증 필요 시 로그인 페이지로 리다이렉트 ═══════════ -->
-<script>
-if (window.__AUTH_REQUIRED) {
-  location.replace("/login.html?return=" + encodeURIComponent(location.pathname + location.search));
-}
-</script>
+<!-- ═══════════ 공통 스크립트 (헬퍼·테마·인증·차트·모달) ═══════════ -->
+<script src="js/common.js?v=1"></script>
 
 <!-- ═══════════ 메인 스크립트 ═══════════ -->
 <script>
-if (!window.__AUTH_REQUIRED) {
+if (window.__DATA_ERROR || typeof UNION === "undefined" || typeof CONFIG === "undefined") {
+  if (typeof showDataError === "function") showDataError();
+} else if (!authGuardOrRedirect()) {
+try {
 
-if (typeof CONFIG !== "undefined") {
-  document.getElementById("headerTitle").textContent = CONFIG.unionName;
-  document.title = CONFIG.unionName + " | 승리의 여신: 니케";
-}
-
-/* ─── 공통 헬퍼 ─────────────────────────────────────────────── */
-const OFFSET = 35066789198;
-const ELEM_TAG = {"Z.E.U.S.":"철갑","H.S.T.A.":"수냉","D.M.T.R.":"풍압","A.N.M.I.":"작열","A.N.M.I":"작열","P.S.I.D.":"전격"};
-const EL_COL = {수냉:"var(--el-water)",작열:"var(--el-fire)",철갑:"var(--el-iron)",전격:"var(--el-elec)",풍압:"var(--el-wind)"};
-const EL_BG  = {수냉:"var(--elbg-water)",작열:"var(--elbg-fire)",철갑:"var(--elbg-iron)",전격:"var(--elbg-elec)",풍압:"var(--elbg-wind)"};
-
-function esc(s){ return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
-function imgOf(name){ return "image/" + name.replace(" : ", "_").replace(/ /g, "%20") + ".webp"; }
-function fmtEok(num){
-  if (num == null || num === 0) return "—";
-  const neg = num < 0; num = Math.abs(num);
-  const jo = Math.floor(num / 1e12);
-  const eok = Math.round((num - jo * 1e12) / 1e8);
-  const e = eok.toLocaleString("en-US");
-  return (neg ? "-" : "") + (jo > 0 ? (jo + "조 " + e + "억") : (e + "억"));
-}
-function medal(i){
-  return { bg: "var(--muted)", col: "var(--sub)" };
-}
-function bossShort(bn){ return bn.replace(/\s*\[[^\]]*\]\s*$/, "").trim(); }
-function bossElem(bn){ const m = bn.match(/\[([^\]]+)\]\s*$/); return m ? (ELEM_TAG[m[1]] || "") : ""; }
-
-const _bossCache = {};
-function bossesOf(season){
-  if (_bossCache[season]) return _bossCache[season];
-  const map = {};
-  (RAID[season] || []).forEach(mm => mm.raids.forEach(r => {
-    const sh = bossShort(r.bossName);
-    if (!map[sh]) map[sh] = { short: sh, elem: bossElem(r.bossName), minStep: r.step, hits: 0, low: 0, high: 0 };
-    const b = map[sh];
-    b.minStep = Math.min(b.minStep, r.step);
-    b.hits++;
-    if (r.bossLevel >= 4) b.high++; else b.low++;
-  }));
-  const arr = Object.values(map).sort((a, b) => a.minStep - b.minStep);
-  _bossCache[season] = arr;
-  return arr;
-}
-function seasonRaw(sk){ return (RAID[sk] || []).reduce((a, mm) => a + mm.raids.reduce((x, r) => x + r.totalDamage, 0), 0); }
+renderHeader("index.html");
+setupTheme();
+lockClipboard();
+document.title = CONFIG.unionName + " | 승리의 여신: 니케";
 
 /* ─── 시즌/멤버 데이터 ──────────────────────────────────────── */
 const seasonKeys = Object.keys(UNION).map(Number).sort((a, b) => a - b);
@@ -428,13 +361,12 @@ function buildPopupHTML(name, season){
   /* 싱크로 변화 (전 시즌) */
   const syncSeasons = seasonKeys.filter(k => UNION[k].rank != null);
   const svVals = syncSeasons.map(k => lvlMaps[k][name] != null ? lvlMaps[k][name] : null);
-  const valid = svVals.filter(v => v != null);
-  const smin = valid.length ? Math.min(...valid) : 0, smax = valid.length ? Math.max(...valid) : 1;
+  const syncH = barHeights(svVals, { floor: 4, span: 86, empty: 2 });
   const syncBars = syncSeasons.map((k, i) => {
     const v = svVals[i], sel = ("S" + k) === season;
     return '<div data-act="popup-season" data-season="S' + k + '" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;cursor:pointer">' +
       '<div style="font-size:8px;font-weight:700;color:var(--text);margin-bottom:3px" class="tnum">' + (v == null ? "—" : v) + '</div>' +
-      '<div style="width:100%;max-width:26px;flex-shrink:0;height:' + (v == null ? 2 : Math.round(4 + (smax > smin ? (v - smin) / (smax - smin) : 1) * 86)) + 'px;background:' + (sel ? "var(--bar)" : (v != null ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
+      '<div style="width:100%;max-width:26px;flex-shrink:0;height:' + syncH[i] + 'px;background:' + (sel ? "var(--bar)" : (v != null ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
       '<div style="font-size:9px;color:' + (sel ? "var(--blue)" : "var(--dim)") + ';font-weight:700;margin-top:5px">' + k + '</div></div>';
   }).join("");
 
@@ -479,15 +411,13 @@ function buildPopupHTML(name, season){
   }
 
   const dmgVals = raidKeys.map(sk => { const mm = (RAID[sk] || []).find(x => x.name === name || (cur && x.openId === cur.blaBlaLinkUId)); return { s: sk, v: mm ? mm.raids.reduce((a, r) => a + r.totalDamage, 0) : 0 }; });
-  const dmgMax = Math.max(...dmgVals.map(d => d.v), 1);
-  const _dpos = dmgVals.map(d => d.v).filter(v => v > 0);
-  const dmgMin = _dpos.length ? Math.min(..._dpos) : 0;
+  const dmgH = barHeights(dmgVals.map(d => d.v), { floor: 4, span: 86, empty: 2, positiveOnly: true });
   const hasDmgTrend = dmgVals.some(d => d.v > 0);
-  const dmgBars = dmgVals.map(d => {
+  const dmgBars = dmgVals.map((d, i) => {
     const sel = d.s === season;
     return '<div data-act="popup-season" data-season="' + d.s + '" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;cursor:pointer">' +
       '<div style="font-size:7px;font-weight:700;color:var(--text);margin-bottom:3px" class="tnum">' + (d.v ? fmtEok(d.v) : "—") + '</div>' +
-      '<div style="width:100%;max-width:26px;flex-shrink:0;height:' + (d.v ? Math.round(4 + (dmgMax > dmgMin ? (d.v - dmgMin) / (dmgMax - dmgMin) : 1) * 86) : 2) + 'px;background:' + (sel ? "var(--bar)" : (d.v ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
+      '<div style="width:100%;max-width:26px;flex-shrink:0;height:' + dmgH[i] + 'px;background:' + (sel ? "var(--bar)" : (d.v ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
       '<div style="font-size:9px;color:' + (sel ? "var(--blue)" : "var(--dim)") + ';font-weight:700;margin-top:5px">' + d.s.slice(1) + '</div></div>';
   }).join("");
 
@@ -505,7 +435,7 @@ function buildPopupHTML(name, season){
         (d.final ? '<span style="font-size:9px;font-weight:800;color:var(--red)">막타</span>' : "") +
         '<span style="margin-left:auto;font-size:12px;font-weight:800;color:' + (d.final ? "var(--red)" : "var(--text)") + '" class="tnum">' + fmtEok(d.dmg) + '</span>' +
       '</div>' +
-      '<div style="display:flex;gap:3px">' + d.chars.map(c => '<img src="' + imgOf(c) + '" title="' + esc(c) + '" style="width:29px;height:29px;border-radius:5px;object-fit:cover" loading="lazy" onerror="this.style.opacity=0.15">').join("") + '</div>' +
+      '<div style="display:flex;gap:3px">' + d.chars.map(c => charImg(c, { style: "width:29px;height:29px;border-radius:5px;object-fit:cover" })).join("") + '</div>' +
     '</div>').join("") +
     '</div>' :
     '<div style="padding:14px;text-align:center;color:var(--dim);font-size:12px;font-weight:600;background:var(--muted);border-radius:10px">' + season + ' 시즌 레이드 기록 없음</div>';
@@ -547,12 +477,10 @@ function openMemberModal(name, season){
   popupState.name = name;
   popupState.season = season || defaultPopupSeason;
   renderPopup();
-  document.getElementById("rdMemberOverlay").style.display = "flex";
-  document.body.style.overflow = "hidden";
+  openModal(document.getElementById("rdMemberOverlay"), { label: name + " 상세" });
 }
 function closeMemberModal(){
-  document.getElementById("rdMemberOverlay").style.display = "none";
-  document.body.style.overflow = "";
+  closeModal(document.getElementById("rdMemberOverlay"));
 }
 
 /* ═══════════ 이벤트 위임 ═══════════ */
@@ -571,35 +499,11 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && document.g
 
 render();
 
-} // if (!window.__AUTH_REQUIRED)
-</script>
+markReady();
 
-<script>
-(function() {
-  const html  = document.documentElement;
-  const btn   = document.getElementById("themeToggle");
-  const saved = localStorage.getItem("theme");
-  if (saved === "dark") { html.classList.add("dark"); btn.textContent = "☀️"; }
-  btn.addEventListener("click", function() {
-    const isDark = html.classList.toggle("dark");
-    btn.textContent = isDark ? "☀️" : "🌙";
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-  });
-})();
+} catch (e) { console.error(e); if (typeof showDataError === "function") showDataError(); }
+} // else if (!authGuardOrRedirect())
 </script>
-
-<script>
-(function(){
-  document.addEventListener("contextmenu", function(e){ e.preventDefault(); });
-  document.addEventListener("keydown", function(e){
-    if (e.key === "F12") { e.preventDefault(); return; }
-    if (e.ctrlKey && e.shiftKey && ["I","i","J","j","C","c"].includes(e.key)) { e.preventDefault(); return; }
-    if (e.ctrlKey && ["u","U","s","S"].includes(e.key)) { e.preventDefault(); return; }
-  });
-})();
-</script>
-
-<script>if(!window.__AUTH_REQUIRED)document.body.classList.add("ready");</script>
 
 </body>
 </html>
