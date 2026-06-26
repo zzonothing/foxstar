@@ -82,16 +82,28 @@ function computeImportant(){
 }
 var SUPPORT_SET = {}; (RAID_GUIDE.supports || []).forEach(function(n){ SUPPORT_SET[n] = 1; });
 var ROLE_RULES = RAID_GUIDE.roleRules;
+var SKILL_TARGETS = RAID_GUIDE.skillTargets || {};
 var ROLE_LABEL = { dealer: "딜러", support: "서포터" };
 var IMPORTANT = computeImportant();
 
-/* 캐릭터 한 개의 육성 상태 평가 (역할별 기준 적용) */
+/* 캐릭터 한 개의 육성 상태 평가 (역할별 기준 + 캐릭터별 스킬 목표 적용) */
 function evalChar(c, role, maxLv){
   var rule = ROLE_RULES[role] || ROLE_RULES.dealer;
   var reasons = [], sev = 0;
   if (rule.fullco && c.upgrade !== "풀코") { reasons.push("코어 " + (c.upgrade || "명함")); sev += 10; }
-  var ss = (c.skill1 || 0) + (c.skill2 || 0) + (c.skill3 || 0);
-  if (rule.skillSum && ss < rule.skillSum) { reasons.push("스킬 " + (c.skill1||0) + "/" + (c.skill2||0) + "/" + (c.skill3||0)); sev += (rule.skillSum - ss); }
+  // 스킬: 캐릭터별 목표치가 있으면 스킬별로, 없으면 roleRules.skillSum 폴백
+  var cur = [c.skill1 || 0, c.skill2 || 0, c.skill3 || 0];
+  var tgt = SKILL_TARGETS[c.name];
+  if (tgt) {
+    var lack = false, def = 0;
+    for (var i = 0; i < 3; i++) { if (tgt[i] != null && cur[i] < tgt[i]) { lack = true; def += (tgt[i] - cur[i]); } }
+    if (lack) {
+      var want = tgt.map(function(t){ return t == null ? "·" : t; }).join("/");
+      reasons.push("스킬 " + cur.join("/") + "→" + want); sev += def;
+    }
+  } else if (rule.skillSum && (cur[0]+cur[1]+cur[2]) < rule.skillSum) {
+    reasons.push("스킬 " + cur.join("/")); sev += (rule.skillSum - (cur[0]+cur[1]+cur[2]));
+  }
   if (rule.uko != null && (c.increaseElementDamage || 0) < rule.uko) { reasons.push("우코 " + (c.increaseElementDamage||0).toFixed(0) + "%"); sev += 8; }
   if (rule.levelGap && maxLv - (c.characterLevel || 0) > rule.levelGap) { reasons.push("Lv " + (c.characterLevel||0)); sev += 5; }
   return { reasons: reasons, sev: sev, status: reasons.length ? "weak" : "ok" };
