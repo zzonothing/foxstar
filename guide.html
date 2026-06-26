@@ -77,11 +77,25 @@ function computeImportant(){
   var top = ranked.slice(0, RAID_GUIDE.topN);
   var have = {}; top.forEach(function(t){ have[t.name] = 1; });
   (RAID_GUIDE.must || []).forEach(function(n){ if (!have[n]) top.push({ name: n, score: cnt[n] || 0, pinned: true }); });
-  top.forEach(function(t){ t.element = elemOf[t.name] || ""; });
+  top.forEach(function(t){ t.element = elemOf[t.name] || ""; t.role = SUPPORT_SET[t.name] ? "support" : "dealer"; });
   return top;
 }
+var SUPPORT_SET = {}; (RAID_GUIDE.supports || []).forEach(function(n){ SUPPORT_SET[n] = 1; });
+var ROLE_RULES = RAID_GUIDE.roleRules;
+var ROLE_LABEL = { dealer: "딜러", support: "서포터" };
 var IMPORTANT = computeImportant();
-var TH = RAID_GUIDE.thresholds;
+
+/* 캐릭터 한 개의 육성 상태 평가 (역할별 기준 적용) */
+function evalChar(c, role, maxLv){
+  var rule = ROLE_RULES[role] || ROLE_RULES.dealer;
+  var reasons = [], sev = 0;
+  if (rule.fullco && c.upgrade !== "풀코") { reasons.push("코어 " + (c.upgrade || "명함")); sev += 10; }
+  var ss = (c.skill1 || 0) + (c.skill2 || 0) + (c.skill3 || 0);
+  if (rule.skillSum && ss < rule.skillSum) { reasons.push("스킬 " + (c.skill1||0) + "/" + (c.skill2||0) + "/" + (c.skill3||0)); sev += (rule.skillSum - ss); }
+  if (rule.uko != null && (c.increaseElementDamage || 0) < rule.uko) { reasons.push("우코 " + (c.increaseElementDamage||0).toFixed(0) + "%"); sev += 8; }
+  if (rule.levelGap && maxLv - (c.characterLevel || 0) > rule.levelGap) { reasons.push("Lv " + (c.characterLevel||0)); sev += 5; }
+  return { reasons: reasons, sev: sev, status: reasons.length ? "weak" : "ok" };
+}
 
 /* ── 멤버 한 명의 중요 캐릭터 육성 상태 평가 ─────────────────────── */
 function evalMember(m){
@@ -89,14 +103,10 @@ function evalMember(m){
   var maxLv = m.chars.reduce(function(x, c){ return Math.max(x, c.characterLevel || 0); }, 0);
   return IMPORTANT.map(function(ic){
     var c = owned[ic.name];
-    if (!c) return { name: ic.name, element: ic.element, score: ic.score, char: null, status: "missing", reasons: [], sev: 1000 };
-    var reasons = [], sev = 0;
-    if (c.upgrade !== TH.fullco) { reasons.push("코어 " + (c.upgrade || "명함")); sev += 10; }
-    var ss = (c.skill1 || 0) + (c.skill2 || 0) + (c.skill3 || 0);
-    if (ss < TH.skillSum) { reasons.push("스킬 " + (c.skill1||0) + "/" + (c.skill2||0) + "/" + (c.skill3||0)); sev += (TH.skillSum - ss); }
-    if (maxLv - (c.characterLevel || 0) > TH.levelGap) { reasons.push("Lv " + (c.characterLevel||0)); sev += 5; }
-    return { name: ic.name, element: ic.element, score: ic.score, char: c,
-             status: reasons.length ? "weak" : "ok", reasons: reasons, sev: sev };
+    if (!c) return { name: ic.name, element: ic.element, role: ic.role, score: ic.score, char: null, status: "missing", reasons: [], sev: 1000 };
+    var e = evalChar(c, ic.role, maxLv);
+    return { name: ic.name, element: ic.element, role: ic.role, score: ic.score, char: c,
+             status: e.status, reasons: e.reasons, sev: e.sev };
   });
 }
 
@@ -106,6 +116,12 @@ function elTag(el){
   if (!el) return "";
   return '<span style="display:inline-block;padding:1px 7px;border-radius:999px;font-size:10px;font-weight:700;'
     + 'background:' + (EL_BG[el] || "var(--muted)") + ';color:' + elColOf(el) + '">' + esc(el) + '</span>';
+}
+function roleTag(role){
+  var sup = role === "support";
+  return '<span style="display:inline-block;padding:1px 7px;border-radius:999px;font-size:10px;font-weight:700;'
+    + (sup ? 'background:var(--elbg-water,#e0f2fe);color:var(--el-water,#0284c7)' : 'background:var(--muted);color:var(--sub)') + '">'
+    + (sup ? "서포터" : "딜러") + '</span>';
 }
 function statusBadge(st){
   if (st === "missing") return '<span style="padding:2px 9px;border-radius:999px;font-size:11px;font-weight:800;background:var(--danger-bg,#fee2e2);color:var(--danger,#dc2626)">미보유</span>';
@@ -121,7 +137,7 @@ function pickCard(r){
     charImg(r.name, { style: "width:46px;height:46px;border-radius:10px;object-fit:cover;flex-shrink:0;background:var(--muted)", title: false }) +
     '<div style="flex:1;min-width:0">' +
       '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
-        '<span style="font-size:13px;font-weight:800;color:var(--text)">' + esc(r.name) + '</span>' + elTag(r.element) +
+        '<span style="font-size:13px;font-weight:800;color:var(--text)">' + esc(r.name) + '</span>' + elTag(r.element) + roleTag(r.role) +
       '</div>' +
       '<div style="font-size:11px;font-weight:600;color:var(--sub);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(detail) + '</div>' +
     '</div>' + statusBadge(r.status) + '</div>';
@@ -239,7 +255,7 @@ function buildGuideText(){
   lines.push("■ 우선 육성 추천");
   if (picks.length) picks.forEach(function(r, i){
     var d = r.status === "missing" ? "미보유 (확보 권장)" : r.reasons.join(", ");
-    lines.push((i + 1) + ". " + r.name + " — " + d);
+    lines.push((i + 1) + ". " + r.name + " [" + (ROLE_LABEL[r.role] || "딜러") + "] — " + d);
   }); else lines.push("- 모두 충분히 육성됨 👏");
   if (missing.length) { lines.push(""); lines.push("■ 미보유 (" + missing.length + "): " + missing.map(function(r){ return r.name; }).join(", ")); }
   if (weak.length)    { lines.push(""); lines.push("■ 저육성 (" + weak.length + ")"); weak.forEach(function(r){ lines.push("- " + r.name + ": " + r.reasons.join(", ")); }); }
@@ -279,7 +295,7 @@ function renderCharModal(name){
   ov.querySelector(".rd-modal").innerHTML =
     '<div style="display:flex;align-items:center;gap:13px;margin-bottom:14px">' +
       charImg(name, { style: "width:60px;height:60px;border-radius:12px;object-fit:cover;background:var(--muted)", title: false }) +
-      '<div><div style="display:flex;align-items:center;gap:7px"><span style="font-size:16px;font-weight:800;color:var(--text)">' + esc(name) + '</span>' + elTag(r.element) + '</div>' +
+      '<div><div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap"><span style="font-size:16px;font-weight:800;color:var(--text)">' + esc(name) + '</span>' + elTag(r.element) + roleTag(r.role) + '</div>' +
         '<div style="margin-top:5px">' + statusBadge(r.status) + ' <span style="font-size:12px;color:var(--sub);font-weight:600">' + esc(advice) + '</span></div></div>' +
       '<button type="button" data-close="1" style="margin-left:auto;background:none;border:none;font-size:22px;color:var(--sub);cursor:pointer;line-height:1">×</button>' +
     '</div>' + rows;
@@ -295,10 +311,7 @@ function renderOverview(){
       var owned = null; for (var i = 0; i < m.chars.length; i++) if (m.chars[i].name === ic.name) { owned = m.chars[i]; break; }
       if (!owned) { miss++; return; }
       var maxLv = m.chars.reduce(function(x, c){ return Math.max(x, c.characterLevel || 0); }, 0);
-      var bad = owned.upgrade !== TH.fullco
-        || (owned.skill1||0)+(owned.skill2||0)+(owned.skill3||0) < TH.skillSum
-        || maxLv - (owned.characterLevel||0) > TH.levelGap;
-      if (bad) weak++;
+      if (evalChar(owned, ic.role, maxLv).status === "weak") weak++;
     });
     return { name: ic.name, element: ic.element, miss: miss, weak: weak, deficit: miss * 2 + weak };
   }).sort(function(a, b){ return b.deficit - a.deficit; }).slice(0, 12);
@@ -331,7 +344,8 @@ document.getElementById("rdContent").innerHTML =
     '<div style="font-size:14px;font-weight:800;color:var(--text)">유니온레이드 육성 가이드</div>' +
     '<div style="font-size:11px;color:var(--dim);font-weight:600;margin-top:3px;line-height:1.5">' +
       '최근 ' + RAID_GUIDE.recentSeasons + '개 시즌 레이드 스쿼드에서 가장 많이 쓰인 <b>중요 캐릭터 ' + IMPORTANT.length + '명</b>을 자동 선정하고, ' +
-      '각 멤버가 그중 무엇이 부족한지 보여줍니다. (저육성 기준: 풀코 미만 · 스킬합 ' + TH.skillSum + ' 미만 · 레벨 격차 ' + TH.levelGap + '+)' +
+      '각 멤버가 그중 무엇이 부족한지 <b>역할(딜러/서포터)별 기준</b>으로 진단합니다. ' +
+      '딜러는 우코·코어, 서포터는 스킬 중심으로 평가합니다.' +
     '</div></div>' +
 
   '<div><div class="rd-sec-head"><span class="rd-sec-bar"></span><span class="rd-sec-title">내 육성 체크</span><span class="rd-sec-note">본인 닉네임 선택</span></div>' +
