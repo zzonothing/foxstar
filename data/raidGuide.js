@@ -42,9 +42,10 @@ const RAID_GUIDE = {
   //   skillSum : skillTargets 에 없는 캐릭터의 스킬 부족 판정(합) 폴백
   //   levelGap : (본인 최고 레벨 − 캐릭터 레벨) 이 값 초과면 레벨 부족 (null=무관)
   //   uko      : increaseElementDamage 가 이 값 미만이면 우코 부족 (null=무관)
+  //   atk      : increaseAtk(공격력증가) 가 이 값 미만이면 공증 부족 (null=무관)
   roleRules: {
-    dealer:  { fullco: false, skillSum: 10, levelGap: null, uko: 80 },   // 딜러: 우코 + 스킬작
-    support: { fullco: false, skillSum: 15, levelGap: null, uko: null }, // 서포터: 스킬작만
+    dealer:  { fullco: false, skillSum: 10, levelGap: null, uko: 80, atk: 20 },     // 딜러: 우코 + 공증 + 스킬작
+    support: { fullco: false, skillSum: 15, levelGap: null, uko: null, atk: null }, // 서포터: 스킬작만
   },
 
   // ── 캐릭터별 스킬 목표치 [1스킬, 2스킬, 3스킬] ──────────────────

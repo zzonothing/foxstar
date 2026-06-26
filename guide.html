@@ -105,6 +105,7 @@ function evalChar(c, role, maxLv){
     reasons.push("스킬 " + cur.join("/")); sev += (rule.skillSum - (cur[0]+cur[1]+cur[2]));
   }
   if (rule.uko != null && (c.increaseElementDamage || 0) < rule.uko) { reasons.push("우코 " + (c.increaseElementDamage||0).toFixed(0) + "%"); sev += 8; }
+  if (rule.atk != null && (c.increaseAtk || 0) < rule.atk) { reasons.push("공증 " + (c.increaseAtk||0).toFixed(0) + "%"); sev += 6; }
   if (rule.levelGap && maxLv - (c.characterLevel || 0) > rule.levelGap) { reasons.push("Lv " + (c.characterLevel||0)); sev += 5; }
   return { reasons: reasons, sev: sev, status: reasons.length ? "weak" : "ok" };
 }
@@ -357,7 +358,7 @@ document.getElementById("rdContent").innerHTML =
     '<div style="font-size:11px;color:var(--dim);font-weight:600;margin-top:3px;line-height:1.5">' +
       '최근 ' + RAID_GUIDE.recentSeasons + '개 시즌 레이드 스쿼드에서 가장 많이 쓰인 <b>중요 캐릭터 ' + IMPORTANT.length + '명</b>을 자동 선정하고, ' +
       '각 멤버가 그중 무엇이 부족한지 <b>역할(딜러/서포터)별 기준</b>으로 진단합니다. ' +
-      '돌파·레벨은 무관, <b>딜러는 우코+스킬작 / 서포터는 스킬작</b>으로 평가합니다.' +
+      '돌파·레벨은 무관, <b>딜러는 우코·공증+스킬작 / 서포터는 스킬작</b>으로 평가합니다.' +
     '</div></div>' +
 
   '<div><div class="rd-sec-head"><span class="rd-sec-bar"></span><span class="rd-sec-title">내 육성 체크</span><span class="rd-sec-note">본인 닉네임 선택</span></div>' +
