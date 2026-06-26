@@ -86,28 +86,36 @@ var SKILL_TARGETS = RAID_GUIDE.skillTargets || {};
 var ROLE_LABEL = { dealer: "딜러", support: "서포터" };
 var IMPORTANT = computeImportant();
 
-/* 캐릭터 한 개의 육성 상태 평가 (역할별 기준 + 캐릭터별 스킬 목표 적용) */
+/* 캐릭터 한 개의 육성 상태 평가 (역할별 기준 + 캐릭터별 스킬 목표 적용)
+   gaps: 부족 항목 구조화 [{kind, cur, tgt, lack, short}] (모달 상세표 + 카드 표기 공용) */
 function evalChar(c, role, maxLv){
   var rule = ROLE_RULES[role] || ROLE_RULES.dealer;
-  var reasons = [], sev = 0;
-  if (rule.fullco && c.upgrade !== "풀코") { reasons.push("코어 " + (c.upgrade || "명함")); sev += 10; }
+  var gaps = [], sev = 0;
+  if (rule.fullco && c.upgrade !== "풀코") {
+    gaps.push({ kind: "코어", cur: (c.upgrade || "명함"), tgt: "풀코", lack: "", short: "코어 " + (c.upgrade || "명함") }); sev += 10;
+  }
   // 스킬: 캐릭터별 목표치가 있으면 스킬별로, 없으면 roleRules.skillSum 폴백
-  var cur = [c.skill1 || 0, c.skill2 || 0, c.skill3 || 0];
+  var cur = [c.skill1 || 0, c.skill2 || 0, c.skill3 || 0], curStr = cur.join("/");
   var tgt = SKILL_TARGETS[c.name];
   if (tgt) {
-    var lack = false, def = 0;
-    for (var i = 0; i < 3; i++) { if (tgt[i] != null && cur[i] < tgt[i]) { lack = true; def += (tgt[i] - cur[i]); } }
-    if (lack) {
+    var def = 0;
+    for (var i = 0; i < 3; i++) { if (tgt[i] != null && cur[i] < tgt[i]) def += (tgt[i] - cur[i]); }
+    if (def > 0) {
       var want = tgt.map(function(t){ return t == null ? "·" : t; }).join("/");
-      reasons.push("스킬 " + cur.join("/") + "→" + want); sev += def;
+      gaps.push({ kind: "스킬", cur: curStr, tgt: want, lack: "−" + def, short: "스킬 " + curStr + "→" + want }); sev += def;
     }
   } else if (rule.skillSum && (cur[0]+cur[1]+cur[2]) < rule.skillSum) {
-    reasons.push("스킬 " + cur.join("/")); sev += (rule.skillSum - (cur[0]+cur[1]+cur[2]));
+    var d = rule.skillSum - (cur[0]+cur[1]+cur[2]);
+    gaps.push({ kind: "스킬", cur: curStr, tgt: "합 " + rule.skillSum, lack: "−" + d, short: "스킬 " + curStr }); sev += d;
   }
-  if (rule.uko != null && (c.increaseElementDamage || 0) < rule.uko) { reasons.push("우코 " + (c.increaseElementDamage||0).toFixed(0) + "%"); sev += 8; }
-  if (rule.atk != null && (c.increaseAtk || 0) < rule.atk) { reasons.push("공증 " + (c.increaseAtk||0).toFixed(0) + "%"); sev += 6; }
-  if (rule.levelGap && maxLv - (c.characterLevel || 0) > rule.levelGap) { reasons.push("Lv " + (c.characterLevel||0)); sev += 5; }
-  return { reasons: reasons, sev: sev, status: reasons.length ? "weak" : "ok" };
+  if (rule.uko != null) { var uv = c.increaseElementDamage || 0; if (uv < rule.uko) {
+    gaps.push({ kind: "우코", cur: uv.toFixed(0) + "%", tgt: rule.uko + "%", lack: "−" + (rule.uko - uv).toFixed(0), short: "우코 " + uv.toFixed(0) + "→" + rule.uko + "%" }); sev += 8; } }
+  if (rule.atk != null) { var av = c.increaseAtk || 0; if (av < rule.atk) {
+    gaps.push({ kind: "공증", cur: av.toFixed(0) + "%", tgt: rule.atk + "%", lack: "−" + (rule.atk - av).toFixed(0), short: "공증 " + av.toFixed(0) + "→" + rule.atk + "%" }); sev += 6; } }
+  if (rule.levelGap && maxLv - (c.characterLevel || 0) > rule.levelGap) {
+    gaps.push({ kind: "레벨", cur: "Lv " + (c.characterLevel||0), tgt: "", lack: "", short: "Lv " + (c.characterLevel||0) }); sev += 5; }
+  var reasons = gaps.map(function(g){ return g.short; });
+  return { reasons: reasons, gaps: gaps, sev: sev, status: gaps.length ? "weak" : "ok" };
 }
 
 /* ── 멤버 한 명의 중요 캐릭터 육성 상태 평가 ─────────────────────── */
@@ -116,10 +124,10 @@ function evalMember(m){
   var maxLv = m.chars.reduce(function(x, c){ return Math.max(x, c.characterLevel || 0); }, 0);
   return IMPORTANT.map(function(ic){
     var c = owned[ic.name];
-    if (!c) return { name: ic.name, element: ic.element, role: ic.role, score: ic.score, char: null, status: "missing", reasons: [], sev: 1000 };
+    if (!c) return { name: ic.name, element: ic.element, role: ic.role, score: ic.score, char: null, status: "missing", reasons: [], gaps: [], sev: 1000 };
     var e = evalChar(c, ic.role, maxLv);
     return { name: ic.name, element: ic.element, role: ic.role, score: ic.score, char: c,
-             status: e.status, reasons: e.reasons, sev: e.sev };
+             status: e.status, reasons: e.reasons, gaps: e.gaps, sev: e.sev };
   });
 }
 
@@ -142,29 +150,51 @@ function statusBadge(st){
   return '<span style="padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;background:var(--muted);color:var(--sub)">충분</span>';
 }
 
+/* 부족 항목 칩(태그) — 현재→목표 표기, 줄바꿈 허용 */
+function gapPill(g){
+  return '<span style="display:inline-block;padding:1px 7px;border-radius:6px;font-size:10px;font-weight:700;'
+    + 'background:var(--role-leader-bg,#fef3c7);color:var(--amber,#d97706);white-space:nowrap">' + esc(g.short) + '</span>';
+}
+function gapPills(gaps){
+  return '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px">' + gaps.map(gapPill).join("") + '</div>';
+}
+/* 모달용 부족 항목 표 (현재 → 목표, 미달량) */
+function gapBreakdown(gaps){
+  if (!gaps.length) return '';
+  var rows = gaps.map(function(g){
+    return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">' +
+      '<span style="width:42px;flex-shrink:0;font-size:12px;font-weight:800;color:var(--text)">' + esc(g.kind) + '</span>' +
+      '<span style="flex:1;min-width:0;font-size:12px;font-weight:600;color:var(--sub)" class="tnum">' + esc(g.cur) + (g.tgt ? ' <span style="color:var(--dim)">→</span> ' + esc(g.tgt) : '') + '</span>' +
+      (g.lack ? '<span style="flex-shrink:0;font-size:12px;font-weight:800;color:var(--danger,#dc2626)" class="tnum">' + esc(g.lack) + '</span>' : '') +
+    '</div>';
+  }).join("");
+  return '<div style="font-size:12px;font-weight:800;color:var(--amber,#d97706);margin:14px 0 4px">⚠ 부족 항목 (현재 → 목표 · 미달)</div>' + rows;
+}
+
 /* 우선 추천 카드 (큰 카드) */
 function pickCard(r){
   var col = r.status === "missing" ? "var(--danger,#dc2626)" : "var(--amber,#d97706)";
-  var detail = r.status === "missing" ? "아직 보유하지 않았어요" : r.reasons.join(" · ");
-  return '<div class="rd-card guide-click" role="button" tabindex="0" data-char="' + esc(r.name) + '" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-left:4px solid ' + col + ';cursor:pointer">' +
+  var detail = r.status === "missing"
+    ? '<div style="font-size:11px;font-weight:600;color:var(--danger,#dc2626);margin-top:3px">아직 보유하지 않았어요</div>'
+    : gapPills(r.gaps);
+  return '<div class="rd-card guide-click" role="button" tabindex="0" data-char="' + esc(r.name) + '" style="display:flex;align-items:flex-start;gap:12px;padding:11px 13px;border-left:4px solid ' + col + ';cursor:pointer">' +
     charImg(r.name, { style: "width:46px;height:46px;border-radius:10px;object-fit:cover;flex-shrink:0;background:var(--muted)", title: false }) +
     '<div style="flex:1;min-width:0">' +
       '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
         '<span style="font-size:13px;font-weight:800;color:var(--text)">' + esc(r.name) + '</span>' + elTag(r.element) + roleTag(r.role) +
-      '</div>' +
-      '<div style="font-size:11px;font-weight:600;color:var(--sub);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(detail) + '</div>' +
+      '</div>' + detail +
     '</div>' + statusBadge(r.status) + '</div>';
 }
 
-/* 작은 캐릭터 칩 (전체 목록용) */
+/* 작은 캐릭터 칩 (전체 목록용) — 부족 항목 종류만 간결히, 줄바꿈 허용 */
 function chip(r){
-  var sub = r.status === "missing" ? "미보유" : (r.status === "weak" ? r.reasons.join(" · ") : "충분");
+  var sub = r.status === "missing" ? "미보유" : (r.status === "weak" ? r.gaps.map(function(g){ return g.kind; }).join("·") : "충분");
   var subCol = r.status === "ok" ? "var(--dim)" : (r.status === "missing" ? "var(--danger,#dc2626)" : "var(--amber,#d97706)");
   var dim = r.status === "missing" ? "filter:grayscale(1);opacity:.5" : "";
   return '<div class="guide-click" role="button" tabindex="0" data-char="' + esc(r.name) + '" style="width:84px;text-align:center;cursor:pointer">' +
     charImg(r.name, { style: "width:54px;height:54px;border-radius:10px;object-fit:cover;background:var(--muted);border-bottom:3px solid " + elColOf(r.element) + ";" + dim, title: false }) +
     '<div style="font-size:11px;font-weight:700;color:var(--text);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="' + esc(r.name) + '">' + esc(r.name) + '</div>' +
-    '<div style="font-size:10px;font-weight:600;color:' + subCol + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="' + esc(sub) + '">' + esc(sub) + '</div>' +
+    '<div style="font-size:10px;font-weight:600;color:' + subCol + ';line-height:1.3;word-break:keep-all" title="' + esc(sub) + '">' + esc(sub) + '</div>' +
   '</div>';
 }
 function chipRow(list){
@@ -292,18 +322,28 @@ function renderCharModal(name){
   var ev = selfState.ev; if (!ev) return;
   var r = ev.filter(function(x){ return x.name === name; })[0]; if (!r) return;
   var c = r.char;
-  var rows = "";
-  function row(k, v){ return '<div style="display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="font-size:12px;color:var(--sub);font-weight:600">' + k + '</span><span style="font-size:13px;color:var(--text);font-weight:700" class="tnum">' + v + '</span></div>'; }
+  var lackKinds = {}; r.gaps.forEach(function(g){ lackKinds[g.kind] = 1; });
+  function row(k, v, bad){
+    var vc = bad ? "var(--danger,#dc2626)" : "var(--text)";
+    return '<div style="display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--border)">' +
+      '<span style="font-size:12px;color:var(--sub);font-weight:600">' + k + (bad ? ' <span style="color:var(--amber,#d97706)">●</span>' : '') + '</span>' +
+      '<span style="font-size:13px;color:' + vc + ';font-weight:700" class="tnum">' + v + '</span></div>';
+  }
   if (c) {
     var ss = (c.skill1||0) + "/" + (c.skill2||0) + "/" + (c.skill3||0);
     var itemTxt = c.itemGrade ? (c.itemGrade + (c.itemLevel !== "" && c.itemLevel != null ? (" " + c.itemLevel) : "")) : "—";
-    rows = row("코어", esc(c.upgrade || "명함")) + row("스킬", ss) + row("레벨", "Lv " + (c.characterLevel||0)) +
-      row("우코", (c.increaseElementDamage||0).toFixed(1) + "%") + row("공증", (c.increaseAtk||0).toFixed(1) + "%") +
-      row("아이템", esc(itemTxt)) + row("큐브", c.harmonyCube ? (esc(c.harmonyCube) + " " + (c.harmonyCubeLevel||0)) : "—");
+    rows = '<div style="font-size:12px;font-weight:800;color:var(--text);margin-bottom:2px">현재 상태</div>' +
+      row("스킬", ss, lackKinds["스킬"]) +
+      row("우코", (c.increaseElementDamage||0).toFixed(1) + "%", lackKinds["우코"]) +
+      row("공증", (c.increaseAtk||0).toFixed(1) + "%", lackKinds["공증"]) +
+      row("레벨", "Lv " + (c.characterLevel||0), lackKinds["레벨"]) +
+      row("코어", esc(c.upgrade || "명함"), lackKinds["코어"]) +
+      row("아이템", esc(itemTxt)) + row("큐브", c.harmonyCube ? (esc(c.harmonyCube) + " " + (c.harmonyCubeLevel||0)) : "—") +
+      gapBreakdown(r.gaps);
   } else {
     rows = '<div style="padding:14px 0;text-align:center;font-size:13px;color:var(--danger,#dc2626);font-weight:700">아직 보유하지 않은 캐릭터예요 · 확보 우선 권장</div>';
   }
-  var advice = r.status === "missing" ? "확보 권장" : (r.status === "weak" ? ("보강 필요 — " + r.reasons.join(", ")) : "충분히 육성됨");
+  var advice = r.status === "missing" ? "확보 권장" : (r.status === "weak" ? "보강 필요" : "충분히 육성됨");
   var ov = document.getElementById("charModal");
   ov.querySelector(".rd-modal").innerHTML =
     '<div style="display:flex;align-items:center;gap:13px;margin-bottom:14px">' +
