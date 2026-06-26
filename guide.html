@@ -178,21 +178,6 @@ function metricRows(r, onlyBad){
   return '<div style="margin-top:3px">' + rows.map(function(d){ return metricRow(d[0], d[1], d[2], d[3]); }).join("") + '</div>';
 }
 
-/* 우선 추천 카드 (큰 카드) — 미달 항목만 현재/목표로 */
-function pickCard(r){
-  var col = r.status === "missing" ? "var(--danger,#dc2626)" : "var(--amber,#d97706)";
-  var detail = r.status === "missing"
-    ? '<div style="font-size:11px;font-weight:600;color:var(--danger,#dc2626);margin-top:3px">아직 보유하지 않았어요</div>'
-    : metricRows(r, true);
-  return '<div class="rd-card" style="display:flex;align-items:flex-start;gap:12px;padding:11px 13px;border-left:4px solid ' + col + '">' +
-    charImg(r.name, { style: "width:46px;height:46px;border-radius:10px;object-fit:cover;flex-shrink:0;background:var(--muted)", title: false }) +
-    '<div style="flex:1;min-width:0">' +
-      '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
-        '<span style="font-size:13px;font-weight:800;color:var(--text)">' + esc(r.name) + '</span>' + elTag(r.element) + roleTag(r.role) +
-      '</div>' + detail +
-    '</div>' + statusBadge(r.status) + '</div>';
-}
-
 /* 캐릭터 상세 행 (기본 화면에 인라인 표시) — 전체 항목 현재/목표 */
 function detailRow(r){
   var dim = r.status === "missing" ? "filter:grayscale(1);opacity:.5" : "";
@@ -248,7 +233,6 @@ function paintSelf(){
   var missing = ev.filter(function(r){ return r.status === "missing"; }).sort(byPriority);
   var weak    = ev.filter(function(r){ return r.status === "weak"; }).sort(byPriority);
   var ok      = ev.filter(function(r){ return r.status === "ok"; }).sort(byPriority);
-  var picks   = missing.concat(weak).slice(0, RAID_GUIDE.topPicks);
 
   var toolbar =
     '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:10px">' +
@@ -260,10 +244,7 @@ function paintSelf(){
       '<button id="copyGuideBtn" type="button" style="padding:6px 13px;border-radius:9px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:12px;font-weight:800;font-family:inherit;cursor:pointer">📋 가이드 복사</button>' +
     '</div>';
 
-  var picksHTML = picks.length
-    ? '<div style="font-size:13px;font-weight:800;color:var(--text);margin:14px 0 9px">⭐ 우선 육성 추천 <span style="font-size:11px;font-weight:600;color:var(--dim)">(중요도 높은 순)</span></div>' +
-      '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:9px">' + picks.map(pickCard).join("") + '</div>'
-    : '<div class="fstar-empty" style="margin-top:14px">중요 캐릭터가 모두 충분히 육성되어 있어요. 👏</div>';
+  var allOk = !missing.length && !weak.length;
 
   var seg = function(v, label){
     var on = selfState.view === v;
@@ -277,13 +258,13 @@ function paintSelf(){
     '</div>';
 
   var listHTML = selfState.view === "element" ? listByElement(ev) :
+    (allOk ? '<div class="fstar-empty" style="margin-top:8px">중요 캐릭터가 모두 충분히 육성되어 있어요. 👏</div>' : '') +
     groupHead("🔴", "미보유", missing.length, "var(--danger,#dc2626)") + rowList(missing) +
     groupHead("🟡", "저육성", weak.length, "var(--amber,#d97706)") + rowList(weak) +
     '<details style="margin-top:14px"><summary style="cursor:pointer;font-size:13px;font-weight:800;color:var(--sub)">⚪ 충분 ' + ok.length + '개 보기</summary>' +
       '<div style="margin-top:10px">' + rowList(ok) + '</div></details>';
 
-  host.innerHTML = toolbar + picksHTML +
-    '<div style="height:1px;background:var(--border);margin:18px 0"></div>' + viewTabs + listHTML;
+  host.innerHTML = toolbar + viewTabs + listHTML;
 }
 
 /* 속성별 보기: 보스가 속성별로 돌기 때문에 유용 */
@@ -305,17 +286,11 @@ function buildGuideText(){
   var ev = selfState.ev; if (!ev) return "";
   var missing = ev.filter(function(r){ return r.status === "missing"; }).sort(byPriority);
   var weak    = ev.filter(function(r){ return r.status === "weak"; }).sort(byPriority);
-  var picks   = missing.concat(weak).slice(0, RAID_GUIDE.topPicks);
   var lines = [];
   lines.push("[" + selfState.nickname + "] 유니온레이드 육성 가이드");
   lines.push("(미보유 " + missing.length + " · 저육성 " + weak.length + " / 중요 캐릭터 " + IMPORTANT.length + "명 기준)");
-  lines.push("");
-  lines.push("■ 우선 육성 추천");
-  if (picks.length) picks.forEach(function(r, i){
-    var d = r.status === "missing" ? "미보유 (확보 권장)" : r.reasons.join(", ");
-    lines.push((i + 1) + ". " + r.name + " [" + (ROLE_LABEL[r.role] || "딜러") + "] — " + d);
-  }); else lines.push("- 모두 충분히 육성됨 👏");
-  if (missing.length) { lines.push(""); lines.push("■ 미보유 (" + missing.length + "): " + missing.map(function(r){ return r.name; }).join(", ")); }
+  if (!missing.length && !weak.length) { lines.push(""); lines.push("- 모두 충분히 육성됨 👏"); return lines.join("\n"); }
+  if (missing.length) { lines.push(""); lines.push("■ 미보유 (" + missing.length + ")"); missing.forEach(function(r){ lines.push("- " + r.name + " [" + (ROLE_LABEL[r.role] || "딜러") + "]"); }); }
   if (weak.length)    { lines.push(""); lines.push("■ 저육성 (" + weak.length + ")"); weak.forEach(function(r){ lines.push("- " + r.name + ": " + r.reasons.join(", ")); }); }
   return lines.join("\n");
 }
