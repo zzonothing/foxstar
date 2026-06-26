@@ -31,7 +31,7 @@
 <script src="data/character.js"  onerror="window.__DATA_ERROR=1"></script>
 <script src="data/raid.js"       onerror="window.__DATA_ERROR=1"></script>
 
-<script src="js/common.js?v=1"></script>
+<script src="js/common.js?v=2"></script>
 
 <script>
 if (window.__DATA_ERROR) {
@@ -86,28 +86,36 @@ var SKILL_TARGETS = RAID_GUIDE.skillTargets || {};
 var ROLE_LABEL = { dealer: "딜러", support: "서포터" };
 var IMPORTANT = computeImportant();
 
-/* 캐릭터 한 개의 육성 상태 평가 (역할별 기준 + 캐릭터별 스킬 목표 적용) */
+/* 캐릭터 한 개의 육성 상태 평가 (역할별 기준 + 캐릭터별 스킬 목표 적용)
+   gaps: 부족 항목 구조화 [{kind, cur, tgt, lack, short}] (모달 상세표 + 카드 표기 공용) */
 function evalChar(c, role, maxLv){
   var rule = ROLE_RULES[role] || ROLE_RULES.dealer;
-  var reasons = [], sev = 0;
-  if (rule.fullco && c.upgrade !== "풀코") { reasons.push("코어 " + (c.upgrade || "명함")); sev += 10; }
+  var gaps = [], sev = 0;
+  if (rule.fullco && c.upgrade !== "풀코") {
+    gaps.push({ kind: "코어", cur: (c.upgrade || "명함"), tgt: "풀코", lack: "", short: "코어 " + (c.upgrade || "명함") }); sev += 10;
+  }
   // 스킬: 캐릭터별 목표치가 있으면 스킬별로, 없으면 roleRules.skillSum 폴백
-  var cur = [c.skill1 || 0, c.skill2 || 0, c.skill3 || 0];
+  var cur = [c.skill1 || 0, c.skill2 || 0, c.skill3 || 0], curStr = cur.join("/");
   var tgt = SKILL_TARGETS[c.name];
   if (tgt) {
-    var lack = false, def = 0;
-    for (var i = 0; i < 3; i++) { if (tgt[i] != null && cur[i] < tgt[i]) { lack = true; def += (tgt[i] - cur[i]); } }
-    if (lack) {
+    var def = 0;
+    for (var i = 0; i < 3; i++) { if (tgt[i] != null && cur[i] < tgt[i]) def += (tgt[i] - cur[i]); }
+    if (def > 0) {
       var want = tgt.map(function(t){ return t == null ? "·" : t; }).join("/");
-      reasons.push("스킬 " + cur.join("/") + "→" + want); sev += def;
+      gaps.push({ kind: "스킬", cur: curStr, tgt: want, lack: "−" + def, short: "스킬 " + curStr + "→" + want }); sev += def;
     }
   } else if (rule.skillSum && (cur[0]+cur[1]+cur[2]) < rule.skillSum) {
-    reasons.push("스킬 " + cur.join("/")); sev += (rule.skillSum - (cur[0]+cur[1]+cur[2]));
+    var d = rule.skillSum - (cur[0]+cur[1]+cur[2]);
+    gaps.push({ kind: "스킬", cur: curStr, tgt: "합 " + rule.skillSum, lack: "−" + d, short: "스킬 " + curStr }); sev += d;
   }
-  if (rule.uko != null && (c.increaseElementDamage || 0) < rule.uko) { reasons.push("우코 " + (c.increaseElementDamage||0).toFixed(0) + "%"); sev += 8; }
-  if (rule.atk != null && (c.increaseAtk || 0) < rule.atk) { reasons.push("공증 " + (c.increaseAtk||0).toFixed(0) + "%"); sev += 6; }
-  if (rule.levelGap && maxLv - (c.characterLevel || 0) > rule.levelGap) { reasons.push("Lv " + (c.characterLevel||0)); sev += 5; }
-  return { reasons: reasons, sev: sev, status: reasons.length ? "weak" : "ok" };
+  if (rule.uko != null) { var uv = c.increaseElementDamage || 0; if (uv < rule.uko) {
+    gaps.push({ kind: "우코", cur: uv.toFixed(0) + "%", tgt: rule.uko + "%", lack: "−" + (rule.uko - uv).toFixed(0) + "%", short: "우코 " + uv.toFixed(0) + "%→" + rule.uko + "%" }); sev += 8; } }
+  if (rule.atk != null) { var av = c.increaseAtk || 0; if (av < rule.atk) {
+    gaps.push({ kind: "공증", cur: av.toFixed(0) + "%", tgt: rule.atk + "%", lack: "−" + (rule.atk - av).toFixed(0) + "%", short: "공증 " + av.toFixed(0) + "%→" + rule.atk + "%" }); sev += 6; } }
+  if (rule.levelGap && maxLv - (c.characterLevel || 0) > rule.levelGap) {
+    gaps.push({ kind: "레벨", cur: "Lv " + (c.characterLevel||0), tgt: "", lack: "", short: "Lv " + (c.characterLevel||0) }); sev += 5; }
+  var reasons = gaps.map(function(g){ return g.short; });
+  return { reasons: reasons, gaps: gaps, sev: sev, status: gaps.length ? "weak" : "ok" };
 }
 
 /* ── 멤버 한 명의 중요 캐릭터 육성 상태 평가 ─────────────────────── */
@@ -116,10 +124,10 @@ function evalMember(m){
   var maxLv = m.chars.reduce(function(x, c){ return Math.max(x, c.characterLevel || 0); }, 0);
   return IMPORTANT.map(function(ic){
     var c = owned[ic.name];
-    if (!c) return { name: ic.name, element: ic.element, role: ic.role, score: ic.score, char: null, status: "missing", reasons: [], sev: 1000 };
+    if (!c) return { name: ic.name, element: ic.element, role: ic.role, score: ic.score, char: null, status: "missing", reasons: [], gaps: [], sev: 1000 };
     var e = evalChar(c, ic.role, maxLv);
     return { name: ic.name, element: ic.element, role: ic.role, score: ic.score, char: c,
-             status: e.status, reasons: e.reasons, sev: e.sev };
+             status: e.status, reasons: e.reasons, gaps: e.gaps, sev: e.sev };
   });
 }
 
@@ -142,34 +150,71 @@ function statusBadge(st){
   return '<span style="padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;background:var(--muted);color:var(--sub)">충분</span>';
 }
 
-/* 우선 추천 카드 (큰 카드) */
+/* 항목 한 줄 — [항목] (현재태그) 값 → (목표태그) 값 (단색) */
+function tagLabel(text){
+  return '<span style="font-size:9px;font-weight:800;border-radius:999px;padding:1px 7px;white-space:nowrap;background:var(--muted);color:var(--sub)">' + text + '</span>';
+}
+function metricRow(label, cur, tgt, bad){
+  return '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;font-size:11px;margin-top:4px" class="tnum">' +
+    '<span style="width:34px;flex-shrink:0;font-weight:800;color:var(--text)">' + label + '</span>' +
+    tagLabel("현재") + '<span style="font-weight:800;color:var(--text)">' + cur + '</span>' +
+    (tgt ? '<span style="color:var(--dim)">→</span>' + tagLabel("목표") + '<span style="font-weight:800;color:var(--text)">' + tgt + '</span>' : '') +
+  '</div>';
+}
+/* 캐릭터의 스킬·우코·공증을 현재/목표로 나열. onlyBad=true 면 미달 항목만(카드용) */
+function metricRows(r, onlyBad){
+  var c = r.char; if (!c) return '';
+  var rule = ROLE_RULES[r.role] || ROLE_RULES.dealer;
+  var lk = {}; r.gaps.forEach(function(g){ lk[g.kind] = 1; });
+  var st = SKILL_TARGETS[c.name];
+  var skillTgt = st ? st.map(function(t){ return t == null ? "·" : t; }).join("/") : (rule.skillSum ? ("합 " + rule.skillSum) : null);
+  var defs = [
+    ["스킬", (c.skill1||0) + "/" + (c.skill2||0) + "/" + (c.skill3||0), skillTgt, lk["스킬"]],
+    ["우코", (c.increaseElementDamage||0).toFixed(0) + "%", rule.uko != null ? (rule.uko + "%") : null, lk["우코"]],
+    ["공증", (c.increaseAtk||0).toFixed(0) + "%", rule.atk != null ? (rule.atk + "%") : null, lk["공증"]],
+  ];
+  var rows = defs.filter(function(d){ return onlyBad ? d[3] : true; });
+  if (!rows.length) return '';
+  return '<div style="margin-top:3px">' + rows.map(function(d){ return metricRow(d[0], d[1], d[2], d[3]); }).join("") + '</div>';
+}
+
+/* 우선 추천 카드 (큰 카드) — 미달 항목만 현재/목표로 */
 function pickCard(r){
   var col = r.status === "missing" ? "var(--danger,#dc2626)" : "var(--amber,#d97706)";
-  var detail = r.status === "missing" ? "아직 보유하지 않았어요" : r.reasons.join(" · ");
-  return '<div class="rd-card guide-click" role="button" tabindex="0" data-char="' + esc(r.name) + '" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-left:4px solid ' + col + ';cursor:pointer">' +
+  var detail = r.status === "missing"
+    ? '<div style="font-size:11px;font-weight:600;color:var(--danger,#dc2626);margin-top:3px">아직 보유하지 않았어요</div>'
+    : metricRows(r, true);
+  return '<div class="rd-card" style="display:flex;align-items:flex-start;gap:12px;padding:11px 13px;border-left:4px solid ' + col + '">' +
     charImg(r.name, { style: "width:46px;height:46px;border-radius:10px;object-fit:cover;flex-shrink:0;background:var(--muted)", title: false }) +
     '<div style="flex:1;min-width:0">' +
       '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
         '<span style="font-size:13px;font-weight:800;color:var(--text)">' + esc(r.name) + '</span>' + elTag(r.element) + roleTag(r.role) +
-      '</div>' +
-      '<div style="font-size:11px;font-weight:600;color:var(--sub);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(detail) + '</div>' +
+      '</div>' + detail +
     '</div>' + statusBadge(r.status) + '</div>';
 }
 
-/* 작은 캐릭터 칩 (전체 목록용) */
-function chip(r){
-  var sub = r.status === "missing" ? "미보유" : (r.status === "weak" ? r.reasons.join(" · ") : "충분");
-  var subCol = r.status === "ok" ? "var(--dim)" : (r.status === "missing" ? "var(--danger,#dc2626)" : "var(--amber,#d97706)");
+/* 캐릭터 상세 행 (기본 화면에 인라인 표시) — 전체 항목 현재/목표 */
+function detailRow(r){
   var dim = r.status === "missing" ? "filter:grayscale(1);opacity:.5" : "";
-  return '<div class="guide-click" role="button" tabindex="0" data-char="' + esc(r.name) + '" style="width:84px;text-align:center;cursor:pointer">' +
-    charImg(r.name, { style: "width:54px;height:54px;border-radius:10px;object-fit:cover;background:var(--muted);border-bottom:3px solid " + elColOf(r.element) + ";" + dim, title: false }) +
-    '<div style="font-size:11px;font-weight:700;color:var(--text);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="' + esc(r.name) + '">' + esc(r.name) + '</div>' +
-    '<div style="font-size:10px;font-weight:600;color:' + subCol + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="' + esc(sub) + '">' + esc(sub) + '</div>' +
-  '</div>';
+  var body;
+  if (r.status === "missing") {
+    body = '<div style="font-size:11px;font-weight:700;color:var(--danger,#dc2626);margin-top:4px">미보유 · 확보 우선 권장</div>';
+  } else {
+    body = metricRows(r, false) +
+      (r.status === "ok" ? '<div style="font-size:11px;color:var(--dim);margin-top:4px">목표 충족 ✓</div>' : '');
+  }
+  return '<div style="display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--border)">' +
+    charImg(r.name, { style: "width:46px;height:46px;border-radius:10px;object-fit:cover;flex-shrink:0;background:var(--muted);border-left:3px solid " + elColOf(r.element) + ";" + dim, title: false }) +
+    '<div style="flex:1;min-width:0">' +
+      '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
+        '<span style="font-size:13px;font-weight:800;color:var(--text)">' + esc(r.name) + '</span>' + elTag(r.element) + roleTag(r.role) +
+        '<span style="margin-left:auto">' + statusBadge(r.status) + '</span>' +
+      '</div>' + body +
+    '</div></div>';
 }
-function chipRow(list){
+function rowList(list){
   if (!list.length) return '<div style="font-size:12px;color:var(--dim);padding:6px 2px">없음</div>';
-  return '<div style="display:flex;flex-wrap:wrap;gap:10px">' + list.map(chip).join("") + '</div>';
+  return list.map(detailRow).join("");
 }
 function groupHead(emoji, title, n, col){
   return '<div style="display:flex;align-items:center;gap:7px;margin:14px 0 8px">' +
@@ -216,7 +261,7 @@ function paintSelf(){
     '</div>';
 
   var picksHTML = picks.length
-    ? '<div style="font-size:13px;font-weight:800;color:var(--text);margin:14px 0 9px">⭐ 우선 육성 추천 <span style="font-size:11px;font-weight:600;color:var(--dim)">(중요도 높은 순 · 클릭하면 상세)</span></div>' +
+    ? '<div style="font-size:13px;font-weight:800;color:var(--text);margin:14px 0 9px">⭐ 우선 육성 추천 <span style="font-size:11px;font-weight:600;color:var(--dim)">(중요도 높은 순)</span></div>' +
       '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:9px">' + picks.map(pickCard).join("") + '</div>'
     : '<div class="fstar-empty" style="margin-top:14px">중요 캐릭터가 모두 충분히 육성되어 있어요. 👏</div>';
 
@@ -232,10 +277,10 @@ function paintSelf(){
     '</div>';
 
   var listHTML = selfState.view === "element" ? listByElement(ev) :
-    groupHead("🔴", "미보유", missing.length, "var(--danger,#dc2626)") + chipRow(missing) +
-    groupHead("🟡", "저육성", weak.length, "var(--amber,#d97706)") + chipRow(weak) +
+    groupHead("🔴", "미보유", missing.length, "var(--danger,#dc2626)") + rowList(missing) +
+    groupHead("🟡", "저육성", weak.length, "var(--amber,#d97706)") + rowList(weak) +
     '<details style="margin-top:14px"><summary style="cursor:pointer;font-size:13px;font-weight:800;color:var(--sub)">⚪ 충분 ' + ok.length + '개 보기</summary>' +
-      '<div style="margin-top:10px">' + chipRow(ok) + '</div></details>';
+      '<div style="margin-top:10px">' + rowList(ok) + '</div></details>';
 
   host.innerHTML = toolbar + picksHTML +
     '<div style="height:1px;background:var(--border);margin:18px 0"></div>' + viewTabs + listHTML;
@@ -249,9 +294,9 @@ function listByElement(ev){
   return order.map(function(e){
     var list = groups[e].slice().sort(byPriority);
     var bad = list.filter(function(r){ return r.status !== "ok"; }).length;
-    return '<div style="margin:14px 0 8px;display:flex;align-items:center;gap:7px">' + elTag(e) +
+    return '<div style="margin:16px 0 6px;display:flex;align-items:center;gap:7px">' + elTag(e) +
       '<span style="font-size:12px;font-weight:700;color:var(--sub)">' + (bad ? ("보강 " + bad + " / " + list.length) : ("전부 충분 " + list.length)) + '</span></div>' +
-      chipRow(list);
+      rowList(list);
   }).join("");
 }
 
@@ -285,34 +330,6 @@ function fallbackCopy(txt){
   var ta = document.createElement("textarea"); ta.value = txt;
   ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta);
   ta.select(); try { document.execCommand("copy"); } catch (e) {} document.body.removeChild(ta);
-}
-
-/* ── 캐릭터 상세 모달 ───────────────────────────────────────────── */
-function renderCharModal(name){
-  var ev = selfState.ev; if (!ev) return;
-  var r = ev.filter(function(x){ return x.name === name; })[0]; if (!r) return;
-  var c = r.char;
-  var rows = "";
-  function row(k, v){ return '<div style="display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="font-size:12px;color:var(--sub);font-weight:600">' + k + '</span><span style="font-size:13px;color:var(--text);font-weight:700" class="tnum">' + v + '</span></div>'; }
-  if (c) {
-    var ss = (c.skill1||0) + "/" + (c.skill2||0) + "/" + (c.skill3||0);
-    var itemTxt = c.itemGrade ? (c.itemGrade + (c.itemLevel !== "" && c.itemLevel != null ? (" " + c.itemLevel) : "")) : "—";
-    rows = row("코어", esc(c.upgrade || "명함")) + row("스킬", ss) + row("레벨", "Lv " + (c.characterLevel||0)) +
-      row("우코", (c.increaseElementDamage||0).toFixed(1) + "%") + row("공증", (c.increaseAtk||0).toFixed(1) + "%") +
-      row("아이템", esc(itemTxt)) + row("큐브", c.harmonyCube ? (esc(c.harmonyCube) + " " + (c.harmonyCubeLevel||0)) : "—");
-  } else {
-    rows = '<div style="padding:14px 0;text-align:center;font-size:13px;color:var(--danger,#dc2626);font-weight:700">아직 보유하지 않은 캐릭터예요 · 확보 우선 권장</div>';
-  }
-  var advice = r.status === "missing" ? "확보 권장" : (r.status === "weak" ? ("보강 필요 — " + r.reasons.join(", ")) : "충분히 육성됨");
-  var ov = document.getElementById("charModal");
-  ov.querySelector(".rd-modal").innerHTML =
-    '<div style="display:flex;align-items:center;gap:13px;margin-bottom:14px">' +
-      charImg(name, { style: "width:60px;height:60px;border-radius:12px;object-fit:cover;background:var(--muted)", title: false }) +
-      '<div><div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap"><span style="font-size:16px;font-weight:800;color:var(--text)">' + esc(name) + '</span>' + elTag(r.element) + roleTag(r.role) + '</div>' +
-        '<div style="margin-top:5px">' + statusBadge(r.status) + ' <span style="font-size:12px;color:var(--sub);font-weight:600">' + esc(advice) + '</span></div></div>' +
-      '<button type="button" data-close="1" style="margin-left:auto;background:none;border:none;font-size:22px;color:var(--sub);cursor:pointer;line-height:1">×</button>' +
-    '</div>' + rows;
-  openModal(ov, { label: name + " 상세" });
 }
 
 /* ── 유니온 조감: 가장 많이 부족한 중요 캐릭터 ──────────────────── */
@@ -370,31 +387,16 @@ document.getElementById("rdContent").innerHTML =
     '</div></div>' +
 
   '<div><div class="rd-sec-head"><span class="rd-sec-bar"></span><span class="rd-sec-title">유니온 조감</span><span class="rd-sec-note">운영자용</span></div>' +
-    renderOverview() + '</div>' +
-
-  '<div class="rd-overlay" id="charModal" style="display:none"><div class="rd-modal" style="max-width:380px;width:90%"></div></div>';
+    renderOverview() + '</div>';
 
 document.getElementById("memberSel").addEventListener("change", function(e){ renderSelf(e.target.value); });
 
-/* 이벤트 위임: 캐릭터 클릭(상세) · 보기 토글 · 복사 */
+/* 이벤트 위임: 보기 토글 · 가이드 복사 */
 document.getElementById("rdContent").addEventListener("click", function(e){
   var view = e.target.closest("[data-view]");
   if (view) { selfState.view = view.getAttribute("data-view"); paintSelf(); return; }
   if (e.target.closest("#copyGuideBtn")) { copyGuide(document.getElementById("copyGuideBtn")); return; }
-  var cl = e.target.closest(".guide-click");
-  if (cl) { renderCharModal(cl.getAttribute("data-char")); return; }
 });
-document.getElementById("rdContent").addEventListener("keydown", function(e){
-  if (e.key !== "Enter" && e.key !== " ") return;
-  var cl = e.target.closest && e.target.closest(".guide-click");
-  if (cl) { e.preventDefault(); renderCharModal(cl.getAttribute("data-char")); }
-});
-/* 모달 닫기 */
-var charModalEl = document.getElementById("charModal");
-charModalEl.addEventListener("click", function(e){
-  if (e.target === charModalEl || e.target.closest("[data-close]")) closeModal(charModalEl);
-});
-document.addEventListener("keydown", function(e){ if (e.key === "Escape" && charModalEl.style.display !== "none") closeModal(charModalEl); });
 
 markReady();
 
