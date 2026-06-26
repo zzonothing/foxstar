@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script>if(localStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark");</script>
   <style>html{background:#eef1f6}html.dark{background:#111827}body:not(.ready){visibility:hidden}</style>
-  <link rel="stylesheet" href="css/style.css?v=5" />
+  <link rel="stylesheet" href="css/style.css?v=6" />
   <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
 </head>
 <body>
@@ -153,8 +153,7 @@ function rowHTML(r){
     '<td style="' + sticky0 + ';left:132px;padding:9px 8px;text-align:center;color:var(--sub)" class="tnum">' + syncro + '</td>' +
     '<td style="' + sticky0 + ';left:180px;padding:9px 12px;text-align:left;box-shadow:1px 0 0 var(--border)">' +
       '<span style="display:inline-flex;align-items:center;gap:7px"><span style="width:9px;height:9px;border-radius:50%;background:' + (ECOL[c.element] || "var(--dim)") + ';flex-shrink:0"></span>' +
-      '<span style="font-weight:600;color:var(--text)">' + esc(c.name) + '</span>' +
-      '<span class="rd-detail-mini" data-act="open-equip" data-key="' + esc(m.nickname + "|" + c.name) + '">자세히</span></span></td>' +
+      '<span class="rd-name" style="font-weight:600" data-act="open-equip" data-key="' + esc(m.nickname + "|" + c.name) + '" title="장비 상세 보기">' + esc(c.name) + '</span></span></td>' +
     '<td style="padding:9px 10px;text-align:center;background:' + r.scrollBg + '">' + breakCell + '</td>' +
     '<td style="padding:9px 10px;text-align:center;font-weight:700;color:var(--text);background:' + r.scrollBg + '" class="tnum">' + pct(c.increaseElementDamage) + '</td>' +
     '<td style="padding:9px 10px;text-align:center;font-weight:600;color:var(--text);background:' + r.scrollBg + '" class="tnum">' + pct(c.increaseAtk) + '</td>' + extra +
@@ -177,66 +176,83 @@ function updateTable(){
   document.getElementById("tableWrap").innerHTML = '<div class="rd-card" style="overflow:hidden"><div class="rd-scroll"><table class="rd-table" style="white-space:nowrap;min-width:100%"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div></div>';
 }
 
-function mobileChipsHTML(c, extraDefs){
-  const chips = [{ label: "우코", val: pct(c.increaseElementDamage), col: "var(--text)" }, { label: "공증", val: pct(c.increaseAtk), col: "var(--text)" }];
-  extraDefs.forEach(o => chips.push({ label: o[1], val: o[2](c), col: "var(--sub)" }));
-  chips.push({ label: "소장품", val: c.itemGrade ? c.itemGrade + (c.itemLevel != null && c.itemLevel !== "" ? " " + c.itemLevel : "") : "—", col: c.itemGrade ? itemCol(c.itemGrade) : "var(--dim)" });
-  chips.push({ label: "스킬", val: skillText(c), col: "var(--text)" });
-  return chips.map(ch => '<div style="display:flex;flex-direction:column;gap:1px;background:var(--muted);border-radius:7px;padding:5px 10px;min-width:62px"><span style="font-size:9px;color:var(--dim);font-weight:700;text-transform:uppercase">' + ch.label + '</span><span style="font-size:13px;font-weight:800;color:' + ch.col + '" class="tnum">' + ch.val + '</span></div>').join("");
+/* ─── 모바일: 데스크톱처럼 표로(가로 스크롤 · 식별열 고정) ─── */
+const M_ECELL = 'padding:8px 9px;text-align:center';
+function mDot(c){ return '<span style="width:7px;height:7px;border-radius:50%;background:' + (ECOL[c.element] || "var(--dim)") + ';flex-shrink:0"></span>'; }
+function mNick(m){ return '<span style="font-size:14px;font-weight:800;color:var(--text)">' + esc(m.nickname) + '</span><span style="font-size:10px;color:var(--dim);font-weight:600;margin-left:5px" class="tnum">Lv.' + (m.syncro != null ? m.syncro : "—") + '</span>'; }
+function mName(m, c){ return '<span class="rd-name" style="font-size:12px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis" data-act="open-equip" data-key="' + esc(m.nickname + "|" + c.name) + '">' + esc(c.name) + '</span>'; }
+function mIdCell(inner){ return '<td style="position:sticky;left:0;z-index:3;background:var(--card);box-shadow:1px 0 0 var(--border);padding:8px 9px;min-width:116px;max-width:158px">' + inner + '</td>'; }
+
+function mStatCells(c, extraDefs){
+  const fullco = c.upgrade === "풀코", upgradePlain = !!c.upgrade && c.upgrade !== "풀코";
+  const breakCell = fullco
+    ? '<span style="display:inline-block;padding:1px 7px;border-radius:999px;font-size:10px;font-weight:700;background:var(--role-leader-bg);color:var(--amber);border:1px solid #fde68a">풀코</span>'
+    : upgradePlain ? '<span style="font-size:10px;font-weight:600;color:var(--sub)">' + esc(c.upgrade) + '</span>' : '<span style="color:var(--dim)">—</span>';
+  const cell = (html, st) => '<td style="' + M_ECELL + ';' + (st || "") + '" class="tnum">' + html + '</td>';
+  const extra = extraDefs.map(o => cell(o[2](c), "font-weight:600;color:var(--sub)")).join("");
+  return cell(pct(c.increaseElementDamage), "font-weight:800;color:var(--text)") +
+    cell(pct(c.increaseAtk), "font-weight:700;color:var(--text)") +
+    '<td style="' + M_ECELL + '">' + breakCell + '</td>' + extra +
+    '<td style="' + M_ECELL + ';font-weight:700;color:' + (c.itemGrade ? itemCol(c.itemGrade) : "var(--dim)") + '">' + (c.itemGrade ? c.itemGrade + (c.itemLevel != null && c.itemLevel !== "" ? " " + c.itemLevel : "") : "—") + '</td>' +
+    cell(skillText(c), "color:var(--text)");
+}
+function mDashCells(extraDefs){ const dash = '<td style="' + M_ECELL + ';color:var(--dim)">—</td>'; return dash + dash + dash + extraDefs.map(() => dash).join("") + dash + dash; }
+
+/* 개별 모드: 닉네임·레벨(위) + 캐릭터(아래) */
+function mIndivRow(r, extraDefs){
+  const c = r.c, m = r.m;
+  const id = '<div style="display:flex;align-items:center">' + mNick(m) + '</div>' +
+    '<div style="display:flex;align-items:center;gap:5px;margin-top:3px">' + mDot(c) +
+      mName(m, c) + '</div>';
+  return '<tr style="border-bottom:1px solid var(--line)">' + mIdCell(id) + mStatCells(c, extraDefs) + '</tr>';
 }
 
-function mobileCharBlockHTML(r, extraDefs){
+/* 그룹 모드: 멤버 헤더 행(닉네임·레벨) */
+function mMemberRow(r, ncol, first){
+  const m = r.m, accent = ECOL[r.c.element] || "var(--dim)";
+  const id = '<div style="display:flex;align-items:center;gap:6px"><span style="width:3px;height:15px;border-radius:2px;background:' + accent + ';flex-shrink:0"></span>' + mNick(m) + '</div>';
+  let band = ""; for (let i = 0; i < ncol; i++) band += '<td style="background:var(--muted)"></td>';
+  return '<tr style="' + (first ? "" : "border-top:2px solid var(--border);") + '">' +
+    '<td style="position:sticky;left:0;z-index:3;background:var(--muted);box-shadow:1px 0 0 var(--border);padding:7px 9px;min-width:116px;max-width:158px">' + id + '</td>' + band + '</tr>';
+}
+
+/* 그룹 모드: 캐릭터 행(캐릭터만 식별열) */
+function mGroupCharRow(r, extraDefs){
   if (r.kind === "missing") {
-    return '<div style="display:flex;align-items:center;gap:7px;padding:9px 0;border-top:1px solid var(--line)"><span style="width:8px;height:8px;border-radius:50%;background:var(--dim)"></span><span style="font-size:13px;font-weight:600;color:var(--text)">' + esc(r.missName) + '</span><span style="font-style:italic;color:var(--dim);font-size:12px;margin-left:auto">— 미보유 —</span></div>';
+    const id = '<div style="display:flex;align-items:center;gap:5px;padding-left:11px"><span style="width:7px;height:7px;border-radius:50%;background:var(--dim);flex-shrink:0"></span><span style="font-size:12px;font-weight:600;color:var(--text)">' + esc(r.missName) + '</span><span style="font-size:10px;color:var(--dim);font-style:italic;margin-left:auto">미보유</span></div>';
+    return '<tr style="border-bottom:1px solid var(--line)">' + mIdCell(id) + mDashCells(extraDefs) + '</tr>';
   }
-  const c = r.c, m = r.m, primary = r.kind === "primary";
-  const fullco = c.upgrade === "풀코", upgradePlain = !!c.upgrade && c.upgrade !== "풀코";
-  return '<div style="padding:9px 0;border-top:1px solid var(--line)">' +
-    '<div style="display:flex;align-items:center;gap:6px">' +
-      '<span style="width:8px;height:8px;border-radius:50%;background:' + (ECOL[c.element] || "var(--dim)") + '"></span>' +
-      '<span style="font-size:13px;font-weight:700;color:var(--text)">' + esc(c.name) + '</span>' +
-      (primary ? '<span style="font-size:9px;font-weight:700;padding:0 6px;border-radius:4px;background:#334155;color:#fff">기준</span>' : "") +
-      (fullco ? '<span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--role-leader-bg);color:var(--amber);border:1px solid #fde68a">풀코</span>' : upgradePlain ? '<span style="font-size:10px;font-weight:600;color:var(--sub)">' + esc(c.upgrade) + '</span>' : "") +
-      '<span class="rd-detail-mini" data-act="open-equip" data-key="' + esc(m.nickname + "|" + c.name) + '" style="margin-left:auto;padding:4px 10px;border-radius:7px">자세히</span>' +
-    '</div>' +
-    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">' + mobileChipsHTML(c, extraDefs) + '</div></div>';
+  const c = r.c, m = r.m;
+  const id = '<div style="display:flex;align-items:center;gap:5px;padding-left:11px">' + mDot(c) +
+    mName(m, c) +
+    (r.kind === "primary" ? '<span style="font-size:8px;font-weight:700;padding:0 4px;border-radius:3px;background:#334155;color:#fff;flex-shrink:0">기준</span>' : "") +
+    '</div>';
+  return '<tr style="border-bottom:1px solid var(--line)">' + mIdCell(id) + mStatCells(c, extraDefs) + '</tr>';
 }
 
 function updateMobile(){
-  const cr = computeRows();
-  const extraDefs = cr.extraDefs;
-
-  if (cr.groupMode) {
-    const groups = [];
-    cr.rows.forEach(r => { if (r.kind === "primary") groups.push([r]); else if (groups.length) groups[groups.length - 1].push(r); });
-    const cards = groups.map(g => {
-      const p = g[0], m = p.m, c = p.c;
-      return '<div class="rd-card" style="padding:12px 13px;border-left:3px solid ' + (ECOL[c.element] || "var(--dim)") + '">' +
-        '<div style="display:flex;align-items:center;gap:9px">' +
-          '<span style="display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:7px;font-size:11px;font-weight:800;background:var(--muted);color:var(--dim)" class="tnum">' + p.rank + '</span>' +
-          '<span style="font-size:14px;font-weight:800;color:var(--text)">' + esc(m.nickname) + '</span>' +
-          '<span style="font-size:11px;color:var(--dim);font-weight:600" class="tnum">Lv.' + (m.syncro != null ? m.syncro : "—") + '</span>' +
-        '</div>' + g.map(r => mobileCharBlockHTML(r, extraDefs)).join("") + '</div>';
-    }).join("");
-    document.getElementById("mobileWrap").innerHTML = cards || '<div style="text-align:center;color:var(--dim);font-size:12px;padding:20px">결과 없음</div>';
-    return;
+  const { rows, extraDefs, groupMode } = computeRows();
+  if (!rows.length) { document.getElementById("mobileWrap").innerHTML = '<div class="rd-card" style="padding:20px;text-align:center;color:var(--dim);font-size:12px">결과 없음</div>'; return; }
+  const sth = 'background:var(--muted);padding:9px;font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;white-space:nowrap;text-align:center';
+  const extraTh = extraDefs.map(o => '<th style="' + sth + '">' + o[1] + '</th>').join("");
+  const ncol = 5 + extraDefs.length;
+  const head = '<tr style="border-bottom:1.5px solid var(--border)">' +
+    '<th style="' + sth + ';position:sticky;left:0;z-index:4;text-align:left;box-shadow:1px 0 0 var(--border)">' + (groupMode ? "멤버 · 캐릭터" : "닉네임 · 캐릭터") + '</th>' +
+    '<th style="' + sth + '">우코</th><th style="' + sth + '">공증</th><th style="' + sth + '">돌파</th>' +
+    extraTh +
+    '<th style="' + sth + '">소장품</th><th style="' + sth + '">스킬</th></tr>';
+  let body;
+  if (groupMode) {
+    let out = "", first = true;
+    rows.forEach(r => {
+      if (r.kind === "primary") { out += mMemberRow(r, ncol, first); first = false; out += mGroupCharRow(r, extraDefs); }
+      else out += mGroupCharRow(r, extraDefs);
+    });
+    body = out;
+  } else {
+    body = rows.map(r => mIndivRow(r, extraDefs)).join("");
   }
-
-  const { element: elem, chars, members } = state;
-  const raw = [];
-  D.forEach(m => { if (members.length && !members.includes(m.nickname)) return; m.chars.forEach(c => { if (elem && c.element !== elem) return; if (chars.length && !chars.includes(c.name)) return; raw.push({ m, c }); }); });
-  raw.sort((a, b) => sortVal(b.c) - sortVal(a.c) || (b.c.increaseAtk || 0) - (a.c.increaseAtk || 0) || a.c.name.localeCompare(b.c.name, "ko"));
-  const cards = raw.slice(0, 30).map((x, i) => {
-    const c = x.c, m = x.m; const fullco = c.upgrade === "풀코", upgradePlain = !!c.upgrade && c.upgrade !== "풀코";
-    return '<div class="rd-card" style="padding:12px 13px;border-left:3px solid ' + (ECOL[c.element] || "var(--dim)") + '"><div style="display:flex;align-items:center;gap:9px">' +
-      '<span style="display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:7px;font-size:11px;font-weight:800;background:var(--muted);color:var(--dim)" class="tnum">' + (i + 1) + '</span>' +
-      '<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><span style="font-size:14px;font-weight:800;color:var(--text)">' + esc(m.nickname) + '</span><span style="font-size:11px;color:var(--dim);font-weight:600" class="tnum">Lv.' + (m.syncro != null ? m.syncro : "—") + '</span></div>' +
-        '<div style="display:flex;align-items:center;gap:6px;margin-top:2px"><span style="width:8px;height:8px;border-radius:50%;background:' + (ECOL[c.element] || "var(--dim)") + '"></span><span style="font-size:13px;font-weight:700;color:var(--text)">' + esc(c.name) + '</span>' +
-        (fullco ? '<span style="font-size:10px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--role-leader-bg);color:var(--amber);border:1px solid #fde68a">풀코</span>' : upgradePlain ? '<span style="font-size:10px;font-weight:600;color:var(--sub)">' + esc(c.upgrade) + '</span>' : "") + '</div></div>' +
-      '<span class="rd-detail-mini" data-act="open-equip" data-key="' + esc(m.nickname + "|" + c.name) + '" style="padding:4px 10px;border-radius:7px">자세히</span></div>' +
-      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:11px">' + mobileChipsHTML(c, extraDefs) + '</div></div>';
-  }).join("");
-  document.getElementById("mobileWrap").innerHTML = cards;
+  document.getElementById("mobileWrap").innerHTML = '<div class="rd-card" style="overflow:hidden;padding:0"><div class="rd-scroll"><table class="rd-table" style="white-space:nowrap;min-width:100%"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div></div>';
 }
 
 /* ─── 컨트롤(속성/정렬/보기) + 옵션 토글 ─── */
@@ -343,12 +359,14 @@ function buildModalHTML(){
     }
     return '<div style="background:var(--card);padding:13px 15px"><div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--sub);margin-bottom:9px">' + label + '</div>' + slots + '</div>';
   }).join("");
-  return '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 18px 13px;border-bottom:1px solid var(--border)">' +
+  return '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 18px 13px;border-bottom:1px solid var(--border);flex-shrink:0">' +
       '<div><div style="display:flex;align-items:center;gap:7px;font-size:16px;font-weight:800;color:var(--text)"><span style="width:10px;height:10px;border-radius:50%;background:' + (ECOL[modalC.element] || "var(--dim)") + '"></span>' + esc(modalC.name) + '</div>' +
         '<div style="font-size:12px;color:var(--sub);margin-top:4px">' + esc(modalM.nickname) + '  ·  ' + esc(modalC.upgrade || "—") + '  ·  ' + esc(modalC.element || "—") + '</div></div>' +
       '<span class="rd-modal-close" data-act="close-equip">✕</span></div>' +
-    '<div style="display:flex;flex-wrap:wrap;gap:6px;padding:12px 18px;border-bottom:1px solid var(--border);background:var(--muted)">' + (totals || '<span style="font-size:12px;color:var(--dim)">장착 옵션 없음</span>') + '</div>' +
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)">' + parts + '</div>';
+    '<div style="overflow-y:auto;min-height:0">' +
+      '<div style="display:flex;flex-wrap:wrap;gap:6px;padding:12px 18px;border-bottom:1px solid var(--border);background:var(--muted)">' + (totals || '<span style="font-size:12px;color:var(--dim)">장착 옵션 없음</span>') + '</div>' +
+      '<div class="rd-equip-grid">' + parts + '</div>' +
+    '</div>';
 }
 function openEquipModal(key){ state.modalKey = key; document.getElementById("rdShiftModal").innerHTML = buildModalHTML(); openModal(document.getElementById("rdShiftOverlay"), { label: (ELABEL[key] || "장비 옵션") + " 상세" }); }
 function closeEquipModal(){ closeModal(document.getElementById("rdShiftOverlay")); }
