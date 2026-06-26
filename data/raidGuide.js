@@ -42,7 +42,7 @@ const RAID_GUIDE = {
   //   levelGap : (본인 최고 캐릭터 레벨 − 해당 캐릭터 레벨) 이 값 초과면 레벨 부족
   //   uko      : increaseElementDamage 가 이 값 미만이면 우코 부족 (null 이면 검사 안 함)
   roleRules: {
-    dealer:  { fullco: true, skillSum: 10, levelGap: 60, uko: 50 },   // 딜러: 우코·코어 중심
+    dealer:  { fullco: true, skillSum: 10, levelGap: 60, uko: 80 },   // 딜러: 우코·코어 중심
     support: { fullco: true, skillSum: 15, levelGap: 60, uko: null }, // 서포터: 스킬 중심, 우코 무관
   },
 };
