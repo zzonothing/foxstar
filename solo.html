@@ -10,40 +10,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script>if(localStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark");</script>
   <style>html{background:#eef1f6}html.dark{background:#111827}body:not(.ready){visibility:hidden}</style>
-  <link rel="stylesheet" href="css/style.css?v=4" />
+  <link rel="stylesheet" href="css/style.css?v=5" />
   <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
 </head>
 <body>
 
-<header class="rd-header">
-  <div class="rd-grad"></div>
-  <div class="container">
-    <div class="rd-head-inner">
-      <div class="rd-brand">
-        <img src="image/foxstar.png" alt="여우별 유니온" width="38" height="38" />
-        <div>
-          <div class="rd-eyebrow">승리의 여신: 니케 · UNION PORTAL</div>
-          <div class="rd-title" id="headerTitle">여우별 유니온</div>
-        </div>
-      </div>
-      <button class="rd-toggle" id="themeToggle" title="다크/라이트 모드 전환">🌙</button>
-    </div>
-    <nav class="rd-nav">
-      <a href="index.html">홈</a>
-      <a href="raid.html">유니온레이드</a>
-      <a href="solo.html" class="active">솔로레이드</a>
-      <a href="shift.html">시프티패드</a>
-      <a href="stats.html">여우별 통계</a>
-    </nav>
-    <nav class="rd-nav-mobile">
-      <a href="index.html">홈</a>
-      <a href="raid.html">유레</a>
-      <a href="solo.html" class="active">솔레</a>
-      <a href="shift.html">시프티</a>
-      <a href="stats.html">통계</a>
-    </nav>
-  </div>
-</header>
+<div id="fstarLoader" aria-live="polite"><div class="fstar-spin" aria-hidden="true"></div><span>불러오는 중…</span></div>
+
+<!-- ═══════════ 헤더 (js/common.js: renderHeader 주입) ═══════════ -->
+<header class="rd-header" id="rdHeader"></header>
 
 <main class="rd-main">
   <div class="container">
@@ -55,32 +30,26 @@
   <div class="rd-modal" id="rdSoloModal" style="max-width:760px"></div>
 </div>
 
-<script src="data/config.js"></script>
-<script src="data/solo.js"></script>
+<script src="data/config.js" onerror="window.__DATA_ERROR=1"></script>
+<script src="data/solo.js" onerror="window.__DATA_ERROR=1"></script>
+
+<!-- ═══════════ 공통 스크립트 (헬퍼·테마·인증·차트·모달) ═══════════ -->
+<script src="js/common.js?v=1"></script>
 
 <script>
-if (window.__AUTH_REQUIRED) {
-  location.replace("/login.html?return=" + encodeURIComponent(location.pathname + location.search));
-}
-</script>
+if (window.__DATA_ERROR || typeof SOLO === "undefined" || typeof CONFIG === "undefined") {
+  if (typeof showDataError === "function") showDataError();
+} else if (!authGuardOrRedirect()) {
+try {
 
-<script>
-if (!window.__AUTH_REQUIRED) {
+renderHeader("solo.html");
+setupTheme();
+lockClipboard();
+document.title = "솔로레이드 | " + CONFIG.unionName;
 
-if (typeof CONFIG !== "undefined") {
-  document.getElementById("headerTitle").textContent = CONFIG.unionName;
-  document.title = "솔로레이드 | " + CONFIG.unionName;
-}
-
-const EL_COL = {수냉:"var(--el-water)",작열:"var(--el-fire)",철갑:"var(--el-iron)",전격:"var(--el-elec)",풍압:"var(--el-wind)"};
-const EL_BG  = {수냉:"var(--elbg-water)",작열:"var(--elbg-fire)",철갑:"var(--elbg-iron)",전격:"var(--elbg-elec)",풍압:"var(--elbg-wind)"};
-function esc(s){ return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
-function imgOf(name){ return "image/" + name.replace(" : ", "_").replace(/ /g, "%20") + ".webp"; }
+/* ─── 솔로 전용 헬퍼 ─── */
 function fmt(n){ return n == null ? "—" : n.toLocaleString("ko-KR"); }
 function fmtRank(r){ return r == null ? "—" : (typeof r === "number" ? r + "위" : r); }
-function medal(i){
-  return { bg: "var(--muted)", col: "var(--sub)" };
-}
 function gradeCol(g){ return g === "SSR" ? "var(--grade-ssr)" : g === "SR" ? "var(--grade-sr)" : "var(--grade-r)"; }
 
 const soloKeys = Object.keys(SOLO).sort((a, b) => parseInt(a.slice(1)) - parseInt(b.slice(1)));
@@ -94,7 +63,7 @@ function sortedMembers(){ return [...curSeason().members].sort((a, b) => b.total
 
 function deckRowsHTML(m){
   return m.decks.map((d, di) => {
-    const thumbs = d.squad.map(c => c ? '<img src="' + imgOf(c.name) + '" style="width:28px;height:28px;border-radius:4px;object-fit:cover;background:var(--muted)" loading="lazy" onerror="this.style.opacity=0.15">' : "").join("");
+    const thumbs = d.squad.map(c => c ? charImg(c.name, { style: "width:28px;height:28px;border-radius:4px;object-fit:cover;background:var(--muted)", title: false }) : "").join("");
     return '<div style="display:flex;align-items:center;gap:11px"><div style="display:flex;gap:3px">' + thumbs + '</div>' +
       '<span style="font-size:12px;font-weight:700;color:var(--text)" class="tnum">' + fmt(d.deckScore) + '</span></div>';
   }).join("");
@@ -153,7 +122,7 @@ function render(){
     const md = medal(i);
     const decks = m.decks.map((d, di) =>
       '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;font-weight:800;color:var(--dim);width:18px;flex-shrink:0">#' + (di + 1) + '</span>' +
-        '<div style="display:flex;gap:2px;flex:1">' + d.squad.map(c => c ? '<img src="' + imgOf(c.name) + '" style="width:30px;height:30px;border-radius:4px;object-fit:cover;background:var(--muted)" loading="lazy" onerror="this.style.opacity=0.15">' : "").join("") + '</div>' +
+        '<div style="display:flex;gap:2px;flex:1">' + d.squad.map(c => c ? charImg(c.name, { style: "width:30px;height:30px;border-radius:4px;object-fit:cover;background:var(--muted)", title: false }) : "").join("") + '</div>' +
         '<span style="font-size:13px;font-weight:800;color:var(--text);white-space:nowrap" class="tnum">' + fmt(d.deckScore) + '</span></div>').join("");
     return '<div class="rd-card" style="padding:13px 14px"><div style="display:flex;align-items:center;gap:11px">' +
       '<span class="rd-rankpill" style="min-width:26px;height:26px;padding:0 7px;border-radius:8px;font-size:13px;background:' + md.bg + ';color:' + md.col + '">' + (i + 1) + '</span>' +
@@ -210,7 +179,7 @@ function buildModalHTML(){
       EQ_OPTS.forEach(([id, label, field]) => { if (opt[id]) { const p = pct(c[field]); if (p) rows.push({ text: label + " " + p, w: "500", col: "var(--ink)" }); } });
       const rowsHTML = rows.map(r => '<div style="max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;font-weight:' + r.w + ';color:' + r.col + '">' + r.text + '</div>').join("");
       return '<div style="background:var(--card);border:1px solid var(--border);border-radius:7px;padding:3px;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0">' +
-        '<div style="position:relative;width:100%;padding-bottom:100%;border-radius:6px;overflow:hidden;background:var(--muted)"><img src="' + imgOf(c.name) + '" title="' + esc(c.name) + (c.upgrade ? " · " + c.upgrade : "") + '" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.style.opacity=0.15"></div>' +
+        '<div style="position:relative;width:100%;padding-bottom:100%;border-radius:6px;overflow:hidden;background:var(--muted)"><img src="' + imgOf(c.name) + '" alt="' + esc(c.name) + '" title="' + esc(c.name) + (c.upgrade ? " · " + c.upgrade : "") + '" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.style.opacity=0.15"></div>' +
         (rowsHTML ? '<div style="display:flex;flex-direction:column;align-items:center;gap:1px;width:100%;margin-top:2px;line-height:1.25">' + rowsHTML + '</div>' : "") +
       '</div>';
     }).join("");
@@ -233,8 +202,8 @@ function buildModalHTML(){
     '<div style="padding:14px 18px 18px;display:flex;flex-direction:column;gap:7px;overflow-y:auto">' + decks + '</div>';
 }
 function renderModal(){ document.getElementById("rdSoloModal").innerHTML = buildModalHTML(); }
-function openDeckModal(idx){ state.selected = idx; renderModal(); document.getElementById("rdSoloOverlay").style.display = "flex"; document.body.style.overflow = "hidden"; }
-function closeDeckModal(){ document.getElementById("rdSoloOverlay").style.display = "none"; document.body.style.overflow = ""; }
+function openDeckModal(idx){ state.selected = idx; renderModal(); const mm = sortedMembers()[idx]; openModal(document.getElementById("rdSoloOverlay"), { label: (mm ? mm.nickname + " 덱 빌드" : "덱 빌드 상세") }); }
+function closeDeckModal(){ closeModal(document.getElementById("rdSoloOverlay")); }
 
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-act]"); if (!t) return;
@@ -248,27 +217,11 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && document.g
 
 render();
 
-} // if (!window.__AUTH_REQUIRED)
-</script>
+markReady();
 
-<script>
-(function() {
-  const html = document.documentElement, btn = document.getElementById("themeToggle"), saved = localStorage.getItem("theme");
-  if (saved === "dark") { html.classList.add("dark"); btn.textContent = "☀️"; }
-  btn.addEventListener("click", function() { const isDark = html.classList.toggle("dark"); btn.textContent = isDark ? "☀️" : "🌙"; localStorage.setItem("theme", isDark ? "dark" : "light"); });
-})();
+} catch (e) { console.error(e); if (typeof showDataError === "function") showDataError(); }
+} // else if (!authGuardOrRedirect())
 </script>
-<script>
-(function(){
-  document.addEventListener("contextmenu", function(e){ e.preventDefault(); });
-  document.addEventListener("keydown", function(e){
-    if (e.key === "F12") { e.preventDefault(); return; }
-    if (e.ctrlKey && e.shiftKey && ["I","i","J","j","C","c"].includes(e.key)) { e.preventDefault(); return; }
-    if (e.ctrlKey && ["u","U","s","S"].includes(e.key)) { e.preventDefault(); return; }
-  });
-})();
-</script>
-<script>if(!window.__AUTH_REQUIRED)document.body.classList.add("ready");</script>
 
 </body>
 </html>
