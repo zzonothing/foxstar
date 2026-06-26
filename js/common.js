@@ -91,7 +91,8 @@ var NAV_ITEMS = [
   ["raid.html", "유니온레이드", "유레"],
   ["solo.html", "솔로레이드", "솔레"],
   ["shift.html", "시프티패드", "시프티"],
-  ["stats.html", "여우별 통계", "통계"]
+  ["stats.html", "여우별 통계", "통계"],
+  ["guide.html", "육성 가이드", "가이드"]
 ];
 function renderHeader(active){
   var mount = document.getElementById("rdHeader");
