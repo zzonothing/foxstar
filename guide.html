@@ -114,7 +114,7 @@ function evalChar(c, role, maxLv){
     gaps.push({ kind: "공증", cur: av.toFixed(0) + "%", tgt: rule.atk + "%", lack: "−" + (rule.atk - av).toFixed(0) + "%", short: "공증 " + av.toFixed(0) + "%→" + rule.atk + "%" }); sev += 6; } }
   if (rule.levelGap && maxLv - (c.characterLevel || 0) > rule.levelGap) {
     gaps.push({ kind: "레벨", cur: "Lv " + (c.characterLevel||0), tgt: "", lack: "", short: "Lv " + (c.characterLevel||0) }); sev += 5; }
-  var reasons = gaps.map(function(g){ return g.short + (g.lack ? " " + g.lack : ""); });
+  var reasons = gaps.map(function(g){ return g.short; });
   return { reasons: reasons, gaps: gaps, sev: sev, status: gaps.length ? "weak" : "ok" };
 }
 
@@ -150,26 +150,39 @@ function statusBadge(st){
   return '<span style="padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;background:var(--muted);color:var(--sub)">충분</span>';
 }
 
-/* 부족 항목 칩(태그) — 현재(회색) → 목표(파랑) · 미달(빨강), 줄바꿈 허용 */
-function gapPill(g){
-  return '<span style="display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;'
-    + 'background:var(--muted);white-space:nowrap" class="tnum">'
-    + '<span style="color:var(--text)">' + esc(g.kind) + '</span> '
-    + '<span style="color:var(--sub)">' + esc(g.cur) + '</span>'
-    + (g.tgt ? ' <span style="color:var(--dim)">→</span> <span style="color:var(--blue,#2563eb);font-weight:800">' + esc(g.tgt) + '</span>' : '')
-    + (g.lack ? ' <span style="color:var(--danger,#dc2626);font-weight:800">' + esc(g.lack) + '</span>' : '')
-    + '</span>';
+/* 항목 한 줄 — [항목] [현재 배지] 값  [목표 배지] 값 (미달 항목은 현재값 빨강) */
+function metricRow(label, cur, tgt, bad){
+  var curBadge = '<span style="font-size:9px;font-weight:800;color:var(--sub);background:var(--muted);border-radius:4px;padding:1px 5px;margin-right:4px">현재</span>';
+  var tgtBadge = '<span style="font-size:9px;font-weight:800;color:#fff;background:var(--blue,#2563eb);border-radius:4px;padding:1px 5px;margin:0 4px 0 10px">목표</span>';
+  return '<div style="display:flex;align-items:center;flex-wrap:wrap;font-size:11px;margin-top:4px" class="tnum">' +
+    '<span style="width:34px;flex-shrink:0;font-weight:800;color:var(--text)">' + label + '</span>' +
+    curBadge + '<span style="font-weight:800;color:' + (bad ? "var(--danger,#dc2626)" : "var(--text)") + '">' + cur + '</span>' +
+    (tgt ? tgtBadge + '<span style="font-weight:800;color:var(--blue,#2563eb)">' + tgt + '</span>' : '') +
+  '</div>';
 }
-function gapPills(gaps){
-  return '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:5px">' + gaps.map(gapPill).join("") + '</div>';
+/* 캐릭터의 스킬·우코·공증을 현재/목표로 나열. onlyBad=true 면 미달 항목만(카드용) */
+function metricRows(r, onlyBad){
+  var c = r.char; if (!c) return '';
+  var rule = ROLE_RULES[r.role] || ROLE_RULES.dealer;
+  var lk = {}; r.gaps.forEach(function(g){ lk[g.kind] = 1; });
+  var st = SKILL_TARGETS[c.name];
+  var skillTgt = st ? st.map(function(t){ return t == null ? "·" : t; }).join("/") : (rule.skillSum ? ("합 " + rule.skillSum) : null);
+  var defs = [
+    ["스킬", (c.skill1||0) + "/" + (c.skill2||0) + "/" + (c.skill3||0), skillTgt, lk["스킬"]],
+    ["우코", (c.increaseElementDamage||0).toFixed(0) + "%", rule.uko != null ? (rule.uko + "%") : null, lk["우코"]],
+    ["공증", (c.increaseAtk||0).toFixed(0) + "%", rule.atk != null ? (rule.atk + "%") : null, lk["공증"]],
+  ];
+  var rows = defs.filter(function(d){ return onlyBad ? d[3] : true; });
+  if (!rows.length) return '';
+  return '<div style="margin-top:3px">' + rows.map(function(d){ return metricRow(d[0], d[1], d[2], d[3]); }).join("") + '</div>';
 }
 
-/* 우선 추천 카드 (큰 카드) */
+/* 우선 추천 카드 (큰 카드) — 미달 항목만 현재/목표로 */
 function pickCard(r){
   var col = r.status === "missing" ? "var(--danger,#dc2626)" : "var(--amber,#d97706)";
   var detail = r.status === "missing"
     ? '<div style="font-size:11px;font-weight:600;color:var(--danger,#dc2626);margin-top:3px">아직 보유하지 않았어요</div>'
-    : gapPills(r.gaps);
+    : metricRows(r, true);
   return '<div class="rd-card" style="display:flex;align-items:flex-start;gap:12px;padding:11px 13px;border-left:4px solid ' + col + '">' +
     charImg(r.name, { style: "width:46px;height:46px;border-radius:10px;object-fit:cover;flex-shrink:0;background:var(--muted)", title: false }) +
     '<div style="flex:1;min-width:0">' +
@@ -179,36 +192,15 @@ function pickCard(r){
     '</div>' + statusBadge(r.status) + '</div>';
 }
 
-/* 현재 상태 한 줄 (스킬·우코·공증, 미달 항목 강조) */
-function metricSpan(label, val, bad){
-  return '<span style="color:' + (bad ? "var(--danger,#dc2626)" : "var(--sub)") + ';font-weight:' + (bad ? "800" : "600") + '">' + label + ' ' + val + '</span>';
-}
-function currentLine(c, lk){
-  var ss = (c.skill1||0) + "/" + (c.skill2||0) + "/" + (c.skill3||0);
-  return '<div style="font-size:11px;margin-top:5px;display:flex;flex-wrap:wrap;gap:10px;align-items:center" class="tnum">' +
-    '<span style="font-size:10px;font-weight:800;color:var(--sub);background:var(--muted);border-radius:5px;padding:1px 6px">현재</span>' +
-    metricSpan("스킬", ss, lk["스킬"]) +
-    metricSpan("우코", (c.increaseElementDamage||0).toFixed(0) + "%", lk["우코"]) +
-    metricSpan("공증", (c.increaseAtk||0).toFixed(0) + "%", lk["공증"]) +
-  '</div>';
-}
-/* 부족 항목 한 줄 (현재 → 목표 · 미달), 줄바꿈 허용 */
-function gapInline(gaps){
-  return '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;align-items:center">' +
-    '<span style="font-size:10px;font-weight:800;color:#fff;background:var(--amber,#d97706);border-radius:5px;padding:1px 6px">부족</span>' +
-    gaps.map(gapPill).join("") +
-  '</div>';
-}
-/* 캐릭터 상세 행 (기본 화면에 인라인 표시) */
+/* 캐릭터 상세 행 (기본 화면에 인라인 표시) — 전체 항목 현재/목표 */
 function detailRow(r){
   var dim = r.status === "missing" ? "filter:grayscale(1);opacity:.5" : "";
   var body;
   if (r.status === "missing") {
     body = '<div style="font-size:11px;font-weight:700;color:var(--danger,#dc2626);margin-top:4px">미보유 · 확보 우선 권장</div>';
   } else {
-    var lk = {}; r.gaps.forEach(function(g){ lk[g.kind] = 1; });
-    body = (r.char ? currentLine(r.char, lk) : "") +
-      (r.gaps.length ? gapInline(r.gaps) : '<div style="font-size:11px;color:var(--dim);margin-top:4px">목표 충족 ✓</div>');
+    body = metricRows(r, false) +
+      (r.status === "ok" ? '<div style="font-size:11px;color:var(--dim);margin-top:4px">목표 충족 ✓</div>' : '');
   }
   return '<div style="display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--border)">' +
     charImg(r.name, { style: "width:46px;height:46px;border-radius:10px;object-fit:cover;flex-shrink:0;background:var(--muted);border-left:3px solid " + elColOf(r.element) + ";" + dim, title: false }) +
