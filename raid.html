@@ -88,10 +88,7 @@ function fmtEok(num){
   return (neg ? "-" : "") + (jo > 0 ? (jo + "조 " + e + "억") : (e + "억"));
 }
 function medal(i){
-  return i === 0 ? {bg:"var(--medal1-bg)",col:"var(--medal1)"}
-       : i === 1 ? {bg:"var(--medal2-bg)",col:"var(--medal2)"}
-       : i === 2 ? {bg:"var(--medal3-bg)",col:"var(--medal3)"}
-       : {bg:"transparent",col:"var(--dim)"};
+  return { bg: "var(--muted)", col: "var(--sub)" };
 }
 function bossShort(bn){ return bn.replace(/\s*\[[^\]]*\]\s*$/, "").trim(); }
 function bossElem(bn){ const m = bn.match(/\[([^\]]+)\]\s*$/); return m ? (ELEM_TAG[m[1]] || "") : ""; }
@@ -259,7 +256,7 @@ function render(){
   const cur = correctedScore[ps], prevS = raidKeys[psIdx - 1], prev = prevS ? correctedScore[prevS] : null;
   const delta = prev == null ? null : cur - prev;
   const cv = raidKeys.map(s => correctedScore[s]); const cmin = Math.min(...cv), cmax = Math.max(...cv);
-  const scoreBars = raidKeys.map(s => ({ s: s.slice(1), h: Math.round(10 + (correctedScore[s] - cmin) / ((cmax - cmin) || 1) * 60), hMini: Math.round(6 + (correctedScore[s] - cmin) / ((cmax - cmin) || 1) * 26), sel: s === ps }));
+  const scoreBars = raidKeys.map(s => ({ s: s.slice(1), h: Math.round(4 + (correctedScore[s] - cmin) / ((cmax - cmin) || 1) * 42), hMini: Math.round(4 + (correctedScore[s] - cmin) / ((cmax - cmin) || 1) * 28), sel: s === ps }));
 
   const rankedRaid = raidKeys.filter(s => rankOfSeason[s] != null);
   const rankArr = rankedRaid.map(s => rankOfSeason[s]);
@@ -282,7 +279,7 @@ function render(){
       '<div style="display:flex;align-items:baseline;justify-content:space-between"><div class="rd-uplabel">시즌 최종 점수</div><div style="font-size:11px;color:var(--dim);font-weight:600">' + ps + ' · ' + SD.count + '명</div></div>' +
       '<div style="font-size:28px;font-weight:800;color:var(--text);line-height:1.05;margin-top:6px" class="tnum">' + fmtEok(cur) + (delta != null ? ' <span style="font-size:13px;color:' + (delta >= 0 ? "var(--green)" : "var(--red)") + ';font-weight:700">' + (delta >= 0 ? "+" : "-") + fmtEok(Math.abs(delta)) + '</span>' : "") + '</div>' +
       '<div style="font-size:10px;color:var(--dim);margin-top:3px" class="tnum">' + cur.toLocaleString("en-US") + ' · 전 시즌 대비</div>' +
-      '<div style="display:flex;align-items:flex-end;gap:5px;height:46px;margin-top:12px">' + scoreBars.map(b => '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div style="width:100%;max-width:24px;height:' + b.h + 'px;background:' + (b.sel ? "var(--bar)" : "var(--bar-score)") + ';border-radius:3px 3px 0 0"></div><div style="font-size:8px;color:var(--dim);font-weight:600;margin-top:4px">' + b.s + '</div></div>').join("") + '</div>' +
+      '<div style="display:flex;align-items:flex-end;gap:5px;height:56px;margin-top:12px">' + scoreBars.map(b => '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div style="width:100%;max-width:24px;flex-shrink:0;height:' + b.h + 'px;background:' + (b.sel ? "var(--bar)" : "var(--bar-score)") + ';border-radius:3px 3px 0 0"></div><div style="font-size:8px;color:var(--dim);font-weight:600;margin-top:4px">' + b.s + '</div></div>').join("") + '</div>' +
     '</div>';
   const rankCard =
     '<div class="rd-card" style="padding:16px 20px">' +
@@ -350,14 +347,15 @@ function buildPopupHTML(name, season){
   const cur = members.find(m => m.name === name) || null;
   const roleKo = cur ? (ROLE_KO[roleOf(cur)] || "") : "";
   const syncNow = cur ? cur.syncroLevel : (lvlMaps[parseInt(season.slice(1))] ? lvlMaps[parseInt(season.slice(1))][name] : "—");
-  const svVals = seasonKeys.map(k => lvlMaps[k][name] != null ? lvlMaps[k][name] : null);
+  const syncSeasons = seasonKeys.filter(k => UNION[k].rank != null);
+  const svVals = syncSeasons.map(k => lvlMaps[k][name] != null ? lvlMaps[k][name] : null);
   const valid = svVals.filter(v => v != null);
   const smin = valid.length ? Math.min(...valid) : 0, smax = valid.length ? Math.max(...valid) : 1;
-  const syncBars = seasonKeys.map((k, i) => {
+  const syncBars = syncSeasons.map((k, i) => {
     const v = svVals[i], sel = ("S" + k) === season;
     return '<div data-act="popup-season" data-season="S' + k + '" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;cursor:pointer">' +
       '<div style="font-size:8px;font-weight:700;color:var(--text);margin-bottom:3px" class="tnum">' + (v == null ? "—" : v) + '</div>' +
-      '<div style="width:100%;max-width:26px;height:' + (v == null ? 2 : Math.round(6 + Math.pow(smax > smin ? (v - smin) / (smax - smin) : 1, 1.4) * 84)) + 'px;background:' + (sel ? "var(--bar)" : (v != null ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
+      '<div style="width:100%;max-width:26px;flex-shrink:0;height:' + (v == null ? 2 : Math.round(4 + (smax > smin ? (v - smin) / (smax - smin) : 1) * 86)) + 'px;background:' + (sel ? "var(--bar)" : (v != null ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
       '<div style="font-size:9px;color:' + (sel ? "var(--blue)" : "var(--dim)") + ';font-weight:700;margin-top:5px">' + k + '</div></div>';
   }).join("");
   const hasStats = !!(cur && cur.normal);
@@ -394,7 +392,7 @@ function buildPopupHTML(name, season){
   const dmgBars = dmgVals.map(d => { const sel = d.s === season;
     return '<div data-act="popup-season" data-season="' + d.s + '" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;cursor:pointer">' +
       '<div style="font-size:7px;font-weight:700;color:var(--text);margin-bottom:3px" class="tnum">' + (d.v ? fmtEok(d.v) : "—") + '</div>' +
-      '<div style="width:100%;max-width:26px;height:' + (d.v ? Math.round(6 + (dmgMax > dmgMin ? (d.v - dmgMin) / (dmgMax - dmgMin) : 1) * 86) : 2) + 'px;background:' + (sel ? "var(--bar)" : (d.v ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
+      '<div style="width:100%;max-width:26px;flex-shrink:0;height:' + (d.v ? Math.round(4 + (dmgMax > dmgMin ? (d.v - dmgMin) / (dmgMax - dmgMin) : 1) * 86) : 2) + 'px;background:' + (sel ? "var(--bar)" : (d.v ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
       '<div style="font-size:9px;color:' + (sel ? "var(--blue)" : "var(--dim)") + ';font-weight:700;margin-top:5px">' + d.s.slice(1) + '</div></div>';
   }).join("");
   const metricsHTML = rmember ? '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px">' +
@@ -414,15 +412,19 @@ function buildPopupHTML(name, season){
         '<div style="font-size:12px;color:var(--sub);margin-top:4px">' + rankLabel + ' · 싱크로레벨 <b style="color:var(--text)">' + syncNow + '</b></div></div>' +
         '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0"><select class="rd-select" id="rdPopupSeason">' + seasonOptions + '</select><span class="rd-modal-close" data-act="close-popup">✕</span></div></div>' +
     '</div>' +
-    '<div style="padding:18px 20px 20px;display:flex;flex-direction:column;gap:18px;max-height:580px;overflow-y:auto">' +
-      '<div><div class="rd-uplabel" style="margin-bottom:12px">싱크로레벨 변화</div><div style="display:flex;align-items:flex-end;gap:7px;height:110px">' + syncBars + '</div></div>' +
+    '<div class="rd-popup-scroll" style="padding:18px 20px 20px;display:flex;flex-direction:column;gap:18px;max-height:580px;overflow-y:auto">' +
+      '<div><div class="rd-uplabel" style="margin-bottom:12px">싱크로레벨 변화</div><div style="display:flex;align-items:flex-end;gap:7px;height:128px">' + syncBars + '</div></div>' +
       statsHTML + outpostHTML +
       '<div style="margin-top:2px;padding-top:18px;border-top:2px solid var(--line)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span class="rd-sec-bar" style="height:14px"></span><span style="font-size:13px;font-weight:800;color:var(--text)">유니온레이드</span><span style="font-size:11px;font-weight:700;color:var(--blue);background:var(--blue-l);padding:1px 8px;border-radius:999px">' + season + '</span></div>' +
-        metricsHTML + (hasDmgTrend ? '<div style="margin-bottom:18px"><div class="rd-uplabel" style="margin-bottom:12px">시즌별 총 대미지 추이</div><div style="display:flex;align-items:flex-end;gap:7px;height:110px">' + dmgBars + '</div></div>' : "") + decksHTML +
+        metricsHTML + (hasDmgTrend ? '<div style="margin-bottom:18px"><div class="rd-uplabel" style="margin-bottom:12px">시즌별 총 대미지 추이</div><div style="display:flex;align-items:flex-end;gap:7px;height:128px">' + dmgBars + '</div></div>' : "") + decksHTML +
       '</div></div>';
 }
 function renderPopup(){
+  const prevBody = document.querySelector("#rdMemberModal .rd-popup-scroll");
+  const savedScroll = prevBody ? prevBody.scrollTop : 0;
   document.getElementById("rdMemberModal").innerHTML = buildPopupHTML(popupState.name, popupState.season);
+  const body = document.querySelector("#rdMemberModal .rd-popup-scroll");
+  if (body) body.scrollTop = savedScroll;
   const sel = document.getElementById("rdPopupSeason");
   if (sel) sel.addEventListener("change", e => { popupState.season = e.target.value; renderPopup(); });
 }

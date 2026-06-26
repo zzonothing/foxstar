@@ -101,10 +101,7 @@ function fmtEok(num){
   return (neg ? "-" : "") + (jo > 0 ? (jo + "조 " + e + "억") : (e + "억"));
 }
 function medal(i){
-  return i === 0 ? {bg:"var(--medal1-bg)",col:"var(--medal1)"}
-       : i === 1 ? {bg:"var(--medal2-bg)",col:"var(--medal2)"}
-       : i === 2 ? {bg:"var(--medal3-bg)",col:"var(--medal3)"}
-       : {bg:"transparent",col:"var(--dim)"};
+  return { bg: "var(--muted)", col: "var(--sub)" };
 }
 function bossShort(bn){ return bn.replace(/\s*\[[^\]]*\]\s*$/, "").trim(); }
 function bossElem(bn){ const m = bn.match(/\[([^\]]+)\]\s*$/); return m ? (ELEM_TAG[m[1]] || "") : ""; }
@@ -142,14 +139,8 @@ function roleOf(m){ const r = ROLE_OVERRIDE[m.name] || m.role; return (r === "Le
 
 const OPF = [["공용","common"],["화력형","attack"],["방어형","defense"],["지원형","support"],["미실리스","missilis"],["엘리시온","elysion"],["테트라","tetra"],["필그림","pilgrim"],["어브노멀","abnormal"]];
 
-/* 시즌 상승: 최신 제외 직전 5시즌, 각 시즌 전시즌 대비 상승량 */
+/* 시즌 상승: 최신 제외 직전 5시즌, 각 시즌 전시즌 대비 상승량 (멤버별 스케일) */
 const TREND_KEYS = seasonKeys.slice(0, -1).slice(-5);
-let maxDelta = 1;
-members.forEach(m => TREND_KEYS.forEach(k => {
-  const i = seasonKeys.indexOf(k), pk = seasonKeys[i - 1];
-  const a = lvlMaps[k][m.name], b = pk != null ? lvlMaps[pk][m.name] : null;
-  if (a != null && b != null) maxDelta = Math.max(maxDelta, a - b);
-}));
 
 const sortedMembers = [...members].sort((a, b) => b.syncroLevel - a.syncroLevel || a.name.localeCompare(b.name, "ko"));
 
@@ -158,13 +149,17 @@ const membersVM = sortedMembers.map((m, i) => {
   const isNew0 = prevLvl == null, diff = isNew0 ? null : m.syncroLevel - prevLvl;
   const dText = isNew0 ? "New" : (diff > 0 ? "+" + diff : diff < 0 ? String(diff) : "+0");
   const dCol  = isNew0 ? "var(--role-officer)" : (diff > 0 ? "var(--green)" : diff < 0 ? "var(--red)" : "var(--dim)");
-  const riseSlots = TREND_KEYS.map(k => {
+  const riseDeltas = TREND_KEYS.map(k => {
     const idx = seasonKeys.indexOf(k), pk = seasonKeys[idx - 1];
     const a = lvlMaps[k][m.name], b = pk != null ? lvlMaps[pk][m.name] : null;
-    if (a == null || b == null) return { bar: false, s: "S" + k };
-    const dv = a - b;
+    return (a == null || b == null) ? null : a - b;
+  });
+  const memMax = Math.max(12, ...riseDeltas.filter(d => d != null).map(d => Math.max(0, d)));
+  const riseSlots = TREND_KEYS.map((k, ri) => {
+    const dv = riseDeltas[ri];
+    if (dv == null) return { bar: false, s: "S" + k };
     return { bar: true, s: "S" + k, val: (dv >= 0 ? "+" : "") + dv,
-             h: Math.max(3, Math.round(3 + dv / maxDelta * 44)), hMini: Math.max(2, Math.round(2 + dv / maxDelta * 22)),
+             h: Math.max(3, Math.round(4 + Math.max(0, dv) / memMax * 28)), hMini: Math.max(2, Math.round(2 + Math.max(0, dv) / memMax * 20)),
              col: dv > 0 ? "var(--green)" : "var(--dim)" };
   });
   const hasTrend = riseSlots.some(x => x.bar);
@@ -268,9 +263,9 @@ function memberTableDesktop(){
       mid = m.outpostFull.map(op => '<td class="rd-td-c tnum" style="color:' + op.col + ';font-weight:' + op.w + '">' + op.v + '</td>').join("");
     } else {
       const trend = m.hasTrend
-        ? '<td style="padding:8px 12px"><div style="display:flex;align-items:flex-end;gap:6px;height:50px">' +
+        ? '<td style="padding:8px 12px"><div style="display:flex;align-items:flex-end;gap:6px;height:62px">' +
             m.riseSlots.map(r => r.bar
-              ? '<div style="width:22px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div style="font-size:9px;font-weight:700;color:' + r.col + ';margin-bottom:2px" class="tnum">' + r.val + '</div><div style="width:15px;height:' + r.h + 'px;background:' + r.col + ';border-radius:3px 3px 0 0"></div><div style="font-size:8px;color:var(--dim);font-weight:600;margin-top:3px">' + r.s + '</div></div>'
+              ? '<div style="width:22px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div style="font-size:9px;font-weight:700;color:' + r.col + ';margin-bottom:2px" class="tnum">' + r.val + '</div><div style="width:15px;flex-shrink:0;height:' + r.h + 'px;background:' + r.col + ';border-radius:3px 3px 0 0"></div><div style="font-size:8px;color:var(--dim);font-weight:600;margin-top:3px">' + r.s + '</div></div>'
               : '<div style="width:22px"></div>').join("") +
           '</div></td>'
         : '<td style="padding:10px 12px"><span style="font-size:13px;font-weight:700;color:var(--dim);padding-left:6px">-</span></td>';
@@ -431,14 +426,15 @@ function buildPopupHTML(name, season){
   const syncNow = cur ? cur.syncroLevel : (lvlMaps[parseInt(season.slice(1))] ? lvlMaps[parseInt(season.slice(1))][name] : "—");
 
   /* 싱크로 변화 (전 시즌) */
-  const svVals = seasonKeys.map(k => lvlMaps[k][name] != null ? lvlMaps[k][name] : null);
+  const syncSeasons = seasonKeys.filter(k => UNION[k].rank != null);
+  const svVals = syncSeasons.map(k => lvlMaps[k][name] != null ? lvlMaps[k][name] : null);
   const valid = svVals.filter(v => v != null);
   const smin = valid.length ? Math.min(...valid) : 0, smax = valid.length ? Math.max(...valid) : 1;
-  const syncBars = seasonKeys.map((k, i) => {
+  const syncBars = syncSeasons.map((k, i) => {
     const v = svVals[i], sel = ("S" + k) === season;
     return '<div data-act="popup-season" data-season="S' + k + '" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;cursor:pointer">' +
       '<div style="font-size:8px;font-weight:700;color:var(--text);margin-bottom:3px" class="tnum">' + (v == null ? "—" : v) + '</div>' +
-      '<div style="width:100%;max-width:26px;height:' + (v == null ? 2 : Math.round(6 + Math.pow(smax > smin ? (v - smin) / (smax - smin) : 1, 1.4) * 84)) + 'px;background:' + (sel ? "var(--bar)" : (v != null ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
+      '<div style="width:100%;max-width:26px;flex-shrink:0;height:' + (v == null ? 2 : Math.round(4 + (smax > smin ? (v - smin) / (smax - smin) : 1) * 86)) + 'px;background:' + (sel ? "var(--bar)" : (v != null ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
       '<div style="font-size:9px;color:' + (sel ? "var(--blue)" : "var(--dim)") + ';font-weight:700;margin-top:5px">' + k + '</div></div>';
   }).join("");
 
@@ -491,7 +487,7 @@ function buildPopupHTML(name, season){
     const sel = d.s === season;
     return '<div data-act="popup-season" data-season="' + d.s + '" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;cursor:pointer">' +
       '<div style="font-size:7px;font-weight:700;color:var(--text);margin-bottom:3px" class="tnum">' + (d.v ? fmtEok(d.v) : "—") + '</div>' +
-      '<div style="width:100%;max-width:26px;height:' + (d.v ? Math.round(6 + (dmgMax > dmgMin ? (d.v - dmgMin) / (dmgMax - dmgMin) : 1) * 86) : 2) + 'px;background:' + (sel ? "var(--bar)" : (d.v ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
+      '<div style="width:100%;max-width:26px;flex-shrink:0;height:' + (d.v ? Math.round(4 + (dmgMax > dmgMin ? (d.v - dmgMin) / (dmgMax - dmgMin) : 1) * 86) : 2) + 'px;background:' + (sel ? "var(--bar)" : (d.v ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
       '<div style="font-size:9px;color:' + (sel ? "var(--blue)" : "var(--dim)") + ';font-weight:700;margin-top:5px">' + d.s.slice(1) + '</div></div>';
   }).join("");
 
@@ -526,20 +522,24 @@ function buildPopupHTML(name, season){
           '<span class="rd-modal-close" data-act="close-popup">✕</span></div>' +
       '</div>' +
     '</div>' +
-    '<div style="padding:18px 20px 20px;display:flex;flex-direction:column;gap:18px;max-height:580px;overflow-y:auto">' +
-      '<div><div class="rd-uplabel" style="margin-bottom:12px">싱크로레벨 변화</div><div style="display:flex;align-items:flex-end;gap:7px;height:110px">' + syncBars + '</div></div>' +
+    '<div class="rd-popup-scroll" style="padding:18px 20px 20px;display:flex;flex-direction:column;gap:18px;max-height:580px;overflow-y:auto">' +
+      '<div><div class="rd-uplabel" style="margin-bottom:12px">싱크로레벨 변화</div><div style="display:flex;align-items:flex-end;gap:7px;height:128px">' + syncBars + '</div></div>' +
       statsHTML + outpostHTML +
       '<div style="margin-top:2px;padding-top:18px;border-top:2px solid var(--line)">' +
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span class="rd-sec-bar" style="height:14px"></span><span style="font-size:13px;font-weight:800;color:var(--text)">유니온레이드</span><span style="font-size:11px;font-weight:700;color:var(--blue);background:var(--blue-l);padding:1px 8px;border-radius:999px">' + season + '</span></div>' +
         metricsHTML +
-        (hasDmgTrend ? '<div style="margin-bottom:18px"><div class="rd-uplabel" style="margin-bottom:12px">시즌별 총 대미지 추이</div><div style="display:flex;align-items:flex-end;gap:7px;height:110px">' + dmgBars + '</div></div>' : "") +
+        (hasDmgTrend ? '<div style="margin-bottom:18px"><div class="rd-uplabel" style="margin-bottom:12px">시즌별 총 대미지 추이</div><div style="display:flex;align-items:flex-end;gap:7px;height:128px">' + dmgBars + '</div></div>' : "") +
         decksHTML +
       '</div>' +
     '</div>';
 }
 
 function renderPopup(){
+  const prevBody = document.querySelector("#rdMemberModal .rd-popup-scroll");
+  const savedScroll = prevBody ? prevBody.scrollTop : 0;
   document.getElementById("rdMemberModal").innerHTML = buildPopupHTML(popupState.name, popupState.season);
+  const body = document.querySelector("#rdMemberModal .rd-popup-scroll");
+  if (body) body.scrollTop = savedScroll;
   const sel = document.getElementById("rdPopupSeason");
   if (sel) sel.addEventListener("change", e => { popupState.season = e.target.value; renderPopup(); });
 }
