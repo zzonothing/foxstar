@@ -169,11 +169,10 @@ function metricRows(r, onlyBad){
   var lk = {}; r.gaps.forEach(function(g){ lk[g.kind] = 1; });
   var st = SKILL_TARGETS[c.name];
   var skillTgt = st ? st.map(function(t){ return t == null ? "·" : t; }).join("/") : (rule.skillSum ? ("합 " + rule.skillSum) : null);
-  var defs = [
-    ["스킬", (c.skill1||0) + "/" + (c.skill2||0) + "/" + (c.skill3||0), skillTgt, lk["스킬"]],
-    ["우코", (c.increaseElementDamage||0).toFixed(0) + "%", rule.uko != null ? (rule.uko + "%") : null, lk["우코"]],
-    ["공증", (c.increaseAtk||0).toFixed(0) + "%", rule.atk != null ? (rule.atk + "%") : null, lk["공증"]],
-  ];
+  var defs = [["스킬", (c.skill1||0) + "/" + (c.skill2||0) + "/" + (c.skill3||0), skillTgt, lk["스킬"]]];
+  // 우코·공증은 해당 역할에 기준이 있을 때만 표시 (서포터는 우코·공증 숨김)
+  if (rule.uko != null) defs.push(["우코", (c.increaseElementDamage||0).toFixed(0) + "%", rule.uko + "%", lk["우코"]]);
+  if (rule.atk != null) defs.push(["공증", (c.increaseAtk||0).toFixed(0) + "%", rule.atk + "%", lk["공증"]]);
   var rows = defs.filter(function(d){ return onlyBad ? d[3] : true; });
   if (!rows.length) return '';
   return '<div style="margin-top:3px">' + rows.map(function(d){ return metricRow(d[0], d[1], d[2], d[3]); }).join("") + '</div>';
