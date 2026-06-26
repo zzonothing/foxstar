@@ -89,14 +89,14 @@ function evalMember(m){
   var maxLv = m.chars.reduce(function(x, c){ return Math.max(x, c.characterLevel || 0); }, 0);
   return IMPORTANT.map(function(ic){
     var c = owned[ic.name];
-    if (!c) return { name: ic.name, element: ic.element, score: ic.score, status: "missing", reasons: [] };
-    var reasons = [];
-    if (c.upgrade !== TH.fullco) reasons.push("코어 " + (c.upgrade || "명함"));
+    if (!c) return { name: ic.name, element: ic.element, score: ic.score, char: null, status: "missing", reasons: [], sev: 1000 };
+    var reasons = [], sev = 0;
+    if (c.upgrade !== TH.fullco) { reasons.push("코어 " + (c.upgrade || "명함")); sev += 10; }
     var ss = (c.skill1 || 0) + (c.skill2 || 0) + (c.skill3 || 0);
-    if (ss < TH.skillSum) reasons.push("스킬 " + (c.skill1||0) + "/" + (c.skill2||0) + "/" + (c.skill3||0));
-    if (maxLv - (c.characterLevel || 0) > TH.levelGap) reasons.push("Lv " + (c.characterLevel||0));
+    if (ss < TH.skillSum) { reasons.push("스킬 " + (c.skill1||0) + "/" + (c.skill2||0) + "/" + (c.skill3||0)); sev += (TH.skillSum - ss); }
+    if (maxLv - (c.characterLevel || 0) > TH.levelGap) { reasons.push("Lv " + (c.characterLevel||0)); sev += 5; }
     return { name: ic.name, element: ic.element, score: ic.score, char: c,
-             status: reasons.length ? "weak" : "ok", reasons: reasons };
+             status: reasons.length ? "weak" : "ok", reasons: reasons, sev: sev };
   });
 }
 
@@ -117,7 +117,7 @@ function statusBadge(st){
 function pickCard(r){
   var col = r.status === "missing" ? "var(--danger,#dc2626)" : "var(--amber,#d97706)";
   var detail = r.status === "missing" ? "아직 보유하지 않았어요" : r.reasons.join(" · ");
-  return '<div class="rd-card" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-left:4px solid ' + col + '">' +
+  return '<div class="rd-card guide-click" role="button" tabindex="0" data-char="' + esc(r.name) + '" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-left:4px solid ' + col + ';cursor:pointer">' +
     charImg(r.name, { style: "width:46px;height:46px;border-radius:10px;object-fit:cover;flex-shrink:0;background:var(--muted)", title: false }) +
     '<div style="flex:1;min-width:0">' +
       '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
@@ -132,7 +132,7 @@ function chip(r){
   var sub = r.status === "missing" ? "미보유" : (r.status === "weak" ? r.reasons.join(" · ") : "충분");
   var subCol = r.status === "ok" ? "var(--dim)" : (r.status === "missing" ? "var(--danger,#dc2626)" : "var(--amber,#d97706)");
   var dim = r.status === "missing" ? "filter:grayscale(1);opacity:.5" : "";
-  return '<div style="width:84px;text-align:center">' +
+  return '<div class="guide-click" role="button" tabindex="0" data-char="' + esc(r.name) + '" style="width:84px;text-align:center;cursor:pointer">' +
     charImg(r.name, { style: "width:54px;height:54px;border-radius:10px;object-fit:cover;background:var(--muted);border-bottom:3px solid " + elColOf(r.element) + ";" + dim, title: false }) +
     '<div style="font-size:11px;font-weight:700;color:var(--text);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="' + esc(r.name) + '">' + esc(r.name) + '</div>' +
     '<div style="font-size:10px;font-weight:600;color:' + subCol + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="' + esc(sub) + '">' + esc(sub) + '</div>' +
@@ -149,43 +149,141 @@ function groupHead(emoji, title, n, col){
     '<span style="font-size:12px;font-weight:800;color:' + col + '">' + n + '</span></div>';
 }
 
-/* ── 내 육성 체크 렌더 ──────────────────────────────────────────── */
+/* ── 내 육성 체크 상태 ──────────────────────────────────────────── */
+var selfState = { nickname: "", ev: null, view: "status" };
+var ORDER_STATUS = { missing: 0, weak: 1, ok: 2 };
+function byPriority(a, b){
+  // 미보유 > 저육성 > 충분, 그 안에서 중요도(score) → 심각도(sev) 순
+  return (ORDER_STATUS[a.status] - ORDER_STATUS[b.status]) || (b.score - a.score) || (b.sev - a.sev);
+}
+
 function renderSelf(nickname){
   var host = document.getElementById("selfBody");
+  selfState.nickname = nickname;
   var m = members.filter(function(x){ return x.nickname === nickname; })[0];
-  if (!m) { host.innerHTML = '<div class="fstar-empty" style="margin-top:14px">멤버를 선택하면 부족한 중요 캐릭터가 표시돼요.</div>'; return; }
-  if (!m.chars.length) { host.innerHTML = '<div class="fstar-empty" style="margin-top:14px">' + esc(nickname) + ' 님의 캐릭터 데이터가 아직 없어요.</div>'; return; }
+  if (!m) { selfState.ev = null; host.innerHTML = '<div class="fstar-empty" style="margin-top:14px">멤버를 선택하면 부족한 중요 캐릭터가 표시돼요.</div>'; return; }
+  if (!m.chars.length) { selfState.ev = null; host.innerHTML = '<div class="fstar-empty" style="margin-top:14px">' + esc(nickname) + ' 님의 캐릭터 데이터가 아직 없어요.</div>'; return; }
 
-  var ev = evalMember(m);
-  var missing = ev.filter(function(r){ return r.status === "missing"; }).sort(function(a,b){ return b.score - a.score; });
-  var weak    = ev.filter(function(r){ return r.status === "weak"; }).sort(function(a,b){ return b.score - a.score; });
-  var ok      = ev.filter(function(r){ return r.status === "ok"; }).sort(function(a,b){ return b.score - a.score; });
+  selfState.ev = evalMember(m);
+  paintSelf();
+}
 
-  // 우선 추천 = 미보유 → 저육성 순으로 중요도 높은 것부터
-  var picks = missing.concat(weak).slice(0, RAID_GUIDE.topPicks);
+function paintSelf(){
+  var host = document.getElementById("selfBody");
+  var ev = selfState.ev; if (!ev) return;
+  var missing = ev.filter(function(r){ return r.status === "missing"; }).sort(byPriority);
+  var weak    = ev.filter(function(r){ return r.status === "weak"; }).sort(byPriority);
+  var ok      = ev.filter(function(r){ return r.status === "ok"; }).sort(byPriority);
+  var picks   = missing.concat(weak).slice(0, RAID_GUIDE.topPicks);
 
-  var summary =
-    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px">' +
-      '<span style="padding:4px 11px;border-radius:999px;font-size:12px;font-weight:800;background:var(--danger-bg,#fee2e2);color:var(--danger,#dc2626)">미보유 ' + missing.length + '</span>' +
-      '<span style="padding:4px 11px;border-radius:999px;font-size:12px;font-weight:800;background:var(--role-leader-bg,#fef3c7);color:var(--amber,#d97706)">저육성 ' + weak.length + '</span>' +
-      '<span style="padding:4px 11px;border-radius:999px;font-size:12px;font-weight:700;background:var(--muted);color:var(--sub)">충분 ' + ok.length + '</span>' +
+  var toolbar =
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:10px">' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+        '<span style="padding:4px 11px;border-radius:999px;font-size:12px;font-weight:800;background:var(--danger-bg,#fee2e2);color:var(--danger,#dc2626)">미보유 ' + missing.length + '</span>' +
+        '<span style="padding:4px 11px;border-radius:999px;font-size:12px;font-weight:800;background:var(--role-leader-bg,#fef3c7);color:var(--amber,#d97706)">저육성 ' + weak.length + '</span>' +
+        '<span style="padding:4px 11px;border-radius:999px;font-size:12px;font-weight:700;background:var(--muted);color:var(--sub)">충분 ' + ok.length + '</span>' +
+      '</div>' +
+      '<button id="copyGuideBtn" type="button" style="padding:6px 13px;border-radius:9px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:12px;font-weight:800;font-family:inherit;cursor:pointer">📋 가이드 복사</button>' +
     '</div>';
 
   var picksHTML = picks.length
-    ? '<div style="font-size:13px;font-weight:800;color:var(--text);margin:14px 0 9px">⭐ 우선 육성 추천</div>' +
+    ? '<div style="font-size:13px;font-weight:800;color:var(--text);margin:14px 0 9px">⭐ 우선 육성 추천 <span style="font-size:11px;font-weight:600;color:var(--dim)">(중요도 높은 순 · 클릭하면 상세)</span></div>' +
       '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:9px">' + picks.map(pickCard).join("") + '</div>'
     : '<div class="fstar-empty" style="margin-top:14px">중요 캐릭터가 모두 충분히 육성되어 있어요. 👏</div>';
 
-  var listHTML =
+  var seg = function(v, label){
+    var on = selfState.view === v;
+    return '<span data-view="' + v + '" style="padding:5px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:800;' +
+      (on ? 'background:var(--ink,#111827);color:#fff' : 'color:var(--sub)') + '">' + label + '</span>';
+  };
+  var viewTabs =
+    '<div style="display:flex;align-items:center;gap:8px;margin:18px 0 4px">' +
+      '<span style="font-size:13px;font-weight:800;color:var(--text)">전체 중요 캐릭터 (' + IMPORTANT.length + ')</span>' +
+      '<div style="margin-left:auto;display:flex;gap:2px;background:var(--muted);border-radius:10px;padding:3px">' + seg("status", "상태별") + seg("element", "속성별") + '</div>' +
+    '</div>';
+
+  var listHTML = selfState.view === "element" ? listByElement(ev) :
     groupHead("🔴", "미보유", missing.length, "var(--danger,#dc2626)") + chipRow(missing) +
     groupHead("🟡", "저육성", weak.length, "var(--amber,#d97706)") + chipRow(weak) +
     '<details style="margin-top:14px"><summary style="cursor:pointer;font-size:13px;font-weight:800;color:var(--sub)">⚪ 충분 ' + ok.length + '개 보기</summary>' +
       '<div style="margin-top:10px">' + chipRow(ok) + '</div></details>';
 
-  host.innerHTML = summary + picksHTML +
-    '<div style="height:1px;background:var(--border);margin:18px 0"></div>' +
-    '<div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:2px">전체 중요 캐릭터 (' + IMPORTANT.length + ')</div>' +
-    listHTML;
+  host.innerHTML = toolbar + picksHTML +
+    '<div style="height:1px;background:var(--border);margin:18px 0"></div>' + viewTabs + listHTML;
+}
+
+/* 속성별 보기: 보스가 속성별로 돌기 때문에 유용 */
+function listByElement(ev){
+  var ELORDER = ["철갑","작열","수냉","전격","풍압"];
+  var groups = {}; ev.forEach(function(r){ var e = r.element || "기타"; (groups[e] = groups[e] || []).push(r); });
+  var order = ELORDER.filter(function(e){ return groups[e]; }).concat(Object.keys(groups).filter(function(e){ return ELORDER.indexOf(e) < 0; }));
+  return order.map(function(e){
+    var list = groups[e].slice().sort(byPriority);
+    var bad = list.filter(function(r){ return r.status !== "ok"; }).length;
+    return '<div style="margin:14px 0 8px;display:flex;align-items:center;gap:7px">' + elTag(e) +
+      '<span style="font-size:12px;font-weight:700;color:var(--sub)">' + (bad ? ("보강 " + bad + " / " + list.length) : ("전부 충분 " + list.length)) + '</span></div>' +
+      chipRow(list);
+  }).join("");
+}
+
+/* ── 멤버 가이드 텍스트 (복사용) ─────────────────────────────────── */
+function buildGuideText(){
+  var ev = selfState.ev; if (!ev) return "";
+  var missing = ev.filter(function(r){ return r.status === "missing"; }).sort(byPriority);
+  var weak    = ev.filter(function(r){ return r.status === "weak"; }).sort(byPriority);
+  var picks   = missing.concat(weak).slice(0, RAID_GUIDE.topPicks);
+  var lines = [];
+  lines.push("[" + selfState.nickname + "] 유니온레이드 육성 가이드");
+  lines.push("(미보유 " + missing.length + " · 저육성 " + weak.length + " / 중요 캐릭터 " + IMPORTANT.length + "명 기준)");
+  lines.push("");
+  lines.push("■ 우선 육성 추천");
+  if (picks.length) picks.forEach(function(r, i){
+    var d = r.status === "missing" ? "미보유 (확보 권장)" : r.reasons.join(", ");
+    lines.push((i + 1) + ". " + r.name + " — " + d);
+  }); else lines.push("- 모두 충분히 육성됨 👏");
+  if (missing.length) { lines.push(""); lines.push("■ 미보유 (" + missing.length + "): " + missing.map(function(r){ return r.name; }).join(", ")); }
+  if (weak.length)    { lines.push(""); lines.push("■ 저육성 (" + weak.length + ")"); weak.forEach(function(r){ lines.push("- " + r.name + ": " + r.reasons.join(", ")); }); }
+  return lines.join("\n");
+}
+function copyGuide(btn){
+  var txt = buildGuideText(); if (!txt) return;
+  function ok(){ var o = btn.textContent; btn.textContent = "✅ 복사됨"; setTimeout(function(){ btn.textContent = o; }, 1500); }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(ok, function(){ fallbackCopy(txt); ok(); });
+  } else { fallbackCopy(txt); ok(); }
+}
+function fallbackCopy(txt){
+  var ta = document.createElement("textarea"); ta.value = txt;
+  ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta);
+  ta.select(); try { document.execCommand("copy"); } catch (e) {} document.body.removeChild(ta);
+}
+
+/* ── 캐릭터 상세 모달 ───────────────────────────────────────────── */
+function renderCharModal(name){
+  var ev = selfState.ev; if (!ev) return;
+  var r = ev.filter(function(x){ return x.name === name; })[0]; if (!r) return;
+  var c = r.char;
+  var rows = "";
+  function row(k, v){ return '<div style="display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="font-size:12px;color:var(--sub);font-weight:600">' + k + '</span><span style="font-size:13px;color:var(--text);font-weight:700" class="tnum">' + v + '</span></div>'; }
+  if (c) {
+    var ss = (c.skill1||0) + "/" + (c.skill2||0) + "/" + (c.skill3||0);
+    var itemTxt = c.itemGrade ? (c.itemGrade + (c.itemLevel !== "" && c.itemLevel != null ? (" " + c.itemLevel) : "")) : "—";
+    rows = row("코어", esc(c.upgrade || "명함")) + row("스킬", ss) + row("레벨", "Lv " + (c.characterLevel||0)) +
+      row("우코", (c.increaseElementDamage||0).toFixed(1) + "%") + row("공증", (c.increaseAtk||0).toFixed(1) + "%") +
+      row("아이템", esc(itemTxt)) + row("큐브", c.harmonyCube ? (esc(c.harmonyCube) + " " + (c.harmonyCubeLevel||0)) : "—");
+  } else {
+    rows = '<div style="padding:14px 0;text-align:center;font-size:13px;color:var(--danger,#dc2626);font-weight:700">아직 보유하지 않은 캐릭터예요 · 확보 우선 권장</div>';
+  }
+  var advice = r.status === "missing" ? "확보 권장" : (r.status === "weak" ? ("보강 필요 — " + r.reasons.join(", ")) : "충분히 육성됨");
+  var ov = document.getElementById("charModal");
+  ov.querySelector(".rd-modal").innerHTML =
+    '<div style="display:flex;align-items:center;gap:13px;margin-bottom:14px">' +
+      charImg(name, { style: "width:60px;height:60px;border-radius:12px;object-fit:cover;background:var(--muted)", title: false }) +
+      '<div><div style="display:flex;align-items:center;gap:7px"><span style="font-size:16px;font-weight:800;color:var(--text)">' + esc(name) + '</span>' + elTag(r.element) + '</div>' +
+        '<div style="margin-top:5px">' + statusBadge(r.status) + ' <span style="font-size:12px;color:var(--sub);font-weight:600">' + esc(advice) + '</span></div></div>' +
+      '<button type="button" data-close="1" style="margin-left:auto;background:none;border:none;font-size:22px;color:var(--sub);cursor:pointer;line-height:1">×</button>' +
+    '</div>' + rows;
+  openModal(ov, { label: name + " 상세" });
 }
 
 /* ── 유니온 조감: 가장 많이 부족한 중요 캐릭터 ──────────────────── */
@@ -245,9 +343,31 @@ document.getElementById("rdContent").innerHTML =
     '</div></div>' +
 
   '<div><div class="rd-sec-head"><span class="rd-sec-bar"></span><span class="rd-sec-title">유니온 조감</span><span class="rd-sec-note">운영자용</span></div>' +
-    renderOverview() + '</div>';
+    renderOverview() + '</div>' +
+
+  '<div class="rd-overlay" id="charModal" style="display:none"><div class="rd-modal" style="max-width:380px;width:90%"></div></div>';
 
 document.getElementById("memberSel").addEventListener("change", function(e){ renderSelf(e.target.value); });
+
+/* 이벤트 위임: 캐릭터 클릭(상세) · 보기 토글 · 복사 */
+document.getElementById("rdContent").addEventListener("click", function(e){
+  var view = e.target.closest("[data-view]");
+  if (view) { selfState.view = view.getAttribute("data-view"); paintSelf(); return; }
+  if (e.target.closest("#copyGuideBtn")) { copyGuide(document.getElementById("copyGuideBtn")); return; }
+  var cl = e.target.closest(".guide-click");
+  if (cl) { renderCharModal(cl.getAttribute("data-char")); return; }
+});
+document.getElementById("rdContent").addEventListener("keydown", function(e){
+  if (e.key !== "Enter" && e.key !== " ") return;
+  var cl = e.target.closest && e.target.closest(".guide-click");
+  if (cl) { e.preventDefault(); renderCharModal(cl.getAttribute("data-char")); }
+});
+/* 모달 닫기 */
+var charModalEl = document.getElementById("charModal");
+charModalEl.addEventListener("click", function(e){
+  if (e.target === charModalEl || e.target.closest("[data-close]")) closeModal(charModalEl);
+});
+document.addEventListener("keydown", function(e){ if (e.key === "Escape" && charModalEl.style.display !== "none") closeModal(charModalEl); });
 
 markReady();
 
