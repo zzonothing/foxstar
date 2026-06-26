@@ -150,13 +150,16 @@ function statusBadge(st){
   return '<span style="padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;background:var(--muted);color:var(--sub)">충분</span>';
 }
 
-/* 항목 한 줄 — [항목] (현재) 값 → (목표) 값 (미달 항목은 현재값 빨강) */
+/* 항목 한 줄 — [항목] (현재태그) 값 → (목표태그) 값 (미달 항목은 현재값 빨강) */
+function tagLabel(text, isTgt){
+  var s = isTgt ? "background:var(--blue,#2563eb);color:#fff" : "background:var(--muted);color:var(--sub)";
+  return '<span style="font-size:9px;font-weight:800;border-radius:999px;padding:1px 7px;white-space:nowrap;' + s + '">' + text + '</span>';
+}
 function metricRow(label, cur, tgt, bad){
-  var lab = function(t){ return '<span style="font-size:10px;font-weight:700;color:var(--dim)">' + t + '</span>'; };
-  return '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;font-size:11px;margin-top:4px" class="tnum">' +
+  return '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;font-size:11px;margin-top:4px" class="tnum">' +
     '<span style="width:34px;flex-shrink:0;font-weight:800;color:var(--text)">' + label + '</span>' +
-    lab("(현재)") + '<span style="font-weight:800;color:' + (bad ? "var(--danger,#dc2626)" : "var(--text)") + '">' + cur + '</span>' +
-    (tgt ? '<span style="color:var(--dim);margin:0 1px">→</span>' + lab("(목표)") + '<span style="font-weight:800;color:var(--blue,#2563eb)">' + tgt + '</span>' : '') +
+    tagLabel("현재", false) + '<span style="font-weight:800;color:' + (bad ? "var(--danger,#dc2626)" : "var(--text)") + '">' + cur + '</span>' +
+    (tgt ? '<span style="color:var(--dim)">→</span>' + tagLabel("목표", true) + '<span style="font-weight:800;color:var(--blue,#2563eb)">' + tgt + '</span>' : '') +
   '</div>';
 }
 /* 캐릭터의 스킬·우코·공증을 현재/목표로 나열. onlyBad=true 면 미달 항목만(카드용) */
