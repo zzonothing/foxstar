@@ -155,10 +155,11 @@ function tagLabel(text){
   return '<span style="font-size:9px;font-weight:800;border-radius:999px;padding:1px 7px;white-space:nowrap;background:var(--muted);color:var(--sub)">' + text + '</span>';
 }
 function metricRow(label, cur, tgt, bad){
+  // 이미 목표를 만족한(미달 아님) 항목은 현재값만 표시, 목표는 숨김
   return '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;font-size:11px;margin-top:4px" class="tnum">' +
     '<span style="width:34px;flex-shrink:0;font-weight:800;color:var(--text)">' + label + '</span>' +
     tagLabel("현재") + '<span style="font-weight:800;color:var(--text)">' + cur + '</span>' +
-    (tgt ? '<span style="color:var(--dim)">→</span>' + tagLabel("목표") + '<span style="font-weight:800;color:var(--text)">' + tgt + '</span>' : '') +
+    (tgt && bad ? '<span style="color:var(--dim)">→</span>' + tagLabel("목표") + '<span style="font-weight:800;color:var(--text)">' + tgt + '</span>' : '') +
   '</div>';
 }
 /* 캐릭터의 스킬·우코·공증을 현재/목표로 나열. onlyBad=true 면 미달 항목만(카드용) */
