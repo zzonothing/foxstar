@@ -34,7 +34,7 @@
 <script src="data/solo.js" onerror="window.__DATA_ERROR=1"></script>
 
 <!-- ═══════════ 공통 스크립트 (헬퍼·테마·인증·차트·모달) ═══════════ -->
-<script src="js/common.js?v=2"></script>
+<script src="js/common.js?v=3"></script>
 
 <script>
 if (window.__DATA_ERROR) {
@@ -54,7 +54,9 @@ function gradeCol(g){ return g === "SSR" ? "var(--grade-ssr)" : g === "SR" ? "va
 
 const soloKeys = Object.keys(SOLO).sort((a, b) => parseInt(a.slice(1)) - parseInt(b.slice(1)));
 
-const state = { season: soloKeys[soloKeys.length - 1], selected: null,
+/* 시즌 선택은 ?s=S00 로 URL 에 보존 (새로고침·링크 공유 유지) */
+const _urlSeason = readUrlParam("s");
+const state = { season: soloKeys.indexOf(_urlSeason) >= 0 ? _urlSeason : soloKeys[soloKeys.length - 1], selected: null,
   opts: { upgrade: true, item: true, atk400: false, hp400: false, def400: false, skill: false,
           uko: false, atk: false, ammo: false, charge: false, chargeDmg: false, critDmg: false, critRate: false, hit: false, def: false } };
 
@@ -140,7 +142,7 @@ function render(){
 
   document.getElementById("rdContent").innerHTML = toolbar + desktop + mobile;
   const sel = document.getElementById("rdSeason");
-  if (sel) sel.addEventListener("change", e => { state.season = e.target.value; state.selected = null; render(); });
+  if (sel) sel.addEventListener("change", e => { writeUrlParam("s", e.target.value); state.season = e.target.value; state.selected = null; render(); });
 }
 
 /* ═══════════ 덱 상세 모달 ═══════════ */
