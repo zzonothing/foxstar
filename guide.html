@@ -125,11 +125,11 @@ function evalChar(c, role, maxLv){
     var uv = c.increaseElementDamage || 0, av = c.increaseAtk || 0, sum = uv + av;
     if (uv < t.uko) {
       ukoGap = t.uko - uv;
-      gaps.push({ kind: "우코", cur: uv.toFixed(0) + "%", tgt: t.uko + "%", lack: "−" + ukoGap.toFixed(0) + "%", short: "우코 " + uv.toFixed(0) + "%→" + t.uko + "%" });
+      gaps.push({ kind: "우코", cur: uv.toFixed(2) + "%", tgt: t.uko + "%", lack: "−" + ukoGap.toFixed(2) + "%", short: "우코 " + uv.toFixed(2) + "%→" + t.uko + "%" });
       sev += 8 + ukoGap;
     }
     if (sum < t.sum) {
-      gaps.push({ kind: "합산", cur: sum.toFixed(0) + "%", tgt: t.sum + "%", lack: "−" + (t.sum - sum).toFixed(0) + "%", short: "합산(우코+공증) " + sum.toFixed(0) + "%→" + t.sum + "%" });
+      gaps.push({ kind: "합산", cur: sum.toFixed(2) + "%", tgt: t.sum + "%", lack: "−" + (t.sum - sum).toFixed(2) + "%", short: "합산(우코+공증) " + sum.toFixed(2) + "%→" + t.sum + "%" });
       sev += 6 + (t.sum - sum);
     }
   }
@@ -203,8 +203,8 @@ function metricRows(r, onlyBad){
   if (r.role === "dealer") {
     var t = dealerTierOf(c.name);
     var uv = c.increaseElementDamage || 0, av = c.increaseAtk || 0;
-    defs.push(["우코", uv.toFixed(0) + "%", t.uko + "%", lk["우코"]]);
-    defs.push(["합산", (uv + av).toFixed(0) + "%", t.sum + "%", lk["합산"]]);
+    defs.push(["우코", uv.toFixed(2) + "%", t.uko + "%", lk["우코"]]);
+    defs.push(["합산", (uv + av).toFixed(2) + "%", t.sum + "%", lk["합산"]]);
   }
   var rows = defs.filter(function(d){ return onlyBad ? d[3] : true; });
   if (!rows.length) return '';
@@ -244,8 +244,10 @@ function groupHead(emoji, title, n, col){
 /* ── 내 육성 체크 상태 ──────────────────────────────────────────── */
 var selfState = { nickname: "", ev: null, view: "status" };
 var ORDER_STATUS = { missing: 0, weak: 1, ok: 2 };
-// 딜러 티어 랭크: 0티어 < 1티어 < 기타딜러, 서포터는 딜러 뒤(99)
-function tierRank(r){ return r.role === "dealer" ? (r.tier == null ? 2 : r.tier) : 99; }
+// 딜러 티어 랭크: 0티어(0) < 1티어(1) < 기타딜러(2).
+// 서포터는 1티어 딜러와 동급(1)으로 취급 — 핵심 서포터가 니치 딜러 밑으로 묻히지 않게.
+// (0티어 딜러는 랭크 0 이라 서포터보다 항상 앞. "전부 딜러 뒤"로 바꾸려면 1 대신 99, "맨 위"면 -1.)
+function tierRank(r){ return r.role === "dealer" ? (r.tier == null ? 2 : r.tier) : 1; }
 function byPriority(a, b){
   // 미보유 > 저육성 > 충분 → 딜러 티어(0티어가 무조건 앞) → 우코 목표 미달폭 큰 순 → 중요도(score) → 심각도(sev)
   return (ORDER_STATUS[a.status] - ORDER_STATUS[b.status])
