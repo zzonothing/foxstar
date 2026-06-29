@@ -122,15 +122,18 @@ function evalChar(c, role, maxLv){
   // 딜러: 캐릭터 티어별로 우코(기본 우월코드) + 합산(우코+공증) 컷을 적용
   if (role === "dealer") {
     var t = dealerTierOf(c.name); tier = t.tier;
-    var uv = c.increaseElementDamage || 0, av = c.increaseAtk || 0, sum = uv + av;
+    var uv = c.increaseElementDamage || 0, av = c.increaseAtk || 0;
     if (uv < t.uko) {
       ukoGap = t.uko - uv;
       gaps.push({ kind: "우코", cur: uv.toFixed(2) + "%", tgt: t.uko + "%", lack: "−" + ukoGap.toFixed(2) + "%", short: "우코 " + uv.toFixed(2) + "%→" + t.uko + "%" });
       sev += 8 + ukoGap;
     }
-    if (sum < t.sum) {
-      gaps.push({ kind: "합산", cur: sum.toFixed(2) + "%", tgt: t.sum + "%", lack: "−" + (t.sum - sum).toFixed(2) + "%", short: "합산(우코+공증) " + sum.toFixed(2) + "%→" + t.sum + "%" });
-      sev += 6 + (t.sum - sum);
+    // 공증 목표 = 합산컷 − 현재 우코 (우코가 높을수록 요구 공증↓). av < atkTgt ⟺ 우코+공증 < 합산컷
+    var atkTgt = t.sum - uv;
+    if (av < atkTgt) {
+      var atkLack = atkTgt - av;
+      gaps.push({ kind: "공증", cur: av.toFixed(2) + "%", tgt: atkTgt.toFixed(2) + "%", lack: "−" + atkLack.toFixed(2) + "%", short: "공증 " + av.toFixed(2) + "%→" + atkTgt.toFixed(2) + "%" });
+      sev += 6 + atkLack;
     }
   }
   if (rule.levelGap && maxLv - (c.characterLevel || 0) > rule.levelGap) {
@@ -203,8 +206,9 @@ function metricRows(r, onlyBad){
   if (r.role === "dealer") {
     var t = dealerTierOf(c.name);
     var uv = c.increaseElementDamage || 0, av = c.increaseAtk || 0;
+    var atkTgt = Math.max(0, t.sum - uv);  // 공증 목표는 현재 우코에 따라 가변
     defs.push(["우코", uv.toFixed(2) + "%", t.uko + "%", lk["우코"]]);
-    defs.push(["합산", (uv + av).toFixed(2) + "%", t.sum + "%", lk["합산"]]);
+    defs.push(["공증", av.toFixed(2) + "%", atkTgt.toFixed(2) + "%", lk["공증"]]);
   }
   var rows = defs.filter(function(d){ return onlyBad ? d[3] : true; });
   if (!rows.length) return '';
@@ -390,8 +394,9 @@ document.getElementById("rdContent").innerHTML =
     '<div style="font-size:11px;color:var(--dim);font-weight:600;margin-top:3px;line-height:1.5">' +
       '최근 ' + RAID_GUIDE.recentSeasons + '개 시즌 레이드 스쿼드에서 가장 많이 쓰인 <b>중요 캐릭터 ' + IMPORTANT.length + '명</b>을 자동 선정하고, ' +
       '각 멤버가 그중 무엇이 부족한지 <b>역할(딜러/서포터)별 기준</b>으로 진단합니다. ' +
-      '돌파·레벨은 무관, <b>딜러는 우코·합산(우코+공증)+스킬작 / 서포터는 스킬작</b>으로 평가합니다. ' +
-      '딜러는 캐릭터 성능 <b>티어(0/1티어)</b>에 따라 우코·합산 컷이 다릅니다(0티어 우코 90·합산 110, 1티어 우코 80·합산 90).' +
+      '돌파·레벨은 무관, <b>딜러는 우코·공증+스킬작 / 서포터는 스킬작</b>으로 평가합니다. ' +
+      '딜러는 캐릭터 성능 <b>티어(0/1티어)</b>에 따라 컷이 다르며(0티어 우코 90·우코+공증 110, 1티어 우코 80·우코+공증 90), ' +
+      '<b>공증 목표는 현재 우코에 따라 가변</b>합니다(예: 0티어 우코 90이면 공증 20, 우코 100이면 공증 10).' +
     '</div></div>' +
 
   '<div><div class="rd-sec-head"><span class="rd-sec-bar"></span><span class="rd-sec-title">내 육성 체크</span><span class="rd-sec-note">본인 닉네임 선택</span></div>' +
