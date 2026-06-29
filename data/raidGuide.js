@@ -44,9 +44,53 @@ const RAID_GUIDE = {
   //   uko      : increaseElementDamage 가 이 값 미만이면 우코 부족 (null=무관)
   //   atk      : increaseAtk(공격력증가) 가 이 값 미만이면 공증 부족 (null=무관)
   roleRules: {
-    dealer:  { fullco: false, skillSum: 10, levelGap: null, uko: 80, atk: 20 },     // 딜러: 우코 + 공증 + 스킬작
-    support: { fullco: false, skillSum: 15, levelGap: null, uko: null, atk: null }, // 서포터: 스킬작만
+    dealer:  { fullco: false, skillSum: 10, levelGap: null },                        // 딜러: 스킬작 + (우코·합산은 아래 dealerTiers 티어별 기준)
+    support: { fullco: false, skillSum: 15, levelGap: null, uko: null, atk: null },  // 서포터: 스킬작만
   },
+
+  // ── 딜러 티어별 우코 / 합산(우코+공증) 컷 ──────────────────────
+  //  딜러는 캐릭터 성능에 따라 티어를 나누고, 티어별로 우월코드(우코)와
+  //  "우코 + 공증" 합산 컷을 다르게 적용한다.
+  //    uko : 기본 우월코드 최소치 — 이 값 미만이면 합산과 무관하게 미달.
+  //    sum : 우코 + 공증 합산 최소치.
+  //  예) 0티어(uko 90 / sum 110): 우코 90이면 공증 20, 우코 100이면 공증 10으로 충족.
+  //      우코 85는 기본 우코(90) 미달이라 합산과 상관없이 미달.
+  //  목록에 없는 딜러는 dealerTierDefault 기준으로 평가한다.
+  dealerTiers: [
+    {
+      tier: 0, label: "0티어", uko: 90, sum: 110,
+      members: [
+        "스노우 화이트 : 헤비암즈",
+        "라피 : 레드 후드",
+        "미하라 : 본딩 체인",
+        "디젤 : 윈터 스위츠",
+        "네온 : 비전 아이",
+        "아니스 : 스타",
+        "리버렐리오",
+        "홍련 : 흑영",
+      ],
+    },
+    {
+      tier: 1, label: "1티어", uko: 80, sum: 90,
+      members: [
+        "일레그 : 붐 앤 쇼크",
+        "프리바티",
+        "헬름",
+        "도로시 : 세렌디피티",
+        "아니스 : 스파클링 서머",
+        "메이든 : 아이스 로즈",
+        "신데렐라",
+        "나유타",
+        "리틀 머메이드",
+        "아스카 : WILLE",
+        "레이븐",
+        "이브",
+        "레드 후드",
+      ],
+    },
+  ],
+  // 위 티어 목록에 없는 딜러의 폴백 기준 (기존 우코 80 / 공증 20 ≈ 합산 100 과 동일)
+  dealerTierDefault: { tier: 2, label: "기타", uko: 80, sum: 100 },
 
   // ── 캐릭터별 스킬 목표치 [1스킬, 2스킬, 3스킬] ──────────────────
   //  각 칸은 "최소 요구 레벨", null 이면 그 스킬은 검사 안 함.
