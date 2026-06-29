@@ -82,6 +82,17 @@ function computeImportant(){
 }
 var SUPPORT_SET = {}; (RAID_GUIDE.supports || []).forEach(function(n){ SUPPORT_SET[n] = 1; });
 var ROLE_RULES = RAID_GUIDE.roleRules;
+
+/* ── 딜러 티어 기준 (우코·합산 컷이 티어별로 다름) ───────────────── */
+var DEALER_TIERS = (RAID_GUIDE.dealerTiers || []).map(function(t){
+  var set = {}; (t.members || []).forEach(function(n){ set[n] = 1; });
+  return { tier: t.tier, label: t.label, uko: t.uko, sum: t.sum, set: set };
+});
+var DEALER_TIER_DEFAULT = RAID_GUIDE.dealerTierDefault || { tier: 2, label: "", uko: 80, sum: 100 };
+function dealerTierOf(name){
+  for (var i = 0; i < DEALER_TIERS.length; i++) { if (DEALER_TIERS[i].set[name]) return DEALER_TIERS[i]; }
+  return DEALER_TIER_DEFAULT;
+}
 var SKILL_TARGETS = RAID_GUIDE.skillTargets || {};
 var ROLE_LABEL = { dealer: "딜러", support: "서포터" };
 var IMPORTANT = computeImportant();
@@ -90,7 +101,7 @@ var IMPORTANT = computeImportant();
    gaps: 부족 항목 구조화 [{kind, cur, tgt, lack, short}] (모달 상세표 + 카드 표기 공용) */
 function evalChar(c, role, maxLv){
   var rule = ROLE_RULES[role] || ROLE_RULES.dealer;
-  var gaps = [], sev = 0;
+  var gaps = [], sev = 0, tier, ukoGap = 0;
   if (rule.fullco && c.upgrade !== "풀코") {
     gaps.push({ kind: "코어", cur: (c.upgrade || "명함"), tgt: "풀코", lack: "", short: "코어 " + (c.upgrade || "명함") }); sev += 10;
   }
@@ -108,14 +119,27 @@ function evalChar(c, role, maxLv){
     var d = rule.skillSum - (cur[0]+cur[1]+cur[2]);
     gaps.push({ kind: "스킬", cur: curStr, tgt: "합 " + rule.skillSum, lack: "−" + d, short: "스킬 " + curStr }); sev += d;
   }
-  if (rule.uko != null) { var uv = c.increaseElementDamage || 0; if (uv < rule.uko) {
-    gaps.push({ kind: "우코", cur: uv.toFixed(0) + "%", tgt: rule.uko + "%", lack: "−" + (rule.uko - uv).toFixed(0) + "%", short: "우코 " + uv.toFixed(0) + "%→" + rule.uko + "%" }); sev += 8; } }
-  if (rule.atk != null) { var av = c.increaseAtk || 0; if (av < rule.atk) {
-    gaps.push({ kind: "공증", cur: av.toFixed(0) + "%", tgt: rule.atk + "%", lack: "−" + (rule.atk - av).toFixed(0) + "%", short: "공증 " + av.toFixed(0) + "%→" + rule.atk + "%" }); sev += 6; } }
+  // 딜러: 캐릭터 티어별로 우코(기본 우월코드) + 합산(우코+공증) 컷을 적용
+  if (role === "dealer") {
+    var t = dealerTierOf(c.name); tier = t.tier;
+    var uv = c.increaseElementDamage || 0, av = c.increaseAtk || 0;
+    if (uv < t.uko) {
+      ukoGap = t.uko - uv;
+      gaps.push({ kind: "우코", cur: uv.toFixed(2) + "%", tgt: t.uko + "%", lack: "−" + ukoGap.toFixed(2) + "%", short: "우코 " + uv.toFixed(2) + "%→" + t.uko + "%" });
+      sev += 8 + ukoGap;
+    }
+    // 공증 목표 = 합산컷 − 현재 우코 (우코가 높을수록 요구 공증↓). av < atkTgt ⟺ 우코+공증 < 합산컷
+    var atkTgt = t.sum - uv;
+    if (av < atkTgt) {
+      var atkLack = atkTgt - av;
+      gaps.push({ kind: "공증", cur: av.toFixed(2) + "%", tgt: atkTgt.toFixed(2) + "%", lack: "−" + atkLack.toFixed(2) + "%", short: "공증 " + av.toFixed(2) + "%→" + atkTgt.toFixed(2) + "%" });
+      sev += 6 + atkLack;
+    }
+  }
   if (rule.levelGap && maxLv - (c.characterLevel || 0) > rule.levelGap) {
     gaps.push({ kind: "레벨", cur: "Lv " + (c.characterLevel||0), tgt: "", lack: "", short: "Lv " + (c.characterLevel||0) }); sev += 5; }
   var reasons = gaps.map(function(g){ return g.short; });
-  return { reasons: reasons, gaps: gaps, sev: sev, status: gaps.length ? "weak" : "ok" };
+  return { reasons: reasons, gaps: gaps, sev: sev, tier: tier, ukoGap: ukoGap, status: gaps.length ? "weak" : "ok" };
 }
 
 /* ── 멤버 한 명의 중요 캐릭터 육성 상태 평가 ─────────────────────── */
@@ -124,10 +148,11 @@ function evalMember(m){
   var maxLv = m.chars.reduce(function(x, c){ return Math.max(x, c.characterLevel || 0); }, 0);
   return IMPORTANT.map(function(ic){
     var c = owned[ic.name];
-    if (!c) return { name: ic.name, element: ic.element, role: ic.role, score: ic.score, char: null, status: "missing", reasons: [], gaps: [], sev: 1000 };
+    if (!c) return { name: ic.name, element: ic.element, role: ic.role, score: ic.score, char: null, status: "missing", reasons: [], gaps: [], sev: 1000,
+                     tier: ic.role === "dealer" ? dealerTierOf(ic.name).tier : undefined, ukoGap: 0 };
     var e = evalChar(c, ic.role, maxLv);
     return { name: ic.name, element: ic.element, role: ic.role, score: ic.score, char: c,
-             status: e.status, reasons: e.reasons, gaps: e.gaps, sev: e.sev };
+             status: e.status, reasons: e.reasons, gaps: e.gaps, sev: e.sev, tier: e.tier, ukoGap: e.ukoGap };
   });
 }
 
@@ -143,6 +168,13 @@ function roleTag(role){
   return '<span style="display:inline-block;padding:1px 7px;border-radius:999px;font-size:10px;font-weight:700;'
     + (sup ? 'background:var(--elbg-water,#e0f2fe);color:var(--el-water,#0284c7)' : 'background:var(--muted);color:var(--sub)') + '">'
     + (sup ? "서포터" : "딜러") + '</span>';
+}
+/* 딜러 티어 배지 (0티어/1티어만 강조, 기타/서포터는 숨김) */
+function tierTag(role, tier){
+  if (role !== "dealer" || tier == null || tier >= 2) return "";
+  var col = tier === 0 ? 'background:var(--danger-bg,#fee2e2);color:var(--danger,#dc2626)'
+                       : 'background:var(--role-leader-bg,#fef3c7);color:var(--amber,#d97706)';
+  return '<span style="display:inline-block;padding:1px 7px;border-radius:999px;font-size:10px;font-weight:800;' + col + '">' + tier + '티어</span>';
 }
 function statusBadge(st){
   if (st === "missing") return '<span style="padding:2px 9px;border-radius:999px;font-size:11px;font-weight:800;background:var(--danger-bg,#fee2e2);color:var(--danger,#dc2626)">미보유</span>';
@@ -170,9 +202,14 @@ function metricRows(r, onlyBad){
   var st = SKILL_TARGETS[c.name];
   var skillTgt = st ? st.map(function(t){ return t == null ? "·" : t; }).join("/") : (rule.skillSum ? ("합 " + rule.skillSum) : null);
   var defs = [["스킬", (c.skill1||0) + "/" + (c.skill2||0) + "/" + (c.skill3||0), skillTgt, lk["스킬"]]];
-  // 우코·공증은 해당 역할에 기준이 있을 때만 표시 (서포터는 우코·공증 숨김)
-  if (rule.uko != null) defs.push(["우코", (c.increaseElementDamage||0).toFixed(0) + "%", rule.uko + "%", lk["우코"]]);
-  if (rule.atk != null) defs.push(["공증", (c.increaseAtk||0).toFixed(0) + "%", rule.atk + "%", lk["공증"]]);
+  // 딜러는 티어별 우코·합산(우코+공증) 컷을 표시 (서포터는 우코·합산 숨김)
+  if (r.role === "dealer") {
+    var t = dealerTierOf(c.name);
+    var uv = c.increaseElementDamage || 0, av = c.increaseAtk || 0;
+    var atkTgt = Math.max(0, t.sum - uv);  // 공증 목표는 현재 우코에 따라 가변
+    defs.push(["우코", uv.toFixed(2) + "%", t.uko + "%", lk["우코"]]);
+    defs.push(["공증", av.toFixed(2) + "%", atkTgt.toFixed(2) + "%", lk["공증"]]);
+  }
   var rows = defs.filter(function(d){ return onlyBad ? d[3] : true; });
   if (!rows.length) return '';
   return '<div style="margin-top:3px">' + rows.map(function(d){ return metricRow(d[0], d[1], d[2], d[3]); }).join("") + '</div>';
@@ -192,7 +229,7 @@ function detailRow(r){
     charImg(r.name, { style: "width:46px;height:46px;border-radius:10px;object-fit:cover;flex-shrink:0;background:var(--muted);border-left:3px solid " + elColOf(r.element) + ";" + dim, title: false }) +
     '<div style="flex:1;min-width:0">' +
       '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' +
-        '<span style="font-size:13px;font-weight:800;color:var(--text)">' + esc(r.name) + '</span>' + elTag(r.element) + roleTag(r.role) +
+        '<span style="font-size:13px;font-weight:800;color:var(--text)">' + esc(r.name) + '</span>' + elTag(r.element) + roleTag(r.role) + tierTag(r.role, r.tier) +
         '<span style="margin-left:auto">' + statusBadge(r.status) + '</span>' +
       '</div>' + body +
     '</div></div>';
@@ -211,9 +248,16 @@ function groupHead(emoji, title, n, col){
 /* ── 내 육성 체크 상태 ──────────────────────────────────────────── */
 var selfState = { nickname: "", ev: null, view: "status" };
 var ORDER_STATUS = { missing: 0, weak: 1, ok: 2 };
+// 딜러 티어 랭크: 0티어(0) < 1티어(1) < 기타딜러(2).
+// 서포터는 1티어 딜러와 동급(1)으로 취급 — 핵심 서포터가 니치 딜러 밑으로 묻히지 않게.
+// (0티어 딜러는 랭크 0 이라 서포터보다 항상 앞. "전부 딜러 뒤"로 바꾸려면 1 대신 99, "맨 위"면 -1.)
+function tierRank(r){ return r.role === "dealer" ? (r.tier == null ? 2 : r.tier) : 1; }
 function byPriority(a, b){
-  // 미보유 > 저육성 > 충분, 그 안에서 중요도(score) → 심각도(sev) 순
-  return (ORDER_STATUS[a.status] - ORDER_STATUS[b.status]) || (b.score - a.score) || (b.sev - a.sev);
+  // 미보유 > 저육성 > 충분 → 딜러 티어(0티어가 무조건 앞) → 우코 목표 미달폭 큰 순 → 중요도(score) → 심각도(sev)
+  return (ORDER_STATUS[a.status] - ORDER_STATUS[b.status])
+      || (tierRank(a) - tierRank(b))
+      || ((b.ukoGap || 0) - (a.ukoGap || 0))
+      || (b.score - a.score) || (b.sev - a.sev);
 }
 
 function renderSelf(nickname){
@@ -350,7 +394,9 @@ document.getElementById("rdContent").innerHTML =
     '<div style="font-size:11px;color:var(--dim);font-weight:600;margin-top:3px;line-height:1.5">' +
       '최근 ' + RAID_GUIDE.recentSeasons + '개 시즌 레이드 스쿼드에서 가장 많이 쓰인 <b>중요 캐릭터 ' + IMPORTANT.length + '명</b>을 자동 선정하고, ' +
       '각 멤버가 그중 무엇이 부족한지 <b>역할(딜러/서포터)별 기준</b>으로 진단합니다. ' +
-      '돌파·레벨은 무관, <b>딜러는 우코·공증+스킬작 / 서포터는 스킬작</b>으로 평가합니다.' +
+      '돌파·레벨은 무관, <b>딜러는 우코·공증+스킬작 / 서포터는 스킬작</b>으로 평가합니다. ' +
+      '딜러는 캐릭터 성능 <b>티어(0/1티어)</b>에 따라 컷이 다르며(0티어 우코 90·우코+공증 110, 1티어 우코 80·우코+공증 90), ' +
+      '<b>공증 목표는 현재 우코에 따라 가변</b>합니다(예: 0티어 우코 90이면 공증 20, 우코 100이면 공증 10).' +
     '</div></div>' +
 
   '<div><div class="rd-sec-head"><span class="rd-sec-bar"></span><span class="rd-sec-title">내 육성 체크</span><span class="rd-sec-note">본인 닉네임 선택</span></div>' +
