@@ -54,7 +54,7 @@ Standalone HTML files share `css/style.css` and `js/common.js`. There is no bund
 | `solo.html`  | Solo raid leaderboard / decks | `config.js`, `solo.js`                            |
 | `shift.html` | Shifty-pad (character view)   | `config.js`, `member.js`, `character.js`          |
 | `stats.html` | Per-character statistics      | `config.js`, `member.js`, `character.js`          |
-| `guide.html` | Union-raid cultivation guide  | `config.js`, `raidGuide.js`, `member.js`, `character.js`, `raid.js` |
+| `guide.html` | Union-raid cultivation guide  | `config.js`, `raidGuide.js`, `member.js`, `character.js`           |
 
 Two pages sit outside the nav: `login.html` (the auth gate) and `sim.html` (a standalone damage simulator that loads the `data/sim/*` JSON; it does **not** load `js/common.js`).
 

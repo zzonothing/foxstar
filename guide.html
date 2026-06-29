@@ -29,7 +29,6 @@
 <script src="data/raidGuide.js"  onerror="window.__DATA_ERROR=1"></script>
 <script src="data/member.js"     onerror="window.__DATA_ERROR=1"></script>
 <script src="data/character.js"  onerror="window.__DATA_ERROR=1"></script>
-<script src="data/raid.js"       onerror="window.__DATA_ERROR=1"></script>
 
 <script src="js/common.js?v=3"></script>
 
@@ -59,28 +58,16 @@ if (typeof CHARACTERS !== "undefined") Object.keys(CHARACTERS).forEach(function(
   CHARACTERS[uid].forEach(function(c){ if (!elemOf[c.name] && c.element) elemOf[c.name] = c.element; });
 });
 
-/* ── 중요 캐릭터 라이브 자동추출 (raid.js 스쿼드 가중 빈도) ───────── */
-function computeImportant(){
-  var rk = Object.keys(RAID).sort(function(a, b){ return (+a.slice(1)) - (+b.slice(1)); });
-  var recent = rk.slice(-RAID_GUIDE.recentSeasons);
-  var cnt = {};
-  recent.forEach(function(s, i){
-    var w = i + 1; // 최신 시즌일수록 가중치 ↑
-    (RAID[s] || []).forEach(function(mem){ (mem.raids || []).forEach(function(r){
-      (r.squad || []).forEach(function(sq){ cnt[sq.name] = (cnt[sq.name] || 0) + w; });
-    }); });
-  });
-  var ex = {}; (RAID_GUIDE.exclude || []).forEach(function(n){ ex[n] = 1; });
-  var ranked = Object.keys(cnt).map(function(n){ return { name: n, score: cnt[n] }; })
-    .filter(function(r){ return !ex[r.name]; })
-    .sort(function(a, b){ return b.score - a.score; });
-  var top = ranked.slice(0, RAID_GUIDE.topN);
-  var have = {}; top.forEach(function(t){ have[t.name] = 1; });
-  (RAID_GUIDE.must || []).forEach(function(n){ if (!have[n]) top.push({ name: n, score: cnt[n] || 0, pinned: true }); });
-  top.forEach(function(t){ t.element = elemOf[t.name] || ""; t.role = SUPPORT_SET[t.name] ? "support" : "dealer"; });
-  return top;
-}
+/* ── 중요 캐릭터: raidGuide.js 의 important 목록(운영자 지정)을 그대로 사용 ──── */
 var SUPPORT_SET = {}; (RAID_GUIDE.supports || []).forEach(function(n){ SUPPORT_SET[n] = 1; });
+function computeImportant(){
+  var list = RAID_GUIDE.important || [];
+  return list.map(function(name, i){
+    // 목록 순서를 점수로(위일수록 높음) → 같은 상태 그룹 안에서 이 순서대로 정렬됨
+    return { name: name, score: list.length - i,
+             element: elemOf[name] || "", role: SUPPORT_SET[name] ? "support" : "dealer" };
+  });
+}
 var ROLE_RULES = RAID_GUIDE.roleRules;
 
 /* ── 딜러 티어 기준 (우코·합산 컷이 티어별로 다름) ───────────────── */
@@ -394,7 +381,7 @@ document.getElementById("rdContent").innerHTML =
   '<div class="rd-card" style="padding:14px 18px">' +
     '<div style="font-size:14px;font-weight:800;color:var(--text)">유니온레이드 육성 가이드</div>' +
     '<div style="font-size:11px;color:var(--dim);font-weight:600;margin-top:3px;line-height:1.5">' +
-      '최근 ' + RAID_GUIDE.recentSeasons + '개 시즌 레이드 스쿼드에서 가장 많이 쓰인 <b>중요 캐릭터 ' + IMPORTANT.length + '명</b>을 자동 선정하고, ' +
+      '운영자가 지정한 <b>중요 캐릭터 ' + IMPORTANT.length + '명</b>에 대해, ' +
       '각 멤버가 그중 무엇이 부족한지 <b>역할(딜러/서포터)별 기준</b>으로 진단합니다. ' +
       '돌파·레벨은 무관, <b>딜러는 우코·공증+스킬작 / 서포터는 스킬작</b>으로 평가합니다. ' +
       '딜러는 캐릭터 성능 <b>티어(0/1티어)</b>에 따라 컷이 다르며(0티어 우코 90·우코+공증 110, 1티어 우코 80·우코+공증 90), ' +
