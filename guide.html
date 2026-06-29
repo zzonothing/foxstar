@@ -128,8 +128,9 @@ function evalChar(c, role, maxLv){
       gaps.push({ kind: "우코", cur: uv.toFixed(2) + "%", tgt: t.uko + "%", lack: "−" + ukoGap.toFixed(2) + "%", short: "우코 " + uv.toFixed(2) + "%→" + t.uko + "%" });
       sev += 8 + ukoGap;
     }
-    // 공증 목표 = 합산컷 − 현재 우코 (우코가 높을수록 요구 공증↓). av < atkTgt ⟺ 우코+공증 < 합산컷
-    var atkTgt = t.sum - uv;
+    // 공증 목표 = 합산컷 − max(현재 우코, 우코기준). 우코가 기준보다 낮으면
+    // "우코가 딱 기준일 때 필요한 공증"으로 고정 → 우코 미달분을 공증 목표로 떠넘기지 않음.
+    var atkTgt = t.sum - Math.max(uv, t.uko);
     if (av < atkTgt) {
       var atkLack = atkTgt - av;
       gaps.push({ kind: "공증", cur: av.toFixed(2) + "%", tgt: atkTgt.toFixed(2) + "%", lack: "−" + atkLack.toFixed(2) + "%", short: "공증 " + av.toFixed(2) + "%→" + atkTgt.toFixed(2) + "%" });
@@ -206,7 +207,7 @@ function metricRows(r, onlyBad){
   if (r.role === "dealer") {
     var t = dealerTierOf(c.name);
     var uv = c.increaseElementDamage || 0, av = c.increaseAtk || 0;
-    var atkTgt = Math.max(0, t.sum - uv);  // 공증 목표는 현재 우코에 따라 가변
+    var atkTgt = Math.max(0, t.sum - Math.max(uv, t.uko));  // 공증 목표 = 합산컷 − max(우코, 우코기준)
     defs.push(["우코", uv.toFixed(2) + "%", t.uko + "%", lk["우코"]]);
     defs.push(["공증", av.toFixed(2) + "%", atkTgt.toFixed(2) + "%", lk["공증"]]);
   }
