@@ -363,10 +363,11 @@ function renderOverview(){
       if (evalChar(owned, ic.role, maxLv).status === "weak") weak++;
     });
     return { name: ic.name, element: ic.element, miss: miss, weak: weak, deficit: miss * 2 + weak };
-  }).sort(function(a, b){ return b.deficit - a.deficit; }).slice(0, 12);
+  }).filter(function(r){ return r.deficit > 0; }).sort(function(a, b){ return b.deficit - a.deficit; });
 
   var withData = members.filter(function(m){ return m.chars.length; }).length;
   var maxDef = agg.length ? agg[0].deficit : 1;
+  var emptyMsg = '<div class="fstar-empty">미보유·저육성인 중요 캐릭터가 없어요. 👏</div>';
   var rows = agg.map(function(r){
     var w = Math.round(Math.max(4, r.deficit / maxDef * 100));
     return '<div style="display:flex;align-items:center;gap:9px">' +
@@ -379,9 +380,9 @@ function renderOverview(){
   }).join("");
 
   return '<div class="rd-card" style="padding:16px 18px">' +
-    '<div style="font-size:13px;font-weight:800;color:var(--text)">유니온 전체에서 가장 부족한 중요 캐릭터</div>' +
+    '<div style="font-size:13px;font-weight:800;color:var(--text)">유니온 전체에서 가장 부족한 중요 캐릭터 (' + agg.length + ')</div>' +
     '<div style="font-size:10px;color:var(--dim);font-weight:600;margin:2px 0 13px">멤버 ' + withData + '명 기준 · 미보유 1명=2점, 저육성 1명=1점</div>' +
-    '<div style="display:flex;flex-direction:column;gap:9px">' + rows + '</div></div>';
+    '<div style="display:flex;flex-direction:column;gap:9px">' + (rows || emptyMsg) + '</div></div>';
 }
 
 /* ── 페이지 골격 ────────────────────────────────────────────────── */
