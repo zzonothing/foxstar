@@ -125,7 +125,9 @@ const RAID_GUIDE = {
   //  itemDefault: 전 캐릭터 공통 목표(딜러/서포터·티어 무관). 등급 단계: 없음 < R < SR < SSR (SR 만렙 15 → SSR='애장품').
   //    판정: 보유 등급이 목표보다 높으면 충족, 같으면 레벨로 비교(SSR 보유는 SR 15 목표 충족).
   //  itemTargets: 아래 캐릭터만 개별 목표로 itemDefault 를 덮어쓴다.
+  //  itemExclude: 소장품 검사를 아예 안 하는 캐릭터(목표 없음).
   itemDefault: { grade: "SR", level: 15 },
+  itemExclude: ["벨벳"],
   itemTargets: {
     "프리바티": { grade: "SSR", level: 3 },
     "목단":     { grade: "SSR", level: 3 },
