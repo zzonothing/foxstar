@@ -127,7 +127,7 @@ const RAID_GUIDE = {
   //  itemTargets: 아래 캐릭터만 개별 목표로 itemDefault 를 덮어쓴다.
   //  itemExclude: 소장품 검사를 아예 안 하는 캐릭터(목표 없음).
   itemDefault: { grade: "SR", level: 15 },
-  itemExclude: ["벨벳"],
+  itemExclude: ["벨벳", "에이드 : 에이전트 바니"],
   itemTargets: {
     "프리바티": { grade: "SSR", level: 3 },
     "목단":     { grade: "SSR", level: 3 },
