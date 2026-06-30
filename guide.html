@@ -73,7 +73,7 @@ var ROLE_RULES = RAID_GUIDE.roleRules;
 /* ── 딜러 티어 기준 (우코·합산 컷이 티어별로 다름) ───────────────── */
 var DEALER_TIERS = (RAID_GUIDE.dealerTiers || []).map(function(t){
   var set = {}; (t.members || []).forEach(function(n){ set[n] = 1; });
-  return { tier: t.tier, label: t.label, uko: t.uko, sum: t.sum, item: t.item || null, set: set };
+  return { tier: t.tier, label: t.label, uko: t.uko, sum: t.sum, set: set };
 });
 var DEALER_TIER_DEFAULT = RAID_GUIDE.dealerTierDefault || { tier: 2, label: "", uko: 80, sum: 100 };
 function dealerTierOf(name){
@@ -82,8 +82,10 @@ function dealerTierOf(name){
 }
 var SKILL_TARGETS = RAID_GUIDE.skillTargets || {};
 /* ── 소장품(애착 아이템) 목표 판정 ────────────────────────────────
+   기본은 전 캐릭터 itemDefault(SR 15), itemTargets 에 적은 캐릭터만 개별 목표로 덮어쓴다.
    등급 단계: 없음 < R < SR < SSR. 보유 등급이 목표보다 높으면 충족,
    같으면 레벨로 비교(예: SSR 보유는 SR 15 목표를 충족). 목표 없으면 검사 안 함. */
+var ITEM_DEFAULT = RAID_GUIDE.itemDefault || null;
 var ITEM_TARGETS = RAID_GUIDE.itemTargets || {};
 var ITEM_GRADE_RANK = { "": 0, "R": 1, "SR": 2, "SSR": 3 };
 function itemRank(g){ return ITEM_GRADE_RANK[g] || 0; }
@@ -94,10 +96,8 @@ function itemMeets(c, t){
   return lv >= (t.level || 0);
 }
 function itemLabel(g, lv){ return g ? (g + (lv === "" || lv == null ? "" : " " + lv)) : "없음"; }
-function itemTargetOf(c, role){
-  if (ITEM_TARGETS[c.name]) return ITEM_TARGETS[c.name];
-  if (role === "dealer") { var t = dealerTierOf(c.name); if (t.item) return t.item; }
-  return null;
+function itemTargetOf(c){
+  return ITEM_TARGETS[c.name] || ITEM_DEFAULT || null;
 }
 var ROLE_LABEL = { dealer: "딜러", support: "서포터" };
 var IMPORTANT = computeImportant();
@@ -142,8 +142,8 @@ function evalChar(c, role, maxLv){
       sev += 6 + atkLack;
     }
   }
-  // 소장품(애착 아이템): 캐릭터/티어별 목표 등급·레벨 (없으면 검사 안 함)
-  var itgt = itemTargetOf(c, role);
+  // 소장품(애착 아이템): 캐릭터별 목표(기본 SR 15 · 일부 개별 지정 · 없으면 검사 안 함)
+  var itgt = itemTargetOf(c);
   if (itgt && !itemMeets(c, itgt)) {
     var curIt = itemLabel(c.itemGrade, c.itemLevel), tgtIt = itgt.grade + " " + itgt.level;
     gaps.push({ kind: "소장품", cur: curIt, tgt: tgtIt, lack: "", short: "소장품 " + curIt + "→" + tgtIt }); sev += 7;
@@ -223,7 +223,7 @@ function metricRows(r, onlyBad){
     defs.push(["공증", av.toFixed(2) + "%", atkTgt.toFixed(2) + "%", lk["공증"]]);
   }
   // 소장품(애착 아이템) 목표가 있는 캐릭터만 표시
-  var itgt = itemTargetOf(c, r.role);
+  var itgt = itemTargetOf(c);
   if (itgt) defs.push(["소장품", itemLabel(c.itemGrade, c.itemLevel), itgt.grade + " " + itgt.level, lk["소장품"]]);
   var rows = defs.filter(function(d){ return onlyBad ? d[3] : true; });
   if (!rows.length) return '';
@@ -411,7 +411,7 @@ document.getElementById("rdContent").innerHTML =
       '운영자가 지정한 <b>중요 캐릭터 ' + IMPORTANT.length + '명</b>에 대해, ' +
       '각 멤버가 그중 무엇이 부족한지 <b>역할(딜러/서포터)별 기준</b>으로 진단합니다. ' +
       '돌파·레벨은 무관, <b>딜러는 우코·공증+스킬작 / 서포터는 스킬작</b>으로 평가합니다. ' +
-      '<b>소장품(애착 아이템)</b>은 0티어 딜러 <b>SR 15</b>, 프리바티·목단·헬름 <b>SSR 3</b>을 목표로 합니다. ' +
+      '<b>소장품(애착 아이템)</b>은 모든 캐릭터 <b>SR 15</b>, 프리바티·목단·헬름만 <b>SSR 3</b>을 목표로 합니다. ' +
       '딜러는 캐릭터 성능 <b>티어(0/1티어)</b>에 따라 컷이 다르며(0티어 우코 90·우코+공증 110, 1티어 우코 80·우코+공증 90), ' +
       '<b>공증 목표는 현재 우코에 따라 가변</b>합니다(예: 0티어 우코 90이면 공증 20, 우코 100이면 공증 10).' +
     '</div></div>' +
