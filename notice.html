@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>공지 | 승리의 여신: 니케</title>
+  <link rel="icon" type="image/png" href="image/foxstar.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>if(localStorage.getItem("theme")==="dark")document.documentElement.classList.add("dark");</script>
+  <style>html{background:#eef1f6}html.dark{background:#111827}body:not(.ready){visibility:hidden}</style>
+  <link rel="stylesheet" href="css/style.css?v=5" />
+  <style>
+    .nt-label{ display:block; font-size:12px; font-weight:700; color:var(--sub); margin-bottom:5px; }
+    .nt-input,.nt-textarea{ width:100%; box-sizing:border-box; border:1.5px solid var(--border); border-radius:10px; background:var(--muted); color:var(--text); font-family:inherit; font-size:14px; padding:10px 12px; outline:none; transition:border-color .15s; }
+    .nt-input:focus,.nt-textarea:focus{ border-color:var(--blue); }
+    .nt-textarea{ min-height:160px; resize:vertical; line-height:1.6; }
+    .nt-btn{ border:none; border-radius:9px; background:var(--blue); color:#fff; font-family:inherit; font-size:13px; font-weight:700; padding:9px 16px; cursor:pointer; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+    .nt-btn:disabled{ opacity:.6; cursor:default; }
+    .nt-btn-ghost{ border:1px solid var(--border); border-radius:9px; background:var(--card); color:var(--sub); font-family:inherit; font-size:13px; font-weight:700; padding:9px 16px; cursor:pointer; }
+    .nt-del{ border:1px solid var(--border); border-radius:7px; background:transparent; color:var(--dim); font-family:inherit; font-size:11px; font-weight:700; padding:4px 10px; cursor:pointer; flex-shrink:0; }
+    .nt-del:hover{ color:var(--red); border-color:var(--red); }
+    .nt-flash{ background:var(--blue-l); color:var(--blue); border:1px solid var(--blue); border-radius:10px; padding:10px 14px; font-size:13px; font-weight:600; }
+  </style>
+  <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
+</head>
+<body>
+
+<div id="fstarLoader" aria-live="polite"><div class="fstar-spin" aria-hidden="true"></div><span>불러오는 중…</span></div>
+
+<!-- ═══════════ 헤더 (js/common.js: renderHeader 주입) ═══════════ -->
+<header class="rd-header" id="rdHeader"></header>
+
+<main class="rd-main">
+  <div class="container">
+    <div id="rdContent" class="rd-stack"></div>
+  </div>
+</main>
+
+<!-- 공지 작성 모달 (관리자 전용) -->
+<div id="ntComposeOverlay" class="rd-overlay" style="display:none">
+  <div class="rd-modal" id="ntComposeModal" style="max-width:520px"></div>
+</div>
+
+<script src="data/config.js" onerror="window.__DATA_ERROR=1"></script>
+<script src="data/notice.js" onerror="window.__DATA_ERROR=1"></script>
+
+<!-- ═══════════ 공통 스크립트 (헬퍼·테마·인증·모달) ═══════════ -->
+<script src="js/common.js?v=4"></script>
+
+<script>
+if (window.__DATA_ERROR) {
+  if (typeof showDataError === "function") showDataError();
+} else if (!authGuardOrRedirect()) {
+try {
+
+renderHeader("notice.html");
+setupTheme();
+lockClipboard();
+document.title = "공지 | " + CONFIG.unionName;
+
+const state = {
+  admin: false,
+  flash: null,
+  list: (typeof NOTICE !== "undefined" && Array.isArray(NOTICE)) ? NOTICE.slice() : []
+};
+
+/* ─── 날짜 포맷 (KST) ─── */
+function fmtDate(ts){
+  if (ts == null) return "";
+  try {
+    const parts = new Intl.DateTimeFormat("ko-KR", {
+      timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit", hour12: false
+    }).formatToParts(new Date(ts));
+    const g = t => (parts.find(x => x.type === t) || {}).value || "";
+    return g("year") + "." + g("month") + "." + g("day") + " " + g("hour") + ":" + g("minute");
+  } catch (e) { return ""; }
+}
+
+/* ─── 렌더 ─── */
+function pageHeaderHTML(){
+  return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px">' +
+    '<div><div style="font-size:20px;font-weight:800;color:var(--text)">공지사항</div>' +
+      '<div style="font-size:12px;color:var(--sub);margin-top:2px">운영진이 전하는 소식</div></div>' +
+    (state.admin ? '<button type="button" class="nt-btn" data-act="compose-open">＋ 글쓰기</button>' : '') +
+  '</div>';
+}
+function noticeCardHTML(n){
+  const body = esc(n.body || "").replace(/\n/g, "<br>");
+  return '<article class="rd-card" style="padding:16px 18px">' +
+    '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">' +
+      '<h2 style="font-size:16px;font-weight:800;color:var(--text);margin:0;word-break:break-word">' + esc(n.title || "") + '</h2>' +
+      (state.admin ? '<button type="button" class="nt-del" data-act="notice-del" data-id="' + esc(n.id) + '">삭제</button>' : '') +
+    '</div>' +
+    '<div style="font-size:11px;color:var(--dim);font-weight:600;margin-top:4px">' + esc(n.author || "운영진") + ' · ' + fmtDate(n.ts) + '</div>' +
+    '<div style="font-size:14px;color:var(--text);line-height:1.7;margin-top:12px;word-break:break-word">' + body + '</div>' +
+  '</article>';
+}
+function renderList(){
+  const items = state.list.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0));
+  let html = pageHeaderHTML();
+  if (state.flash) html += '<div class="nt-flash">' + esc(state.flash) + '</div>';
+  html += items.length ? items.map(noticeCardHTML).join("") : emptyState("아직 등록된 공지가 없어요.");
+  document.getElementById("rdContent").innerHTML = html;
+}
+
+/* ─── 작성 모달 (관리자) ─── */
+function composeModalHTML(){
+  return '<div style="padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">' +
+      '<span style="font-size:16px;font-weight:800;color:var(--text)">공지 작성</span>' +
+      '<span class="rd-modal-close" data-act="compose-cancel">✕</span>' +
+    '</div>' +
+    '<div style="padding:16px 18px;display:flex;flex-direction:column;gap:12px">' +
+      '<div><label class="nt-label" for="ntTitle">제목</label><input id="ntTitle" class="nt-input" maxlength="100" placeholder="공지 제목" /></div>' +
+      '<div><label class="nt-label" for="ntAuthor">작성자 (선택)</label><input id="ntAuthor" class="nt-input" maxlength="30" placeholder="운영진" /></div>' +
+      '<div><label class="nt-label" for="ntBody">내용</label><textarea id="ntBody" class="nt-textarea" maxlength="5000" placeholder="내용을 입력하세요"></textarea></div>' +
+      '<div id="ntMsg" style="min-height:18px;font-size:12px;font-weight:600;color:var(--sub)"></div>' +
+      '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+        '<button type="button" class="nt-btn-ghost" data-act="compose-cancel">취소</button>' +
+        '<button type="button" class="nt-btn" id="ntSave" data-act="compose-save">등록</button>' +
+      '</div>' +
+    '</div>';
+}
+function openCompose(){
+  document.getElementById("ntComposeModal").innerHTML = composeModalHTML();
+  openModal(document.getElementById("ntComposeOverlay"), { label: "공지 작성" });
+  const t = document.getElementById("ntTitle");
+  if (t) setTimeout(() => { try { t.focus(); } catch (e) {} }, 30);
+}
+function closeCompose(){ closeModal(document.getElementById("ntComposeOverlay")); }
+
+function submitNotice(){
+  const title  = (document.getElementById("ntTitle").value  || "").trim();
+  const author = (document.getElementById("ntAuthor").value || "").trim();
+  const body   = (document.getElementById("ntBody").value   || "").trim();
+  const msg  = document.getElementById("ntMsg");
+  const save = document.getElementById("ntSave");
+  if (!title) { msg.style.color = "var(--red)"; msg.textContent = "제목을 입력하세요"; return; }
+  if (!body)  { msg.style.color = "var(--red)"; msg.textContent = "내용을 입력하세요"; return; }
+  save.disabled = true;
+  msg.style.color = "var(--sub)";
+  msg.textContent = "등록 중…";
+  fetch("/api/notice", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title: title, author: author, body: body })
+  }).then(r => r.json().catch(() => ({})).then(j => ({ ok: r.ok, j: j }))).then(res => {
+    if (res.ok && res.j && res.j.ok && res.j.notice) {
+      state.list = [res.j.notice].concat(state.list);
+      state.flash = "공지가 등록되었습니다. 다른 기기·새로고침 반영까지 1~2분 걸릴 수 있어요.";
+      closeCompose();
+      renderList();
+    } else {
+      msg.style.color = "var(--red)";
+      msg.textContent = (res.j && res.j.error) ? res.j.error : "등록에 실패했어요";
+      save.disabled = false;
+    }
+  }).catch(() => {
+    msg.style.color = "var(--red)";
+    msg.textContent = "네트워크 오류. 다시 시도해 주세요";
+    save.disabled = false;
+  });
+}
+
+function delNotice(id){
+  if (!id) return;
+  if (!window.confirm("이 공지를 삭제할까요?")) return;
+  fetch("/api/notice?id=" + encodeURIComponent(id), { method: "DELETE" })
+    .then(r => r.json().catch(() => ({})).then(j => ({ ok: r.ok, j: j }))).then(res => {
+      if (res.ok && res.j && res.j.ok) {
+        state.list = state.list.filter(n => n.id !== id);
+        state.flash = "공지를 삭제했습니다. 반영까지 1~2분 걸릴 수 있어요.";
+        renderList();
+      } else {
+        window.alert((res.j && res.j.error) ? res.j.error : "삭제에 실패했어요");
+      }
+    }).catch(() => window.alert("네트워크 오류. 다시 시도해 주세요"));
+}
+
+/* ─── 관리자 권한 조회 → 작성 UI 노출 ─── */
+function loadAdmin(){
+  fetch("/api/notice", { method: "GET" })
+    .then(r => r.json())
+    .then(j => { state.admin = !!(j && j.admin); renderList(); })
+    .catch(() => {});
+}
+
+/* ─── 이벤트 ─── */
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-act]"); if (!t) return;
+  const act = t.dataset.act;
+  if (act === "compose-open") openCompose();
+  else if (act === "compose-cancel") closeCompose();
+  else if (act === "compose-save") submitNotice();
+  else if (act === "notice-del") delNotice(t.dataset.id);
+});
+document.getElementById("ntComposeOverlay").addEventListener("click", e => { if (e.target === e.currentTarget) closeCompose(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && document.getElementById("ntComposeOverlay").style.display !== "none") closeCompose(); });
+
+renderList();
+markReady();
+loadAdmin();
+
+} catch (e) { console.error(e); if (typeof showDataError === "function") showDataError(); }
+} // else if (!authGuardOrRedirect())
+</script>
+
+</body>
+</html>
