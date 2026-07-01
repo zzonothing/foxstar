@@ -16,6 +16,8 @@ const crypto = require('crypto');
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
+// 서명 비밀키. 미설정이면 빈 문자열 대신 '' 이 반환되며, 이 경우 검증은
+// fail-closed 로 거부한다(빈 키로 HMAC 이 성립해 위조를 허용하는 것을 방지).
 function secretKey() {
   return process.env.SESSION_SECRET || process.env.ACCESS_KEY || '';
 }
@@ -47,8 +49,14 @@ function parseCookies(header) {
 
 // 쿠키의 fstar_session 검증. 반환 { valid, admin }.
 function verifyCookie(cookieHeader) {
-  const raw = parseCookies(cookieHeader)['fstar_session'];
   const fail = { valid: false, admin: false };
+
+  // 비밀키가 설정돼 있지 않으면 검증 불가 → 무조건 거부(fail-closed).
+  // (빈 키 '' 로도 HMAC 은 성립하므로, 이 가드가 없으면 미설정 환경에서
+  //  공격자가 스스로 서명한 관리자 토큰이 통과할 수 있다.)
+  if (!secretKey()) return fail;
+
+  const raw = parseCookies(cookieHeader)['fstar_session'];
   if (!raw) return fail;
 
   const parts = raw.split('.');

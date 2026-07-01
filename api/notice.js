@@ -53,15 +53,17 @@ function serialize(list) {
 
 // notice.js 텍스트에서 배열만 추출해 파싱. 헤더 주석에는 대괄호가 없으므로
 // 첫 '[' ~ 마지막 ']' 가 곧 배열 리터럴 범위.
+// 파싱 불가(손상)면 null 을 반환한다 — 호출부에서 '빈 파일'과 구분해
+// 손상된 파일을 빈 배열로 덮어써 기존 공지를 날리는 사고를 막는다.
 function parseNotices(text) {
   try {
     const s = text.indexOf('[');
     const e = text.lastIndexOf(']');
-    if (s < 0 || e < 0 || e < s) return [];
+    if (s < 0 || e < 0 || e < s) return null;
     const arr = JSON.parse(text.slice(s, e + 1));
-    return Array.isArray(arr) ? arr : [];
+    return Array.isArray(arr) ? arr : null;
   } catch {
-    return [];
+    return null;
   }
 }
 
@@ -77,11 +79,14 @@ function ghHeaders() {
 async function ghGetFile() {
   const url = 'https://api.github.com/repos/' + repo() + '/contents/' + FILE_PATH + '?ref=' + encodeURIComponent(branch());
   const r = await fetch(url, { headers: ghHeaders() });
-  if (r.status === 404) return { list: [], sha: null };
+  if (r.status === 404) return { list: [], sha: null };  // 파일 없음 → 빈 목록에서 시작
   if (!r.ok) throw new Error('github get ' + r.status);
   const j = await r.json();
   const text = Buffer.from(j.content || '', 'base64').toString('utf8');
-  return { list: parseNotices(text), sha: j.sha || null };
+  const list = parseNotices(text);
+  // 파일은 있으나 파싱 불가(손상) → 덮어쓰기 중단해 기존 공지 보호.
+  if (list === null) throw new Error('notice.js 파싱 실패 — 손상된 파일 덮어쓰기 방지');
+  return { list, sha: j.sha || null };
 }
 
 async function ghPutFile(list, sha, message) {
