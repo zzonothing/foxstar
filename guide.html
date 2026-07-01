@@ -29,9 +29,8 @@
 <script src="data/raidGuide.js"  onerror="window.__DATA_ERROR=1"></script>
 <script src="data/member.js"     onerror="window.__DATA_ERROR=1"></script>
 <script src="data/character.js"  onerror="window.__DATA_ERROR=1"></script>
-<script src="data/raid.js"       onerror="window.__DATA_ERROR=1"></script>
 
-<script src="js/common.js?v=2"></script>
+<script src="js/common.js?v=4"></script>
 
 <script>
 if (window.__DATA_ERROR) {
@@ -59,28 +58,16 @@ if (typeof CHARACTERS !== "undefined") Object.keys(CHARACTERS).forEach(function(
   CHARACTERS[uid].forEach(function(c){ if (!elemOf[c.name] && c.element) elemOf[c.name] = c.element; });
 });
 
-/* ── 중요 캐릭터 라이브 자동추출 (raid.js 스쿼드 가중 빈도) ───────── */
-function computeImportant(){
-  var rk = Object.keys(RAID).sort(function(a, b){ return (+a.slice(1)) - (+b.slice(1)); });
-  var recent = rk.slice(-RAID_GUIDE.recentSeasons);
-  var cnt = {};
-  recent.forEach(function(s, i){
-    var w = i + 1; // 최신 시즌일수록 가중치 ↑
-    (RAID[s] || []).forEach(function(mem){ (mem.raids || []).forEach(function(r){
-      (r.squad || []).forEach(function(sq){ cnt[sq.name] = (cnt[sq.name] || 0) + w; });
-    }); });
-  });
-  var ex = {}; (RAID_GUIDE.exclude || []).forEach(function(n){ ex[n] = 1; });
-  var ranked = Object.keys(cnt).map(function(n){ return { name: n, score: cnt[n] }; })
-    .filter(function(r){ return !ex[r.name]; })
-    .sort(function(a, b){ return b.score - a.score; });
-  var top = ranked.slice(0, RAID_GUIDE.topN);
-  var have = {}; top.forEach(function(t){ have[t.name] = 1; });
-  (RAID_GUIDE.must || []).forEach(function(n){ if (!have[n]) top.push({ name: n, score: cnt[n] || 0, pinned: true }); });
-  top.forEach(function(t){ t.element = elemOf[t.name] || ""; t.role = SUPPORT_SET[t.name] ? "support" : "dealer"; });
-  return top;
-}
+/* ── 중요 캐릭터: raidGuide.js 의 important 목록(운영자 지정)을 그대로 사용 ──── */
 var SUPPORT_SET = {}; (RAID_GUIDE.supports || []).forEach(function(n){ SUPPORT_SET[n] = 1; });
+function computeImportant(){
+  var list = RAID_GUIDE.important || [];
+  return list.map(function(name, i){
+    // 목록 순서를 점수로(위일수록 높음) → 같은 상태 그룹 안에서 이 순서대로 정렬됨
+    return { name: name, score: list.length - i,
+             element: elemOf[name] || "", role: SUPPORT_SET[name] ? "support" : "dealer" };
+  });
+}
 var ROLE_RULES = RAID_GUIDE.roleRules;
 
 /* ── 딜러 티어 기준 (우코·합산 컷이 티어별로 다름) ───────────────── */
@@ -94,6 +81,27 @@ function dealerTierOf(name){
   return DEALER_TIER_DEFAULT;
 }
 var SKILL_TARGETS = RAID_GUIDE.skillTargets || {};
+/* ── 소장품(애착 아이템) 목표 판정 ────────────────────────────────
+   기본은 전 캐릭터 itemDefault(SR 15), itemTargets 에 적은 캐릭터만 개별 목표로 덮어쓴다.
+   itemExclude 에 적은 캐릭터는 소장품 검사를 안 한다.
+   등급 단계: 없음 < R < SR < SSR. 보유 등급이 목표보다 높으면 충족,
+   같으면 레벨로 비교(예: SSR 보유는 SR 15 목표를 충족). 목표 없으면 검사 안 함. */
+var ITEM_DEFAULT = RAID_GUIDE.itemDefault || null;
+var ITEM_TARGETS = RAID_GUIDE.itemTargets || {};
+var ITEM_EXCLUDE = {}; (RAID_GUIDE.itemExclude || []).forEach(function(n){ ITEM_EXCLUDE[n] = 1; });
+var ITEM_GRADE_RANK = { "": 0, "R": 1, "SR": 2, "SSR": 3 };
+function itemRank(g){ return ITEM_GRADE_RANK[g] || 0; }
+function itemMeets(c, t){
+  var cr = itemRank(c.itemGrade), tr = itemRank(t.grade);
+  if (cr !== tr) return cr > tr;
+  var lv = (typeof c.itemLevel === "number") ? c.itemLevel : 0;
+  return lv >= (t.level || 0);
+}
+function itemLabel(g, lv){ return g ? (g + (lv === "" || lv == null ? "" : " " + lv)) : "없음"; }
+function itemTargetOf(c){
+  if (ITEM_EXCLUDE[c.name]) return null;
+  return ITEM_TARGETS[c.name] || ITEM_DEFAULT || null;
+}
 var ROLE_LABEL = { dealer: "딜러", support: "서포터" };
 var IMPORTANT = computeImportant();
 
@@ -136,6 +144,12 @@ function evalChar(c, role, maxLv){
       gaps.push({ kind: "공증", cur: av.toFixed(2) + "%", tgt: atkTgt.toFixed(2) + "%", lack: "−" + atkLack.toFixed(2) + "%", short: "공증 " + av.toFixed(2) + "%→" + atkTgt.toFixed(2) + "%" });
       sev += 6 + atkLack;
     }
+  }
+  // 소장품(애착 아이템): 캐릭터별 목표(기본 SR 15 · 일부 개별 지정 · 없으면 검사 안 함)
+  var itgt = itemTargetOf(c);
+  if (itgt && !itemMeets(c, itgt)) {
+    var curIt = itemLabel(c.itemGrade, c.itemLevel), tgtIt = itgt.grade + " " + itgt.level;
+    gaps.push({ kind: "소장품", cur: curIt, tgt: tgtIt, lack: "", short: "소장품 " + curIt + "→" + tgtIt }); sev += 7;
   }
   if (rule.levelGap && maxLv - (c.characterLevel || 0) > rule.levelGap) {
     gaps.push({ kind: "레벨", cur: "Lv " + (c.characterLevel||0), tgt: "", lack: "", short: "Lv " + (c.characterLevel||0) }); sev += 5; }
@@ -190,7 +204,7 @@ function tagLabel(text){
 function metricRow(label, cur, tgt, bad){
   // 이미 목표를 만족한(미달 아님) 항목은 현재값만 표시, 목표는 숨김
   return '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:5px;font-size:11px;margin-top:4px" class="tnum">' +
-    '<span style="width:34px;flex-shrink:0;font-weight:800;color:var(--text)">' + label + '</span>' +
+    '<span style="width:42px;flex-shrink:0;font-weight:800;color:var(--text)">' + label + '</span>' +
     tagLabel("현재") + '<span style="font-weight:800;color:var(--text)">' + cur + '</span>' +
     (tgt && bad ? '<span style="color:var(--dim)">→</span>' + tagLabel("목표") + '<span style="font-weight:800;color:var(--text)">' + tgt + '</span>' : '') +
   '</div>';
@@ -211,6 +225,9 @@ function metricRows(r, onlyBad){
     defs.push(["우코", uv.toFixed(2) + "%", t.uko + "%", lk["우코"]]);
     defs.push(["공증", av.toFixed(2) + "%", atkTgt.toFixed(2) + "%", lk["공증"]]);
   }
+  // 소장품(애착 아이템) 목표가 있는 캐릭터만 표시
+  var itgt = itemTargetOf(c);
+  if (itgt) defs.push(["소장품", itemLabel(c.itemGrade, c.itemLevel), itgt.grade + " " + itgt.level, lk["소장품"]]);
   var rows = defs.filter(function(d){ return onlyBad ? d[3] : true; });
   if (!rows.length) return '';
   return '<div style="margin-top:3px">' + rows.map(function(d){ return metricRow(d[0], d[1], d[2], d[3]); }).join("") + '</div>';
@@ -394,9 +411,10 @@ document.getElementById("rdContent").innerHTML =
   '<div class="rd-card" style="padding:14px 18px">' +
     '<div style="font-size:14px;font-weight:800;color:var(--text)">유니온레이드 육성 가이드</div>' +
     '<div style="font-size:11px;color:var(--dim);font-weight:600;margin-top:3px;line-height:1.5">' +
-      '최근 ' + RAID_GUIDE.recentSeasons + '개 시즌 레이드 스쿼드에서 가장 많이 쓰인 <b>중요 캐릭터 ' + IMPORTANT.length + '명</b>을 자동 선정하고, ' +
+      '운영자가 지정한 <b>중요 캐릭터 ' + IMPORTANT.length + '명</b>에 대해, ' +
       '각 멤버가 그중 무엇이 부족한지 <b>역할(딜러/서포터)별 기준</b>으로 진단합니다. ' +
       '돌파·레벨은 무관, <b>딜러는 우코·공증+스킬작 / 서포터는 스킬작</b>으로 평가합니다. ' +
+      '<b>소장품(애착 아이템)</b>은 모든 캐릭터 <b>SR 15</b>(일부 제외), 프리바티·목단·헬름만 <b>SSR 3</b>을 목표로 합니다. ' +
       '딜러는 캐릭터 성능 <b>티어(0/1티어)</b>에 따라 컷이 다르며(0티어 우코 90·우코+공증 110, 1티어 우코 80·우코+공증 90), ' +
       '<b>공증 목표는 현재 우코에 따라 가변</b>합니다(예: 0티어 우코 90이면 공증 20, 우코 100이면 공증 10).' +
     '</div></div>' +

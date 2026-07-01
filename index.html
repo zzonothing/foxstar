@@ -43,7 +43,7 @@
 <script src="data/raid.js" onerror="window.__DATA_ERROR=1"></script>
 
 <!-- ═══════════ 공통 스크립트 (헬퍼·테마·인증·차트·모달) ═══════════ -->
-<script src="js/common.js?v=2"></script>
+<script src="js/common.js?v=4"></script>
 
 <!-- ═══════════ 메인 스크립트 ═══════════ -->
 <script>
@@ -350,119 +350,10 @@ function render(){
   document.getElementById("rdContent").innerHTML = desktop + mobile;
 }
 
-/* ═══════════ 멤버 상세 팝업 ═══════════ */
+/* ═══════════ 멤버 상세 팝업 (공통: common.js buildMemberPopupHTML) ═══════════ */
 let popupState = { name: null, season: null };
-
-function buildPopupHTML(name, season){
-  const cur = members.find(m => m.name === name) || null;
-  const roleKo = cur ? (ROLE_KO[roleOf(cur)] || "") : "";
-  const syncNow = cur ? cur.syncroLevel : (lvlMaps[parseInt(season.slice(1))] ? lvlMaps[parseInt(season.slice(1))][name] : "—");
-
-  /* 싱크로 변화 (전 시즌) */
-  const syncSeasons = seasonKeys.filter(k => UNION[k].rank != null);
-  const svVals = syncSeasons.map(k => lvlMaps[k][name] != null ? lvlMaps[k][name] : null);
-  const syncH = barHeights(svVals, { floor: 4, span: 86, empty: 2 });
-  const syncBars = syncSeasons.map((k, i) => {
-    const v = svVals[i], sel = ("S" + k) === season;
-    return '<div data-act="popup-season" data-season="S' + k + '" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;cursor:pointer">' +
-      '<div style="font-size:8px;font-weight:700;color:var(--text);margin-bottom:3px" class="tnum">' + (v == null ? "—" : v) + '</div>' +
-      '<div style="width:100%;max-width:26px;flex-shrink:0;height:' + syncH[i] + 'px;background:' + (sel ? "var(--bar)" : (v != null ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
-      '<div style="font-size:9px;color:' + (sel ? "var(--blue)" : "var(--dim)") + ';font-weight:700;margin-top:5px">' + k + '</div></div>';
-  }).join("");
-
-  /* 스탯 / 거점 (현재 빌드) */
-  const hasStats = !!(cur && cur.normal);
-  let statsHTML = "", outpostHTML = "";
-  if (hasStats) {
-    const sc = (label, val, col) => '<div style="background:var(--muted);border:1px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center"><div style="font-size:9px;color:var(--dim);font-weight:700;margin-bottom:3px">' + label + '</div><div style="font-size:13px;font-weight:800;color:' + col + '" class="tnum">' + val + '</div></div>';
-    statsHTML = '<div><div class="rd-uplabel" style="margin-bottom:10px">스탯 요약</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">' +
-      sc("노말", cur.normal, cur.normal === "46-40" ? "var(--red)" : "var(--text)") +
-      sc("하드", cur.hard, cur.hard === "46-40" ? "var(--red)" : "var(--text)") +
-      sc("타워", cur.tribeTower, cur.tribeTower === 1450 ? "var(--red)" : "var(--text)") +
-      sc("오버클럭", cur.overclock >= 51 ? "∞" : cur.overclock, cur.overclock >= 51 ? "var(--red)" : "var(--text)") +
-      '</div></div>';
-    if (cur.outpost) {
-      outpostHTML = '<div><div class="rd-uplabel" style="margin-bottom:10px">거점 연구</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">' +
-        OPF.map(([label, key]) => { const v = cur.outpost[key]; const isMax = key !== "common" && v === cur.outpost.common;
-          return '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--muted);border:1px solid var(--border);border-radius:9px;padding:8px 10px"><span style="font-size:10px;color:var(--sub);font-weight:600">' + label + '</span><span style="font-size:13px;font-weight:800;color:' + (isMax ? "var(--red)" : "var(--ink)") + '" class="tnum">' + (v == null ? "—" : v) + '</span></div>'; }).join("") +
-        '</div></div>';
-    }
-  }
-
-  /* 레이드 (선택 시즌) */
-  const rseason = RAID[season] || null;
-  const rmember = rseason ? rseason.find(mm => mm.name === name || (cur && mm.openId === cur.blaBlaLinkUId)) : null;
-  let rankLabel = "유니온 멤버", total = 0, contrib = "0.00", finalCount = 0, decks = [];
-  if (rmember) {
-    total = rmember.raids.reduce((a, r) => a + r.totalDamage, 0);
-    finalCount = rmember.raids.filter(r => r.isFinalHit).length;
-    contrib = (total / (seasonRaw(season) || 1) * 100).toFixed(2);
-    const totals = rseason.map(mm => mm.raids.reduce((a, r) => a + r.totalDamage, 0)).sort((a, b) => b - a);
-    rankLabel = "유니온 #" + (totals.findIndex(t => t <= total) + 1);
-    const bosses = bossesOf(season);
-    const byBoss = {};
-    rmember.raids.forEach(r => { const sh = bossShort(r.bossName); (byBoss[sh] = byBoss[sh] || []).push(r); });
-    bosses.forEach(b => (byBoss[b.short] || []).sort((a, c) => a.bossLevel - c.bossLevel).forEach(r => {
-      decks.push({ short: b.short, step: b.minStep, elem: b.elem, dmg: r.totalDamage, final: r.isFinalHit, chars: [...r.squad].sort((x, y) => x.slot - y.slot).map(s => s.name) });
-    }));
-  } else {
-    const us = UNION[parseInt(season.slice(1))];
-    if (us) { const rr = [...us.members].sort((a, b) => b.syncroLevel - a.syncroLevel).findIndex(x => x.name === name); if (rr >= 0) rankLabel = "유니온 #" + (rr + 1); }
-  }
-
-  const dmgVals = raidKeys.map(sk => { const mm = (RAID[sk] || []).find(x => x.name === name || (cur && x.openId === cur.blaBlaLinkUId)); return { s: sk, v: mm ? mm.raids.reduce((a, r) => a + r.totalDamage, 0) : 0 }; });
-  const dmgH = barHeights(dmgVals.map(d => d.v), { floor: 4, span: 86, empty: 2, positiveOnly: true });
-  const hasDmgTrend = dmgVals.some(d => d.v > 0);
-  const dmgBars = dmgVals.map((d, i) => {
-    const sel = d.s === season;
-    return '<div data-act="popup-season" data-season="' + d.s + '" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;cursor:pointer">' +
-      '<div style="font-size:7px;font-weight:700;color:var(--text);margin-bottom:3px" class="tnum">' + (d.v ? fmtEok(d.v) : "—") + '</div>' +
-      '<div style="width:100%;max-width:26px;flex-shrink:0;height:' + dmgH[i] + 'px;background:' + (sel ? "var(--bar)" : (d.v ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
-      '<div style="font-size:9px;color:' + (sel ? "var(--blue)" : "var(--dim)") + ';font-weight:700;margin-top:5px">' + d.s.slice(1) + '</div></div>';
-  }).join("");
-
-  const metricsHTML = rmember ? '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px">' +
-    [["시즌 총 대미지", fmtEok(total), "var(--blue)"], ["유니온 기여", contrib + "%", "var(--text)"], ["막타", finalCount + "회", "var(--red)"]].map(m =>
-      '<div style="background:var(--muted);border:1px solid var(--border);border-radius:10px;padding:9px 11px"><div style="font-size:9px;color:var(--dim);font-weight:700;text-transform:uppercase">' + m[0] + '</div><div style="font-size:15px;font-weight:800;color:' + m[2] + ';margin-top:2px" class="tnum">' + m[1] + '</div></div>').join("") +
-    '</div>' : "";
-
-  const decksHTML = decks.length ? '<div><div class="rd-uplabel" style="margin-bottom:12px">사용 덱</div><div style="display:flex;flex-direction:column;gap:8px">' +
-    decks.map(d => '<div style="display:flex;flex-direction:column;gap:7px;background:var(--muted);border:1px solid var(--border);border-radius:10px;padding:9px 11px">' +
-      '<div style="display:flex;align-items:center;gap:7px">' +
-        '<span style="display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;border-radius:4px;background:' + (EL_BG[d.elem] || "var(--muted)") + ';color:' + (EL_COL[d.elem] || "var(--dim)") + ';font-size:9px;font-weight:800;flex-shrink:0">' + d.step + '</span>' +
-        '<span style="font-size:12px;font-weight:700;color:var(--text)">' + esc(d.short) + '</span>' +
-        (d.elem ? '<span style="font-size:9px;font-weight:700;color:' + (EL_COL[d.elem] || "var(--dim)") + '">[' + d.elem + ']</span>' : "") +
-        (d.final ? '<span style="font-size:9px;font-weight:800;color:var(--red)">막타</span>' : "") +
-        '<span style="margin-left:auto;font-size:12px;font-weight:800;color:' + (d.final ? "var(--red)" : "var(--text)") + '" class="tnum">' + fmtEok(d.dmg) + '</span>' +
-      '</div>' +
-      '<div style="display:flex;gap:3px">' + d.chars.map(c => charImg(c, { style: "width:29px;height:29px;border-radius:5px;object-fit:cover" })).join("") + '</div>' +
-    '</div>').join("") +
-    '</div>' :
-    '<div style="padding:14px;text-align:center;color:var(--dim);font-size:12px;font-weight:600;background:var(--muted);border-radius:10px">' + season + ' 시즌 레이드 기록 없음</div>';
-
-  /* 시즌 옵션 */
-  const seasonOptions = [...raidKeys].reverse().map(sk => { const rk = UNION[parseInt(sk.slice(1))] ? UNION[parseInt(sk.slice(1))].rank : null; return '<option value="' + sk + '"' + (sk === season ? " selected" : "") + '>' + sk + (rk != null ? " (" + rk + "위)" : "") + '</option>'; }).join("");
-
-  return '<div style="padding:18px 20px 16px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,var(--muted),var(--card))">' +
-      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">' +
-        '<div style="min-width:0"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:20px;font-weight:800;color:var(--text)">' + esc(name) + '</span>' +
-          (roleKo ? '<span class="rd-role" style="font-size:11px;padding:2px 9px;background:' + (roleKo === "리더" ? "var(--role-leader-bg)" : "var(--role-officer-bg)") + ';color:' + (roleKo === "리더" ? "var(--role-leader)" : "var(--role-officer)") + '">' + roleKo + '</span>' : "") + '</div>' +
-          '<div style="font-size:12px;color:var(--sub);margin-top:4px">' + rankLabel + ' · 싱크로레벨 <b style="color:var(--text)">' + syncNow + '</b></div></div>' +
-        '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0"><select class="rd-select" id="rdPopupSeason">' + seasonOptions + '</select>' +
-          '<span class="rd-modal-close" data-act="close-popup">✕</span></div>' +
-      '</div>' +
-    '</div>' +
-    '<div class="rd-popup-scroll" style="padding:18px 20px 20px;display:flex;flex-direction:column;gap:18px;max-height:580px;overflow-y:auto">' +
-      '<div><div class="rd-uplabel" style="margin-bottom:12px">싱크로레벨 변화</div><div style="display:flex;align-items:flex-end;gap:7px;height:128px">' + syncBars + '</div></div>' +
-      statsHTML + outpostHTML +
-      '<div style="margin-top:2px;padding-top:18px;border-top:2px solid var(--line)">' +
-        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px"><span class="rd-sec-bar" style="height:14px"></span><span style="font-size:13px;font-weight:800;color:var(--text)">유니온레이드</span><span style="font-size:11px;font-weight:700;color:var(--blue);background:var(--blue-l);padding:1px 8px;border-radius:999px">' + season + '</span></div>' +
-        metricsHTML +
-        (hasDmgTrend ? '<div style="margin-bottom:18px"><div class="rd-uplabel" style="margin-bottom:12px">시즌별 총 대미지 추이</div><div style="display:flex;align-items:flex-end;gap:7px;height:128px">' + dmgBars + '</div></div>' : "") +
-        decksHTML +
-      '</div>' +
-    '</div>';
-}
+const POPUP_CTX = { members, ROLE_KO, roleOf, seasonKeys, lvlMaps, raidKeys, OPF };
+function buildPopupHTML(name, season){ return buildMemberPopupHTML(POPUP_CTX, name, season); }
 
 function renderPopup(){
   const prevBody = document.querySelector("#rdMemberModal .rd-popup-scroll");
