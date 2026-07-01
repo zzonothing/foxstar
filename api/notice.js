@@ -10,6 +10,7 @@
 // 메서드:
 //   GET    /api/notice            → { admin: bool }         (작성 UI 노출 판단용)
 //   POST   /api/notice            → 공지 추가 (관리자 전용)  body: { title, body, author? }
+//   PUT    /api/notice            → 공지 수정 (관리자 전용)  body: { id, title, body, author? }
 //   DELETE /api/notice?id=<id>    → 공지 삭제 (관리자 전용)
 //
 // 필요한 환경변수(Vercel 프로젝트 설정):
@@ -128,7 +129,7 @@ module.exports = async function handler(req, res) {
   }
 
   // 쓰기 계열은 로그인 + 관리자 필수.
-  if (req.method === 'POST' || req.method === 'DELETE') {
+  if (req.method === 'POST' || req.method === 'PUT' || req.method === 'DELETE') {
     if (!auth.valid) return res.status(401).json({ error: 'auth required' });
     if (!auth.admin) return res.status(403).json({ error: 'admin only' });
     if (!token()) return res.status(500).json({ error: 'server misconfig: GH_TOKEN 미설정' });
@@ -153,6 +154,30 @@ module.exports = async function handler(req, res) {
         '공지 추가: ' + title.slice(0, 60)
       );
       return res.status(200).json({ ok: true, notice });
+    }
+
+    if (req.method === 'PUT') {
+      const b = readBody(req);
+      const id     = cleanStr(b.id, 200);
+      const title  = cleanStr(b.title, LIMIT.title);
+      const body   = cleanStr(b.body, LIMIT.body);
+      const author = cleanStr(b.author, LIMIT.author) || '운영진';
+      if (!id)    return res.status(400).json({ error: 'id 필요' });
+      if (!title) return res.status(400).json({ error: '제목을 입력하세요' });
+      if (!body)  return res.status(400).json({ error: '내용을 입력하세요' });
+
+      let updated = null;
+      await commitList(
+        list => list.map(n => {
+          if (n.id !== id) return n;
+          // 생성 시각(ts)·id 는 유지하고 수정 시각(editedTs) 을 남긴다.
+          updated = Object.assign({}, n, { title: title, body: body, author: author, editedTs: Date.now() });
+          return updated;
+        }),
+        '공지 수정: ' + title.slice(0, 60)
+      );
+      if (!updated) return res.status(404).json({ error: '해당 공지를 찾을 수 없음' });
+      return res.status(200).json({ ok: true, notice: updated });
     }
 
     if (req.method === 'DELETE') {

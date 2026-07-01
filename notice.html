@@ -12,16 +12,29 @@
   <style>html{background:#eef1f6}html.dark{background:#111827}body:not(.ready){visibility:hidden}</style>
   <link rel="stylesheet" href="css/style.css?v=5" />
   <style>
+    /* 폼 */
     .nt-label{ display:block; font-size:12px; font-weight:700; color:var(--sub); margin-bottom:5px; }
     .nt-input,.nt-textarea{ width:100%; box-sizing:border-box; border:1.5px solid var(--border); border-radius:10px; background:var(--muted); color:var(--text); font-family:inherit; font-size:14px; padding:10px 12px; outline:none; transition:border-color .15s; }
     .nt-input:focus,.nt-textarea:focus{ border-color:var(--blue); }
-    .nt-textarea{ min-height:160px; resize:vertical; line-height:1.6; }
+    .nt-textarea{ min-height:340px; resize:vertical; line-height:1.8; }
+    #ntComposeModal,#ntReadModal{ max-height:92vh; overflow-y:auto; }
     .nt-btn{ border:none; border-radius:9px; background:var(--blue); color:#fff; font-family:inherit; font-size:13px; font-weight:700; padding:9px 16px; cursor:pointer; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
     .nt-btn:disabled{ opacity:.6; cursor:default; }
     .nt-btn-ghost{ border:1px solid var(--border); border-radius:9px; background:var(--card); color:var(--sub); font-family:inherit; font-size:13px; font-weight:700; padding:9px 16px; cursor:pointer; }
-    .nt-del{ border:1px solid var(--border); border-radius:7px; background:transparent; color:var(--dim); font-family:inherit; font-size:11px; font-weight:700; padding:4px 10px; cursor:pointer; flex-shrink:0; }
-    .nt-del:hover{ color:var(--red); border-color:var(--red); }
     .nt-flash{ background:var(--blue-l); color:var(--blue); border:1px solid var(--blue); border-radius:10px; padding:10px 14px; font-size:13px; font-weight:600; }
+    /* 목록 (제목 클릭 → 읽기 팝업) */
+    .nt-item{ padding:0; overflow:hidden; }
+    .nt-row{ width:100%; display:flex; align-items:center; gap:12px; padding:15px 18px; background:transparent; border:none; cursor:pointer; text-align:left; font-family:inherit; -webkit-tap-highlight-color:transparent; }
+    .nt-row:hover .nt-title{ color:var(--blue); }
+    .nt-row-txt{ flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+    .nt-title{ font-size:15px; font-weight:800; color:var(--text); word-break:break-word; transition:color .12s; }
+    .nt-meta{ font-size:11px; font-weight:600; color:var(--dim); }
+    .nt-arrow{ color:var(--dim); font-size:20px; font-weight:700; flex-shrink:0; line-height:1; }
+    /* 읽기 팝업 본문 */
+    .nt-read-body{ padding:18px 22px 22px; max-height:64vh; overflow-y:auto; font-size:15px; color:var(--text); line-height:1.9; word-break:break-word; }
+    .nt-edit,.nt-del{ border:1px solid var(--border); border-radius:8px; background:transparent; font-family:inherit; font-size:12px; font-weight:700; padding:6px 14px; cursor:pointer; flex-shrink:0; color:var(--sub); }
+    .nt-edit:hover{ color:var(--blue); border-color:var(--blue); }
+    .nt-del:hover{ color:var(--red); border-color:var(--red); }
   </style>
   <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
 </head>
@@ -38,9 +51,14 @@
   </div>
 </main>
 
-<!-- 공지 작성 모달 (관리자 전용) -->
+<!-- 공지 읽기 팝업 -->
+<div id="ntReadOverlay" class="rd-overlay" style="display:none">
+  <div class="rd-modal" id="ntReadModal" style="max-width:640px"></div>
+</div>
+
+<!-- 공지 작성/수정 팝업 (관리자 전용) -->
 <div id="ntComposeOverlay" class="rd-overlay" style="display:none">
-  <div class="rd-modal" id="ntComposeModal" style="max-width:520px"></div>
+  <div class="rd-modal" id="ntComposeModal" style="max-width:640px"></div>
 </div>
 
 <script src="data/config.js" onerror="window.__DATA_ERROR=1"></script>
@@ -63,6 +81,7 @@ document.title = "공지 | " + CONFIG.unionName;
 const state = {
   admin: false,
   flash: null,
+  editing: null,          // 수정 중인 공지 id (없으면 신규 작성)
   list: (typeof NOTICE !== "undefined" && Array.isArray(NOTICE)) ? NOTICE.slice() : []
 };
 
@@ -79,23 +98,24 @@ function fmtDate(ts){
   } catch (e) { return ""; }
 }
 
-/* ─── 렌더 ─── */
+/* ─── 목록 렌더 ─── */
 function pageHeaderHTML(){
   return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px">' +
     '<div><div style="font-size:20px;font-weight:800;color:var(--text)">공지사항</div>' +
-      '<div style="font-size:12px;color:var(--sub);margin-top:2px">운영진이 전하는 소식</div></div>' +
+      '<div style="font-size:12px;color:var(--sub);margin-top:2px">제목을 눌러 내용을 확인하세요</div></div>' +
     (state.admin ? '<button type="button" class="nt-btn" data-act="compose-open">＋ 글쓰기</button>' : '') +
   '</div>';
 }
 function noticeCardHTML(n){
-  const body = esc(n.body || "").replace(/\n/g, "<br>");
-  return '<article class="rd-card" style="padding:16px 18px">' +
-    '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">' +
-      '<h2 style="font-size:16px;font-weight:800;color:var(--text);margin:0;word-break:break-word">' + esc(n.title || "") + '</h2>' +
-      (state.admin ? '<button type="button" class="nt-del" data-act="notice-del" data-id="' + esc(n.id) + '">삭제</button>' : '') +
-    '</div>' +
-    '<div style="font-size:11px;color:var(--dim);font-weight:600;margin-top:4px">' + esc(n.author || "운영진") + ' · ' + fmtDate(n.ts) + '</div>' +
-    '<div style="font-size:14px;color:var(--text);line-height:1.7;margin-top:12px;word-break:break-word">' + body + '</div>' +
+  const edited = n.editedTs ? " · 수정됨" : "";
+  return '<article class="rd-card nt-item">' +
+    '<button type="button" class="nt-row" data-act="read" data-id="' + esc(n.id) + '">' +
+      '<span class="nt-row-txt">' +
+        '<span class="nt-title">' + esc(n.title || "") + '</span>' +
+        '<span class="nt-meta">' + esc(n.author || "운영진") + ' · ' + fmtDate(n.ts) + edited + '</span>' +
+      '</span>' +
+      '<span class="nt-arrow" aria-hidden="true">›</span>' +
+    '</button>' +
   '</article>';
 }
 function renderList(){
@@ -106,30 +126,62 @@ function renderList(){
   document.getElementById("rdContent").innerHTML = html;
 }
 
-/* ─── 작성 모달 (관리자) ─── */
-function composeModalHTML(){
-  return '<div style="padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">' +
-      '<span style="font-size:16px;font-weight:800;color:var(--text)">공지 작성</span>' +
+/* ─── 읽기 팝업 ─── */
+function readModalHTML(n){
+  const body = esc(n.body || "").replace(/\n/g, "<br>");
+  const edited = n.editedTs ? " · 수정됨" : "";
+  return '<div style="padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px">' +
+      '<div style="min-width:0">' +
+        '<div style="font-size:19px;font-weight:800;color:var(--text);word-break:break-word">' + esc(n.title || "") + '</div>' +
+        '<div style="font-size:12px;color:var(--dim);font-weight:600;margin-top:5px">' + esc(n.author || "운영진") + ' · ' + fmtDate(n.ts) + edited + '</div>' +
+      '</div>' +
+      '<span class="rd-modal-close" data-act="close-read" style="flex-shrink:0">✕</span>' +
+    '</div>' +
+    '<div class="nt-read-body">' + body + '</div>' +
+    (state.admin ?
+      '<div style="padding:12px 22px 18px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end">' +
+        '<button type="button" class="nt-edit" data-act="notice-edit" data-id="' + esc(n.id) + '">수정</button>' +
+        '<button type="button" class="nt-del" data-act="notice-del" data-id="' + esc(n.id) + '">삭제</button>' +
+      '</div>' : "") ;
+}
+function openRead(id){
+  const n = state.list.find(x => x.id === id);
+  if (!n) return;
+  document.getElementById("ntReadModal").innerHTML = readModalHTML(n);
+  openModal(document.getElementById("ntReadOverlay"), { label: (n.title || "공지") });
+}
+function closeRead(){ closeModal(document.getElementById("ntReadOverlay")); }
+
+/* ─── 작성/수정 팝업 (관리자) ─── */
+function composeModalHTML(edit){
+  const isEdit = !!edit;
+  const tv = isEdit ? esc(edit.title || "") : "";
+  const av = isEdit ? esc(edit.author || "") : "";
+  const bv = isEdit ? esc(edit.body || "") : "";
+  return '<div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">' +
+      '<span style="font-size:16px;font-weight:800;color:var(--text)">' + (isEdit ? "공지 수정" : "공지 작성") + '</span>' +
       '<span class="rd-modal-close" data-act="compose-cancel">✕</span>' +
     '</div>' +
-    '<div style="padding:16px 18px;display:flex;flex-direction:column;gap:12px">' +
-      '<div><label class="nt-label" for="ntTitle">제목</label><input id="ntTitle" class="nt-input" maxlength="100" placeholder="공지 제목" /></div>' +
-      '<div><label class="nt-label" for="ntAuthor">작성자 (선택)</label><input id="ntAuthor" class="nt-input" maxlength="30" placeholder="운영진" /></div>' +
-      '<div><label class="nt-label" for="ntBody">내용</label><textarea id="ntBody" class="nt-textarea" maxlength="5000" placeholder="내용을 입력하세요"></textarea></div>' +
+    '<div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">' +
+      '<div><label class="nt-label" for="ntTitle">제목</label><input id="ntTitle" class="nt-input" maxlength="100" placeholder="공지 제목" value="' + tv + '" /></div>' +
+      '<div><label class="nt-label" for="ntAuthor">작성자 (선택)</label><input id="ntAuthor" class="nt-input" maxlength="30" placeholder="운영진" value="' + av + '" /></div>' +
+      '<div><label class="nt-label" for="ntBody">내용</label><textarea id="ntBody" class="nt-textarea" maxlength="5000" placeholder="내용을 입력하세요">' + bv + '</textarea></div>' +
       '<div id="ntMsg" style="min-height:18px;font-size:12px;font-weight:600;color:var(--sub)"></div>' +
       '<div style="display:flex;gap:8px;justify-content:flex-end">' +
         '<button type="button" class="nt-btn-ghost" data-act="compose-cancel">취소</button>' +
-        '<button type="button" class="nt-btn" id="ntSave" data-act="compose-save">등록</button>' +
+        '<button type="button" class="nt-btn" id="ntSave" data-act="compose-save">' + (isEdit ? "수정" : "등록") + '</button>' +
       '</div>' +
     '</div>';
 }
-function openCompose(){
-  document.getElementById("ntComposeModal").innerHTML = composeModalHTML();
-  openModal(document.getElementById("ntComposeOverlay"), { label: "공지 작성" });
+function openCompose(editId){
+  const edit = editId ? state.list.find(n => n.id === editId) : null;
+  state.editing = edit ? edit.id : null;
+  document.getElementById("ntComposeModal").innerHTML = composeModalHTML(edit);
+  openModal(document.getElementById("ntComposeOverlay"), { label: edit ? "공지 수정" : "공지 작성" });
   const t = document.getElementById("ntTitle");
   if (t) setTimeout(() => { try { t.focus(); } catch (e) {} }, 30);
 }
-function closeCompose(){ closeModal(document.getElementById("ntComposeOverlay")); }
+function closeCompose(){ state.editing = null; closeModal(document.getElementById("ntComposeOverlay")); }
 
 function submitNotice(){
   const title  = (document.getElementById("ntTitle").value  || "").trim();
@@ -139,22 +191,34 @@ function submitNotice(){
   const save = document.getElementById("ntSave");
   if (!title) { msg.style.color = "var(--red)"; msg.textContent = "제목을 입력하세요"; return; }
   if (!body)  { msg.style.color = "var(--red)"; msg.textContent = "내용을 입력하세요"; return; }
+  const editing = state.editing;
   save.disabled = true;
   msg.style.color = "var(--sub)";
-  msg.textContent = "등록 중…";
+  msg.textContent = editing ? "수정 중…" : "등록 중…";
+  const payload = editing ? { id: editing, title: title, author: author, body: body }
+                          : { title: title, author: author, body: body };
   fetch("/api/notice", {
-    method: "POST",
+    method: editing ? "PUT" : "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title: title, author: author, body: body })
+    body: JSON.stringify(payload)
   }).then(r => r.json().catch(() => ({})).then(j => ({ ok: r.ok, j: j }))).then(res => {
     if (res.ok && res.j && res.j.ok && res.j.notice) {
-      state.list = [res.j.notice].concat(state.list);
-      state.flash = "공지가 등록되었습니다. 다른 기기·새로고침 반영까지 1~2분 걸릴 수 있어요.";
-      closeCompose();
-      renderList();
+      const nn = res.j.notice;
+      if (editing) {
+        state.list = state.list.map(n => n.id === nn.id ? nn : n);
+        state.flash = "공지가 수정되었습니다. 다른 기기·새로고침 반영까지 1~2분 걸릴 수 있어요.";
+        closeCompose();
+        renderList();
+        openRead(nn.id);   // 수정 결과를 읽기 팝업으로 바로 표시
+      } else {
+        state.list = [nn].concat(state.list);
+        state.flash = "공지가 등록되었습니다. 다른 기기·새로고침 반영까지 1~2분 걸릴 수 있어요.";
+        closeCompose();
+        renderList();
+      }
     } else {
       msg.style.color = "var(--red)";
-      msg.textContent = (res.j && res.j.error) ? res.j.error : "등록에 실패했어요";
+      msg.textContent = (res.j && res.j.error) ? res.j.error : (editing ? "수정에 실패했어요" : "등록에 실패했어요");
       save.disabled = false;
     }
   }).catch(() => {
@@ -172,6 +236,7 @@ function delNotice(id){
       if (res.ok && res.j && res.j.ok) {
         state.list = state.list.filter(n => n.id !== id);
         state.flash = "공지를 삭제했습니다. 반영까지 1~2분 걸릴 수 있어요.";
+        closeRead();
         renderList();
       } else {
         window.alert((res.j && res.j.error) ? res.j.error : "삭제에 실패했어요");
@@ -191,13 +256,21 @@ function loadAdmin(){
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-act]"); if (!t) return;
   const act = t.dataset.act;
-  if (act === "compose-open") openCompose();
+  if (act === "read") openRead(t.dataset.id);
+  else if (act === "close-read") closeRead();
+  else if (act === "compose-open") openCompose();
   else if (act === "compose-cancel") closeCompose();
   else if (act === "compose-save") submitNotice();
+  else if (act === "notice-edit") { closeRead(); openCompose(t.dataset.id); }
   else if (act === "notice-del") delNotice(t.dataset.id);
 });
+document.getElementById("ntReadOverlay").addEventListener("click", e => { if (e.target === e.currentTarget) closeRead(); });
 document.getElementById("ntComposeOverlay").addEventListener("click", e => { if (e.target === e.currentTarget) closeCompose(); });
-document.addEventListener("keydown", e => { if (e.key === "Escape" && document.getElementById("ntComposeOverlay").style.display !== "none") closeCompose(); });
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  if (document.getElementById("ntComposeOverlay").style.display !== "none") closeCompose();
+  else if (document.getElementById("ntReadOverlay").style.display !== "none") closeRead();
+});
 
 renderList();
 markReady();
