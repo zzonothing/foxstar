@@ -88,6 +88,7 @@ function barHeights(values, opts){
    active: 현재 페이지 파일명(예: "index.html"). */
 var NAV_ITEMS = [
   ["index.html", "홈", "홈"],
+  ["notice.html", "공지", "공지"],
   ["raid.html", "유니온레이드", "유레"],
   ["solo.html", "솔로레이드", "솔레"],
   ["shift.html", "시프티패드", "시프티"],
