@@ -124,15 +124,18 @@ function renderHeader(active){
     '</div>';
 }
 
-/* ─── 테마 토글 (사전 페인트 .dark 는 각 페이지 <head> 인라인 유지) ── */
+/* ─── 테마 토글 (사전 페인트 .dark 는 각 페이지 <head> 인라인 유지) ──
+   초기 상태는 head 인라인이 이미 적용한 html.dark 를 따른다 — 저장값뿐
+   아니라 시스템 다크모드(prefers-color-scheme) 폴백까지 반영하기 위함.
+   토글로 명시 선택하면 localStorage 에 저장되어 이후 시스템 설정보다 우선. */
 function setupTheme(){
   var html = document.documentElement, btn = document.getElementById("themeToggle");
   if (!btn) return;
-  if (localStorage.getItem("theme") === "dark") { html.classList.add("dark"); btn.textContent = "☀️"; }
+  if (html.classList.contains("dark")) btn.textContent = "☀️";
   btn.addEventListener("click", function(){
     var isDark = html.classList.toggle("dark");
     btn.textContent = isDark ? "☀️" : "🌙";
-    localStorage.setItem("theme", isDark ? "dark" : "light");
+    try { localStorage.setItem("theme", isDark ? "dark" : "light"); } catch (e) {}
   });
 }
 
