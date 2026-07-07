@@ -1,7 +1,7 @@
-const fs     = require('fs');
-const path   = require('path');
-const crypto = require('crypto');
+const fs   = require('fs');
+const path = require('path');
 const { verifyRequest } = require('./_lib/session');
+const { makeEntry, sendEntry } = require('./_lib/compress');
 
 // 시뮬레이션 데이터: api/_data/sim/{meta.json, union.json, detail/<uid>.json}
 const SIM_DIR = path.join(process.cwd(), 'api', '_data', 'sim');
@@ -14,14 +14,12 @@ function isAllowedPath(file) {
   return false;
 }
 
-// 캐시: 파일 경로 → { buf, etag }
+// 캐시: 파일 경로 → 사전 압축 엔트리 (api/_lib/compress.js)
 const CACHE = {};
 function loadFile(file) {
   if (CACHE[file]) return CACHE[file];
   try {
-    const buf = fs.readFileSync(path.join(SIM_DIR, file));
-    const etag = '"' + crypto.createHash('sha1').update(buf).digest('hex') + '"';
-    CACHE[file] = { buf, etag };
+    CACHE[file] = makeEntry(fs.readFileSync(path.join(SIM_DIR, file)));
     return CACHE[file];
   } catch (e) {
     return null;
@@ -42,12 +40,5 @@ module.exports = function handler(req, res) {
   const entry = loadFile(file);
   if (!entry) return res.status(404).end();
 
-  res.setHeader('ETag', entry.etag);
-  res.setHeader('Cache-Control', 'private, no-cache');
-
-  if (req.headers['if-none-match'] === entry.etag) {
-    return res.status(304).end();
-  }
-
-  return res.status(200).send(entry.buf);
+  return sendEntry(req, res, entry);
 };
