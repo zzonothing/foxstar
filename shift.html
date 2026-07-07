@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#eef1f6" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
   <title>시프티패드 | 승리의 여신: 니케</title>
   <link rel="icon" type="image/png" href="image/foxstar.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -74,7 +76,7 @@
   })();
   </script>
   <style>html{background:#eef1f6}html.dark{background:#111827}body:not(.ready){visibility:hidden}</style>
-  <link rel="stylesheet" href="css/style.css?v=6" />
+  <link rel="stylesheet" href="css/style.css?v=7" />
   <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
 </head>
 <body>
@@ -99,7 +101,7 @@
 <script src="data/character.js" onerror="window.__DATA_ERROR=1"></script>
 
 <!-- ═══════════ 공통 스크립트 (헬퍼·테마·인증·차트·모달) ═══════════ -->
-<script src="js/common.js?v=6"></script>
+<script src="js/common.js?v=7"></script>
 
 <script>
 if (window.__DATA_ERROR || typeof authGuardOrRedirect !== "function") {
@@ -291,7 +293,7 @@ function mGroupCharRow(r, extraDefs){
   const c = r.c, m = r.m;
   const id = '<div style="display:flex;align-items:center;gap:5px;padding-left:11px">' + mDot(c) +
     mName(m, c) +
-    (r.kind === "primary" ? '<span style="font-size:8px;font-weight:700;padding:0 4px;border-radius:3px;background:#334155;color:#fff;flex-shrink:0">기준</span>' : "") +
+    (r.kind === "primary" ? '<span style="font-size:10px;font-weight:700;padding:0 5px;border-radius:3px;background:#334155;color:#fff;flex-shrink:0">기준</span>' : "") +
     '</div>';
   return '<tr style="border-bottom:1px solid var(--line)">' + mIdCell(id) + mStatCells(c, extraDefs) + '</tr>';
 }
@@ -363,7 +365,7 @@ function updateCharChips(){
     const primary = state.chars.length >= 2 && i === 0;
     return '<span class="combo-chip" style="background:' + (primary ? "var(--chip-base-bg)" : "var(--chip-gray-bg)") + ';border:1px solid ' + (primary ? "var(--chip-base-bd)" : "var(--chip-gray-bd)") + ';color:' + (primary ? "var(--chip-base-col)" : "var(--chip-gray-col)") + '">' +
       '<span style="width:7px;height:7px;border-radius:50%;background:' + (ECOL[charMap.get(name)] || "var(--dim)") + '"></span>' + esc(name) +
-      (primary ? '<span style="font-size:9px;font-weight:700;padding:0 5px;border-radius:4px;background:#334155;color:#fff">기준</span>' : "") +
+      (primary ? '<span style="font-size:10px;font-weight:700;padding:0 5px;border-radius:4px;background:#334155;color:#fff">기준</span>' : "") +
       '<span class="x" data-act="rm-char" data-name="' + esc(name) + '">×</span></span>';
   }).join("");
 }
