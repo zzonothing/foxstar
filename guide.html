@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#eef1f6" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
   <title>육성 가이드 | 승리의 여신: 니케</title>
   <link rel="icon" type="image/png" href="image/foxstar.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -74,7 +76,7 @@
   })();
   </script>
   <style>html{background:#eef1f6}html.dark{background:#111827}body:not(.ready){visibility:hidden}</style>
-  <link rel="stylesheet" href="css/style.css?v=6" />
+  <link rel="stylesheet" href="css/style.css?v=7" />
   <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
 </head>
 <body>
@@ -94,7 +96,7 @@
 <script src="data/member.js"     onerror="window.__DATA_ERROR=1"></script>
 <script src="data/character.js"  onerror="window.__DATA_ERROR=1"></script>
 
-<script src="js/common.js?v=6"></script>
+<script src="js/common.js?v=7"></script>
 
 <script>
 if (window.__DATA_ERROR || typeof authGuardOrRedirect !== "function") {
@@ -265,7 +267,7 @@ function statusBadge(st){
 
 /* 항목 한 줄 — [항목] (현재태그) 값 → (목표태그) 값 (단색) */
 function tagLabel(text){
-  return '<span style="font-size:9px;font-weight:800;border-radius:999px;padding:1px 7px;white-space:nowrap;background:var(--muted);color:var(--sub)">' + text + '</span>';
+  return '<span style="font-size:10px;font-weight:800;border-radius:999px;padding:1px 7px;white-space:nowrap;background:var(--muted);color:var(--sub)">' + text + '</span>';
 }
 function metricRow(label, cur, tgt, bad){
   // 이미 목표를 만족한(미달 아님) 항목은 현재값만 표시, 목표는 숨김

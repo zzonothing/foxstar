@@ -83,6 +83,13 @@ function barHeights(values, opts){
   });
 }
 
+/* ─── 테마 토글 아이콘 (이모지 대신 SVG — OS 별 렌더링 편차 제거) ── */
+var THEME_ICON = {
+  moon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+  sun:  '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>'
+};
+function themeIcon(){ return document.documentElement.classList.contains("dark") ? THEME_ICON.sun : THEME_ICON.moon; }
+
 /* ─── 헤더/네비게이션 주입 (한 곳에서 관리) ───────────────────────
    각 페이지는 <header class="rd-header" id="rdHeader"></header> placeholder 만 둔다.
    active: 현재 페이지 파일명(예: "index.html"). */
@@ -117,24 +124,39 @@ function renderHeader(active){
             '<div class="rd-title" id="headerTitle">' + esc(name) + '</div>' +
           '</div>' +
         '</div>' +
-        '<button class="rd-toggle" id="themeToggle" title="다크/라이트 모드 전환" aria-label="다크/라이트 모드 전환">🌙</button>' +
+        '<button class="rd-toggle" id="themeToggle" title="다크/라이트 모드 전환" aria-label="다크/라이트 모드 전환">' + themeIcon() + '</button>' +
       '</div>' +
       '<nav class="rd-nav" aria-label="주요 메뉴">' + links(false) + '</nav>' +
       '<nav class="rd-nav-mobile" aria-label="주요 메뉴">' + links(true) + '</nav>' +
     '</div>';
+  /* 모바일 탭이 넘칠 때(가로 스크롤) 활성 탭을 가운데로 */
+  var mnav = mount.querySelector(".rd-nav-mobile");
+  var act = mnav ? mnav.querySelector("a.active") : null;
+  if (act && mnav.scrollWidth > mnav.clientWidth) {
+    mnav.scrollLeft = (act.offsetLeft - mnav.offsetLeft) - (mnav.clientWidth - act.offsetWidth) / 2;
+  }
 }
 
 /* ─── 테마 토글 (사전 페인트 .dark 는 각 페이지 <head> 인라인 유지) ──
    초기 상태는 head 인라인이 이미 적용한 html.dark 를 따른다 — 저장값뿐
    아니라 시스템 다크모드(prefers-color-scheme) 폴백까지 반영하기 위함.
    토글로 명시 선택하면 localStorage 에 저장되어 이후 시스템 설정보다 우선. */
+function syncThemeColor(){
+  /* <meta name="theme-color"> 를 실제 적용 테마와 일치시킴 — 정적 메타의
+     media 분기는 시스템 설정만 따르므로, 명시 토글 선택을 여기서 반영한다. */
+  var color = document.documentElement.classList.contains("dark") ? "#111827" : "#eef1f6";
+  var metas = document.querySelectorAll('meta[name="theme-color"]');
+  for (var i = 0; i < metas.length; i++) metas[i].setAttribute("content", color);
+}
 function setupTheme(){
   var html = document.documentElement, btn = document.getElementById("themeToggle");
   if (!btn) return;
-  if (html.classList.contains("dark")) btn.textContent = "☀️";
+  btn.innerHTML = themeIcon();
+  syncThemeColor();
   btn.addEventListener("click", function(){
     var isDark = html.classList.toggle("dark");
-    btn.textContent = isDark ? "☀️" : "🌙";
+    btn.innerHTML = themeIcon();
+    syncThemeColor();
     try { localStorage.setItem("theme", isDark ? "dark" : "light"); } catch (e) {}
   });
 }
@@ -225,16 +247,16 @@ function buildMemberPopupHTML(ctx, name, season){
   const syncBars = syncSeasons.map((k, i) => {
     const v = svVals[i], sel = ("S" + k) === season;
     return '<div data-act="popup-season" data-season="S' + k + '" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;cursor:pointer">' +
-      '<div style="font-size:8px;font-weight:700;color:var(--text);margin-bottom:3px" class="tnum">' + (v == null ? "—" : v) + '</div>' +
+      '<div style="font-size:10px;font-weight:700;color:var(--text);margin-bottom:3px" class="tnum">' + (v == null ? "—" : v) + '</div>' +
       '<div style="width:100%;max-width:26px;flex-shrink:0;height:' + syncH[i] + 'px;background:' + (sel ? "var(--bar)" : (v != null ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
-      '<div style="font-size:9px;color:' + (sel ? "var(--blue)" : "var(--dim)") + ';font-weight:700;margin-top:5px">' + k + '</div></div>';
+      '<div style="font-size:10px;color:' + (sel ? "var(--blue)" : "var(--dim)") + ';font-weight:700;margin-top:5px">' + k + '</div></div>';
   }).join("");
 
   /* 스탯 / 거점 (현재 빌드) */
   const hasStats = !!(cur && cur.normal);
   let statsHTML = "", outpostHTML = "";
   if (hasStats) {
-    const sc = (label, val, col) => '<div style="background:var(--muted);border:1px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center"><div style="font-size:9px;color:var(--dim);font-weight:700;margin-bottom:3px">' + label + '</div><div style="font-size:13px;font-weight:800;color:' + col + '" class="tnum">' + val + '</div></div>';
+    const sc = (label, val, col) => '<div style="background:var(--muted);border:1px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center"><div style="font-size:10px;color:var(--dim);font-weight:700;margin-bottom:3px">' + label + '</div><div style="font-size:13px;font-weight:800;color:' + col + '" class="tnum">' + val + '</div></div>';
     statsHTML = '<div><div class="rd-uplabel" style="margin-bottom:10px">스탯 요약</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">' +
       sc("노말", cur.normal, cur.normal === "46-40" ? "var(--red)" : "var(--text)") +
       sc("하드", cur.hard, cur.hard === "46-40" ? "var(--red)" : "var(--text)") +
@@ -276,23 +298,23 @@ function buildMemberPopupHTML(ctx, name, season){
   const dmgBars = dmgVals.map((d, i) => {
     const sel = d.s === season;
     return '<div data-act="popup-season" data-season="' + d.s + '" style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;cursor:pointer">' +
-      '<div style="font-size:7px;font-weight:700;color:var(--text);margin-bottom:3px" class="tnum">' + (d.v ? fmtEok(d.v) : "—") + '</div>' +
+      '<div style="font-size:9px;font-weight:700;color:var(--text);margin-bottom:3px" class="tnum">' + (d.v ? fmtEok(d.v) : "—") + '</div>' +
       '<div style="width:100%;max-width:26px;flex-shrink:0;height:' + dmgH[i] + 'px;background:' + (sel ? "var(--bar)" : (d.v ? "var(--bar-l)" : "var(--bar-empty)")) + ';border-radius:4px 4px 0 0"></div>' +
-      '<div style="font-size:9px;color:' + (sel ? "var(--blue)" : "var(--dim)") + ';font-weight:700;margin-top:5px">' + d.s.slice(1) + '</div></div>';
+      '<div style="font-size:10px;color:' + (sel ? "var(--blue)" : "var(--dim)") + ';font-weight:700;margin-top:5px">' + d.s.slice(1) + '</div></div>';
   }).join("");
 
   const metricsHTML = rmember ? '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px">' +
     [["시즌 총 대미지", fmtEok(total), "var(--blue)"], ["유니온 기여", contrib + "%", "var(--text)"], ["막타", finalCount + "회", "var(--red)"]].map(m =>
-      '<div style="background:var(--muted);border:1px solid var(--border);border-radius:10px;padding:9px 11px"><div style="font-size:9px;color:var(--dim);font-weight:700;text-transform:uppercase">' + m[0] + '</div><div style="font-size:15px;font-weight:800;color:' + m[2] + ';margin-top:2px" class="tnum">' + m[1] + '</div></div>').join("") +
+      '<div style="background:var(--muted);border:1px solid var(--border);border-radius:10px;padding:9px 11px"><div style="font-size:10px;color:var(--dim);font-weight:700;text-transform:uppercase">' + m[0] + '</div><div style="font-size:15px;font-weight:800;color:' + m[2] + ';margin-top:2px" class="tnum">' + m[1] + '</div></div>').join("") +
     '</div>' : "";
 
   const decksHTML = decks.length ? '<div><div class="rd-uplabel" style="margin-bottom:12px">사용 덱</div><div style="display:flex;flex-direction:column;gap:8px">' +
     decks.map(d => '<div style="display:flex;flex-direction:column;gap:7px;background:var(--muted);border:1px solid var(--border);border-radius:10px;padding:9px 11px">' +
       '<div style="display:flex;align-items:center;gap:7px">' +
-        '<span style="display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;border-radius:4px;background:' + (EL_BG[d.elem] || "var(--muted)") + ';color:' + (EL_COL[d.elem] || "var(--dim)") + ';font-size:9px;font-weight:800;flex-shrink:0">' + d.step + '</span>' +
+        '<span style="display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;border-radius:4px;background:' + (EL_BG[d.elem] || "var(--muted)") + ';color:' + (EL_COL[d.elem] || "var(--dim)") + ';font-size:10px;font-weight:800;flex-shrink:0">' + d.step + '</span>' +
         '<span style="font-size:12px;font-weight:700;color:var(--text)">' + esc(d.short) + '</span>' +
-        (d.elem ? '<span style="font-size:9px;font-weight:700;color:' + (EL_COL[d.elem] || "var(--dim)") + '">[' + d.elem + ']</span>' : "") +
-        (d.final ? '<span style="font-size:9px;font-weight:800;color:var(--red)">막타</span>' : "") +
+        (d.elem ? '<span style="font-size:10px;font-weight:700;color:' + (EL_COL[d.elem] || "var(--dim)") + '">[' + d.elem + ']</span>' : "") +
+        (d.final ? '<span style="font-size:10px;font-weight:800;color:var(--red)">막타</span>' : "") +
         '<span style="margin-left:auto;font-size:12px;font-weight:800;color:' + (d.final ? "var(--red)" : "var(--text)") + '" class="tnum">' + fmtEok(d.dmg) + '</span>' +
       '</div>' +
       '<div style="display:flex;gap:3px">' + d.chars.map(c => charImg(c, { style: "width:29px;height:29px;border-radius:5px;object-fit:cover" })).join("") + '</div>' +

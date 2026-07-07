@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#eef1f6" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
   <title>유니온 포털 | 승리의 여신: 니케</title>
   <meta property="og:type"        content="website" />
   <meta property="og:title"       content="여우별 유니온 포털" />
@@ -79,7 +81,7 @@
   })();
   </script>
   <style>html{background:#eef1f6}html.dark{background:#111827}body:not(.ready){visibility:hidden}</style>
-  <link rel="stylesheet" href="css/style.css?v=6" />
+  <link rel="stylesheet" href="css/style.css?v=7" />
   <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
 </head>
 <body>
@@ -107,7 +109,7 @@
 <script src="data/raid.js" onerror="window.__DATA_ERROR=1"></script>
 
 <!-- ═══════════ 공통 스크립트 (헬퍼·테마·인증·차트·모달) ═══════════ -->
-<script src="js/common.js?v=6"></script>
+<script src="js/common.js?v=7"></script>
 
 <!-- ═══════════ 메인 스크립트 ═══════════ -->
 <script>
@@ -142,6 +144,9 @@ const OPF = [["공용","common"],["화력형","attack"],["방어형","defense"],
 const TREND_KEYS = seasonKeys.slice(0, -1).slice(-5);
 
 const sortedMembers = [...members].sort((a, b) => b.syncroLevel - a.syncroLevel || a.name.localeCompare(b.name, "ko"));
+
+/* "46-40" 형 스테이지 문자열 → 정렬용 숫자 (형식이 다르면 -1) */
+const stageV = s => { const mt = /^(\d+)-(\d+)$/.exec(String(s || "")); return mt ? (+mt[1]) * 1000 + (+mt[2]) : -1; };
 
 const membersVM = sortedMembers.map((m, i) => {
   const prevLvl = lvlMaps[prevKey] ? lvlMaps[prevKey][m.name] : null;
@@ -182,9 +187,29 @@ const membersVM = sortedMembers.map((m, i) => {
     hardCol: hMax ? "var(--red)" : "var(--sub)", hardW: hMax ? "700" : "500",
     tCol: tMax ? "var(--red)" : "var(--sub)", tW: tMax ? "700" : "500",
     ocCol: oMax ? "var(--red)" : "var(--sub)", ocW: oMax ? "700" : "500",
-    hasTrend, riseSlots, outpostFull
+    hasTrend, riseSlots, outpostFull,
+    sortV: { lvl: m.syncroLevel, normal: stageV(m.normal), hard: stageV(m.hard),
+             tower: m.tribeTower != null ? m.tribeTower : -1, oc: m.overclock != null ? m.overclock : -1 },
+    opV: OPF.map(([, key]) => (m.outpost && m.outpost[key] != null) ? m.outpost[key] : -1)
   };
 });
+
+/* 검색(닉네임) + 컬럼 정렬 적용 뷰 — 순위 필은 싱크로 기준 원래 순위 유지 */
+function viewMembers(){
+  let list = membersVM;
+  const q = state.q.trim().toLowerCase();
+  if (q) list = list.filter(m => m.name.toLowerCase().includes(q));
+  const key = state.sortKey, dir = state.sortDir;
+  if (key !== "lvl" || dir !== 1) {
+    list = [...list].sort((a, b) => {
+      const av = key.indexOf("op") === 0 ? a.opV[+key.slice(2)] : a.sortV[key];
+      const bv = key.indexOf("op") === 0 ? b.opV[+key.slice(2)] : b.sortV[key];
+      if (av !== bv) return (bv - av) * dir;
+      return b.sortV.lvl - a.sortV.lvl || a.name.localeCompare(b.name, "ko");
+    });
+  }
+  return list;
+}
 
 /* ─── 싱크로 분포 히스토그램 ─────────────────────────────────── */
 /* 20레벨 구간(…641-660, 661-680…)을 실제 최소~최대 레벨에 맞춰 동적 생성 */
@@ -196,8 +221,8 @@ const counts = STARTS.map(s => members.filter(m => m.syncroLevel >= s && m.syncr
 const maxC = Math.max(...counts, 1);
 /* 구간 수가 늘어나면 막대 간격·글자 크기를 줄여 전부 표시 */
 const distGap   = STARTS.length <= 13 ? 5 : STARTS.length <= 18 ? 3 : 2;
-const distCntFs = STARTS.length <= 15 ? 9 : 8;
-const distLblFs = STARTS.length <= 15 ? 8 : 7;
+const distCntFs = STARTS.length <= 15 ? 10 : 9;
+const distLblFs = STARTS.length <= 15 ? 10 : 9;
 const distBars = STARTS.map((s, i) => ({
   label: String(s), count: counts[i],
   h: counts[i] === 0 ? 0 : Math.round(8 + counts[i] / maxC * 94),
@@ -235,13 +260,20 @@ function rankLineSVG(ranks, dotR, lastR){
   const co = ranks.map((r, i) => ({ x: PX + i * step, y: PT + (r - rmin) / ((rmax - rmin) || 1) * PH }));
   const pts = co.map(p => p.x.toFixed(1) + "," + p.y.toFixed(1)).join(" ");
   const dots = co.map((p, i) => '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="' +
-    (i === co.length - 1 ? lastR : dotR) + '" fill="' + (i === co.length - 1 ? "#2563eb" : "#93c5fd") + '"></circle>').join("");
-  return '<polyline points="' + pts + '" fill="none" stroke="#2563eb" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.45"></polyline>' + dots;
+    (i === co.length - 1 ? lastR : dotR) + '" fill="' + (i === co.length - 1 ? "var(--bar)" : "var(--bar-l)") + '"></circle>').join("");
+  return '<polyline points="' + pts + '" fill="none" stroke="var(--bar)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.45"></polyline>' + dots;
 }
 
 /* ═══════════ 상태 + 렌더 ═══════════ */
-const state = { mode: "basic", view: "table" };
+const state = { mode: "basic", view: "table", sortKey: "lvl", sortDir: 1, q: "", _focus: null };
 function setState(p){ Object.assign(state, p); render(); }
+
+/* 정렬 가능한 th (dir 1 = 값 큰 순) */
+function sortTh(label, key, cls, extra){
+  const on = state.sortKey === key;
+  const arrow = on ? '<span class="rd-sort-arrow">' + (state.sortDir === 1 ? "▼" : "▲") + '</span>' : "";
+  return '<th class="' + cls + ' rd-th-sort"' + (extra || "") + ' data-act="sort" data-key="' + key + '" title="클릭해서 정렬">' + label + arrow + '</th>';
+}
 
 function segHTML(items){
   return '<div class="rd-seg">' + items.map(it =>
@@ -252,12 +284,14 @@ function segHTML(items){
 /* 데스크톱 멤버 표 */
 function memberTableDesktop(){
   const headMid = state.mode === "console"
-    ? OPF.map(o => '<th class="rd-th-c">' + o[0] + '</th>').join("")
-    : '<th class="rd-th-l" style="min-width:150px">시즌 상승</th><th class="rd-th-c">노말</th><th class="rd-th-c">하드</th><th class="rd-th-c">타워</th><th class="rd-th-c">오버클럭</th>';
+    ? OPF.map((o, i) => sortTh(o[0], "op" + i, "rd-th-c")).join("")
+    : '<th class="rd-th-l" style="min-width:150px">시즌 상승</th>' + sortTh("노말", "normal", "rd-th-c") + sortTh("하드", "hard", "rd-th-c") + sortTh("타워", "tower", "rd-th-c") + sortTh("오버클럭", "oc", "rd-th-c");
   const head = '<tr style="border-bottom:1.5px solid var(--border)">' +
     '<th class="rd-th-sticky" style="left:0;min-width:182px">닉네임</th>' +
-    '<th class="rd-th-l">레벨</th>' + headMid + '<th class="rd-th-c">프로필</th></tr>';
-  const body = membersVM.map(m => {
+    sortTh("레벨", "lvl", "rd-th-l") + headMid + '<th class="rd-th-c">프로필</th></tr>';
+  const rows = viewMembers();
+  if (!rows.length) return '<div class="rd-scroll"><table class="rd-table"><thead>' + head + '</thead></table></div>' + emptyState("검색 결과가 없어요.");
+  const body = rows.map(m => {
     const nameCell = '<td class="rd-td-sticky">' +
       '<span style="display:inline-flex;align-items:center;gap:9px">' +
         '<span class="rd-rankpill" style="background:' + m.medalBg + ';color:' + m.medalCol + '">' + m.rank + '</span>' +
@@ -272,8 +306,8 @@ function memberTableDesktop(){
       const trend = m.hasTrend
         ? '<td style="padding:8px 12px"><div style="display:flex;align-items:flex-end;gap:6px;height:62px">' +
             m.riseSlots.map(r => r.bar
-              ? '<div style="width:22px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div style="font-size:9px;font-weight:700;color:' + r.col + ';margin-bottom:2px" class="tnum">' + r.val + '</div><div style="width:15px;flex-shrink:0;height:' + r.h + 'px;background:' + r.col + ';border-radius:3px 3px 0 0"></div><div style="font-size:8px;color:var(--dim);font-weight:600;margin-top:3px">' + r.s + '</div></div>'
-              : '<div style="width:22px"></div>').join("") +
+              ? '<div style="width:24px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div style="font-size:10px;font-weight:700;color:' + r.col + ';margin-bottom:2px" class="tnum">' + r.val + '</div><div style="width:15px;flex-shrink:0;height:' + r.h + 'px;background:' + r.col + ';border-radius:3px 3px 0 0"></div><div style="font-size:9px;color:var(--dim);font-weight:600;margin-top:3px">' + r.s + '</div></div>'
+              : '<div style="width:24px"></div>').join("") +
           '</div></td>'
         : '<td style="padding:10px 12px"><span style="font-size:13px;font-weight:700;color:var(--dim);padding-left:6px">-</span></td>';
       mid = trend +
@@ -290,8 +324,10 @@ function memberTableDesktop(){
 
 /* 모바일 표 / 카드 */
 function memberMobile(){
+  const rows = viewMembers();
+  if (!rows.length) return emptyState("검색 결과가 없어요.");
   if (state.view === "table") {
-    const body = membersVM.map(m => {
+    const body = rows.map(m => {
       const trend = m.hasTrend
         ? '<span style="display:inline-flex;align-items:flex-end;gap:3px;height:26px">' +
             m.riseSlots.map(r => '<span style="display:inline-flex;align-items:flex-end;width:6px;height:26px">' +
@@ -302,7 +338,7 @@ function memberMobile(){
         '<td style="padding:9px 12px"><span style="display:inline-flex;align-items:center;gap:7px">' +
           '<span class="rd-rankpill" style="min-width:18px;height:18px;font-size:10px;border-radius:5px;background:' + m.medalBg + ';color:' + m.medalCol + '">' + m.rank + '</span>' +
           '<span class="rd-name" data-act="open-member" data-name="' + esc(m.name) + '" style="font-size:12px">' + esc(m.name) + '</span>' +
-          (m.role ? '<span class="rd-role" style="font-size:9px;padding:1px 6px;background:' + m.roleBg + ';color:' + m.roleCol + '">' + m.role + '</span>' : "") +
+          (m.role ? '<span class="rd-role" style="font-size:10px;padding:1px 6px;background:' + m.roleBg + ';color:' + m.roleCol + '">' + m.role + '</span>' : "") +
         '</span></td>' +
         '<td style="padding:9px 8px;white-space:nowrap"><span style="font-weight:700;color:var(--text)" class="tnum">' + m.lvl + '</span> <span style="font-size:10px;font-weight:700;color:' + m.dCol + '">' + m.dText + '</span></td>' +
         '<td style="padding:9px 8px;text-align:center">' + trend + '</td>' +
@@ -313,9 +349,9 @@ function memberMobile(){
       '<th class="rd-th-l" style="font-size:10px">닉네임</th><th class="rd-th-l" style="font-size:10px">레벨</th><th class="rd-th-c" style="font-size:10px">시즌 상승</th><th class="rd-th-c" style="font-size:10px">프로필</th>' +
       '</tr></thead><tbody>' + body + '</tbody></table></div>';
   }
-  return membersVM.map(m => {
-    const stat = (label, val, col) => '<div style="background:var(--muted);padding:8px 4px;text-align:center"><div style="font-size:9px;color:var(--dim);font-weight:700;margin-bottom:2px">' + label + '</div><div style="font-size:12px;font-weight:700;color:' + col + '" class="tnum">' + val + '</div></div>';
-    const op = m.outpostFull.map(o => '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--muted);border-radius:7px;padding:5px 8px"><span style="font-size:9px;color:var(--sub);font-weight:600">' + o.label + '</span><span style="font-size:12px;font-weight:700;color:' + o.col + '" class="tnum">' + o.v + '</span></div>').join("");
+  return rows.map(m => {
+    const stat = (label, val, col) => '<div style="background:var(--muted);padding:8px 4px;text-align:center"><div style="font-size:10px;color:var(--dim);font-weight:700;margin-bottom:2px">' + label + '</div><div style="font-size:12px;font-weight:700;color:' + col + '" class="tnum">' + val + '</div></div>';
+    const op = m.outpostFull.map(o => '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--muted);border-radius:7px;padding:5px 8px"><span style="font-size:10px;color:var(--sub);font-weight:600">' + o.label + '</span><span style="font-size:12px;font-weight:700;color:' + o.col + '" class="tnum">' + o.v + '</span></div>').join("");
     return '<div style="display:flex;flex-direction:column;gap:11px;padding:13px 14px" class="rd-card">' +
       '<div style="display:flex;align-items:center;gap:11px">' +
         '<span class="rd-rankpill" style="min-width:22px;height:22px;border-radius:6px;background:' + m.medalBg + ';color:' + m.medalCol + '">' + m.rank + '</span>' +
@@ -327,7 +363,7 @@ function memberMobile(){
       '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:9px;overflow:hidden">' +
         stat("노말", m.normal, m.normalCol) + stat("하드", m.hard, m.hardCol) + stat("타워", m.tower, m.tCol) + stat("오버클럭", m.ocDisp, m.ocCol) +
       '</div>' +
-      '<div><div style="font-size:9px;color:var(--dim);font-weight:700;text-transform:uppercase;margin-bottom:6px">거점 연구</div>' +
+      '<div><div style="font-size:10px;color:var(--dim);font-weight:700;text-transform:uppercase;margin-bottom:6px">거점 연구</div>' +
         '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">' + op + '</div></div>' +
     '</div>';
   }).join("");
@@ -357,7 +393,7 @@ function render(){
 
   /* 순위 + 누적점수 카드 */
   const trendText = trend5.map((r, i) =>
-    (i ? '<span style="font-size:9px;color:var(--dim)">→</span>' : "") +
+    (i ? '<span style="font-size:10px;color:var(--dim)">→</span>' : "") +
     '<span style="font-size:11px;color:' + (i === trend5.length - 1 ? "var(--blue)" : "var(--dim)") + ';font-weight:' + (i === trend5.length - 1 ? "800" : "600") + '">' + r + '</span>'
   ).join("");
   const scoreFull = curScore != null ? curScore.toLocaleString("en-US") : "—";
@@ -378,7 +414,7 @@ function render(){
           '<div style="font-size:21px;font-weight:800;color:var(--text);line-height:1" class="tnum">' + fmtEok(curScore) +
             (scoreDelta != null ? ' <span style="font-size:12px;color:' + (scoreDelta >= 0 ? "var(--green)" : "var(--red)") + ';font-weight:700">' + (scoreDelta >= 0 ? "+" : "-") + fmtEok(Math.abs(scoreDelta)) + '</span>' : "") +
           '</div></div>' +
-        '<div style="font-size:9px;color:var(--dim);text-align:right;line-height:1.5" class="tnum">' + scoreFull + (deltaFull ? '<br><span style="color:' + (scoreDelta >= 0 ? "var(--green)" : "var(--red)") + ';font-weight:700">' + deltaFull + '</span>' : "") + '</div>' +
+        '<div style="font-size:10px;color:var(--dim);text-align:right;line-height:1.5" class="tnum">' + scoreFull + (deltaFull ? '<br><span style="color:' + (scoreDelta >= 0 ? "var(--green)" : "var(--red)") + ';font-weight:700">' + deltaFull + '</span>' : "") + '</div>' +
       '</div>' +
     '</div>';
 
@@ -389,6 +425,7 @@ function render(){
         '<div style="display:flex;align-items:center;gap:10px"><span class="rd-sec-bar"></span><span class="rd-sec-title">유니온 멤버</span><span class="rd-pill">전체 ' + members.length + '명</span></div>' +
         '<div style="display:flex;align-items:center;gap:14px">' +
           '<span style="font-size:11px;color:var(--sub);display:inline-flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:var(--red)"></span>최대치</span>' +
+          '<input class="rd-search" id="rdSearchD" type="search" placeholder="닉네임 검색" autocomplete="off" aria-label="닉네임 검색" />' +
           segHTML([{label:"기본",act:"mode",val:"basic",on:state.mode==="basic"},{label:"콘솔",act:"mode",val:"console",on:state.mode==="console"}]) +
         '</div>' +
       '</div>' + memberTableDesktop() +
@@ -406,22 +443,37 @@ function render(){
   const mobile =
     '<div class="rd-mobile rd-stack">' +
       '<div style="display:flex;gap:10px">' +
-        '<div style="flex:1;padding:12px 13px" class="rd-card"><div style="font-size:9px;font-weight:700;color:var(--sub);text-transform:uppercase;margin-bottom:4px">평균 레벨</div>' +
+        '<div style="flex:1;padding:12px 13px" class="rd-card"><div style="font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;margin-bottom:4px">평균 레벨</div>' +
           '<div style="font-size:19px;font-weight:800;color:var(--blue)" class="tnum">' + avgStr + ' ' + (avgDelta != null ? '<span style="font-size:10px;color:' + (avgDelta >= 0 ? "var(--green)" : "var(--red)") + '">' + (avgDelta >= 0 ? "▲" : "▼") + Math.abs(avgDelta).toFixed(1) + '</span>' : "") + '</div>' +
           '<div style="display:flex;align-items:flex-end;gap:2px;height:30px;margin-top:7px">' + miniDist + '</div></div>' +
-        '<div style="flex:1;padding:12px 13px" class="rd-card"><div style="font-size:9px;font-weight:700;color:var(--sub);text-transform:uppercase;margin-bottom:4px">순위 · 누적점수</div>' +
+        '<div style="flex:1;padding:12px 13px" class="rd-card"><div style="font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;margin-bottom:4px">순위 · 누적점수</div>' +
           '<div style="font-size:19px;font-weight:800;color:var(--text)" class="tnum">' + (rankNow != null ? rankNow + "위" : "—") + '</div>' +
           '<svg viewBox="0 0 232 78" style="width:100%;height:30px;margin-top:5px;overflow:visible">' + rankLineSVG(rankPolyRanks, 3.4, 5) + '</svg>' +
-          '<div style="font-size:11px;font-weight:800;color:var(--text);margin-top:4px" class="tnum">' + fmtEok(curScore) + (scoreDelta != null ? ' <span style="font-size:9px;color:' + (scoreDelta >= 0 ? "var(--green)" : "var(--red)") + '">' + (scoreDelta >= 0 ? "+" : "-") + fmtEok(Math.abs(scoreDelta)) + '</span>' : "") + '</div></div>' +
+          '<div style="font-size:11px;font-weight:800;color:var(--text);margin-top:4px" class="tnum">' + fmtEok(curScore) + (scoreDelta != null ? ' <span style="font-size:10px;color:' + (scoreDelta >= 0 ? "var(--green)" : "var(--red)") + '">' + (scoreDelta >= 0 ? "+" : "-") + fmtEok(Math.abs(scoreDelta)) + '</span>' : "") + '</div></div>' +
       '</div>' +
       '<div style="display:flex;align-items:center;justify-content:space-between;padding:2px">' +
-        '<div style="display:flex;align-items:center;gap:8px"><span class="rd-sec-bar" style="height:15px"></span><span style="font-size:14px;font-weight:800;color:var(--text)">유니온 멤버</span><span class="rd-pill" style="font-size:10px;padding:1px 7px">' + members.length + '명</span></div>' +
+        '<div style="display:flex;align-items:center;gap:8px"><span class="rd-sec-bar" style="height:15px"></span><span style="font-size:14px;font-weight:800;color:var(--text)">유니온 멤버</span><span class="rd-pill" style="font-size:10px;padding:1px 7px">' + members.length + '명</span>' +
+          (state.view === "card" ? '<span style="font-size:10px;color:var(--sub);display:inline-flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:50%;background:var(--red)"></span>최대치</span>' : "") + '</div>' +
         segHTML([{label:"표",act:"view",val:"table",on:state.view==="table"},{label:"카드",act:"view",val:"card",on:state.view==="card"}]) +
       '</div>' +
+      '<input class="rd-search" id="rdSearchM" type="search" placeholder="닉네임 검색" autocomplete="off" aria-label="닉네임 검색" style="width:100%" />' +
       memberMobile() +
     '</div>';
 
   document.getElementById("rdContent").innerHTML = desktop + mobile;
+
+  /* 검색 입력 연결 + 타이핑 리렌더 후 포커스/커서 복원 */
+  ["rdSearchD", "rdSearchM"].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = state.q;
+    el.addEventListener("input", e => { state.q = e.target.value; state._focus = id; render(); });
+  });
+  if (state._focus) {
+    const el = document.getElementById(state._focus);
+    state._focus = null;
+    if (el) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (err) {} }
+  }
 }
 
 /* ═══════════ 멤버 상세 팝업 (공통: common.js buildMemberPopupHTML) ═══════════ */
@@ -455,6 +507,7 @@ document.addEventListener("click", e => {
   const act = t.dataset.act;
   if (act === "mode") setState({ mode: t.dataset.val });
   else if (act === "view") setState({ view: t.dataset.val });
+  else if (act === "sort") { const k = t.dataset.key; setState(state.sortKey === k ? { sortDir: -state.sortDir } : { sortKey: k, sortDir: 1 }); }
   else if (act === "open-member") openMemberModal(t.dataset.name, defaultPopupSeason);
   else if (act === "close-popup") closeMemberModal();
   else if (act === "popup-season") { popupState.season = t.dataset.season; renderPopup(); }

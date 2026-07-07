@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#eef1f6" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
   <title>시뮬레이션 | 승리의 여신: 니케</title>
   <meta property="og:type"        content="website" />
   <meta property="og:title"       content="여우별 시뮬레이션" />
@@ -79,7 +81,7 @@
   })();
   </script>
   <style>html{background:#eef1f6}html.dark{background:#111827}body:not(.ready){visibility:hidden}</style>
-  <link rel="stylesheet" href="css/style.css?v=6" />
+  <link rel="stylesheet" href="css/style.css?v=7" />
   <style>
     .sim-card {
       background: var(--bg-card);
@@ -1205,11 +1207,17 @@ init();
 (function(){
   const html = document.documentElement;
   const btn  = document.getElementById("themeToggle");
+  function syncThemeColor(){
+    const color = html.classList.contains("dark") ? "#111827" : "#eef1f6";
+    document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute("content", color));
+  }
   // 초기 상태는 <head> 인라인(저장값·시스템 선호)이 이미 적용한 클래스를 따른다
   if (html.classList.contains("dark")) btn.textContent = "☀️";
+  syncThemeColor();
   btn.addEventListener("click", function() {
     const isDark = html.classList.toggle("dark");
     btn.textContent = isDark ? "☀️" : "🌙";
+    syncThemeColor();
     try { localStorage.setItem("theme", isDark ? "dark" : "light"); } catch (e) {}
   });
 })();

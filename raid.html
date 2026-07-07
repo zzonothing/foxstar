@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#eef1f6" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
   <title>유니온레이드 | 승리의 여신: 니케</title>
   <link rel="icon" type="image/png" href="image/foxstar.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -74,7 +76,7 @@
   })();
   </script>
   <style>html{background:#eef1f6}html.dark{background:#111827}body:not(.ready){visibility:hidden}</style>
-  <link rel="stylesheet" href="css/style.css?v=6" />
+  <link rel="stylesheet" href="css/style.css?v=7" />
   <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
 </head>
 <body>
@@ -99,7 +101,7 @@
 <script src="data/raid.js" onerror="window.__DATA_ERROR=1"></script>
 
 <!-- ═══════════ 공통 스크립트 (헬퍼·테마·인증·차트·모달) ═══════════ -->
-<script src="js/common.js?v=6"></script>
+<script src="js/common.js?v=7"></script>
 
 <script>
 if (window.__DATA_ERROR || typeof authGuardOrRedirect !== "function") {
@@ -182,8 +184,8 @@ function rankLineSVG(ranksArr, dotR, selR, selIdx){
   const co = ranksArr.map((r, i) => ({ x: PX + i * step, y: PT + (r - rmin) / ((rmax - rmin) || 1) * PH }));
   const pts = co.map(p => p.x.toFixed(1) + "," + p.y.toFixed(1)).join(" ");
   const dots = co.map((p, i) => '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="' +
-    (i === selIdx ? selR : dotR) + '" fill="' + (i === selIdx ? "#2563eb" : "#93c5fd") + '"></circle>').join("");
-  return '<polyline points="' + pts + '" fill="none" stroke="#2563eb" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.45"></polyline>' + dots;
+    (i === selIdx ? selR : dotR) + '" fill="' + (i === selIdx ? "var(--bar)" : "var(--bar-l)") + '"></circle>').join("");
+  return '<polyline points="' + pts + '" fill="none" stroke="var(--bar)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity="0.45"></polyline>' + dots;
 }
 
 /* ═══════════ 상태 + 렌더 ═══════════ */
@@ -202,7 +204,7 @@ function bossCardsHTML(SD){
         '<span style="font-size:10px;font-weight:700;color:' + ec + ';background:' + eb + ';padding:1px 6px;border-radius:5px;white-space:nowrap">' + b.elem + '</span>' +
       '</div>' +
       '<div style="display:flex;gap:14px;margin-top:12px">' + rows.map(r =>
-        '<div><div style="font-size:9px;color:var(--dim);font-weight:700;text-transform:uppercase">' + r[0] + '</div>' +
+        '<div><div style="font-size:10px;color:var(--dim);font-weight:700;text-transform:uppercase">' + r[0] + '</div>' +
         '<div style="font-size:21px;font-weight:800;color:var(--text);line-height:1.1" class="tnum">' + r[1] + '<span style="font-size:10px;color:var(--dim);font-weight:600;margin-left:1px">타격</span></div></div>').join("") +
       '</div></div>';
   }).join("");
@@ -250,7 +252,7 @@ function deckUsageHTML(SD){
       '</div>').join("");
     return '<div class="rd-card" style="overflow:hidden"><div style="padding:8px 11px;background:var(--muted);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:5px">' +
       '<span style="font-size:11px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(bn) + '</span>' +
-      '<span style="font-size:9px;font-weight:700;color:' + ec + '">[' + (b ? b.elem : "") + ']</span></div>' + decks + '</div>';
+      '<span style="font-size:10px;font-weight:700;color:' + ec + '">[' + (b ? b.elem : "") + ']</span></div>' + decks + '</div>';
   }).join("");
 }
 
@@ -295,7 +297,7 @@ function render(){
       '<div style="display:flex;align-items:baseline;justify-content:space-between"><div class="rd-uplabel">시즌 최종 점수</div><div style="font-size:11px;color:var(--dim);font-weight:600">' + ps + ' · ' + SD.count + '명</div></div>' +
       '<div style="font-size:28px;font-weight:800;color:var(--text);line-height:1.05;margin-top:6px" class="tnum">' + fmtEok(cur) + (delta != null ? ' <span style="font-size:13px;color:' + (delta >= 0 ? "var(--green)" : "var(--red)") + ';font-weight:700">' + (delta >= 0 ? "+" : "-") + fmtEok(Math.abs(delta)) + '</span>' : "") + '</div>' +
       '<div style="font-size:10px;color:var(--dim);margin-top:3px" class="tnum">' + cur.toLocaleString("en-US") + ' · 전 시즌 대비</div>' +
-      '<div style="display:flex;align-items:flex-end;gap:5px;height:56px;margin-top:12px">' + scoreBars.map(b => '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div style="width:100%;max-width:24px;flex-shrink:0;height:' + b.h + 'px;background:' + (b.sel ? "var(--bar)" : "var(--bar-score)") + ';border-radius:3px 3px 0 0"></div><div style="font-size:8px;color:var(--dim);font-weight:600;margin-top:4px">' + b.s + '</div></div>').join("") + '</div>' +
+      '<div style="display:flex;align-items:flex-end;gap:5px;height:56px;margin-top:12px">' + scoreBars.map(b => '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div style="width:100%;max-width:24px;flex-shrink:0;height:' + b.h + 'px;background:' + (b.sel ? "var(--bar)" : "var(--bar-score)") + ';border-radius:3px 3px 0 0"></div><div style="font-size:9px;color:var(--dim);font-weight:600;margin-top:4px">' + b.s + '</div></div>').join("") + '</div>' +
     '</div>';
   const rankCard =
     '<div class="rd-card" style="padding:16px 20px">' +
@@ -324,7 +326,7 @@ function render(){
 
   const bossChips = SD.bosses.map(b => { const ec = EL_COL[b.elem] || "var(--dim)";
     const chip = b.high > 0 ? (b.low + " / " + b.high + "타격") : (b.hits + "타격");
-    return '<div style="min-width:0;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 4px 7px;border-top:2px solid ' + ec + ';text-align:center;display:flex;flex-direction:column"><div style="font-size:9px;font-weight:800;color:var(--text);line-height:1.25;word-break:keep-all;flex:1">' + esc(b.short) + '</div><div style="font-size:9px;color:' + ec + ';font-weight:700;margin-top:5px">' + chip + '</div></div>';
+    return '<div style="min-width:0;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 4px 7px;border-top:2px solid ' + ec + ';text-align:center;display:flex;flex-direction:column"><div style="font-size:10px;font-weight:800;color:var(--text);line-height:1.25;word-break:keep-all;flex:1">' + esc(b.short) + '</div><div style="font-size:10px;color:' + ec + ';font-weight:700;margin-top:5px">' + chip + '</div></div>';
   }).join("");
   const mobileCards = SD.membersSorted.map((name, i) => {
     const m = SD.memberData[name], md = medal(i);
@@ -334,7 +336,7 @@ function render(){
         '<div style="display:flex;align-items:center;gap:9px;padding-left:13px"><div style="display:flex;gap:2px">' +
           h.chars.map(c => charImg(c, { style: "width:23px;height:23px;border-radius:4px;object-fit:cover", title: false })).join("") +
           '</div><span style="margin-left:auto;font-size:13px;font-weight:' + (h.final ? "800" : "600") + ';color:' + (h.final ? "var(--red)" : "var(--text)") + '" class="tnum">' + fmtEok(h.dmg) + '</span></div>').join("");
-      return '<div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:' + ec + ';flex-shrink:0"></span><span style="font-size:12px;font-weight:700;color:var(--text)">' + esc(bn) + '</span><span style="font-size:9px;font-weight:700;color:' + ec + '">[' + b.elem + ']</span></div>' + decks + '</div>';
+      return '<div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:' + ec + ';flex-shrink:0"></span><span style="font-size:12px;font-weight:700;color:var(--text)">' + esc(bn) + '</span><span style="font-size:10px;font-weight:700;color:' + ec + '">[' + b.elem + ']</span></div>' + decks + '</div>';
     }).join("");
     return '<div class="rd-card" style="padding:13px 14px"><div style="display:flex;align-items:center;gap:10px">' +
       '<span class="rd-rankpill" style="background:' + md.bg + ';color:' + md.col + '">' + (i + 1) + '</span>' +

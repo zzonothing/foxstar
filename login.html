@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#eef1f6" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
   <title>로그인 | 여우별 유니온 포털</title>
   <link rel="icon" type="image/png" href="image/foxstar.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -44,16 +46,24 @@
       padding: 24px;
     }
     .card {
+      position: relative; /* absolute 그라데이션 바 기준 (fixed/sticky 아님 — iOS 26 무관) */
+      overflow: hidden;
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 20px;
-      padding: 20px 18px;
+      padding: 24px 18px 20px;
       width: 100%;
       max-width: 280px;
       box-shadow: 0 8px 40px rgba(0,0,0,0.18);
       text-align: center;
     }
-    .icon  { font-size: 24px; margin-bottom: 6px; }
+    /* 포털 헤더(rd-grad)와 동일한 브랜드 그라데이션 바 */
+    .card::before {
+      content: "";
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, #2563eb, #7c3aed 60%, #0891b2);
+    }
+    .logo { width: 40px; height: 40px; border-radius: 9px; object-fit: contain; margin-bottom: 8px; }
     .title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
     .sub   { font-size: 13px; color: var(--text-sub); margin-bottom: 16px; }
     .hidden-username {
@@ -105,7 +115,7 @@
 <body>
 
 <form class="card" id="authForm" action="/api/auth" method="post" novalidate>
-  <div class="icon">⬡</div>
+  <img class="logo" src="image/foxstar.png" alt="" width="40" height="40" />
   <div class="title" id="authTitle">여우별 유니온</div>
   <div class="sub">접근하려면 비밀번호를 입력하세요</div>
 
