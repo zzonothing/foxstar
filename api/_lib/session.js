@@ -36,6 +36,14 @@ function generateToken(isAdmin) {
   return ts + '.' + sign(ts);
 }
 
+// Set-Cookie 헤더 값 직렬화 (발급 api/auth.js·슬라이딩 갱신 api/data.js 공용).
+// HTTPS 전용 사이트이므로 Secure 고정. (vercel dev 의 http://localhost 도
+// 크롬 계열은 localhost 를 secure context 로 취급해 Secure 쿠키를 저장한다.)
+function sessionCookie(isAdmin) {
+  return 'fstar_session=' + generateToken(isAdmin) +
+    '; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=' + (DAY_MS / 1000);
+}
+
 function parseCookies(header) {
   const out = {};
   if (!header) return out;
@@ -47,9 +55,10 @@ function parseCookies(header) {
   return out;
 }
 
-// 쿠키의 fstar_session 검증. 반환 { valid, admin }.
+// 쿠키의 fstar_session 검증. 반환 { valid, admin, issued }
+// (issued: 토큰 발급 시각 ms — 슬라이딩 갱신 판단용, 실패 시 0).
 function verifyCookie(cookieHeader) {
-  const fail = { valid: false, admin: false };
+  const fail = { valid: false, admin: false, issued: 0 };
 
   // 비밀키가 설정돼 있지 않으면 검증 불가 → 무조건 거부(fail-closed).
   // (빈 키 '' 로도 HMAC 은 성립하므로, 이 가드가 없으면 미설정 환경에서
@@ -84,7 +93,7 @@ function verifyCookie(cookieHeader) {
   const expected = sign(payload);
   try {
     if (crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'))) {
-      return { valid: true, admin: isAdmin };
+      return { valid: true, admin: isAdmin, issued };
     }
   } catch {
     /* 길이 불일치 등 → 실패 처리 */
@@ -97,4 +106,4 @@ function verifyRequest(req) {
   return verifyCookie(req.headers.cookie);
 }
 
-module.exports = { generateToken, verifyCookie, verifyRequest };
+module.exports = { generateToken, sessionCookie, verifyCookie, verifyRequest };
