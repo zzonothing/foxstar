@@ -121,9 +121,17 @@ const membersVM = sortedMembers.map((m, i) => {
 });
 
 /* ─── 싱크로 분포 히스토그램 ─────────────────────────────────── */
-const STARTS = [641,661,681,701,721,741,761,781,801,821,841,861,881];
+/* 20레벨 구간(…641-660, 661-680…)을 실제 최소~최대 레벨에 맞춰 동적 생성 */
+const bucketStart = l => Math.floor((l - 1) / 20) * 20 + 1;
+const lvlList = members.map(m => m.syncroLevel);
+const STARTS = [];
+for (let s = bucketStart(Math.min(...lvlList)); s <= bucketStart(Math.max(...lvlList)); s += 20) STARTS.push(s);
 const counts = STARTS.map(s => members.filter(m => m.syncroLevel >= s && m.syncroLevel <= s + 19).length);
 const maxC = Math.max(...counts, 1);
+/* 구간 수가 늘어나면 막대 간격·글자 크기를 줄여 전부 표시 */
+const distGap   = STARTS.length <= 13 ? 5 : STARTS.length <= 18 ? 3 : 2;
+const distCntFs = STARTS.length <= 15 ? 9 : 8;
+const distLblFs = STARTS.length <= 15 ? 8 : 7;
 const distBars = STARTS.map((s, i) => ({
   label: String(s), count: counts[i],
   h: counts[i] === 0 ? 0 : Math.round(8 + counts[i] / maxC * 94),
@@ -266,10 +274,10 @@ function render(){
 
   /* 분포 카드 */
   const distHTML = distBars.map(d =>
-    '<div style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end">' +
-      '<div style="font-size:9px;font-weight:700;color:var(--text);margin-bottom:3px;min-height:12px" class="tnum">' + (d.count > 0 ? d.count : "") + '</div>' +
+    '<div style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end">' +
+      '<div style="font-size:' + distCntFs + 'px;font-weight:700;color:var(--text);margin-bottom:3px;min-height:12px" class="tnum">' + (d.count > 0 ? d.count : "") + '</div>' +
       '<div style="width:100%;max-width:24px;height:' + d.h + 'px;background:' + d.fill + ';border-radius:3px 3px 0 0"></div>' +
-      '<div style="font-size:8px;color:var(--dim);font-weight:600;margin-top:4px" class="tnum">' + d.label + '</div>' +
+      '<div style="font-size:' + distLblFs + 'px;color:var(--dim);font-weight:600;margin-top:4px" class="tnum">' + d.label + '</div>' +
     '</div>').join("");
   const distCard =
     '<div class="rd-card" style="padding:16px 20px">' +
@@ -278,7 +286,7 @@ function render(){
         '<div style="font-size:24px;font-weight:800;color:var(--text);line-height:1" class="tnum">평균 ' + avgStr + ' ' + avgDeltaStr + '</div>' +
       '</div>' +
       '<div style="font-size:10px;color:var(--dim);margin-bottom:10px">20레벨 구간별 인원 (명)</div>' +
-      '<div style="display:flex;align-items:flex-end;gap:5px;height:122px">' + distHTML + '</div>' +
+      '<div style="display:flex;align-items:flex-end;gap:' + distGap + 'px;height:122px">' + distHTML + '</div>' +
     '</div>';
 
   /* 순위 + 누적점수 카드 */
