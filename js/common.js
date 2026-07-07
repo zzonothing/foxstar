@@ -160,9 +160,14 @@ function writeUrlParam(key, val){
   } catch (e) {}
 }
 
-/* ─── 인증 가드: 필요 시 로그인 페이지로 리다이렉트하고 true 반환 ─── */
+/* ─── 인증 가드: 필요 시 로그인 페이지로 리다이렉트하고 true 반환 ───
+   리다이렉트 중에는 markReady() 가 호출되지 않아 login.html 이 그려질
+   때까지 로더가 계속 보이므로, 문구를 바꿔 멈춘 것처럼 보이지 않게 한다.
+   (네비게이션이 실제로 멈추면 각 페이지 인라인 워치독이 복구 안내를 띄움) */
 function authGuardOrRedirect(){
   if (window.__AUTH_REQUIRED) {
+    var sp = document.querySelector("#fstarLoader span");
+    if (sp) sp.textContent = "로그인 페이지로 이동 중…";
     location.replace("/login.html?return=" + encodeURIComponent(location.pathname + location.search));
     return true;
   }

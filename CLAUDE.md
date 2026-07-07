@@ -35,11 +35,22 @@ Sensitive data files (`member.js`, `raid.js`, `character.js`, `solo.js`, and the
 
 The redirect-to-dedicated-page approach (instead of an in-page overlay) was chosen to work around an iOS 26 Safari bug where `visualViewport.offsetTop` doesn't reset after keyboard dismissal, causing `position: fixed` / `position: sticky` elements (and the whole page layout) to become misaligned during password-input focus. The login page has no fixed/sticky positioning so it bypasses the bug.
 
+### 인앱 브라우저 우회 + 로딩 워치독 (전 페이지 공통 인라인 블록)
+
+카카오톡 인앱 웹뷰(안드로이드 WebView)는 쿠키 저장소가 일반 브라우저와 분리돼 있어 항상 미인증 → 로그인 리다이렉트 경로를 타는데, 그 경로 위의 요청/네비게이션 하나만 멈춰도 `#fstarLoader` 스피너가 무한 표시되는 사고가 있었다(카카오톡 링크 무한로딩 제보의 원인). 대응으로 **모든 게이트 페이지(`sim.html` 포함, `login.html` 제외)의 `<head>`에 동일한 인라인 부트스트랩 블록**이 들어 있다(주석 `카카오톡 인앱 우회 + 로딩 워치독`으로 검색):
+
+1. **카카오톡 인앱 감지 시** `kakaotalk://web/openExternal` 스킴으로 기본 브라우저를 연다(웹뷰 세션당 1회만 — `sessionStorage.fstarKkEsc` 플래그). 실패해도 페이지는 그대로 계속 로드된다.
+2. **워치독**: 10초 내 `body`에 `.ready`가 붙지 않으면 `window.__fstarShowError()`가 로더를 복구 안내(다시 시도 / 기본 브라우저에서 열기 / 로그인 페이지로)로 교체한다. 늦게라도 로드가 완료되면 `body.ready #fstarLoader{display:none}` 규칙이 안내를 자동으로 치운다. `__fstarShowError`는 각 페이지 가드의 인라인 폴백(`common.js` 로드 실패 시)으로도 쓰인다.
+
+편집 규칙: 이 블록은 **common.js·데이터 스크립트가 전부 실패해도 동작해야 하는 최후 방어선**이다. (a) 외부 파일에 의존하지 말 것, (b) 구형 WebView 대비 ES5 문법만 쓸 것, (c) 수정 시 전 페이지에 동일하게 반영할 것. `login.html`에는 넣지 않는다 — 인앱 안에서 로그인을 마친 사용자를 매번 다시 밖으로 내보내게 되고, 로그인 페이지는 구조 최소화 원칙(iOS 26 버그)도 있다.
+
+Google Fonts CSS는 전 페이지에서 `media="print" onload="this.media='all'"` 패턴으로 **비-렌더블로킹**으로 로드한다. 렌더블로킹 `<link>`로 되돌리지 말 것 — fonts.googleapis.com 요청이 멈추면 페이지 전체(특히 리다이렉트 도착지 `login.html`)가 영영 안 그려지는 단일 실패점이었다.
+
 Consequences for editing:
 - Never move the sensitive data files out of `api/_data/` — they'd become directly fetchable.
 - The auth guard `} else if (!authGuardOrRedirect()) { … }` wraps the entire main script on each HTML page. When editing main-page JS, keep the brace balance intact (the closing `}` is far from the opening; search for the comment `} // else if (!authGuardOrRedirect())` to find it).
 - Keep `/login.html` structurally minimal. Do **not** add a sticky header, view-transition, speculation rules, or `position: fixed` elements — those bring the iOS 26 bug back.
-- When adding a new top-level page: (1) add its path to the `ALLOWED_PATHS` whitelist in `login.html`, (2) add it to `NAV_ITEMS` in `js/common.js` if it should appear in the nav, and (3) load `js/common.js` and call `authGuardOrRedirect()` in the page's main-script guard (copy the pattern from `index.html`/`raid.html`).
+- When adding a new top-level page: (1) add its path to the `ALLOWED_PATHS` whitelist in `login.html`, (2) add it to `NAV_ITEMS` in `js/common.js` if it should appear in the nav, (3) load `js/common.js` and call `authGuardOrRedirect()` in the page's main-script guard (copy the pattern from `index.html`/`raid.html`), and (4) copy the `카카오톡 인앱 우회 + 로딩 워치독` inline block and the non-render-blocking Google Fonts `<link>` into its `<head>`.
 - Vercel functions use CommonJS (`module.exports = function handler(req, res) {}`), not ES modules.
 - `js/common.js` is cached for a day (`vercel.json` `/js/*` header) — when you change it, bump the `?v=N` query on every `<script src="js/common.js?v=N">` tag (all nav pages reference it) so browsers refetch.
 
