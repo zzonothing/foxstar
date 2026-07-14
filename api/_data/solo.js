@@ -30372,58 +30372,85 @@ const SOLO = {
                 }
               },
               {
-                "name": "미하라",
+                "name": "미하라 : 본딩 체인",
                 "subName": "",
-                "upgrade": "2돌",
-                "characterLevel": 1,
-                "element": "수냉",
-                "skill1": 1,
-                "skill2": 1,
-                "skill3": 1,
-                "itemGrade": "",
-                "itemLevel": "",
-                "increaseElementDamage": 0,
-                "increaseAtk": 0,
+                "upgrade": "풀코",
+                "characterLevel": 841,
+                "element": "작열",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 92.82,
+                "increaseAtk": 20.65,
                 "increaseDef": 0,
                 "increaseHitRate": 0,
-                "increaseChargeSpeed": 0,
+                "increaseChargeSpeed": 3.75,
                 "increaseChargeDamage": 0,
                 "increaseCriticalRate": 0,
                 "increaseCriticalDamage": 0,
-                "increaseMaxAmmunitionCapacity": 0,
-                "orgMaxAmmo": 60,
-                "orgHP": 10350,
-                "orgAtk": 540,
-                "orgDef": 81,
-                "hp": 525661,
-                "atk": 11092,
-                "def": 3677,
-                "hp40": 547727,
-                "atk40": 12243,
-                "def40": 3849,
-                "hp400": 2135211,
-                "atk400": 95070,
-                "def400": 16277,
+                "increaseMaxAmmunitionCapacity": 52.5,
+                "orgMaxAmmo": 300,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 75,
+                "hp": 18218544,
+                "atk": 792662,
+                "def": 102929,
+                "hp40": 1300254,
+                "atk40": 40740,
+                "def40": 8572,
+                "hp400": 3706170,
+                "atk400": 147670,
+                "def400": 21989,
                 "equipSlots": {
                   "head": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    },
                     null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseAtk",
+                      "value": 6.18
+                    }
                   ],
                   "torso": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 5.47
+                    },
                     null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 27.76
+                    }
                   ],
                   "arm": [
-                    null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseChargeSpeed",
+                      "value": 3.75
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 9
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    }
                   ],
                   "leg": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 19.35
+                    },
                     null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 52.5
+                    }
                   ]
                 }
               }
@@ -32891,58 +32918,94 @@ const SOLO = {
                 }
               },
               {
-                "name": "미하라",
+                "name": "미하라 : 본딩 체인",
                 "subName": "",
-                "upgrade": "2돌",
-                "characterLevel": 1,
-                "element": "수냉",
-                "skill1": 1,
-                "skill2": 1,
-                "skill3": 1,
-                "itemGrade": "",
-                "itemLevel": "",
-                "increaseElementDamage": 0,
-                "increaseAtk": 0,
+                "upgrade": "6코",
+                "characterLevel": 722,
+                "element": "작열",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 95.63,
+                "increaseAtk": 43.74,
                 "increaseDef": 0,
                 "increaseHitRate": 0,
                 "increaseChargeSpeed": 0,
-                "increaseChargeDamage": 0,
+                "increaseChargeDamage": 7.59,
                 "increaseCriticalRate": 0,
-                "increaseCriticalDamage": 0,
-                "increaseMaxAmmunitionCapacity": 0,
-                "orgMaxAmmo": 60,
-                "orgHP": 10350,
-                "orgAtk": 540,
-                "orgDef": 81,
-                "hp": 444661,
-                "atk": 10142,
-                "def": 3127,
-                "hp40": 466727,
-                "atk40": 11293,
-                "def40": 3299,
-                "hp400": 2054211,
-                "atk400": 94120,
-                "def400": 15727,
+                "increaseCriticalDamage": 15.46,
+                "increaseMaxAmmunitionCapacity": 92.66,
+                "orgMaxAmmo": 300,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 75,
+                "hp": 11988006,
+                "atk": 518950,
+                "def": 68056,
+                "hp40": 1199628,
+                "atk40": 39468,
+                "def40": 7886,
+                "hp400": 3563335,
+                "atk400": 144521,
+                "def400": 21067,
                 "equipSlots": {
                   "head": [
-                    null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseAtk",
+                      "value": 9.7
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    },
+                    {
+                      "effect": "increaseChargeDamage",
+                      "value": 7.59
+                    }
                   ],
                   "torso": [
-                    null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseAtk",
+                      "value": 13.93
+                    },
+                    {
+                      "effect": "increaseCriticalDamage",
+                      "value": 15.46
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    }
                   ],
                   "arm": [
-                    null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 26.36
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 7.59
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 60.71
+                    }
                   ],
                   "leg": [
-                    null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseAtk",
+                      "value": 12.52
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 31.95
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    }
                   ]
                 }
               }
@@ -34960,58 +35023,91 @@ const SOLO = {
                 }
               },
               {
-                "name": "미하라",
+                "name": "미하라 : 본딩 체인",
                 "subName": "",
-                "upgrade": "2돌",
-                "characterLevel": 1,
-                "element": "수냉",
-                "skill1": 1,
-                "skill2": 1,
-                "skill3": 1,
-                "itemGrade": "",
-                "itemLevel": "",
-                "increaseElementDamage": 0,
-                "increaseAtk": 0,
+                "upgrade": "1코",
+                "characterLevel": 687,
+                "element": "작열",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 92.82,
+                "increaseAtk": 37.38,
                 "increaseDef": 0,
                 "increaseHitRate": 0,
                 "increaseChargeSpeed": 0,
-                "increaseChargeDamage": 0,
-                "increaseCriticalRate": 0,
+                "increaseChargeDamage": 8.29,
+                "increaseCriticalRate": 5.37,
                 "increaseCriticalDamage": 0,
-                "increaseMaxAmmunitionCapacity": 0,
-                "orgMaxAmmo": 60,
-                "orgHP": 10350,
-                "orgAtk": 540,
-                "orgDef": 81,
-                "hp": 430662,
-                "atk": 9186,
-                "def": 3094,
-                "hp40": 452728,
-                "atk40": 10337,
-                "def40": 3266,
-                "hp400": 2040212,
-                "atk400": 93164,
-                "def400": 15694,
+                "increaseMaxAmmunitionCapacity": 60.71,
+                "orgMaxAmmo": 300,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 75,
+                "hp": 9670772,
+                "atk": 415696,
+                "def": 55523,
+                "hp40": 1184292,
+                "atk40": 38521,
+                "def40": 8192,
+                "hp400": 3336953,
+                "atk400": 134195,
+                "def400": 20197,
                 "equipSlots": {
                   "head": [
-                    null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 20.75
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 10.4
+                    },
+                    {
+                      "effect": "increaseChargeDamage",
+                      "value": 8.29
+                    }
                   ],
                   "torso": [
-                    null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 60.71
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 6.18
+                    }
                   ],
                   "arm": [
-                    null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 19.35
+                    },
+                    {
+                      "effect": "increaseCriticalRate",
+                      "value": 5.37
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 10.4
+                    }
                   ],
                   "leg": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 10.4
+                    },
                     null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 29.16
+                    }
                   ]
                 }
               }
@@ -36177,58 +36273,94 @@ const SOLO = {
                 }
               },
               {
-                "name": "미하라",
+                "name": "미하라 : 본딩 체인",
                 "subName": "",
-                "upgrade": "2돌",
-                "characterLevel": 1,
-                "element": "수냉",
-                "skill1": 1,
-                "skill2": 1,
-                "skill3": 1,
-                "itemGrade": "",
-                "itemLevel": "",
-                "increaseElementDamage": 0,
-                "increaseAtk": 0,
+                "upgrade": "풀돌",
+                "characterLevel": 661,
+                "element": "작열",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 105.43,
+                "increaseAtk": 46.54,
                 "increaseDef": 0,
-                "increaseHitRate": 0,
+                "increaseHitRate": 6.18,
                 "increaseChargeSpeed": 0,
                 "increaseChargeDamage": 0,
-                "increaseCriticalRate": 0,
+                "increaseCriticalRate": 4,
                 "increaseCriticalDamage": 0,
-                "increaseMaxAmmunitionCapacity": 0,
-                "orgMaxAmmo": 60,
-                "orgHP": 10350,
-                "orgAtk": 540,
-                "orgDef": 81,
-                "hp": 450661,
-                "atk": 10017,
-                "def": 3232,
-                "hp40": 472727,
-                "atk40": 11168,
-                "def40": 3404,
-                "hp400": 2060211,
-                "atk400": 93995,
-                "def400": 15832,
+                "increaseMaxAmmunitionCapacity": 104.99,
+                "orgMaxAmmo": 300,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 75,
+                "hp": 8791462,
+                "atk": 376744,
+                "def": 50608,
+                "hp40": 1174356,
+                "atk40": 38207,
+                "def40": 8126,
+                "hp400": 3284808,
+                "atk400": 132005,
+                "def400": 19895,
                 "equipSlots": {
                   "head": [
-                    null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseCriticalRate",
+                      "value": 4
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 29.16
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 13.22
+                    }
                   ],
                   "torso": [
-                    null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseAtk",
+                      "value": 10.4
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 44.28
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    }
                   ],
                   "arm": [
-                    null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseHitRate",
+                      "value": 6.18
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 10.4
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 24.96
+                    }
                   ],
                   "leg": [
-                    null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 29.16
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 60.71
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 12.52
+                    }
                   ]
                 }
               }
@@ -37428,7 +37560,7 @@ const SOLO = {
         totalScore: 33115565457,
         decks: [
           {
-            deckScore: null,
+            deckScore: 5580349985,
             squad: [
               {
                 "name": "크라운",
@@ -37848,7 +37980,7 @@ const SOLO = {
             ]
           },
           {
-            deckScore: null,
+            deckScore: 7684389611,
             squad: [
               {
                 "name": "신데렐라 : 크리스탈 웨이브",
@@ -38250,7 +38382,7 @@ const SOLO = {
             ]
           },
           {
-            deckScore: null,
+            deckScore: 12358838764,
             squad: [
               {
                 "name": "마스트 : 로망틱 메이드",
@@ -38679,7 +38811,7 @@ const SOLO = {
             ]
           },
           {
-            deckScore: null,
+            deckScore: 3321710678,
             squad: [
               {
                 "name": "볼륨",
@@ -39060,7 +39192,7 @@ const SOLO = {
             ]
           },
           {
-            deckScore: null,
+            deckScore: 4170276419,
             squad: [
               {
                 "name": "목단",
@@ -39371,58 +39503,88 @@ const SOLO = {
                 }
               },
               {
-                "name": "미하라",
+                "name": "미하라 : 본딩 체인",
                 "subName": "",
-                "upgrade": "2돌",
-                "characterLevel": 1,
-                "element": "수냉",
-                "skill1": 1,
-                "skill2": 1,
-                "skill3": 1,
-                "itemGrade": "",
-                "itemLevel": "",
-                "increaseElementDamage": 0,
-                "increaseAtk": 0,
+                "upgrade": "1코",
+                "characterLevel": 706,
+                "element": "작열",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 78.81,
+                "increaseAtk": 8.29,
                 "increaseDef": 0,
                 "increaseHitRate": 0,
-                "increaseChargeSpeed": 0,
+                "increaseChargeSpeed": 6.03,
                 "increaseChargeDamage": 0,
-                "increaseCriticalRate": 0,
+                "increaseCriticalRate": 4.35,
                 "increaseCriticalDamage": 0,
-                "increaseMaxAmmunitionCapacity": 0,
-                "orgMaxAmmo": 60,
-                "orgHP": 10350,
-                "orgAtk": 540,
-                "orgDef": 81,
-                "hp": 452412,
-                "atk": 9536,
-                "def": 3279,
-                "hp40": 474478,
-                "atk40": 10687,
-                "def40": 3451,
-                "hp400": 2061962,
-                "atk400": 93514,
-                "def400": 15879,
+                "increaseMaxAmmunitionCapacity": 84.45,
+                "orgMaxAmmo": 300,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 75,
+                "hp": 10346062,
+                "atk": 445899,
+                "def": 58968,
+                "hp40": 1188034,
+                "atk40": 38878,
+                "def40": 7891,
+                "hp400": 3340695,
+                "atk400": 134552,
+                "def400": 19895,
                 "equipSlots": {
                   "head": [
-                    null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 17.95
+                    },
+                    {
+                      "effect": "increaseChargeSpeed",
+                      "value": 2.28
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 8.29
+                    }
                   ],
                   "torso": [
-                    null,
-                    null,
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 44.28
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 16.55
+                    },
                     null
                   ],
                   "arm": [
-                    null,
-                    null,
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    },
+                    {
+                      "effect": "increaseCriticalRate",
+                      "value": 4.35
+                    },
                     null
                   ],
                   "leg": [
-                    null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseChargeSpeed",
+                      "value": 3.75
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 20.75
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 40.17
+                    }
                   ]
                 }
               }
@@ -40153,58 +40315,88 @@ const SOLO = {
                 }
               },
               {
-                "name": "미하라",
+                "name": "미하라 : 본딩 체인",
                 "subName": "",
-                "upgrade": "2돌",
-                "characterLevel": 1,
-                "element": "수냉",
-                "skill1": 1,
-                "skill2": 1,
-                "skill3": 1,
-                "itemGrade": "",
-                "itemLevel": "",
-                "increaseElementDamage": 0,
-                "increaseAtk": 0,
+                "upgrade": "1코",
+                "characterLevel": 745,
+                "element": "작열",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 85.8,
+                "increaseAtk": 28.4,
                 "increaseDef": 0,
-                "increaseHitRate": 0,
+                "increaseHitRate": 9.7,
                 "increaseChargeSpeed": 0,
                 "increaseChargeDamage": 0,
-                "increaseCriticalRate": 0,
+                "increaseCriticalRate": 2.64,
                 "increaseCriticalDamage": 0,
-                "increaseMaxAmmunitionCapacity": 0,
-                "orgMaxAmmo": 60,
-                "orgHP": 10350,
-                "orgAtk": 540,
-                "orgDef": 81,
-                "hp": 473161,
-                "atk": 10717,
-                "def": 3402,
-                "hp40": 495227,
-                "atk40": 11868,
-                "def40": 3574,
-                "hp400": 2082711,
-                "atk400": 94695,
-                "def400": 16002,
+                "increaseMaxAmmunitionCapacity": 81.26,
+                "orgMaxAmmo": 300,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 75,
+                "hp": 11823420,
+                "atk": 511824,
+                "def": 67192,
+                "hp40": 1187269,
+                "atk40": 39108,
+                "def40": 7871,
+                "hp400": 3339930,
+                "atk400": 134782,
+                "def400": 19875,
                 "equipSlots": {
                   "head": [
-                    null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseCriticalRate",
+                      "value": 2.64
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 9.7
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    }
                   ],
                   "torso": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 9
+                    },
                     null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    }
                   ],
                   "arm": [
-                    null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 81.26
+                    },
+                    {
+                      "effect": "increaseHitRate",
+                      "value": 9.7
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 20.75
+                    }
                   ],
                   "leg": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 20.75
+                    },
                     null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseAtk",
+                      "value": 9.7
+                    }
                   ]
                 }
               }
@@ -43536,58 +43728,88 @@ const SOLO = {
                 }
               },
               {
-                "name": "미하라",
+                "name": "미하라 : 본딩 체인",
                 "subName": "",
-                "upgrade": "2돌",
-                "characterLevel": 1,
-                "element": "수냉",
-                "skill1": 2,
-                "skill2": 1,
-                "skill3": 2,
-                "itemGrade": "",
-                "itemLevel": "",
-                "increaseElementDamage": 0,
-                "increaseAtk": 0,
+                "upgrade": "2코",
+                "characterLevel": 781,
+                "element": "작열",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 97.02,
+                "increaseAtk": 36.14,
                 "increaseDef": 0,
-                "increaseHitRate": 0,
-                "increaseChargeSpeed": 0,
+                "increaseHitRate": 9.7,
+                "increaseChargeSpeed": 3.16,
                 "increaseChargeDamage": 0,
                 "increaseCriticalRate": 0,
                 "increaseCriticalDamage": 0,
-                "increaseMaxAmmunitionCapacity": 0,
-                "orgMaxAmmo": 60,
-                "orgHP": 10350,
-                "orgAtk": 540,
-                "orgDef": 81,
-                "hp": 452826,
-                "atk": 9680,
-                "def": 3246,
-                "hp40": 474892,
-                "atk40": 10831,
-                "def40": 3418,
-                "hp400": 2062376,
-                "atk400": 93658,
-                "def400": 15846,
+                "increaseMaxAmmunitionCapacity": 85.37,
+                "orgMaxAmmo": 300,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 75,
+                "hp": 13695580,
+                "atk": 594699,
+                "def": 77636,
+                "hp40": 1203925,
+                "atk40": 39517,
+                "def40": 7967,
+                "hp400": 3398795,
+                "atk400": 137066,
+                "def400": 20206,
                 "equipSlots": {
                   "head": [
-                    null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 29.16
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 85.37
+                    },
+                    {
+                      "effect": "increaseChargeSpeed",
+                      "value": 3.16
+                    }
                   ],
                   "torso": [
-                    null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.81
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 19.35
+                    },
+                    {
+                      "effect": "increaseHitRate",
+                      "value": 9.7
+                    }
                   ],
                   "arm": [
-                    null,
-                    null,
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.11
+                    },
                     null
                   ],
                   "leg": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 26.36
+                    },
                     null,
-                    null,
-                    null
+                    {
+                      "effect": "increaseAtk",
+                      "value": 13.22
+                    }
                   ]
                 }
               }
