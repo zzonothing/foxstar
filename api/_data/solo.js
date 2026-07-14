@@ -43816,6 +43816,2081 @@ const SOLO = {
             ]
           }
         ]
+      },
+      {
+        uid: "00066676",
+        nickname: "지금부터",
+        soloRank: 190,
+        totalScore: 37710565537,
+        decks: [
+          {
+            deckScore: 8978954719,
+            squad: [
+              {
+                "name": "신데렐라 : 크리스탈 웨이브",
+                "subName": "",
+                "upgrade": "풀돌",
+                "characterLevel": 802,
+                "element": "철갑",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 71.8,
+                "increaseAtk": 42.32,
+                "increaseDef": 0,
+                "increaseHitRate": 0,
+                "increaseChargeSpeed": 0,
+                "increaseChargeDamage": 0,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 0,
+                "increaseMaxAmmunitionCapacity": 158.41,
+                "orgMaxAmmo": 300,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 75,
+                "hp": 14147315,
+                "atk": 614330,
+                "def": 80763,
+                "hp40": 1232856,
+                "atk40": 40357,
+                "def40": 8736,
+                "hp400": 3343308,
+                "atk400": 134155,
+                "def400": 20505,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 9.7
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 19.35
+                    },
+                    null
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.11
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 85.37
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 13.75
+                    }
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 73.04
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 13.22
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 17.95
+                    }
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 8.29
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 20.75
+                    },
+                    null
+                  ]
+                }
+              },
+              {
+                "name": "나유타",
+                "subName": "",
+                "upgrade": "2코",
+                "characterLevel": 802,
+                "element": "풍압",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 95.62,
+                "increaseAtk": 29.1,
+                "increaseDef": 0,
+                "increaseHitRate": 0,
+                "increaseChargeSpeed": 0,
+                "increaseChargeDamage": 0,
+                "increaseCriticalRate": 4,
+                "increaseCriticalDamage": 0,
+                "increaseMaxAmmunitionCapacity": 56.6,
+                "orgMaxAmmo": 120,
+                "orgHP": 15000,
+                "orgAtk": 500,
+                "orgDef": 86,
+                "hp": 16182044,
+                "atk": 534785,
+                "def": 94198,
+                "hp40": 1258669,
+                "atk40": 37342,
+                "def40": 8522,
+                "hp400": 3697412,
+                "atk400": 118633,
+                "def400": 22521,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 29.16
+                    },
+                    null,
+                    null
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 8.29
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 56.6
+                    }
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseCriticalRate",
+                      "value": 4
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 6.88
+                    }
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 20.75
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 13.93
+                    },
+                    null
+                  ]
+                }
+              },
+              {
+                "name": "리틀 머메이드",
+                "subName": "",
+                "upgrade": "풀코",
+                "characterLevel": 802,
+                "element": "풍압",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 91.42,
+                "increaseAtk": 32.62,
+                "increaseDef": 0,
+                "increaseHitRate": 0,
+                "increaseChargeSpeed": 2.28,
+                "increaseChargeDamage": 0,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 16.44,
+                "increaseMaxAmmunitionCapacity": 81.26,
+                "orgMaxAmmo": 120,
+                "orgHP": 15000,
+                "orgAtk": 500,
+                "orgDef": 86,
+                "hp": 17684025,
+                "atk": 583694,
+                "def": 103340,
+                "hp40": 1325710,
+                "atk40": 38420,
+                "def40": 9425,
+                "hp400": 3998948,
+                "atk400": 127527,
+                "def400": 24771,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseCriticalDamage",
+                      "value": 16.44
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.81
+                    }
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 81.26
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    },
+                    null
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.81
+                    },
+                    null
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseChargeSpeed",
+                      "value": 2.28
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 9
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "프리바티",
+                "subName": "",
+                "upgrade": "풀코",
+                "characterLevel": 802,
+                "element": "수냉",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SSR",
+                "itemLevel": 3,
+                "increaseElementDamage": 69.26,
+                "increaseAtk": 43.73,
+                "increaseDef": 0,
+                "increaseHitRate": 0,
+                "increaseChargeSpeed": 4.63,
+                "increaseChargeDamage": 0,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 0,
+                "increaseMaxAmmunitionCapacity": 0,
+                "orgMaxAmmo": 60,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 90,
+                "hp": 16004412,
+                "atk": 694015,
+                "def": 107044,
+                "hp40": 1281929,
+                "atk40": 39685,
+                "def40": 8889,
+                "hp400": 3687844,
+                "atk400": 146615,
+                "def400": 24928,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 24.96
+                    },
+                    null,
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.11
+                    }
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 8.29
+                    },
+                    null
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseChargeSpeed",
+                      "value": 4.63
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.11
+                    }
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 13.22
+                    },
+                    null,
+                    null
+                  ]
+                }
+              },
+              {
+                "name": "벨벳",
+                "subName": "",
+                "upgrade": "풀돌",
+                "characterLevel": 802,
+                "element": "풍압",
+                "skill1": 7,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 80.2,
+                "increaseAtk": 18.69,
+                "increaseDef": 14.63,
+                "increaseHitRate": 0,
+                "increaseChargeSpeed": 0,
+                "increaseChargeDamage": 7.59,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 0,
+                "increaseMaxAmmunitionCapacity": 0,
+                "orgMaxAmmo": 6,
+                "orgHP": 15000,
+                "orgAtk": 500,
+                "orgDef": 84,
+                "hp": 15466830,
+                "atk": 510821,
+                "def": 87881,
+                "hp40": 1117431,
+                "atk40": 32510,
+                "def40": 7538,
+                "hp400": 3462376,
+                "atk400": 110674,
+                "def400": 20666,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 17.95
+                    },
+                    null,
+                    null
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.81
+                    },
+                    null
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseChargeDamage",
+                      "value": 7.59
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 6.88
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    }
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 17.95
+                    },
+                    {
+                      "effect": "increaseDef",
+                      "value": 14.63
+                    },
+                    null
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            deckScore: 6720249175,
+            squad: [
+              {
+                "name": "크라운",
+                "subName": "",
+                "upgrade": "풀코",
+                "characterLevel": 802,
+                "element": "철갑",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 19.35,
+                "increaseAtk": 8.29,
+                "increaseDef": 0,
+                "increaseHitRate": 10.4,
+                "increaseChargeSpeed": 0,
+                "increaseChargeDamage": 9.7,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 47.36,
+                "increaseMaxAmmunitionCapacity": 198.57,
+                "orgMaxAmmo": 300,
+                "orgHP": 16500,
+                "orgAtk": 400,
+                "orgDef": 92,
+                "hp": 19378170,
+                "atk": 471094,
+                "def": 110156,
+                "hp40": 1384023,
+                "atk40": 34874,
+                "def40": 9799,
+                "hp400": 4324585,
+                "atk400": 106159,
+                "def400": 26199,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseCriticalDamage",
+                      "value": 16.44
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 68.93
+                    },
+                    null
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseChargeDamage",
+                      "value": 9.7
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 19.35
+                    },
+                    {
+                      "effect": "increaseHitRate",
+                      "value": 10.4
+                    }
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 8.29
+                    },
+                    {
+                      "effect": "increaseCriticalDamage",
+                      "value": 14.48
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 60.71
+                    }
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseCriticalDamage",
+                      "value": 16.44
+                    },
+                    null,
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 68.93
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "라피 : 레드 후드",
+                "subName": "",
+                "upgrade": "풀코",
+                "characterLevel": 802,
+                "element": "작열",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 95.62,
+                "increaseAtk": 43.73,
+                "increaseDef": 6.88,
+                "increaseHitRate": 0,
+                "increaseChargeSpeed": 0,
+                "increaseChargeDamage": 0,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 0,
+                "increaseMaxAmmunitionCapacity": 146.08,
+                "orgMaxAmmo": 300,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 75,
+                "hp": 16022371,
+                "atk": 694813,
+                "def": 91065,
+                "hp40": 1299887,
+                "atk40": 40483,
+                "def40": 8954,
+                "hp400": 3705803,
+                "atk400": 147413,
+                "def400": 22371,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 81.26
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 8.29
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    }
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 26.36
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 12.52
+                    },
+                    null
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 12.52
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 64.82
+                    }
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 10.4
+                    },
+                    {
+                      "effect": "increaseDef",
+                      "value": 6.88
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 24.96
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "아스카 : WILLE",
+                "subName": "",
+                "upgrade": "풀돌",
+                "characterLevel": 802,
+                "element": "풍압",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 95.61,
+                "increaseAtk": 27.69,
+                "increaseDef": 0,
+                "increaseHitRate": 0,
+                "increaseChargeSpeed": 2.28,
+                "increaseChargeDamage": 0,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 0,
+                "increaseMaxAmmunitionCapacity": 92.67,
+                "orgMaxAmmo": 300,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 75,
+                "hp": 14113119,
+                "atk": 612005,
+                "def": 79843,
+                "hp40": 1198660,
+                "atk40": 38032,
+                "def40": 7816,
+                "hp400": 3309112,
+                "atk400": 131830,
+                "def400": 19585,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    },
+                    {
+                      "effect": "increaseChargeSpeed",
+                      "value": 2.28
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 9.7
+                    }
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    },
+                    null,
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 52.5
+                    }
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    },
+                    null,
+                    {
+                      "effect": "increaseAtk",
+                      "value": 8.29
+                    }
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 40.17
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 29.16
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 9.7
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "레이 (가칭)",
+                "subName": "",
+                "upgrade": "풀돌",
+                "characterLevel": 802,
+                "element": "풍압",
+                "skill1": 10,
+                "skill2": 7,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 0,
+                "increaseElementDamage": 40.11,
+                "increaseAtk": 23.62,
+                "increaseDef": 0,
+                "increaseHitRate": 0,
+                "increaseChargeSpeed": 0,
+                "increaseChargeDamage": 11.81,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 0,
+                "increaseMaxAmmunitionCapacity": 137.86,
+                "orgMaxAmmo": 60,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 90,
+                "hp": 13905319,
+                "atk": 605346,
+                "def": 92545,
+                "hp40": 990860,
+                "atk40": 31373,
+                "def40": 6444,
+                "hp400": 3101312,
+                "atk400": 125171,
+                "def400": 20513,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.81
+                    },
+                    null,
+                    null
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 68.93
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.81
+                    },
+                    null
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    },
+                    {
+                      "effect": "increaseChargeDamage",
+                      "value": 11.81
+                    },
+                    null
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 16.55
+                    },
+                    null,
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 68.93
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "헬름",
+                "subName": "",
+                "upgrade": "풀코",
+                "characterLevel": 802,
+                "element": "수냉",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SSR",
+                "itemLevel": 3,
+                "increaseElementDamage": 85.82,
+                "increaseAtk": 0,
+                "increaseDef": 12.52,
+                "increaseHitRate": 0,
+                "increaseChargeSpeed": 4.04,
+                "increaseChargeDamage": 0,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 0,
+                "increaseMaxAmmunitionCapacity": 77.15,
+                "orgMaxAmmo": 6,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 76,
+                "hp": 15906049,
+                "atk": 693469,
+                "def": 90775,
+                "hp40": 1183566,
+                "atk40": 39139,
+                "def40": 8345,
+                "hp400": 3589481,
+                "atk400": 146069,
+                "def400": 21815,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseChargeSpeed",
+                      "value": 4.04
+                    },
+                    {
+                      "effect": "increaseDef",
+                      "value": 12.52
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    }
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 77.15
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 16.55
+                    },
+                    null
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    },
+                    null,
+                    null
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    },
+                    null,
+                    null
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            deckScore: 13167627368,
+            squad: [
+              {
+                "name": "아니스 : 스타",
+                "subName": "",
+                "upgrade": "풀코",
+                "characterLevel": 802,
+                "element": "전격",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 98.43,
+                "increaseAtk": 39.67,
+                "increaseDef": 0,
+                "increaseHitRate": 0,
+                "increaseChargeSpeed": 0,
+                "increaseChargeDamage": 6.88,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 28.96,
+                "increaseMaxAmmunitionCapacity": 100.88,
+                "orgMaxAmmo": 6,
+                "orgHP": 16500,
+                "orgAtk": 400,
+                "orgDef": 107,
+                "hp": 19378170,
+                "atk": 469697,
+                "def": 126608,
+                "hp40": 1384023,
+                "atk40": 33477,
+                "def40": 9575,
+                "hp400": 4324585,
+                "atk400": 104763,
+                "def400": 28700,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 13.93
+                    },
+                    {
+                      "effect": "increaseCriticalDamage",
+                      "value": 13.5
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    }
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 36.06
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.11
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 26.36
+                    }
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 14.63
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 24.96
+                    },
+                    {
+                      "effect": "increaseChargeDamage",
+                      "value": 6.88
+                    }
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseCriticalDamage",
+                      "value": 15.46
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 24.96
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 64.82
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "앵커 : 이노센트 메이드",
+                "subName": "",
+                "upgrade": "4코",
+                "characterLevel": 802,
+                "element": "수냉",
+                "skill1": 8,
+                "skill2": 10,
+                "skill3": 9,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 23.56,
+                "increaseAtk": 11.81,
+                "increaseDef": 0,
+                "increaseHitRate": 0,
+                "increaseChargeSpeed": 4.92,
+                "increaseChargeDamage": 11.81,
+                "increaseCriticalRate": 5.71,
+                "increaseCriticalDamage": 0,
+                "increaseMaxAmmunitionCapacity": 137.86,
+                "orgMaxAmmo": 6,
+                "orgHP": 15000,
+                "orgAtk": 500,
+                "orgDef": 98,
+                "hp": 16639613,
+                "atk": 547760,
+                "def": 108728,
+                "hp40": 1142262,
+                "atk40": 31184,
+                "def40": 7935,
+                "hp400": 3674803,
+                "atk400": 115602,
+                "def400": 24406,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseCriticalRate",
+                      "value": 5.71
+                    },
+                    null,
+                    null
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseChargeDamage",
+                      "value": 11.81
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 68.93
+                    },
+                    null
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 68.93
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.81
+                    },
+                    null
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    },
+                    {
+                      "effect": "increaseChargeSpeed",
+                      "value": 4.92
+                    },
+                    null
+                  ]
+                }
+              },
+              {
+                "name": "리버렐리오",
+                "subName": "",
+                "upgrade": "3코",
+                "characterLevel": 802,
+                "element": "풍압",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 104.04,
+                "increaseAtk": 30.51,
+                "increaseDef": 0,
+                "increaseHitRate": 0,
+                "increaseChargeSpeed": 13.58,
+                "increaseChargeDamage": 0,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 0,
+                "increaseMaxAmmunitionCapacity": 133.76,
+                "orgMaxAmmo": 6,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 76,
+                "hp": 14950910,
+                "atk": 649458,
+                "def": 85603,
+                "hp40": 1261584,
+                "atk40": 41046,
+                "def40": 8958,
+                "hp400": 3498663,
+                "atk400": 140472,
+                "def400": 21481,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 9
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 27.76
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 81.26
+                    }
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseChargeSpeed",
+                      "value": 3.45
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 29.16
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 52.5
+                    }
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseChargeSpeed",
+                      "value": 5.21
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 9.7
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    }
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseChargeSpeed",
+                      "value": 4.92
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.81
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "홍련 : 흑영",
+                "subName": "",
+                "upgrade": "풀코",
+                "characterLevel": 802,
+                "element": "풍압",
+                "skill1": 10,
+                "skill2": 7,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 94.22,
+                "increaseAtk": 30.5,
+                "increaseDef": 0,
+                "increaseHitRate": 4.77,
+                "increaseChargeSpeed": 5.51,
+                "increaseChargeDamage": 0,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 0,
+                "increaseMaxAmmunitionCapacity": 64.82,
+                "orgMaxAmmo": 9,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 88,
+                "hp": 16022371,
+                "atk": 696295,
+                "def": 105049,
+                "hp40": 1299887,
+                "atk40": 41965,
+                "def40": 9297,
+                "hp400": 3705803,
+                "atk400": 148895,
+                "def400": 24942,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 10.4
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    },
+                    {
+                      "effect": "increaseHitRate",
+                      "value": 4.77
+                    }
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 24.96
+                    },
+                    null,
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 64.82
+                    }
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    },
+                    null,
+                    {
+                      "effect": "increaseAtk",
+                      "value": 10.4
+                    }
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseChargeSpeed",
+                      "value": 5.51
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 24.96
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 9.7
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "마스트 : 로망틱 메이드",
+                "subName": "",
+                "upgrade": "2코",
+                "characterLevel": 802,
+                "element": "수냉",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 56.65,
+                "increaseAtk": 4.77,
+                "increaseDef": 0,
+                "increaseHitRate": 6.18,
+                "increaseChargeSpeed": 0,
+                "increaseChargeDamage": 0,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 7.62,
+                "increaseMaxAmmunitionCapacity": 80.34,
+                "orgMaxAmmo": 300,
+                "orgHP": 15000,
+                "orgAtk": 500,
+                "orgDef": 84,
+                "hp": 16163841,
+                "atk": 532827,
+                "def": 91352,
+                "hp40": 1240466,
+                "atk40": 35384,
+                "def40": 8121,
+                "hp400": 3679208,
+                "atk400": 116674,
+                "def400": 21721,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 19.35
+                    },
+                    null,
+                    {
+                      "effect": "increaseHitRate",
+                      "value": 6.18
+                    }
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 40.17
+                    },
+                    null
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 4.77
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 15.15
+                    },
+                    {
+                      "effect": "increaseCriticalDamage",
+                      "value": 7.62
+                    }
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 40.17
+                    },
+                    null,
+                    null
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            deckScore: 4671434587,
+            squad: [
+              {
+                "name": "아크레인저 블랙",
+                "subName": "",
+                "upgrade": "풀돌",
+                "characterLevel": 802,
+                "element": "풍압",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 90.03,
+                "increaseAtk": 34.74,
+                "increaseDef": 0,
+                "increaseHitRate": 0,
+                "increaseChargeSpeed": 0,
+                "increaseChargeDamage": 8.29,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 10.56,
+                "increaseMaxAmmunitionCapacity": 56.6,
+                "orgMaxAmmo": 60,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 90,
+                "hp": 14113119,
+                "atk": 612405,
+                "def": 94045,
+                "hp40": 1198660,
+                "atk40": 38432,
+                "def40": 7944,
+                "hp400": 3309112,
+                "atk400": 132230,
+                "def400": 22013,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 12.52
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 56.6
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    }
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.11
+                    },
+                    {
+                      "effect": "increaseCriticalDamage",
+                      "value": 10.56
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 19.35
+                    }
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseChargeDamage",
+                      "value": 8.29
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.11
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    }
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    },
+                    null,
+                    null
+                  ]
+                }
+              },
+              {
+                "name": "디젤 : 윈터 스위츠",
+                "subName": "",
+                "upgrade": "1코",
+                "characterLevel": 802,
+                "element": "작열",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 92.82,
+                "increaseAtk": 27.69,
+                "increaseDef": 0,
+                "increaseHitRate": 13.77,
+                "increaseChargeSpeed": 0,
+                "increaseChargeDamage": 0,
+                "increaseCriticalRate": 5.71,
+                "increaseCriticalDamage": 0,
+                "increaseMaxAmmunitionCapacity": 0,
+                "orgMaxAmmo": 6,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 88,
+                "hp": 14300749,
+                "atk": 623453,
+                "def": 93662,
+                "hp40": 1128001,
+                "atk40": 38001,
+                "def40": 7989,
+                "hp400": 3280662,
+                "atk400": 133675,
+                "def400": 21987,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 20.75
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 6.18
+                    },
+                    null
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 20.75
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 9.7
+                    },
+                    {
+                      "effect": "increaseHitRate",
+                      "value": 6.18
+                    }
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseCriticalRate",
+                      "value": 5.71
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    },
+                    null
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseHitRate",
+                      "value": 7.59
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.81
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 27.76
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "맥스웰",
+                "subName": "",
+                "upgrade": "풀코",
+                "characterLevel": 802,
+                "element": "철갑",
+                "skill1": 10,
+                "skill2": 7,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 0,
+                "increaseElementDamage": 66.46,
+                "increaseAtk": 8.29,
+                "increaseDef": 6.18,
+                "increaseHitRate": 5.47,
+                "increaseChargeSpeed": 3.16,
+                "increaseChargeDamage": 0,
+                "increaseCriticalRate": 3.66,
+                "increaseCriticalDamage": 0,
+                "increaseMaxAmmunitionCapacity": 149.27,
+                "orgMaxAmmo": 6,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 76,
+                "hp": 15785546,
+                "atk": 687470,
+                "def": 89574,
+                "hp40": 1063063,
+                "atk40": 33140,
+                "def40": 7144,
+                "hp400": 3468978,
+                "atk400": 140070,
+                "def400": 20613,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 40.17
+                    },
+                    {
+                      "effect": "increaseDef",
+                      "value": 6.18
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 26.36
+                    }
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    },
+                    {
+                      "effect": "increaseCriticalRate",
+                      "value": 3.66
+                    },
+                    null
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 31.95
+                    },
+                    {
+                      "effect": "increaseChargeSpeed",
+                      "value": 3.16
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 17.95
+                    }
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 77.15
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 8.29
+                    },
+                    {
+                      "effect": "increaseHitRate",
+                      "value": 5.47
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "로산나 : 시크 오션",
+                "subName": "",
+                "upgrade": "풀돌",
+                "characterLevel": 1,
+                "element": "풍압",
+                "skill1": 7,
+                "skill2": 7,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 0,
+                "increaseElementDamage": 0,
+                "increaseAtk": 0,
+                "increaseDef": 0,
+                "increaseHitRate": 0,
+                "increaseChargeSpeed": 0,
+                "increaseChargeDamage": 0,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 0,
+                "increaseMaxAmmunitionCapacity": 0,
+                "orgMaxAmmo": 60,
+                "orgHP": 15000,
+                "orgAtk": 500,
+                "orgDef": 100,
+                "hp": 739697,
+                "atk": 18590,
+                "def": 5221,
+                "hp40": 772292,
+                "atk40": 19676,
+                "def40": 5438,
+                "hp400": 3117237,
+                "atk400": 97840,
+                "def400": 21071,
+                "equipSlots": {
+                  "head": [
+                    null,
+                    null,
+                    null
+                  ],
+                  "torso": [
+                    null,
+                    null,
+                    null
+                  ],
+                  "arm": [
+                    null,
+                    null,
+                    null
+                  ],
+                  "leg": [
+                    null,
+                    null,
+                    null
+                  ]
+                }
+              },
+              {
+                "name": "목단",
+                "subName": "",
+                "upgrade": "3코",
+                "characterLevel": 802,
+                "element": "전격",
+                "skill1": 7,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SSR",
+                "itemLevel": 3,
+                "increaseElementDamage": 47.12,
+                "increaseAtk": 11.81,
+                "increaseDef": 0,
+                "increaseHitRate": 23.62,
+                "increaseChargeSpeed": 0,
+                "increaseChargeDamage": 23.62,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 0,
+                "increaseMaxAmmunitionCapacity": 0,
+                "orgMaxAmmo": 60,
+                "orgHP": 16500,
+                "orgAtk": 400,
+                "orgDef": 110,
+                "hp": 18034017,
+                "atk": 437884,
+                "def": 120120,
+                "hp40": 1302617,
+                "atk40": 32276,
+                "def40": 8572,
+                "hp400": 4036824,
+                "atk400": 98559,
+                "def400": 26798,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    },
+                    {
+                      "effect": "increaseChargeDamage",
+                      "value": 11.81
+                    },
+                    {
+                      "effect": "increaseHitRate",
+                      "value": 11.81
+                    }
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    },
+                    null,
+                    null
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseChargeDamage",
+                      "value": 11.81
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.81
+                    },
+                    null
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseHitRate",
+                      "value": 11.81
+                    },
+                    null,
+                    null
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            deckScore: 4172299688,
+            squad: [
+              {
+                "name": "볼륨",
+                "subName": "",
+                "upgrade": "6코",
+                "characterLevel": 802,
+                "element": "풍압",
+                "skill1": 1,
+                "skill2": 7,
+                "skill3": 7,
+                "itemGrade": "SR",
+                "itemLevel": 0,
+                "increaseElementDamage": 0,
+                "increaseAtk": 0,
+                "increaseDef": 0,
+                "increaseHitRate": 0,
+                "increaseChargeSpeed": 0,
+                "increaseChargeDamage": 0,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 0,
+                "increaseMaxAmmunitionCapacity": 0,
+                "orgMaxAmmo": 120,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 78,
+                "hp": 15292412,
+                "atk": 665249,
+                "def": 88839,
+                "hp40": 828218,
+                "atk40": 22400,
+                "def40": 5800,
+                "hp400": 3191924,
+                "atk400": 127453,
+                "def400": 19369,
+                "equipSlots": {
+                  "head": [
+                    null,
+                    null,
+                    null
+                  ],
+                  "torso": [
+                    null,
+                    null,
+                    null
+                  ],
+                  "arm": [
+                    null,
+                    null,
+                    null
+                  ],
+                  "leg": [
+                    null,
+                    null,
+                    null
+                  ]
+                }
+              },
+              {
+                "name": "민트",
+                "subName": "",
+                "upgrade": "2돌",
+                "characterLevel": 802,
+                "element": "철갑",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 0,
+                "increaseAtk": 11.81,
+                "increaseDef": 23.62,
+                "increaseHitRate": 11.81,
+                "increaseChargeSpeed": 4.92,
+                "increaseChargeDamage": 11.81,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 16.44,
+                "increaseMaxAmmunitionCapacity": 68.93,
+                "orgMaxAmmo": 6,
+                "orgHP": 15000,
+                "orgAtk": 500,
+                "orgDef": 98,
+                "hp": 15150235,
+                "atk": 498753,
+                "def": 98944,
+                "hp40": 1071580,
+                "atk40": 29467,
+                "def40": 7378,
+                "hp400": 3372281,
+                "atk400": 106156,
+                "def400": 22341,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 68.93
+                    },
+                    {
+                      "effect": "increaseChargeDamage",
+                      "value": 11.81
+                    },
+                    null
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.81
+                    },
+                    null,
+                    {
+                      "effect": "increaseHitRate",
+                      "value": 11.81
+                    }
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseDef",
+                      "value": 11.81
+                    },
+                    null,
+                    {
+                      "effect": "increaseChargeSpeed",
+                      "value": 4.92
+                    }
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseDef",
+                      "value": 11.81
+                    },
+                    {
+                      "effect": "increaseCriticalDamage",
+                      "value": 16.44
+                    },
+                    null
+                  ]
+                }
+              },
+              {
+                "name": "스노우 화이트 : 헤비암즈",
+                "subName": "",
+                "upgrade": "2코",
+                "characterLevel": 802,
+                "element": "수냉",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 101.22,
+                "increaseAtk": 47.25,
+                "increaseDef": 0,
+                "increaseHitRate": 17.29,
+                "increaseChargeSpeed": 2.86,
+                "increaseChargeDamage": 0,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 0,
+                "increaseMaxAmmunitionCapacity": 0,
+                "orgMaxAmmo": 6,
+                "orgHP": 13500,
+                "orgAtk": 600,
+                "orgDef": 76,
+                "hp": 14683045,
+                "atk": 637748,
+                "def": 84083,
+                "hp40": 1252008,
+                "atk40": 40817,
+                "def40": 8884,
+                "hp400": 3446878,
+                "atk400": 138366,
+                "def400": 21172,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    },
+                    null,
+                    {
+                      "effect": "increaseAtk",
+                      "value": 13.22
+                    }
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 13.93
+                    },
+                    {
+                      "effect": "increaseHitRate",
+                      "value": 11.11
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 20.75
+                    }
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseChargeSpeed",
+                      "value": 2.86
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 29.16
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 10.4
+                    }
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 29.16
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 9.7
+                    },
+                    {
+                      "effect": "increaseHitRate",
+                      "value": 6.18
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "신데렐라",
+                "subName": "",
+                "upgrade": "풀코",
+                "characterLevel": 802,
+                "element": "전격",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 10,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 95.61,
+                "increaseAtk": 50.07,
+                "increaseDef": 0,
+                "increaseHitRate": 0,
+                "increaseChargeSpeed": 0,
+                "increaseChargeDamage": 0,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 0,
+                "increaseMaxAmmunitionCapacity": 149.27,
+                "orgMaxAmmo": 24,
+                "orgHP": 16500,
+                "orgAtk": 400,
+                "orgDef": 107,
+                "hp": 19378170,
+                "atk": 471094,
+                "def": 126887,
+                "hp40": 1384023,
+                "atk40": 34874,
+                "def40": 9855,
+                "hp400": 4324585,
+                "atk400": 106159,
+                "def400": 28979,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 29.16
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 9.7
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 52.5
+                    }
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.81
+                    },
+                    null
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 14.63
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 40.17
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    }
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 56.6
+                    },
+                    {
+                      "effect": "increaseAtk",
+                      "value": 13.93
+                    },
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 22.15
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "프리카",
+                "subName": "",
+                "upgrade": "1돌",
+                "characterLevel": 802,
+                "element": "수냉",
+                "skill1": 10,
+                "skill2": 10,
+                "skill3": 7,
+                "itemGrade": "SR",
+                "itemLevel": 15,
+                "increaseElementDamage": 23.56,
+                "increaseAtk": 23.62,
+                "increaseDef": 0,
+                "increaseHitRate": 23.62,
+                "increaseChargeSpeed": 0,
+                "increaseChargeDamage": 0,
+                "increaseCriticalRate": 0,
+                "increaseCriticalDamage": 16.44,
+                "increaseMaxAmmunitionCapacity": 68.93,
+                "orgMaxAmmo": 6,
+                "orgHP": 15000,
+                "orgAtk": 500,
+                "orgDef": 84,
+                "hp": 14875577,
+                "atk": 489678,
+                "def": 84541,
+                "hp40": 1067665,
+                "atk40": 29416,
+                "def40": 7230,
+                "hp400": 3324122,
+                "atk400": 104631,
+                "def400": 19862,
+                "equipSlots": {
+                  "head": [
+                    {
+                      "effect": "increaseHitRate",
+                      "value": 11.81
+                    },
+                    null,
+                    null
+                  ],
+                  "torso": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.81
+                    },
+                    {
+                      "effect": "increaseMaxAmmunitionCapacity",
+                      "value": 68.93
+                    },
+                    {
+                      "effect": "increaseCriticalDamage",
+                      "value": 16.44
+                    }
+                  ],
+                  "arm": [
+                    {
+                      "effect": "increaseElementDamage",
+                      "value": 23.56
+                    },
+                    null,
+                    {
+                      "effect": "increaseHitRate",
+                      "value": 11.81
+                    }
+                  ],
+                  "leg": [
+                    {
+                      "effect": "increaseAtk",
+                      "value": 11.81
+                    },
+                    null,
+                    null
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       }
     ]
   }
