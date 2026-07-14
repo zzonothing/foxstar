@@ -31266,10 +31266,10 @@ const SOLO = {
         uid: "09209660",
         nickname: "진섯",
         soloRank: 167,
-        totalScore: null,
+        totalScore: 37937388336,
         decks: [
           {
-            deckScore: null,
+            deckScore: 13673821113,
             squad: [
               {
                 "name": "아니스 : 스타",
@@ -31698,7 +31698,7 @@ const SOLO = {
             ]
           },
           {
-            deckScore: null,
+            deckScore: 8192054850,
             squad: [
               {
                 "name": "나유타",
@@ -32118,7 +32118,7 @@ const SOLO = {
             ]
           },
           {
-            deckScore: null,
+            deckScore: 7092362202,
             squad: [
               {
                 "name": "레이 (가칭)",
@@ -32553,7 +32553,7 @@ const SOLO = {
             ]
           },
           {
-            deckScore: null,
+            deckScore: 4840729566,
             squad: [
               {
                 "name": "목단",
@@ -32949,7 +32949,7 @@ const SOLO = {
             ]
           },
           {
-            deckScore: null,
+            deckScore: 4138420605,
             squad: [
               {
                 "name": "볼륨",
@@ -33356,10 +33356,10 @@ const SOLO = {
         uid: "05611831",
         nickname: "히르메",
         soloRank: "0.17%",
-        totalScore: null,
+        totalScore: 36928489755,
         decks: [
           {
-            deckScore: null,
+            deckScore: 14162490782,
             squad: [
               {
                 "name": "홍련 : 흑영",
@@ -33800,7 +33800,7 @@ const SOLO = {
             ]
           },
           {
-            deckScore: null,
+            deckScore: 8806983233,
             squad: [
               {
                 "name": "나유타",
@@ -34220,7 +34220,7 @@ const SOLO = {
             ]
           },
           {
-            deckScore: null,
+            deckScore: 6094453917,
             squad: [
               {
                 "name": "크라운",
@@ -34646,7 +34646,7 @@ const SOLO = {
             ]
           },
           {
-            deckScore: null,
+            deckScore: 4202617179,
             squad: [
               {
                 "name": "목단",
@@ -35018,7 +35018,7 @@ const SOLO = {
             ]
           },
           {
-            deckScore: null,
+            deckScore: 3661944644,
             squad: [
               {
                 "name": "볼륨",
