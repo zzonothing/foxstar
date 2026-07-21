@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-"여우별 유니온 포털" — a password-gated Korean-language fan portal for a union in the mobile game *승리의 여신: 니케* (Goddess of Victory: Nike). Deployed as a static site with serverless functions on Vercel (https://foxstar.vercel.app/).
+A password-gated Korean-language fan portal for unions in the mobile game *승리의 여신: 니케* (Goddess of Victory: Nike). Deployed as a static site with serverless functions on Vercel. **Multi-union**: the same repo/`main` branch backs one Vercel project per union (e.g. 여우별 → https://foxstar.vercel.app/); the per-project env var `UNION_ID` selects which union's data directory (`api/_data/<slug>/`) that deployment serves (see "Multi-union deployment" below).
 
-No build step, no package.json, no tests, no linter. The site is plain HTML/CSS/vanilla JS with three Node.js serverless functions: `api/auth.js` (login), `api/data.js` (gates the `member.js`/`raid.js`/`character.js`/`solo.js` data files), and `api/sim.js` (gates the damage-simulator JSON under `api/_data/sim/`). Front-end pages share one script, `js/common.js` (helpers, header/nav injection, theme toggle, auth guard, modal + member-popup builder, URL-state helpers).
+No build step, no package.json, no tests, no linter. The site is plain HTML/CSS/vanilla JS with Node.js serverless functions: `api/auth.js` (login), `api/data.js` (gates the `member.js`/`raid.js`/`character.js`/`solo.js`/`notice.js` data files), `api/sim.js` (gates the damage-simulator JSON under `api/_data/<slug>/sim/`), `api/config.js` (serves the union's public `CONFIG` without auth), and `api/notice.js` (admin notice CRUD — writes `api/_data/<slug>/notice.js` back to the repo via the GitHub Contents API). `api/_lib/union.js` resolves `UNION_ID` (default `foxstar`; malformed values throw at module load — fail-fast so a typo'd deployment can never silently fall back to serving 여우별 data). Front-end pages share one script, `js/common.js` (helpers, header/nav injection, theme toggle, auth guard, modal + member-popup builder, URL-state helpers).
 
 ## Commands
 
@@ -14,16 +14,19 @@ No build step, no package.json, no tests, no linter. The site is plain HTML/CSS/
 - **Deploy preview**: `vercel`
 - **Deploy production**: `vercel --prod`
 
-Required environment variables (set in Vercel project settings or `.env.local`):
-- `ACCESS_KEY` — the password users enter at the login overlay
-- `SESSION_SECRET` — HMAC secret for session cookies (falls back to `ACCESS_KEY` if unset)
+Required environment variables (set per Vercel project or `.env.local`):
+- `UNION_ID` — which union this deployment serves (`api/_data/<UNION_ID>/`); defaults to `foxstar` when unset
+- `ACCESS_KEY` — the password users enter at the login overlay (**must differ per union**)
+- `ADMIN_KEY` — the admin password (grants notice write access; must differ per union)
+- `SESSION_SECRET` — HMAC secret for session cookies (falls back to `ACCESS_KEY` if unset; must differ per union)
 - `SESSION_EPOCH` — optional unix-ms timestamp; tokens issued before this are rejected (use to force logout of all sessions after rotating secrets)
+- `GH_TOKEN` / `GH_REPO` / `GH_BRANCH` — used by `api/notice.js` to commit notice updates (defaults: `zzonothing/foxstar` / `main`); do not put `GH_TOKEN` in `.env.local` unless you want local notice writes to hit the real repo
 
 ## Architecture
 
 ### Auth + data-gating model (the non-obvious core)
 
-Sensitive data files (`member.js`, `raid.js`, `character.js`, `solo.js`, and the simulator JSON under `sim/`) are **not** static assets. They live in `api/_data/` (underscore prefix keeps Vercel from serving them as static). The flow:
+Sensitive data files (`member.js`, `raid.js`, `character.js`, `solo.js`, `notice.js`, and the simulator JSON under `sim/`) are **not** static assets. They live in `api/_data/<slug>/` per union (underscore prefix keeps Vercel from serving them as static; `api/_lib/union.js` picks the directory from `UNION_ID`). The flow:
 
 1. HTML pages include them naively: `<script src="data/member.js"></script>` (or `<script src="data/sim/union.json">`-style for the simulator).
 2. `vercel.json` rewrites `/data/{member,raid,character,solo}.js` → `/api/data?file=<name>`, and `/data/sim/*` → `/api/sim?file=<name>`.
@@ -54,6 +57,26 @@ Consequences for editing:
 - Vercel functions use CommonJS (`module.exports = function handler(req, res) {}`), not ES modules.
 - `js/common.js` and `css/style.css` are cached for a day (`vercel.json` `/js/*`·`/css/*` headers) — when you change either, bump its `?v=N` query on **every** page that references it (`<script src="js/common.js?v=N">` on the 7 nav pages; `<link href="css/style.css?v=N">` on all pages **including `sim.html`**) so browsers refetch. Keep the version identical across pages — a mismatch means pages pick up a CSS/JS change on different days.
 
+### Multi-union deployment (멀티 유니온)
+
+One repo, one `main` branch, N Vercel projects — each project sets `UNION_ID` and serves only `api/_data/<UNION_ID>/`. The deployment **is** the tenant boundary: there is no union id in cookies or URLs, and auth/session code is union-agnostic.
+
+Adding a new union (checklist):
+
+1. Create `api/_data/<slug>/` with `config.js` (unionName/kakaoUrl/logo/roleOverride/schedule) plus skeleton data files: `member.js` (`const UNION = {};`), `raid.js` (`const RAID = {};`), `character.js` (`const CHARACTERS = {};`), `solo.js` (`const SOLO = {};`), `notice.js` (`const NOTICE = [];`). `sim/` is optional. Slug must match `[a-z0-9_-]{1,32}`.
+2. Add the union logo `image/<slug>.png` (keep it ≤100KB) and point `CONFIG.logo` at it.
+3. Commit to `main` (existing union deployments redeploy too — harmless; their data is unchanged).
+4. Create a new Vercel project from this same GitHub repo (production branch `main`, default build settings).
+5. Set env vars on the new project: `UNION_ID=<slug>` plus fresh `ACCESS_KEY`/`ADMIN_KEY`/`SESSION_SECRET` (never reuse another union's — reuse would share passwords across unions) and `GH_TOKEN` for notices. `GH_REPO`/`GH_BRANCH` can stay default.
+6. Verify: login → each page renders (skeleton data shows the error card until real data is imported — that's the `showDataError()` path, not a crash) → write/delete one test notice.
+
+Notes:
+
+- A notice write from **any** union commits to `main`, which redeploys **all** projects connected to the repo. This is normal (sessions are stateless HMAC cookies and survive redeploys); notice commit messages carry a `[<UNION_ID>]` prefix so the history stays readable.
+- `api/data.js` bundles all unions' data (`includeFiles: api/_data/**`, ~14MB per union uncompressed) — fine for a dozen-plus unions against Vercel's 250MB function limit; runtime memory only loads the deployment's own union.
+- Set `UNION_ID=foxstar` explicitly on the original foxstar project (it works unset via the default, but explicit is clearer).
+- **The repo's visibility is the real data boundary**: member data (UIDs, nicknames, records) lives in this repo, so if the repo is public, the site's password gate does not protect it. Keep the repo private.
+
 ### Page layout
 
 Standalone HTML files share `css/style.css` and `js/common.js`. There is no bundler; pages still hold most of their feature logic inline, but cross-cutting pieces (header/nav, theme, auth guard, the member-detail popup, chart/URL helpers) live in `js/common.js`. The six nav pages are listed in `NAV_ITEMS` in `js/common.js`:
@@ -69,7 +92,7 @@ Standalone HTML files share `css/style.css` and `js/common.js`. There is no bund
 
 Two pages sit outside the nav: `login.html` (the auth gate) and `sim.html` (a standalone damage simulator that loads the `data/sim/*` JSON; it does **not** load `js/common.js`).
 
-`data/config.js` and `data/raidGuide.js` are the truly static, public data files. `config.js` contains `CONFIG = { unionName, kakaoUrl, schedule: { unionRaid, soloRaid } }` — the schedule fields are `null` until confirmed (pages render "미정" when null). `raidGuide.js` holds `RAID_GUIDE`, the manually tuned tier/role cultivation rules `guide.html` reads.
+`data/raidGuide.js` is the only truly static, public data file — it holds `RAID_GUIDE`, the manually tuned tier/role cultivation rules `guide.html` reads (no union name inside; shared by all unions as a template). The union `CONFIG` is **not** static anymore: it lives per union at `api/_data/<slug>/config.js` and `/data/config.js` is rewritten to `api/config.js`, which serves it **without auth** (login.html loads it pre-login) with `Cache-Control: public, max-age=300, stale-while-revalidate=3600`. `CONFIG = { unionName, kakaoUrl, logo, roleOverride, schedule: { unionRaid, soloRaid } }` — `logo` is the header-logo/favicon path (`image/<slug>.png`, applied by JS after CONFIG loads), `roleOverride` maps member nicknames to `"Leader"`/`"Officer"` badges (consumed by index/raid), and the schedule fields are `null` until confirmed. Do not fold config back into `api/data.js` — its unauthenticated-response contract is the `__AUTH_REQUIRED` sentinel, and adding a "public file" exception there weakens the gate.
 
 The home (`index.html`) member popup and the raid (`raid.html`) member popup are the **same** component: `buildMemberPopupHTML(ctx, name, season)` in `js/common.js`. Each page passes a small `POPUP_CTX = { members, ROLE_KO, roleOf, seasonKeys, lvlMaps, raidKeys, OPF }` (page-local data); the function reads the `UNION`/`RAID` globals and common helpers directly. Edit the popup once, in `common.js`.
 
@@ -79,9 +102,9 @@ The home (`index.html`) member popup and the raid (`raid.html`) member popup are
 - `RAID` (from `raid.js`): keyed by `"S<season>"` (e.g. `"S35"`).
 - `CHARACTERS` (from `character.js`): keyed by `uid`, values are character arrays for the latest season only. (Note the global is plural — `CHARACTERS`, not `CHARACTER`.)
 - `SOLO` (from `solo.js`): keyed by `"S<season>"` (e.g. `"S37"`). Each entry is `{ season, bossName, element, members: [...] }`; each member has `uid`, `nickname`, `soloRank` (1–200 as a number, 201+ as a `"N.NN%"` string), `totalScore`, and `decks[]` (squad snapshots frozen at raid time).
-- Simulator data (`api/_data/sim/`): `meta.json` (rotations, kind labels, deck templates, element list), `union.json` (per-member precomputed damage vectors), and `detail/<uid>.json` (per-member breakdown). Consumed only by `sim.html`.
+- Simulator data (`api/_data/<slug>/sim/`): `meta.json` (rotations, kind labels, deck templates, element list), `union.json` (per-member precomputed damage vectors), and `detail/<uid>.json` (per-member breakdown). Consumed only by `sim.html`. A union without `sim/` is fine — `api/sim.js` 404s and `sim.html` shows its "데이터를 불러올 수 없습니다" state.
 
-When adding a new season: append a new top-level key to `UNION` in `api/_data/member.js` and a matching `"S<n>"` key to `RAID` in `api/_data/raid.js`; refresh `CHARACTERS` in `api/_data/character.js` (latest season only); add a `"S<n>"` key to `SOLO` in `api/_data/solo.js` after that season's solo raid; and refresh the `sim/` JSON if the simulator should cover it.
+When adding a new season (per union, under `api/_data/<slug>/`): append a new top-level key to `UNION` in `member.js` and a matching `"S<n>"` key to `RAID` in `raid.js`; refresh `CHARACTERS` in `character.js` (latest season only); add a `"S<n>"` key to `SOLO` in `solo.js` after that season's solo raid; and refresh the `sim/` JSON if the simulator should cover it.
 
 `raid.html` and `solo.html` persist the selected season in the URL as `?s=S<n>` (via `readUrlParam`/`writeUrlParam` in `common.js` + `history.replaceState`), so a season view is refresh-stable and shareable. The param survives the login round-trip because `authGuardOrRedirect()` includes `location.search` in the `return` path and `ALLOWED_PATHS` compares the path part only.
 
