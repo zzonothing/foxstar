@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A password-gated Korean-language fan portal for unions in the mobile game *승리의 여신: 니케* (Goddess of Victory: Nike). Deployed as a static site with serverless functions on Vercel. **Multi-union**: the same repo/`main` branch backs one Vercel project per union (e.g. 여우별 → https://foxstar.vercel.app/); the per-project env var `UNION_ID` selects which union's data directory (`api/_data/<slug>/`) that deployment serves (see "Multi-union deployment" below).
 
-No build step, no package.json, no tests, no linter. The site is plain HTML/CSS/vanilla JS with Node.js serverless functions: `api/auth.js` (login), `api/data.js` (gates the `member.js`/`raid.js`/`character.js`/`solo.js`/`notice.js` data files), `api/sim.js` (gates the damage-simulator JSON under `api/_data/<slug>/sim/`), `api/config.js` (serves the union's public `CONFIG` without auth), and `api/notice.js` (admin notice CRUD — writes `api/_data/<slug>/notice.js` back to the repo via the GitHub Contents API). `api/_lib/union.js` resolves `UNION_ID` (default `foxstar`; malformed values throw at module load — fail-fast so a typo'd deployment can never silently fall back to serving 여우별 data). Front-end pages share one script, `js/common.js` (helpers, header/nav injection, theme toggle, auth guard, modal + member-popup builder, URL-state helpers).
+No build step, no package.json, no tests, no linter. The site is plain HTML/CSS/vanilla JS with Node.js serverless functions: `api/auth.js` (login), `api/data.js` (gates the `member.js`/`raid.js`/`character.js`/`solo.js`/`notice.js` data files), `api/sim.js` (gates the damage-simulator JSON under `api/_data/<slug>/sim/`), `api/config.js` (serves the union's public `CONFIG` without auth), and `api/notice.js` (admin notice CRUD — writes `api/_data/<slug>/notice.js` back to the repo via the GitHub Contents API). `api/_lib/union.js` resolves `UNION_ID` (default `foxstar` only when the env var is truly absent; a present-but-malformed value — empty string included — throws at module load, fail-fast so a misconfigured deployment can never silently fall back to serving 여우별 data; a well-formed but nonexistent slug is caught by `api/data.js`, which throws at module load when the union's data directory yields zero files). Front-end pages share one script, `js/common.js` (helpers, header/nav injection, theme toggle, auth guard, modal + member-popup builder, URL-state helpers).
 
 ## Commands
 
@@ -29,12 +29,12 @@ Required environment variables (set per Vercel project or `.env.local`):
 Sensitive data files (`member.js`, `raid.js`, `character.js`, `solo.js`, `notice.js`, and the simulator JSON under `sim/`) are **not** static assets. They live in `api/_data/<slug>/` per union (underscore prefix keeps Vercel from serving them as static; `api/_lib/union.js` picks the directory from `UNION_ID`). The flow:
 
 1. HTML pages include them naively: `<script src="data/member.js"></script>` (or `<script src="data/sim/union.json">`-style for the simulator).
-2. `vercel.json` rewrites `/data/{member,raid,character,solo}.js` → `/api/data?file=<name>`, and `/data/sim/*` → `/api/sim?file=<name>`.
+2. `vercel.json` rewrites `/data/{member,raid,character,solo,notice}.js` → `/api/data?file=<name>`, and `/data/sim/*` → `/api/sim?file=<name>`. (Separately, `/data/config.js` → `/api/config`, which is deliberately unauthenticated — see Page layout.)
 3. `api/data.js` and `api/sim.js` both check the `fstar_session` cookie (HMAC-SHA256 over a timestamp, 1-day expiry, verified with `crypto.timingSafeEqual`) and whitelist the exact filenames they will serve (`api/sim.js` additionally regex-validates the `detail/<uid>.json` path). `api/data.js` also implements **sliding session renewal**: on a valid request whose token is older than 12h it re-issues the cookie (`sessionCookie()` in `api/_lib/session.js`), so members who visit at least daily stay logged in and only >24h-idle sessions see the login page again. `SESSION_EPOCH` force-logout still applies to renewed tokens. On **authenticated** requests both serve the file from `api/_data/` with `ETag` + `Cache-Control: private, no-cache` (see Caching below); `api/data.js` uses `Content-Type: application/javascript`, `api/sim.js` uses `application/json`. They differ on **unauthenticated** requests:
    - **`api/data.js`** returns `200 OK` with body `window.__AUTH_REQUIRED=true;` and `Cache-Control: no-store`. It is deliberately `200` (not 401) so the `<script src>` tag still executes and sets the sentinel global.
    - **`api/sim.js`** returns `401` with JSON `{ error: 'auth required' }` and `Cache-Control: no-store`. Its data is loaded by `fetch()` (not `<script>`), so there is no sentinel to set — the page just gets a failed fetch.
 4. Each HTML page guards its main script with `js/common.js`'s `authGuardOrRedirect()`: if `window.__AUTH_REQUIRED` is set it **redirects to `/login.html?return=<path+search>`** via `location.replace()` and returns `true`. Pages wrap their main logic in `} else if (!authGuardOrRedirect()) { try { … } catch { showDataError() } }` (search for the closing comment `} // else if (!authGuardOrRedirect())` near the end of the file). `sim.html` is the exception — it does not load `common.js` and still uses an inline `window.__AUTH_REQUIRED` check (search for `} // if (!window.__AUTH_REQUIRED)`). Note `sim.html`'s redirect is still driven by the **sentinel**, not by the sim endpoint's 401: it loads `member.js`/`character.js` via `<script src>` (through `api/data.js`), so an unauthenticated visit sets `__AUTH_REQUIRED` and redirects before the `api/sim.js` fetches ever matter.
-5. `/login.html` is a standalone minimal page (no header, no sticky/fixed layout, no view-transition, no speculation rules, no html2canvas). It POSTs the password to `/api/auth` (`api/auth.js`), which sets the `fstar_session` cookie on success; the page then `location.replace()`s to the validated `return` path. The `return` parameter is whitelisted via `ALLOWED_PATHS` to `{/, /index.html, /raid.html, /solo.html, /shift.html, /stats.html, /sim.html, /guide.html}` (path part only; a query string like `?s=S35` is allowed) to prevent open-redirect.
+5. `/login.html` is a standalone minimal page (no header, no sticky/fixed layout, no view-transition, no speculation rules, no html2canvas). It POSTs the password to `/api/auth` (`api/auth.js`), which sets the `fstar_session` cookie on success; the page then `location.replace()`s to the validated `return` path. The `return` parameter is whitelisted via `ALLOWED_PATHS` to `{/, /index.html, /notice.html, /raid.html, /solo.html, /shift.html, /stats.html, /sim.html, /guide.html}` (path part only; a query string like `?s=S35` is allowed) to prevent open-redirect.
 
 The redirect-to-dedicated-page approach (instead of an in-page overlay) was chosen to work around an iOS 26 Safari bug where `visualViewport.offsetTop` doesn't reset after keyboard dismissal, causing `position: fixed` / `position: sticky` elements (and the whole page layout) to become misaligned during password-input focus. The login page has no fixed/sticky positioning so it bypasses the bug.
 
@@ -64,10 +64,10 @@ One repo, one `main` branch, N Vercel projects — each project sets `UNION_ID` 
 Adding a new union (checklist):
 
 1. Create `api/_data/<slug>/` with `config.js` (unionName/kakaoUrl/logo/roleOverride/schedule) plus skeleton data files: `member.js` (`const UNION = {};`), `raid.js` (`const RAID = {};`), `character.js` (`const CHARACTERS = {};`), `solo.js` (`const SOLO = {};`), `notice.js` (`const NOTICE = [];`). `sim/` is optional. Slug must match `[a-z0-9_-]{1,32}`.
-2. Add the union logo `image/<slug>.png` (keep it ≤100KB) and point `CONFIG.logo` at it.
+2. Add the union logo `image/<slug>.png` (keep it ≤100KB) and point `CONFIG.logo` at it. The logo is technically optional: an empty `CONFIG.logo` makes the header/favicon fall back to `image/foxstar.png` (`renderHeader` in `js/common.js`, plus `sim.html`'s own header), i.e. the union shows 여우별 branding until a real logo is set.
 3. Commit to `main` (existing union deployments redeploy too — harmless; their data is unchanged).
 4. Create a new Vercel project from this same GitHub repo (production branch `main`, default build settings).
-5. Set env vars on the new project: `UNION_ID=<slug>` plus fresh `ACCESS_KEY`/`ADMIN_KEY`/`SESSION_SECRET` (never reuse another union's — reuse would share passwords across unions) and `GH_TOKEN` for notices. `GH_REPO`/`GH_BRANCH` can stay default.
+5. Set env vars on the new project: `UNION_ID=<slug>` (must be non-empty — an empty or malformed value makes every function fail with 500 by design) plus fresh `ACCESS_KEY`/`ADMIN_KEY`/`SESSION_SECRET` (never reuse another union's — reuse would share passwords across unions) and `GH_TOKEN` for notices. `GH_REPO`/`GH_BRANCH` can stay default.
 6. Verify: login → each page renders (skeleton data shows the error card until real data is imported — that's the `showDataError()` path, not a crash) → write/delete one test notice.
 
 Notes:
@@ -79,11 +79,12 @@ Notes:
 
 ### Page layout
 
-Standalone HTML files share `css/style.css` and `js/common.js`. There is no bundler; pages still hold most of their feature logic inline, but cross-cutting pieces (header/nav, theme, auth guard, the member-detail popup, chart/URL helpers) live in `js/common.js`. The six nav pages are listed in `NAV_ITEMS` in `js/common.js`:
+Standalone HTML files share `css/style.css` and `js/common.js`. There is no bundler; pages still hold most of their feature logic inline, but cross-cutting pieces (header/nav, theme, auth guard, the member-detail popup, chart/URL helpers) live in `js/common.js`. The seven nav pages are listed in `NAV_ITEMS` in `js/common.js`:
 
 | Page         | Role                          | Loads data files                                  |
 |--------------|-------------------------------|---------------------------------------------------|
 | `index.html` | Home / member roster          | `config.js`, `member.js`, `raid.js`               |
+| `notice.html`| Union notices (공지)          | `config.js`, `notice.js`                          |
 | `raid.html`  | Union raid records            | `config.js`, `member.js`, `raid.js`               |
 | `solo.html`  | Solo raid leaderboard / decks | `config.js`, `solo.js`                            |
 | `shift.html` | Shifty-pad (character view)   | `config.js`, `member.js`, `character.js`          |
@@ -124,7 +125,7 @@ Pure CSS custom properties on `:root` and `html.dark`. Dark-mode preference is p
 
 - UI strings, comments, and commit messages in the existing code are Korean; match that when editing user-visible text.
 - Character portrait images live in `image/<korean-name>.webp`; the `image/D_<name>.webp` prefix marks "deprecated/old" portraits kept for historical seasons.
-- No module system on the front-end — every data file declares a global (`CONFIG`, `UNION`, `RAID`, `CHARACTERS`, `SOLO`, `RAID_GUIDE`), and `js/common.js` declares its shared helpers as bare globals too. Keep that pattern; the auth gate relies on `<script src>` semantics.
+- No module system on the front-end — every data file declares a global (`CONFIG`, `UNION`, `RAID`, `CHARACTERS`, `SOLO`, `NOTICE`, `RAID_GUIDE`), and `js/common.js` declares its shared helpers as bare globals too. Keep that pattern; the auth gate relies on `<script src>` semantics.
 
 ## Workflow preferences
 

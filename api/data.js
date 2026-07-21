@@ -2,7 +2,7 @@ const fs   = require('fs');
 const path = require('path');
 const { verifyRequest, sessionCookie } = require('./_lib/session');
 const { makeEntry, sendEntry } = require('./_lib/compress');
-const { DATA_DIR } = require('./_lib/union');
+const { UNION_ID, DATA_DIR } = require('./_lib/union');
 
 // 슬라이딩 세션: 유효 토큰이 이 나이를 넘기면 재발급해 활동 중인 사용자의
 // 로그인을 연장한다 (토큰 수명 24h 의 절반 — 매일 접속하는 멤버는 재로그인
@@ -49,6 +49,15 @@ for (const file of ALLOWED) {
   } catch (e) {
     // 파일이 아직 없을 수 있음 — handler 가 404 처리
   }
+}
+// UNION_ID 오설정 감지(형식은 유효하나 존재하지 않는 슬러그): 정상 유니온은
+// 온보딩 체크리스트상 데이터 파일 5종이 항상 존재하므로, 하나도 못 읽었다면
+// 데이터 미입력이 아니라 잘못된 배포다. 스켈레톤 유니온과 화면상 구분이
+// 안 되는 조용한 404 대신 콜드스타트에서 요란하게(500) 실패시킨다.
+// (이 검사는 api/_data/** 전체를 번들하는 이 함수에만 둔다 — sim 은 sim/
+// 없는 유니온이 정상이고, notice 는 데이터 파일을 번들하지 않는다.)
+if (Object.keys(ENTRIES).length === 0) {
+  throw new Error('UNION_ID 오설정 의심: api/_data/' + UNION_ID + '/ 에 데이터 파일이 없음');
 }
 
 module.exports = function handler(req, res) {
