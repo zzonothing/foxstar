@@ -7,10 +7,8 @@
   <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
   <title>유니온 포털 | 승리의 여신: 니케</title>
   <meta property="og:type"        content="website" />
-  <meta property="og:title"       content="여우별 유니온 포털" />
-  <meta property="og:description" content="여우별 유니온 멤버 현황 및 유니온레이드 통계" />
-  <meta property="og:image"       content="https://foxstar.vercel.app/image/foxstar.png" />
-  <meta property="og:url"         content="https://foxstar.vercel.app/" />
+  <meta property="og:title"       content="니케 유니온 포털" />
+  <meta property="og:description" content="유니온 멤버 현황 및 유니온레이드 통계" />
   <link rel="icon" type="image/png" href="image/foxstar.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -109,7 +107,7 @@
 <script src="data/raid.js" onerror="window.__DATA_ERROR=1"></script>
 
 <!-- ═══════════ 공통 스크립트 (헬퍼·테마·인증·차트·모달) ═══════════ -->
-<script src="js/common.js?v=7"></script>
+<script src="js/common.js?v=8"></script>
 
 <!-- ═══════════ 메인 스크립트 ═══════════ -->
 <script>
@@ -134,7 +132,7 @@ const members    = UNION[latestKey].members;
 const lvlMaps = {};
 seasonKeys.forEach(k => { const mp = {}; (UNION[k].members || []).forEach(m => { mp[m.name] = m.syncroLevel; }); lvlMaps[k] = mp; });
 
-const ROLE_OVERRIDE = { "유화": "Leader", "SUM": "Officer" };
+const ROLE_OVERRIDE = (typeof CONFIG !== "undefined" && CONFIG.roleOverride) || {};
 const ROLE_KO = { Leader: "리더", Officer: "서브리더" };
 function roleOf(m){ const r = ROLE_OVERRIDE[m.name] || m.role; return (r === "Leader" || r === "Officer") ? r : ""; }
 

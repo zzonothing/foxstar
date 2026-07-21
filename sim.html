@@ -7,10 +7,8 @@
   <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
   <title>시뮬레이션 | 승리의 여신: 니케</title>
   <meta property="og:type"        content="website" />
-  <meta property="og:title"       content="여우별 시뮬레이션" />
+  <meta property="og:title"       content="유니온 시뮬레이션" />
   <meta property="og:description" content="유니온 멤버 별 보스 대미지 시뮬레이션" />
-  <meta property="og:image"       content="https://foxstar.vercel.app/image/foxstar.png" />
-  <meta property="og:url"         content="https://foxstar.vercel.app/sim.html" />
   <link rel="icon" type="image/png" href="image/foxstar.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -524,7 +522,7 @@
     <div class="header-top">
       <div>
         <div class="header-eyebrow">승리의 여신: 니케 · UNION PORTAL</div>
-        <div class="header-title" id="headerTitle"><img src="image/foxstar.png" alt="" style="width:22px;height:22px;vertical-align:middle;margin-right:6px;border-radius:4px;"> 여우별 유니온</div>
+        <div class="header-title" id="headerTitle">유니온 포털</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <button class="theme-toggle" id="themeToggle" title="다크/라이트 모드 전환">🌙</button>
@@ -541,7 +539,7 @@
       <a href="raid.html">유니온레이드</a>
       <a href="solo.html">솔로레이드</a>
       <a href="shift.html">시프티패드</a>
-      <a href="stats.html">여우별 통계</a>
+      <a href="stats.html">유니온 통계</a>
       <a href="sim.html" class="active">시뮬레이션</a>
     </nav>
   </div>
@@ -611,9 +609,14 @@ if (window.__AUTH_REQUIRED) {
 <!-- ═══════════ 시뮬레이션 스크립트 ═══════════ -->
 <script>
 if (!window.__AUTH_REQUIRED) {
-document.getElementById("headerTitle").innerHTML = '<img src="image/foxstar.png" alt="" style="width:22px;height:22px;vertical-align:middle;margin-right:6px;border-radius:4px;"> ' + CONFIG.unionName;
-document.getElementById("kakaoBtn").href = CONFIG.kakaoUrl;
+document.getElementById("headerTitle").innerHTML = '<img src="' + (CONFIG.logo || "image/foxstar.png") + '" alt="" style="width:22px;height:22px;vertical-align:middle;margin-right:6px;border-radius:4px;"> ' + CONFIG.unionName;
+if (CONFIG.kakaoUrl) { document.getElementById("kakaoBtn").href = CONFIG.kakaoUrl; }
+else { document.getElementById("kakaoBtn").style.display = "none"; }
 document.title = "시뮬레이션 | " + CONFIG.unionName;
+if (CONFIG.logo) {
+  const simFavicon = document.querySelector('link[rel="icon"]');
+  if (simFavicon) simFavicon.href = CONFIG.logo;
+}
 
 // ─── 상수 ───────────────────────────────────────────────
 const ELEMENTS = ["전격", "작열", "수냉", "철갑", "풍압"];

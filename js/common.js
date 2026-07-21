@@ -99,13 +99,14 @@ var NAV_ITEMS = [
   ["raid.html", "유니온레이드", "유레"],
   ["solo.html", "솔로레이드", "솔레"],
   ["shift.html", "시프티패드", "시프티"],
-  ["stats.html", "여우별 통계", "통계"],
+  ["stats.html", "유니온 통계", "통계"],
   ["guide.html", "육성 가이드", "가이드"]
 ];
 function renderHeader(active){
   var mount = document.getElementById("rdHeader");
   if (!mount) return;
-  var name = (typeof CONFIG !== "undefined" && CONFIG.unionName) ? CONFIG.unionName : "여우별 유니온";
+  var name = (typeof CONFIG !== "undefined" && CONFIG.unionName) ? CONFIG.unionName : "유니온 포털";
+  var logo = (typeof CONFIG !== "undefined" && CONFIG.logo) ? CONFIG.logo : "image/foxstar.png";
   function links(mobile){
     return NAV_ITEMS.map(function(n){
       var on = (n[0] === active) ? ' class="active"' : '';
@@ -118,7 +119,7 @@ function renderHeader(active){
     '<div class="container">' +
       '<div class="rd-head-inner">' +
         '<div class="rd-brand">' +
-          '<img src="image/foxstar.png" alt="여우별 유니온" width="38" height="38" />' +
+          '<img src="' + logo + '" alt="' + esc(name) + '" width="38" height="38" />' +
           '<div>' +
             '<div class="rd-eyebrow">승리의 여신: 니케 · UNION PORTAL</div>' +
             '<div class="rd-title" id="headerTitle">' + esc(name) + '</div>' +
@@ -129,6 +130,11 @@ function renderHeader(active){
       '<nav class="rd-nav" aria-label="주요 메뉴">' + links(false) + '</nav>' +
       '<nav class="rd-nav-mobile" aria-label="주요 메뉴">' + links(true) + '</nav>' +
     '</div>';
+  /* 파비콘을 유니온 로고로 교체 (정적 href 는 foxstar 기본값) */
+  if (typeof CONFIG !== "undefined" && CONFIG.logo) {
+    var favicon = document.querySelector('link[rel="icon"]');
+    if (favicon) favicon.href = CONFIG.logo;
+  }
   /* 모바일 탭이 넘칠 때(가로 스크롤) 활성 탭을 가운데로 */
   var mnav = mount.querySelector(".rd-nav-mobile");
   var act = mnav ? mnav.querySelector("a.active") : null;

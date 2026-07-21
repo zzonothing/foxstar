@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#eef1f6" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
-  <title>로그인 | 여우별 유니온 포털</title>
+  <title>로그인 | 유니온 포털</title>
   <link rel="icon" type="image/png" href="image/foxstar.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -115,8 +115,8 @@
 <body>
 
 <form class="card" id="authForm" action="/api/auth" method="post" novalidate>
-  <img class="logo" src="image/foxstar.png" alt="" width="40" height="40" />
-  <div class="title" id="authTitle">여우별 유니온</div>
+  <img class="logo" id="authLogo" src="image/foxstar.png" alt="" width="40" height="40" />
+  <div class="title" id="authTitle">유니온 포털</div>
   <div class="sub">접근하려면 비밀번호를 입력하세요</div>
 
   <!-- iOS Keychain 이 password-only 폼을 정상 처리하도록 username 힌트 제공 -->
@@ -133,6 +133,11 @@
   if (typeof CONFIG !== "undefined" && CONFIG && CONFIG.unionName) {
     document.getElementById("authTitle").textContent = CONFIG.unionName;
     document.title = "로그인 | " + CONFIG.unionName;
+  }
+  if (typeof CONFIG !== "undefined" && CONFIG && CONFIG.logo) {
+    document.getElementById("authLogo").src = CONFIG.logo;
+    var favicon = document.querySelector('link[rel="icon"]');
+    if (favicon) favicon.href = CONFIG.logo;
   }
 
   var form  = document.getElementById("authForm");

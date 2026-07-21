@@ -101,7 +101,7 @@
 <script src="data/raid.js" onerror="window.__DATA_ERROR=1"></script>
 
 <!-- ═══════════ 공통 스크립트 (헬퍼·테마·인증·차트·모달) ═══════════ -->
-<script src="js/common.js?v=7"></script>
+<script src="js/common.js?v=8"></script>
 
 <script>
 if (window.__DATA_ERROR || typeof authGuardOrRedirect !== "function") {
@@ -122,7 +122,7 @@ const latestKey = seasonKeys[seasonKeys.length - 1];
 const members = UNION[latestKey].members;
 const lvlMaps = {};
 seasonKeys.forEach(k => { const mp = {}; (UNION[k].members || []).forEach(m => { mp[m.name] = m.syncroLevel; }); lvlMaps[k] = mp; });
-const ROLE_OVERRIDE = { "유화": "Leader", "SUM": "Officer" };
+const ROLE_OVERRIDE = (typeof CONFIG !== "undefined" && CONFIG.roleOverride) || {};
 const ROLE_KO = { Leader: "리더", Officer: "서브리더" };
 function roleOf(m){ const r = ROLE_OVERRIDE[m.name] || m.role; return (r === "Leader" || r === "Officer") ? r : ""; }
 const OPF = [["공용","common"],["화력형","attack"],["방어형","defense"],["지원형","support"],["미실리스","missilis"],["엘리시온","elysion"],["테트라","tetra"],["필그림","pilgrim"],["어브노멀","abnormal"]];
