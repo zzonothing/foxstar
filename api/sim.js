@@ -2,9 +2,10 @@ const fs   = require('fs');
 const path = require('path');
 const { verifyRequest } = require('./_lib/session');
 const { makeEntry, sendEntry } = require('./_lib/compress');
+const { DATA_DIR } = require('./_lib/union');
 
-// 시뮬레이션 데이터: api/_data/sim/{meta.json, union.json, detail/<uid>.json}
-const SIM_DIR = path.join(process.cwd(), 'api', '_data', 'sim');
+// 시뮬레이션 데이터: api/_data/<union>/sim/{meta.json, union.json, detail/<uid>.json}
+const SIM_DIR = path.join(DATA_DIR, 'sim');
 
 // 경로 traversal 방지: 허용된 패턴만
 function isAllowedPath(file) {

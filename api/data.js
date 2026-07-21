@@ -2,6 +2,7 @@ const fs   = require('fs');
 const path = require('path');
 const { verifyRequest, sessionCookie } = require('./_lib/session');
 const { makeEntry, sendEntry } = require('./_lib/compress');
+const { DATA_DIR } = require('./_lib/union');
 
 // 슬라이딩 세션: 유효 토큰이 이 나이를 넘기면 재발급해 활동 중인 사용자의
 // 로그인을 연장한다 (토큰 수명 24h 의 절반 — 매일 접속하는 멤버는 재로그인
@@ -9,9 +10,6 @@ const { makeEntry, sendEntry } = require('./_lib/compress');
 const REFRESH_AFTER_MS = 12 * 60 * 60 * 1000;
 
 const ALLOWED = new Set(['member.js', 'raid.js', 'character.js', 'solo.js', 'notice.js']);
-
-// 데이터 파일 위치: api/_data/ (Vercel이 정적으로 서빙하지 않는 경로)
-const DATA_DIR = path.join(process.cwd(), 'api', '_data');
 
 // ── JSON.parse 래핑 ──────────────────────────────────────────────
 // 대형 데이터 파일은 JS 오브젝트 리터럴 대신 `const NAME = JSON.parse("…")`

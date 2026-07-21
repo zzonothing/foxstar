@@ -1,8 +1,8 @@
 // api/notice.js — 운영진 공지 작성/삭제 + 권한 조회 엔드포인트
 //
 // 저장 방식: 별도 DB 없이, 공지 데이터를 다른 데이터 파일처럼 git 에 커밋한다.
-// 관리자가 공지를 쓰면 이 함수가 GitHub Contents API 로 api/_data/notice.js 를
-// 갱신 커밋 → Vercel 자동 재배포 → 반영. (반영까지 수십 초~수 분 지연 가능)
+// 관리자가 공지를 쓰면 이 함수가 GitHub Contents API 로 api/_data/<union>/notice.js
+// 를 갱신 커밋 → Vercel 자동 재배포 → 반영. (반영까지 수십 초~수 분 지연 가능)
 //
 // 열람(READ)은 다른 데이터와 동일하게 /data/notice.js → api/data.js 게이트로
 // 처리되며, 이 함수는 쓰기(POST/DELETE)와 권한 조회(GET)만 담당한다.
@@ -21,8 +21,9 @@
 
 const crypto = require('crypto');
 const { verifyRequest } = require('./_lib/session');
+const { UNION_ID } = require('./_lib/union');
 
-const FILE_PATH = 'api/_data/notice.js';
+const FILE_PATH = 'api/_data/' + UNION_ID + '/notice.js';
 const MAX_NOTICES = 100;
 const LIMIT = { title: 100, body: 5000, author: 30 };
 
@@ -47,7 +48,7 @@ function safeJson(v) {
 }
 
 function serialize(list) {
-  return '// data/notice.js — 여우별 유니온 운영진 공지 (api/notice.js 가 자동 관리)\n'
+  return '// data/notice.js — 유니온 운영진 공지 (api/notice.js 가 자동 관리)\n'
        + '// 공지 작성/삭제 시 서버가 이 파일을 갱신 커밋한다. 필요하면 직접 편집도 가능.\n'
        + 'const NOTICE = ' + safeJson(list) + ';\n';
 }
@@ -151,7 +152,7 @@ module.exports = async function handler(req, res) {
       };
       await commitList(
         list => [notice, ...list].slice(0, MAX_NOTICES),
-        '공지 추가: ' + title.slice(0, 60)
+        '[' + UNION_ID + '] 공지 추가: ' + title.slice(0, 60)
       );
       return res.status(200).json({ ok: true, notice });
     }
@@ -174,7 +175,7 @@ module.exports = async function handler(req, res) {
           updated = Object.assign({}, n, { title: title, body: body, author: author, editedTs: Date.now() });
           return updated;
         }),
-        '공지 수정: ' + title.slice(0, 60)
+        '[' + UNION_ID + '] 공지 수정: ' + title.slice(0, 60)
       );
       if (!updated) return res.status(404).json({ error: '해당 공지를 찾을 수 없음' });
       return res.status(200).json({ ok: true, notice: updated });
@@ -186,7 +187,7 @@ module.exports = async function handler(req, res) {
       let removed = false;
       await commitList(
         list => { const next = list.filter(n => n.id !== id); removed = next.length !== list.length; return next; },
-        '공지 삭제'
+        '[' + UNION_ID + '] 공지 삭제'
       );
       if (!removed) return res.status(404).json({ error: '해당 공지를 찾을 수 없음' });
       return res.status(200).json({ ok: true });

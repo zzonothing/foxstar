@@ -7,14 +7,18 @@
     { "source": "/data/notice.js",    "destination": "/api/data?file=notice.js"    },
     { "source": "/data/sim/meta.json",                    "destination": "/api/sim?file=meta.json"           },
     { "source": "/data/sim/union.json",                   "destination": "/api/sim?file=union.json"          },
-    { "source": "/data/sim/detail/:uid.json",             "destination": "/api/sim?file=detail/:uid.json"    }
+    { "source": "/data/sim/detail/:uid.json",             "destination": "/api/sim?file=detail/:uid.json"    },
+    { "source": "/data/config.js",    "destination": "/api/config"                 }
   ],
   "functions": {
     "api/data.js": {
       "includeFiles": "api/_data/**"
     },
     "api/sim.js": {
-      "includeFiles": "api/_data/sim/**"
+      "includeFiles": "api/_data/*/sim/**"
+    },
+    "api/config.js": {
+      "includeFiles": "api/_data/*/config.js"
     }
   },
   "headers": [
