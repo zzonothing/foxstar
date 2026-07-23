@@ -1,0 +1,13 @@
+{
+  "name": "foxstar",
+  "private": true,
+  "engines": { "node": "22.x" },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.0"
+  },
+  "scripts": {
+    "seed": "node scripts/seed.js",
+    "upload-doc": "node scripts/upload-doc.js",
+    "dump-docs": "node scripts/dump-docs.js"
+  }
+}
