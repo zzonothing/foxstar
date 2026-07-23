@@ -13,13 +13,15 @@ CREATE TABLE IF NOT EXISTS data_docs (
 
 -- 멤버 로스터 + 개인 PIN (닉네임 클레임 방식; pin_hash NULL = 미등록)
 -- 탈퇴는 active=false 로 표시 — 제출/응답 기록이 참조하므로 행은 삭제하지 않는다.
+-- pin_hash/pin_salt 는 hex 문자열 (scrypt 64바이트 / salt 16바이트 — HTTP 드라이버의
+-- bytea 왕복 변환을 피하기 위해 text 로 저장).
 CREATE TABLE IF NOT EXISTS members (
   union_id   smallint NOT NULL DEFAULT 1,
   uid        text NOT NULL,
   name       text NOT NULL,
   active     boolean NOT NULL DEFAULT true,
-  pin_hash   bytea,
-  pin_salt   bytea,
+  pin_hash   text,
+  pin_salt   text,
   claimed_at timestamptz,
   updated_at timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY (union_id, uid)
