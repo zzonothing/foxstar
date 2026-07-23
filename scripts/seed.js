@@ -64,6 +64,22 @@ async function seedRosterAndHistory() {
   const roster = await syncRoster(members);
   console.log('\n로스터 시드: 시즌 ' + latest + ' 기준 ' + roster.upserted + '명 upsert, ' + roster.deactivated + '명 비활성');
 
+  // 관리자 멤버 지정 — ADMIN_NAMES env (기본 'SUM,유화'). 시드가 진실 원천이라
+  // 재실행 시 목록에 없는 멤버의 관리자 플래그는 회수된다.
+  const adminNames = (process.env.ADMIN_NAMES || 'SUM,유화').split(',').map(s => s.trim()).filter(Boolean);
+  if (adminNames.length) {
+    const { UNION_ID } = require('../api/_lib/db');
+    const ph = adminNames.map((_, i) => '$' + (i + 2)).join(', ');
+    const admins = await query(
+      'UPDATE members SET is_admin = (name IN (' + ph + ')), updated_at = now() ' +
+      'WHERE union_id = $1 AND is_admin IS DISTINCT FROM (name IN (' + ph + ')) RETURNING name, is_admin',
+      [UNION_ID, ...adminNames]);
+    const granted = await query(
+      'SELECT name FROM members WHERE union_id = $1 AND is_admin ORDER BY name', [UNION_ID]);
+    console.log('관리자 멤버: ' + (granted.map(r => r.name).join(', ') || '없음') +
+      (admins.length ? ' (' + admins.length + '건 변경)' : ''));
+  }
+
   const date = kstToday();
   const mCount = await upsertMemberDaily(members, date);
 

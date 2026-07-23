@@ -53,7 +53,7 @@
       border-radius: 20px;
       padding: 24px 18px 20px;
       width: 100%;
-      max-width: 280px;
+      max-width: 300px;
       box-shadow: 0 8px 40px rgba(0,0,0,0.18);
       text-align: center;
     }
@@ -66,14 +66,7 @@
     .logo { width: 40px; height: 40px; border-radius: 9px; object-fit: contain; margin-bottom: 8px; }
     .title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
     .sub   { font-size: 13px; color: var(--text-sub); margin-bottom: 16px; }
-    .hidden-username {
-      position: absolute;
-      width: 1px; height: 1px;
-      padding: 0; margin: -1px; overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap; border: 0;
-    }
-    input[type="password"] {
+    input[type="password"], input[type="text"] {
       width: 100%;
       height: 42px;
       padding: 0 14px;
@@ -88,13 +81,14 @@
       transition: border-color 0.2s;
       margin-bottom: 10px;
     }
-    input[type="password"]:focus { border-color: var(--blue); }
-    input[type="password"].err   { border-color: #ef4444; }
+    input:focus { border-color: var(--blue); }
+    input.err   { border-color: #ef4444; }
     .err-msg {
       font-size: 12px; color: #ef4444;
       min-height: 18px; margin-bottom: 10px;
     }
-    button {
+    .err-msg.ok { color: var(--text-sub); }
+    button[type="submit"] {
       width: 100%;
       height: 44px;
       border: none;
@@ -109,7 +103,16 @@
       touch-action: manipulation;
       transition: opacity 0.15s;
     }
-    button:disabled { opacity: 0.6; cursor: default; }
+    button[type="submit"]:disabled { opacity: 0.6; cursor: default; }
+    .links { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+    .link-btn {
+      background: none; border: none; padding: 2px;
+      font-family: inherit; font-size: 12px; font-weight: 600;
+      color: var(--text-sub); cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .link-btn:hover { color: var(--blue); }
+    .hint { font-size: 11px; color: var(--text-sub); line-height: 1.7; margin-bottom: 10px; text-align: left; }
   </style>
 </head>
 <body>
@@ -117,14 +120,36 @@
 <form class="card" id="authForm" action="/api/auth" method="post" novalidate>
   <img class="logo" src="image/foxstar.png" alt="" width="40" height="40" />
   <div class="title" id="authTitle">여우별 유니온</div>
-  <div class="sub">접근하려면 비밀번호를 입력하세요</div>
+  <div class="sub" id="authSub">닉네임과 PIN 으로 로그인하세요</div>
 
-  <!-- iOS Keychain 이 password-only 폼을 정상 처리하도록 username 힌트 제공 -->
-  <input class="hidden-username" type="text" name="username" autocomplete="username" value="member" tabindex="-1" aria-hidden="true" readonly />
+  <!-- ── 로그인 (기본) ── -->
+  <div id="viewLogin">
+    <input id="loginName" type="text" name="username" placeholder="닉네임 (게임 내 닉네임)" autocomplete="username" autocapitalize="off" />
+    <input id="loginPin" type="password" name="password" placeholder="PIN (숫자 4~8자리)" autocomplete="current-password" inputmode="numeric" maxlength="8" />
+  </div>
 
-  <input id="authInput" type="password" name="password" placeholder="비밀번호" autocomplete="current-password" autofocus />
+  <!-- ── 최초 등록 ── -->
+  <div id="viewClaim" style="display:none">
+    <div class="hint">처음 오셨다면 자기 닉네임에 PIN 을 등록하세요. 유니온에서 공유받은 <b>공용 비밀번호</b>가 필요합니다. 다음부터는 닉네임 + PIN 만으로 로그인합니다.</div>
+    <input id="claimName" type="text" placeholder="닉네임 (게임 내 닉네임)" autocomplete="username" autocapitalize="off" />
+    <input id="claimAccess" type="password" placeholder="공용 비밀번호" autocomplete="off" />
+    <input id="claimPin" type="password" placeholder="사용할 PIN (숫자 4~8자리)" autocomplete="new-password" inputmode="numeric" maxlength="8" />
+  </div>
+
+  <!-- ── 비상: 공용 비밀번호 입장 (멤버 식별 없음) ── -->
+  <div id="viewPw" style="display:none">
+    <div class="hint">공용 비밀번호로만 입장합니다 (열람 전용 — 제출·일정 기능은 멤버 인증이 필요합니다).</div>
+    <input id="pwInput" type="password" placeholder="공용 비밀번호" autocomplete="off" />
+  </div>
+
   <div class="err-msg" id="authError"></div>
-  <button type="submit" id="authBtn">입장</button>
+  <button type="submit" id="authBtn">로그인</button>
+
+  <div class="links">
+    <button type="button" class="link-btn" id="lnkClaim">처음이신가요? → PIN 등록</button>
+    <button type="button" class="link-btn" id="lnkPw">비상: 공용 비밀번호로 입장</button>
+    <button type="button" class="link-btn" id="lnkBack" style="display:none">← 닉네임 + PIN 로그인으로</button>
+  </div>
 </form>
 
 <script src="data/config.js"></script>
@@ -135,10 +160,11 @@
     document.title = "로그인 | " + CONFIG.unionName;
   }
 
-  var form  = document.getElementById("authForm");
-  var input = document.getElementById("authInput");
-  var btn   = document.getElementById("authBtn");
-  var err   = document.getElementById("authError");
+  var form = document.getElementById("authForm");
+  var btn  = document.getElementById("authBtn");
+  var err  = document.getElementById("authError");
+  var sub  = document.getElementById("authSub");
+  var view = "login"; // login | claim | pw
 
   // return 파라미터 화이트리스트 검증 — same-origin 의 알려진 페이지만 허용
   var ALLOWED_PATHS = ["/", "/index.html", "/notice.html", "/raid.html", "/submit.html", "/solo.html", "/shift.html", "/stats.html", "/history.html", "/guide.html"];
@@ -157,33 +183,101 @@
     }
   }
 
-  form.addEventListener("submit", function(e) {
-    e.preventDefault();
-    var entered = input.value.trim();
-    if (!entered) return;
+  function showError(msg) {
+    err.classList.remove("ok");
+    err.textContent = msg;
+    btn.disabled = false;
+    setTimeout(function() { err.textContent = ""; }, 2600);
+  }
+
+  function setView(v) {
+    view = v;
+    document.getElementById("viewLogin").style.display = v === "login" ? "" : "none";
+    document.getElementById("viewClaim").style.display = v === "claim" ? "" : "none";
+    document.getElementById("viewPw").style.display    = v === "pw"    ? "" : "none";
+    document.getElementById("lnkClaim").style.display  = v === "login" ? "" : "none";
+    document.getElementById("lnkPw").style.display     = v === "login" ? "" : "none";
+    document.getElementById("lnkBack").style.display   = v === "login" ? "none" : "";
+    sub.textContent = v === "claim" ? "최초 1회 PIN 등록"
+                    : v === "pw"    ? "비상 입장"
+                    : "닉네임과 PIN 으로 로그인하세요";
+    btn.textContent = v === "claim" ? "등록하고 입장" : v === "pw" ? "입장" : "로그인";
+    err.textContent = "";
+  }
+  document.getElementById("lnkClaim").addEventListener("click", function() {
+    setView("claim");
+    var n = document.getElementById("claimName");
+    if (!n.value) n.value = document.getElementById("loginName").value;
+  });
+  document.getElementById("lnkPw").addEventListener("click", function() { setView("pw"); });
+  document.getElementById("lnkBack").addEventListener("click", function() { setView("login"); });
+
+  function postAuth(payload, onFail) {
     btn.disabled = true;
     fetch("/api/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password: entered })
+      body: JSON.stringify(payload)
     }).then(function(r) {
-      if (r.ok) {
+      return r.json().catch(function() { return {}; }).then(function(j) { return { ok: r.ok, j: j }; });
+    }).then(function(res) {
+      if (res.ok) {
+        try { if (res.j && res.j.me && res.j.me.name) localStorage.setItem("fstarNick", res.j.me.name); } catch (e) {}
         location.replace(getReturnPath());
       } else {
-        err.textContent = "비밀번호가 올바르지 않습니다";
-        input.value = "";
-        input.classList.add("err");
-        btn.disabled = false;
-        setTimeout(function() {
-          err.textContent = "";
-          input.classList.remove("err");
-        }, 2000);
+        onFail(res.j && res.j.error);
       }
-    }).catch(function() {
-      err.textContent = "네트워크 오류. 다시 시도해 주세요";
-      btn.disabled = false;
-    });
+    }).catch(function() { showError("네트워크 오류. 다시 시도해 주세요"); });
+  }
+
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
+    if (view === "login") {
+      var name = document.getElementById("loginName").value.trim();
+      var pin  = document.getElementById("loginPin").value.trim();
+      if (!name || !pin) return;
+      postAuth({ mode: "member-login", name: name, pin: pin }, function(msg) {
+        showError(msg || "닉네임 또는 PIN 이 올바르지 않습니다");
+        document.getElementById("loginPin").value = "";
+      });
+    } else if (view === "claim") {
+      var cn = document.getElementById("claimName").value.trim();
+      var ca = document.getElementById("claimAccess").value.trim();
+      var cp = document.getElementById("claimPin").value.trim();
+      if (!cn || !ca || !cp) { showError("모든 칸을 입력해 주세요"); return; }
+      postAuth({ mode: "member-claim", name: cn, accessKey: ca, pin: cp }, function(msg) {
+        showError(msg || "등록에 실패했어요");
+      });
+    } else {
+      var pw = document.getElementById("pwInput").value.trim();
+      if (!pw) return;
+      postAuth({ password: pw }, function() {
+        showError("비밀번호가 올바르지 않습니다");
+        document.getElementById("pwInput").value = "";
+      });
+    }
   });
+
+  // 마지막 로그인 닉네임 기억 (편의 — 테마와 동일하게 localStorage 사용)
+  try {
+    var last = localStorage.getItem("fstarNick");
+    if (last) document.getElementById("loginName").value = last;
+  } catch (e) {}
+
+  // 자동 로그인: 유효한 멤버 쿠키가 있으면 입력 없이 세션 재발급 후 통과.
+  // 실패해도 조용히 폼을 그대로 둔다 (첫 방문·만료·강제 재인증 등).
+  err.classList.add("ok");
+  err.textContent = "자동 로그인 확인 중…";
+  fetch("/api/auth", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ mode: "refresh" })
+  }).then(function(r) { return r.ok ? r.json() : null; }).then(function(j) {
+    if (j && j.ok) { location.replace(getReturnPath()); return; }
+    err.textContent = "";
+    var name = document.getElementById("loginName");
+    (name.value ? document.getElementById("loginPin") : name).focus();
+  }).catch(function() { err.textContent = ""; });
 })();
 </script>
 
