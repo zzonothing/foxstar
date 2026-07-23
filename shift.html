@@ -352,7 +352,13 @@ function updateResultInfo(){
   const info = groupMode
     ? ("멤버별 그룹 · " + total + "명" + (total > 20 ? " 중 상위 20명" : "") + " · 기준 " + state.chars[0] + (state.members.length ? " · 멤버 " + state.members.length : ""))
     : ("총 " + total + "행" + (total > 40 ? " 중 상위 40행" : "") + (state.members.length ? " · 멤버 " + state.members.length : "") + (state.chars.length ? " · 캐릭터 " + state.chars.length : "") + (state.element ? " · " + state.element : ""));
-  document.getElementById("resultInfo").innerHTML = '<span>' + esc(info) + '</span><span style="color:var(--dim)">닉네임·캐릭터 고정 · 좌우로 밀어 모든 열 확인 ⇄</span>';
+  // 데이터 수집 시각 (CHARACTERS.actionDate, KST) — 자동 갱신이 어느 시점까지
+  // 반영됐는지 표에서 바로 확인하는 용도. 초 단위는 잘라 표시.
+  const actionDate = (typeof CHARACTERS !== "undefined" && CHARACTERS.actionDate) ? String(CHARACTERS.actionDate).slice(0, 16) : "";
+  document.getElementById("resultInfo").innerHTML = '<span>' + esc(info) + '</span>' +
+    '<span style="color:var(--dim);text-align:right">' +
+      (actionDate ? '<span style="color:var(--sub);font-weight:700">데이터 갱신 ' + esc(actionDate) + '</span> · ' : '') +
+      '좌우로 밀어 모든 열 확인 ⇄</span>';
 }
 
 /* ─── 콤보 칩/드롭다운 ─── */
