@@ -66,7 +66,7 @@
     .logo { width: 40px; height: 40px; border-radius: 9px; object-fit: contain; margin-bottom: 8px; }
     .title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
     .sub   { font-size: 13px; color: var(--text-sub); margin-bottom: 16px; }
-    input[type="password"], input[type="text"] {
+    select, input[type="password"] {
       width: 100%;
       height: 42px;
       padding: 0 14px;
@@ -78,11 +78,19 @@
       font-family: inherit;
       outline: none;
       -webkit-appearance: none;
+      appearance: none;
       transition: border-color 0.2s;
       margin-bottom: 10px;
     }
-    input:focus { border-color: var(--blue); }
-    input.err   { border-color: #ef4444; }
+    select {
+      /* 콤보박스 화살표 (appearance:none 대체) */
+      background-image: linear-gradient(45deg, transparent 50%, var(--text-sub) 50%), linear-gradient(135deg, var(--text-sub) 50%, transparent 50%);
+      background-position: calc(100% - 20px) 19px, calc(100% - 14px) 19px;
+      background-size: 6px 6px;
+      background-repeat: no-repeat;
+      padding-right: 36px;
+    }
+    select:focus, input:focus { border-color: var(--blue); }
     .err-msg {
       font-size: 12px; color: #ef4444;
       min-height: 18px; margin-bottom: 10px;
@@ -104,7 +112,7 @@
       transition: opacity 0.15s;
     }
     button[type="submit"]:disabled { opacity: 0.6; cursor: default; }
-    .links { margin-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+    .links { margin-top: 14px; }
     .link-btn {
       background: none; border: none; padding: 2px;
       font-family: inherit; font-size: 12px; font-weight: 600;
@@ -120,35 +128,27 @@
 <form class="card" id="authForm" action="/api/auth" method="post" novalidate>
   <img class="logo" src="image/foxstar.png" alt="" width="40" height="40" />
   <div class="title" id="authTitle">여우별 유니온</div>
-  <div class="sub" id="authSub">닉네임과 PIN 으로 로그인하세요</div>
+  <div class="sub" id="authSub">닉네임을 선택하고 PIN 을 입력하세요</div>
 
-  <!-- ── 로그인 (기본) ── -->
+  <!-- ── 로그인 (기본): 등록 완료된 닉네임만 표시 ── -->
   <div id="viewLogin">
-    <input id="loginName" type="text" name="username" placeholder="닉네임 (게임 내 닉네임)" autocomplete="username" autocapitalize="off" />
-    <input id="loginPin" type="password" name="password" placeholder="PIN (숫자 4~8자리)" autocomplete="current-password" inputmode="numeric" maxlength="8" />
+    <select id="loginName" aria-label="닉네임 선택"><option value="">멤버 목록 불러오는 중…</option></select>
+    <input id="loginPin" type="password" placeholder="PIN (숫자 4~8자리)" autocomplete="current-password" inputmode="numeric" maxlength="8" />
   </div>
 
-  <!-- ── 최초 등록 ── -->
+  <!-- ── 최초 등록: 미등록 닉네임만 표시 ── -->
   <div id="viewClaim" style="display:none">
-    <div class="hint">처음 오셨다면 자기 닉네임에 PIN 을 등록하세요. 유니온에서 공유받은 <b>공용 비밀번호</b>가 필요합니다. 다음부터는 닉네임 + PIN 만으로 로그인합니다.</div>
-    <input id="claimName" type="text" placeholder="닉네임 (게임 내 닉네임)" autocomplete="username" autocapitalize="off" />
-    <input id="claimAccess" type="password" placeholder="공용 비밀번호" autocomplete="off" />
+    <div class="hint">본인 닉네임을 선택하고 앞으로 사용할 PIN 을 정해주세요. 등록 후에는 이 PIN 으로 로그인합니다.</div>
+    <select id="claimName" aria-label="닉네임 선택"><option value="">멤버 목록 불러오는 중…</option></select>
     <input id="claimPin" type="password" placeholder="사용할 PIN (숫자 4~8자리)" autocomplete="new-password" inputmode="numeric" maxlength="8" />
-  </div>
-
-  <!-- ── 비상: 공용 비밀번호 입장 (멤버 식별 없음) ── -->
-  <div id="viewPw" style="display:none">
-    <div class="hint">공용 비밀번호로만 입장합니다 (열람 전용 — 제출·일정 기능은 멤버 인증이 필요합니다).</div>
-    <input id="pwInput" type="password" placeholder="공용 비밀번호" autocomplete="off" />
+    <input id="claimPin2" type="password" placeholder="PIN 확인 (한 번 더)" autocomplete="new-password" inputmode="numeric" maxlength="8" />
   </div>
 
   <div class="err-msg" id="authError"></div>
   <button type="submit" id="authBtn">로그인</button>
 
   <div class="links">
-    <button type="button" class="link-btn" id="lnkClaim">처음이신가요? → PIN 등록</button>
-    <button type="button" class="link-btn" id="lnkPw">비상: 공용 비밀번호로 입장</button>
-    <button type="button" class="link-btn" id="lnkBack" style="display:none">← 닉네임 + PIN 로그인으로</button>
+    <button type="button" class="link-btn" id="lnkToggle">처음이신가요? → PIN 등록</button>
   </div>
 </form>
 
@@ -164,7 +164,8 @@
   var btn  = document.getElementById("authBtn");
   var err  = document.getElementById("authError");
   var sub  = document.getElementById("authSub");
-  var view = "login"; // login | claim | pw
+  var view = "login"; // login | claim
+  var roster = null;  // [{name, claimed}]
 
   // return 파라미터 화이트리스트 검증 — same-origin 의 알려진 페이지만 허용
   var ALLOWED_PATHS = ["/", "/index.html", "/notice.html", "/raid.html", "/submit.html", "/solo.html", "/shift.html", "/stats.html", "/history.html", "/guide.html"];
@@ -190,27 +191,51 @@
     setTimeout(function() { err.textContent = ""; }, 2600);
   }
 
+  /* ── 로스터 → 콤보박스 채우기 (로그인=등록완료 / 등록=미등록, 각각 이름순) ── */
+  function fillSelects() {
+    var loginSel = document.getElementById("loginName");
+    var claimSel = document.getElementById("claimName");
+    if (!roster) {
+      loginSel.innerHTML = claimSel.innerHTML = '<option value="">목록을 불러오지 못했어요 — 새로고침 해주세요</option>';
+      return;
+    }
+    var claimed = roster.filter(function(m) { return m.claimed; });
+    var unclaimed = roster.filter(function(m) { return !m.claimed; });
+    function opts(list, emptyMsg) {
+      if (!list.length) return '<option value="">' + emptyMsg + '</option>';
+      return '<option value="">닉네임 선택…</option>' + list.map(function(m) {
+        return '<option value="' + m.name.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;") + '">' +
+          m.name.replace(/&/g, "&amp;").replace(/</g, "&lt;") + '</option>';
+      }).join("");
+    }
+    loginSel.innerHTML = opts(claimed, "아직 등록한 멤버가 없어요 — 아래에서 등록하세요");
+    claimSel.innerHTML = opts(unclaimed, "모든 멤버가 등록을 마쳤어요");
+    // 마지막 로그인 닉네임 기억 (편의 — 테마와 동일하게 localStorage 사용)
+    try {
+      var last = localStorage.getItem("fstarNick");
+      if (last && claimed.some(function(m) { return m.name === last; })) loginSel.value = last;
+    } catch (e) {}
+  }
+  function loadRoster() {
+    fetch("/api/auth").then(function(r) { return r.ok ? r.json() : null; }).then(function(j) {
+      roster = (j && j.members) || null;
+      fillSelects();
+    }).catch(function() { roster = null; fillSelects(); });
+  }
+
   function setView(v) {
     view = v;
     document.getElementById("viewLogin").style.display = v === "login" ? "" : "none";
     document.getElementById("viewClaim").style.display = v === "claim" ? "" : "none";
-    document.getElementById("viewPw").style.display    = v === "pw"    ? "" : "none";
-    document.getElementById("lnkClaim").style.display  = v === "login" ? "" : "none";
-    document.getElementById("lnkPw").style.display     = v === "login" ? "" : "none";
-    document.getElementById("lnkBack").style.display   = v === "login" ? "none" : "";
-    sub.textContent = v === "claim" ? "최초 1회 PIN 등록"
-                    : v === "pw"    ? "비상 입장"
-                    : "닉네임과 PIN 으로 로그인하세요";
-    btn.textContent = v === "claim" ? "등록하고 입장" : v === "pw" ? "입장" : "로그인";
+    sub.textContent = v === "claim" ? "최초 1회 PIN 등록" : "닉네임을 선택하고 PIN 을 입력하세요";
+    btn.textContent = v === "claim" ? "등록하고 입장" : "로그인";
+    document.getElementById("lnkToggle").textContent =
+      v === "claim" ? "← 이미 등록했어요 (로그인으로)" : "처음이신가요? → PIN 등록";
     err.textContent = "";
   }
-  document.getElementById("lnkClaim").addEventListener("click", function() {
-    setView("claim");
-    var n = document.getElementById("claimName");
-    if (!n.value) n.value = document.getElementById("loginName").value;
+  document.getElementById("lnkToggle").addEventListener("click", function() {
+    setView(view === "login" ? "claim" : "login");
   });
-  document.getElementById("lnkPw").addEventListener("click", function() { setView("pw"); });
-  document.getElementById("lnkBack").addEventListener("click", function() { setView("login"); });
 
   function postAuth(payload, onFail) {
     btn.disabled = true;
@@ -233,36 +258,26 @@
   form.addEventListener("submit", function(e) {
     e.preventDefault();
     if (view === "login") {
-      var name = document.getElementById("loginName").value.trim();
+      var name = document.getElementById("loginName").value;
       var pin  = document.getElementById("loginPin").value.trim();
-      if (!name || !pin) return;
+      if (!name) { showError("닉네임을 선택해 주세요"); return; }
+      if (!pin)  { showError("PIN 을 입력해 주세요"); return; }
       postAuth({ mode: "member-login", name: name, pin: pin }, function(msg) {
-        showError(msg || "닉네임 또는 PIN 이 올바르지 않습니다");
+        showError(msg || "PIN 이 올바르지 않습니다");
         document.getElementById("loginPin").value = "";
       });
-    } else if (view === "claim") {
-      var cn = document.getElementById("claimName").value.trim();
-      var ca = document.getElementById("claimAccess").value.trim();
-      var cp = document.getElementById("claimPin").value.trim();
-      if (!cn || !ca || !cp) { showError("모든 칸을 입력해 주세요"); return; }
-      postAuth({ mode: "member-claim", name: cn, accessKey: ca, pin: cp }, function(msg) {
-        showError(msg || "등록에 실패했어요");
-      });
     } else {
-      var pw = document.getElementById("pwInput").value.trim();
-      if (!pw) return;
-      postAuth({ password: pw }, function() {
-        showError("비밀번호가 올바르지 않습니다");
-        document.getElementById("pwInput").value = "";
+      var cn  = document.getElementById("claimName").value;
+      var cp  = document.getElementById("claimPin").value.trim();
+      var cp2 = document.getElementById("claimPin2").value.trim();
+      if (!cn) { showError("닉네임을 선택해 주세요"); return; }
+      if (!/^\d{4,8}$/.test(cp)) { showError("PIN 은 숫자 4~8자리여야 합니다"); return; }
+      if (cp !== cp2) { showError("PIN 확인이 일치하지 않습니다"); return; }
+      postAuth({ mode: "member-claim", name: cn, pin: cp }, function(msg) {
+        showError(msg || "등록에 실패했어요");
       });
     }
   });
-
-  // 마지막 로그인 닉네임 기억 (편의 — 테마와 동일하게 localStorage 사용)
-  try {
-    var last = localStorage.getItem("fstarNick");
-    if (last) document.getElementById("loginName").value = last;
-  } catch (e) {}
 
   // 자동 로그인: 유효한 멤버 쿠키가 있으면 입력 없이 세션 재발급 후 통과.
   // 실패해도 조용히 폼을 그대로 둔다 (첫 방문·만료·강제 재인증 등).
@@ -275,9 +290,8 @@
   }).then(function(r) { return r.ok ? r.json() : null; }).then(function(j) {
     if (j && j.ok) { location.replace(getReturnPath()); return; }
     err.textContent = "";
-    var name = document.getElementById("loginName");
-    (name.value ? document.getElementById("loginPin") : name).focus();
-  }).catch(function() { err.textContent = ""; });
+    loadRoster();
+  }).catch(function() { err.textContent = ""; loadRoster(); });
 })();
 </script>
 

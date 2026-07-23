@@ -133,6 +133,10 @@ function clearMemberCookie() {
   return 'fstar_member=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0';
 }
 
+function clearSessionCookie() {
+  return 'fstar_session=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0';
+}
+
 // 쿠키의 fstar_member 검증. 반환 { valid, uid, issued } (실패 시 uid null).
 function verifyMemberCookie(cookieHeader) {
   const fail = { valid: false, uid: null, issued: 0 };
@@ -172,6 +176,6 @@ function verifyMemberRequest(req) {
 }
 
 module.exports = {
-  generateToken, sessionCookie, verifyCookie, verifyRequest,
+  generateToken, sessionCookie, clearSessionCookie, verifyCookie, verifyRequest,
   generateMemberToken, memberCookie, clearMemberCookie, verifyMemberCookie, verifyMemberRequest,
 };

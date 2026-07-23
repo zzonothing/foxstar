@@ -80,7 +80,7 @@ module.exports = async function handler(req, res) {
     const action = String(b.action || '');
 
     if (action === 'respond') {
-      if (!me) return res.status(403).json({ error: '멤버 인증 필요 — 닉네임과 PIN 으로 먼저 인증하세요' });
+      if (!me) return res.status(403).json({ error: '로그인이 만료되었습니다 — 다시 로그인해 주세요' });
       const pollId = parseInt(b.pollId, 10);
       if (!Number.isFinite(pollId)) return res.status(400).json({ error: 'pollId 필요' });
 
