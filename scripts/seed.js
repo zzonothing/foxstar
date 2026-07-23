@@ -45,16 +45,6 @@ async function seedDocs() {
     const p = path.join(DATA_DIR, f);
     if (fs.existsSync(p)) docs.push([f, fs.readFileSync(p, 'utf8')]);
   }
-  for (const f of ['meta.json', 'union.json']) {
-    const p = path.join(DATA_DIR, 'sim', f);
-    if (fs.existsSync(p)) docs.push(['sim/' + f, fs.readFileSync(p, 'utf8')]);
-  }
-  const detailDir = path.join(DATA_DIR, 'sim', 'detail');
-  if (fs.existsSync(detailDir)) {
-    for (const f of fs.readdirSync(detailDir).filter(n => n.endsWith('.json')).sort()) {
-      docs.push(['sim/detail/' + f, fs.readFileSync(path.join(detailDir, f), 'utf8')]);
-    }
-  }
 
   console.log('\n문서 시드 (' + docs.length + '건):');
   for (const [key, content] of docs) {

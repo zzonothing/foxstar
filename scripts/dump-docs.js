@@ -3,7 +3,7 @@
 //
 // 사용법: DATABASE_URL=… node scripts/dump-docs.js [출력디렉터리=./dump]
 // api/_data 파일을 저장소에서 제거한 뒤(컷오버 이후)의 백업/내보내기 경로.
-// 출력 구조는 api/_data 와 동일 (member.js, sim/meta.json, sim/detail/… ).
+// 출력 구조는 api/_data 와 동일 (member.js, raid.js, …).
 
 const fs = require('fs');
 const path = require('path');

@@ -1,8 +1,8 @@
 // api/_lib/db.js — Neon Postgres 접근 + 게이트 문서(data_docs) 공용 모듈 (CommonJS)
 //
-// 게이트 데이터(member/raid/character/solo/notice + sim JSON)는 배포 번들이 아니라
+// 게이트 데이터(member/raid/character/solo/notice)는 배포 번들이 아니라
 // data_docs 테이블에 '파일 원문 그대로' 저장된다 — 데이터 갱신에 재배포가 필요
-// 없어진다. 서빙 계약은 기존과 동일: api/data.js·api/sim.js 가 이 모듈로 문서를
+// 없어진다. 서빙 계약은 기존과 동일: api/data.js 가 이 모듈로 문서를
 // 읽어 makeEntry(ETag/gzip 엔트리)로 만들어 보낸다.
 //
 // 캐시 전략: 웜 인스턴스별 인메모리 캐시 + 요청당 1회의 해시 검증 쿼리.
@@ -80,12 +80,9 @@ const DOC_RULES = {
   'solo.js':      { global: 'SOLO',       strictJson: false },
   'notice.js':    { global: 'NOTICE',     strictJson: true },
 };
-// sim 문서 키: api/sim.js 의 detail 경로 정규식과 동일한 uid 규칙
-const SIM_DETAIL_KEY_RE = /^sim\/detail\/[0-9a-zA-Z]{6,16}\.json$/;
 
 function isValidDocKey(key) {
-  return Object.prototype.hasOwnProperty.call(DOC_RULES, key) ||
-    key === 'sim/meta.json' || key === 'sim/union.json' || SIM_DETAIL_KEY_RE.test(key);
+  return Object.prototype.hasOwnProperty.call(DOC_RULES, key);
 }
 
 // 업로드된 내용이 해당 키의 형식을 만족하는지 검사. 통과 시 null, 실패 시 사유.
@@ -102,11 +99,6 @@ function validateDocContent(key, text) {
       }
     }
     return null;
-  }
-  if (key === 'sim/meta.json' || key === 'sim/union.json' || SIM_DETAIL_KEY_RE.test(key)) {
-    try { JSON.parse(text); return null; } catch (e) {
-      return 'JSON 파싱 실패: ' + String(e.message || e).slice(0, 120);
-    }
   }
   return '허용되지 않은 문서 키';
 }
@@ -192,7 +184,7 @@ async function setSetting(key, value) {
 module.exports = {
   UNION_ID, query, sha1hex, kstToday,
   jsonParseWrap, WRAP_MIN_BYTES,
-  DOC_RULES, SIM_DETAIL_KEY_RE, isValidDocKey, validateDocContent, parseDocJson,
+  DOC_RULES, isValidDocKey, validateDocContent, parseDocJson,
   getDocEntry, getDocText, putDoc,
   getSetting, setSetting,
 };
