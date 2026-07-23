@@ -222,6 +222,7 @@ function authCardHTML(){
       '<span class="sb-me-name">👤 ' + esc(a.me.name) + '</span>' +
       '<span style="font-size:12px;color:var(--sub);font-weight:600">이 닉네임으로 제출·응답이 기록됩니다</span>' +
       '<span style="flex:1"></span>' +
+      '<button type="button" class="sb-btn-ghost" data-act="mem-changepin">PIN 변경</button>' +
       '<button type="button" class="sb-btn-ghost" data-act="mem-logout">로그아웃</button>' +
     '</div>';
   } else {
@@ -558,19 +559,32 @@ document.addEventListener("click", e => {
   const t = e.target.closest("[data-act]"); if (!t) return;
   const act = t.dataset.act;
   if (act === "mem-logout") postJSON("/api/member-auth", { action: "logout" }).then(() => { location.replace("/login.html?return=%2Fsubmit.html"); });
+  else if (act === "mem-changepin") {
+    const pin = window.prompt("새 PIN 을 입력하세요 (숫자 4~8자리). 로그인은 유지됩니다.");
+    if (pin === null) return;
+    if (!/^\d{4,8}$/.test(pin.trim())) { window.alert("PIN 은 숫자 4~8자리여야 합니다"); return; }
+    postJSON("/api/member-auth", { action: "changePin", pin: pin.trim() }).then(res => {
+      if (res.ok && res.j.ok) { state.flash = "PIN 이 변경되었습니다. 다음 로그인부터 새 PIN 을 사용하세요."; loadAll(); }
+      else window.alert(res.j.error || "변경에 실패했어요");
+    });
+  }
   else if (act === "mem-reset") {
     const sel = document.getElementById("sbResetUid");
-    if (sel && sel.value && window.confirm(sel.selectedOptions[0].textContent + " 의 PIN 을 초기화할까요?")) {
+    if (sel && sel.value && window.confirm(sel.selectedOptions[0].textContent + " 의 PIN 을 초기화할까요? (본인을 초기화하면 즉시 로그아웃됩니다)")) {
       postJSON("/api/member-auth", { action: "reset", uid: sel.value }).then(res => {
-        if (res.ok && res.j.ok) { state.flash = res.j.reset + " 의 PIN 을 초기화했습니다."; loadAll(); }
+        if (res.ok && res.j.ok) {
+          if (res.j.self) { location.replace("/login.html?return=%2Fsubmit.html"); return; } // 본인 → 재등록하러
+          state.flash = res.j.reset + " 의 PIN 을 초기화했습니다.";
+          loadAll();
+        }
         else window.alert(res.j.error || "초기화에 실패했어요");
       });
     }
   }
   else if (act === "mem-force") {
-    if (window.confirm("모든 멤버의 인증을 무효화할까요? 전원이 PIN 으로 다시 인증해야 합니다.")) {
+    if (window.confirm("모든 멤버의 인증을 무효화할까요? 본인을 포함한 전원이 즉시 로그아웃되고 PIN 으로 다시 로그인해야 합니다.")) {
       postJSON("/api/member-auth", { action: "forceReauth" }).then(res => {
-        if (res.ok && res.j.ok) { state.flash = "전원 재인증이 적용되었습니다."; loadAll(); }
+        if (res.ok && res.j.ok) { location.replace("/login.html?return=%2Fsubmit.html"); }
         else window.alert(res.j.error || "처리에 실패했어요");
       });
     }
