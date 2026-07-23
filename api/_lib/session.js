@@ -106,4 +106,72 @@ function verifyRequest(req) {
   return verifyCookie(req.headers.cookie);
 }
 
-module.exports = { generateToken, sessionCookie, verifyCookie, verifyRequest };
+// ── 멤버 식별 쿠키 (fstar_member) ────────────────────────────────
+// 공용 비밀번호 세션(fstar_session) '위에' 얹히는 2차 식별 — 어떤 멤버인지를
+// 나타낸다. 닉네임 클레임 + 개인 PIN 검증(api/member-auth.js)을 통과하면 발급.
+//
+// 토큰 포맷: "m1.<uid>.<ts>.<sig>", sig = HMAC(secret, "m1.<uid>.<ts>")
+// 'm1.' 접두사가 세션 토큰(ts 로 시작)과 서명 도메인을 분리해, 한 토큰이
+// 다른 쿠키로 재사용되는 것을 막는다. uid 는 영숫자라 '.' 이 값에 없음.
+// 수명 30일 — api/member-auth.js 가 15일 경과 시 슬라이딩 재발급한다.
+// DB 기반 강제 재인증(app_settings.member_epoch)은 api/_lib/member.js 가 검사.
+
+const MEMBER_MAX_AGE_MS = 30 * DAY_MS;
+const MEMBER_UID_RE = /^[0-9a-zA-Z]{1,32}$/;
+
+function generateMemberToken(uid) {
+  const payload = 'm1.' + uid + '.' + Date.now().toString();
+  return payload + '.' + sign(payload);
+}
+
+function memberCookie(uid) {
+  return 'fstar_member=' + generateMemberToken(uid) +
+    '; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=' + (MEMBER_MAX_AGE_MS / 1000);
+}
+
+function clearMemberCookie() {
+  return 'fstar_member=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0';
+}
+
+// 쿠키의 fstar_member 검증. 반환 { valid, uid, issued } (실패 시 uid null).
+function verifyMemberCookie(cookieHeader) {
+  const fail = { valid: false, uid: null, issued: 0 };
+  if (!secretKey()) return fail; // fail-closed (세션 토큰과 동일)
+
+  const raw = parseCookies(cookieHeader)['fstar_member'];
+  if (!raw) return fail;
+
+  const parts = raw.split('.');
+  if (parts.length !== 4 || parts[0] !== 'm1') return fail;
+  const uid = parts[1], ts = parts[2], sig = parts[3];
+  if (!MEMBER_UID_RE.test(uid)) return fail;
+
+  const issued = parseInt(ts, 10);
+  if (isNaN(issued)) return fail;
+
+  const age = Date.now() - issued;
+  if (age < 0 || age > MEMBER_MAX_AGE_MS) return fail;
+
+  // SESSION_EPOCH 는 멤버 쿠키에도 적용 (비밀키 회전 시 일괄 무효화)
+  const epoch = parseInt(process.env.SESSION_EPOCH || '0', 10);
+  if (issued < epoch) return fail;
+
+  const expected = sign('m1.' + uid + '.' + ts);
+  try {
+    if (crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'))) {
+      return { valid: true, uid, issued };
+    }
+  } catch {
+    /* 길이 불일치 등 → 실패 처리 */
+  }
+  return fail;
+}
+
+function verifyMemberRequest(req) {
+  return verifyMemberCookie(req.headers.cookie);
+}
+
+module.exports = {
+  generateToken, sessionCookie, verifyCookie, verifyRequest,
+  generateMemberToken, memberCookie, clearMemberCookie, verifyMemberCookie, verifyMemberRequest,
+};
