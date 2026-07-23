@@ -116,23 +116,27 @@ function parseDocJson(text) {
 // key → { hash, entry } (entry = makeEntry 결과, gzip 은 sendEntry 가 lazy 생성)
 const DOC_CACHE = new Map();
 
-// 게이트 문서 로드. 반환: entry | null(행 없음).
+// 게이트 문서 로드. 반환: { entry: Entry|null, memberEpoch: number }.
 // wrap=true 면 1MiB 이상 문서에 jsonParseWrap 적용(api/data.js 경로 전용).
+// member_epoch(전원 강제 재인증 스위치)를 같은 왕복에 서브쿼리로 실어 온다 —
+// api/data.js 가 추가 쿼리 없이 '이 시각 이전 발급 멤버 쿠키'를 거부할 수 있다.
 async function getDocEntry(key, wrap) {
   const cached = DOC_CACHE.get(key);
   const rows = await query(
-    'SELECT content_hash, CASE WHEN content_hash = $2 THEN NULL ELSE content END AS content ' +
+    'SELECT content_hash, CASE WHEN content_hash = $2 THEN NULL ELSE content END AS content, ' +
+    "(SELECT value FROM app_settings WHERE union_id = $3 AND key = 'member_epoch') AS member_epoch " +
     'FROM data_docs WHERE key = $1',
-    [key, cached ? cached.hash : '']
+    [key, cached ? cached.hash : '', UNION_ID]
   );
-  if (!rows.length) return null;
+  if (!rows.length) return { entry: null, memberEpoch: 0 };
   const row = rows[0];
-  if (row.content === null && cached) return cached.entry; // 해시 일치 → 캐시 사용
+  const memberEpoch = parseInt(row.member_epoch || '0', 10) || 0;
+  if (row.content === null && cached) return { entry: cached.entry, memberEpoch }; // 해시 일치 → 캐시
   const raw = Buffer.from(row.content, 'utf8');
   const wrapped = wrap && raw.length >= WRAP_MIN_BYTES ? jsonParseWrap(raw) : null;
   const entry = makeEntry(wrapped || raw);
   DOC_CACHE.set(key, { hash: row.content_hash, entry });
-  return entry;
+  return { entry, memberEpoch };
 }
 
 // 문서 원문 조회 (쓰기 경로용 — notice 편집, ingest 병합). 반환 { content, hash } | null.
