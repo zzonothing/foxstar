@@ -78,7 +78,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      if (!me) return res.status(403).json({ error: '멤버 인증 필요 — 닉네임과 PIN 으로 먼저 인증하세요' });
+      if (!me) return res.status(403).json({ error: '로그인이 만료되었습니다 — 다시 로그인해 주세요' });
       const b = readBody(req);
 
       const season = String(b.season || '');
@@ -120,7 +120,7 @@ module.exports = async function handler(req, res) {
         if (!auth.admin) return res.status(403).json({ error: 'admin only' });
         uid = String(req.query.uid);
       } else {
-        if (!me) return res.status(403).json({ error: '멤버 인증 필요' });
+        if (!me) return res.status(403).json({ error: '로그인이 만료되었습니다' });
         uid = me.uid;
       }
       const rows = await query(
