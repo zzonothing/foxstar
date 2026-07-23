@@ -21,11 +21,9 @@
 //     action=forceReauth        — [관리자] member_epoch 갱신 → 전 멤버 쿠키 무효화
 
 const crypto = require('crypto');
-const { verifyRequest, memberCookie, clearMemberCookie } = require('./_lib/session');
+const { verifyRequest, sessionCookie, memberCookie, clearMemberCookie } = require('./_lib/session');
 const { UNION_ID, query, setSetting } = require('./_lib/db');
-const { verifyMemberIdentity } = require('./_lib/member');
-
-const PIN_RE = /^\d{4,8}$/;
+const { verifyMemberIdentity, PIN_RE, hashPin, timingSafeHexEqual } = require('./_lib/member');
 
 function readBody(req) {
   if (!req.body) return {};
@@ -35,18 +33,6 @@ function readBody(req) {
 
 function delay() {
   return new Promise(r => setTimeout(r, 350 + Math.floor(Math.random() * 300)));
-}
-
-function hashPin(pin, saltHex) {
-  return crypto.scryptSync(String(pin), Buffer.from(saltHex, 'hex'), 64).toString('hex');
-}
-
-function timingSafeHexEqual(aHex, bHex) {
-  try {
-    return crypto.timingSafeEqual(Buffer.from(aHex, 'hex'), Buffer.from(bHex, 'hex'));
-  } catch {
-    return false;
-  }
 }
 
 module.exports = async function handler(req, res) {
@@ -80,7 +66,7 @@ module.exports = async function handler(req, res) {
       const pin = String(b.pin || '');
       if (!PIN_RE.test(pin)) return res.status(400).json({ error: 'PIN 은 숫자 4~8자리여야 합니다' });
 
-      const rows = await query('SELECT name, active, pin_hash FROM members WHERE union_id = $1 AND uid = $2', [UNION_ID, uid]);
+      const rows = await query('SELECT name, active, is_admin, pin_hash FROM members WHERE union_id = $1 AND uid = $2', [UNION_ID, uid]);
       if (!rows.length || !rows[0].active) return res.status(404).json({ error: '로스터에 없는 닉네임입니다' });
       if (rows[0].pin_hash) return res.status(409).json({ error: '이미 등록된 닉네임입니다. 본인이라면 운영진에게 초기화를 요청하세요.' });
 
@@ -93,14 +79,15 @@ module.exports = async function handler(req, res) {
       );
       if (!updated.length) return res.status(409).json({ error: '이미 등록된 닉네임입니다. 본인이라면 운영진에게 초기화를 요청하세요.' });
 
-      res.setHeader('Set-Cookie', memberCookie(uid));
+      // 세션도 함께 재발급 — 관리자 멤버(is_admin)면 즉시 관리자 권한 반영
+      res.setHeader('Set-Cookie', [memberCookie(uid), sessionCookie(!!rows[0].is_admin)]);
       return res.status(200).json({ ok: true, me: { uid, name: updated[0].name } });
     }
 
     if (action === 'login') {
       const uid = String(b.uid || '');
       const pin = String(b.pin || '');
-      const rows = await query('SELECT name, active, pin_hash, pin_salt FROM members WHERE union_id = $1 AND uid = $2', [UNION_ID, uid]);
+      const rows = await query('SELECT name, active, is_admin, pin_hash, pin_salt FROM members WHERE union_id = $1 AND uid = $2', [UNION_ID, uid]);
       const row = rows[0];
       // 존재/등록/PIN 을 한 경로로 검증해 실패 사유가 응답 시간으로 새지 않게 한다
       const ok = row && row.active && row.pin_hash && PIN_RE.test(pin) &&
@@ -109,7 +96,8 @@ module.exports = async function handler(req, res) {
         await delay(); // 브루트포스 감속 (api/auth.js 와 동일 패턴)
         return res.status(401).json({ error: '닉네임 또는 PIN 이 올바르지 않습니다' });
       }
-      res.setHeader('Set-Cookie', memberCookie(uid));
+      // 세션도 함께 재발급 — 관리자 멤버(is_admin)면 즉시 관리자 권한 반영
+      res.setHeader('Set-Cookie', [memberCookie(uid), sessionCookie(!!row.is_admin)]);
       return res.status(200).json({ ok: true, me: { uid, name: row.name } });
     }
 

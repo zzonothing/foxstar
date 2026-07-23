@@ -15,17 +15,22 @@ CREATE TABLE IF NOT EXISTS data_docs (
 -- 탈퇴는 active=false 로 표시 — 제출/응답 기록이 참조하므로 행은 삭제하지 않는다.
 -- pin_hash/pin_salt 는 hex 문자열 (scrypt 64바이트 / salt 16바이트 — HTTP 드라이버의
 -- bytea 왕복 변환을 피하기 위해 text 로 저장).
+-- is_admin: 이 멤버로 로그인하면 관리자 세션 발급 (시드가 ADMIN_NAMES env 로 지정).
 CREATE TABLE IF NOT EXISTS members (
   union_id   smallint NOT NULL DEFAULT 1,
   uid        text NOT NULL,
   name       text NOT NULL,
   active     boolean NOT NULL DEFAULT true,
+  is_admin   boolean NOT NULL DEFAULT false,
   pin_hash   text,
   pin_salt   text,
   claimed_at timestamptz,
   updated_at timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY (union_id, uid)
 );
+
+-- 기존 배포 DB 마이그레이션 (신규 생성 시엔 no-op)
+ALTER TABLE members ADD COLUMN IF NOT EXISTS is_admin boolean NOT NULL DEFAULT false;
 
 -- 앱 설정 (관리자가 웹에서 변경; 'member_epoch' = 이 시각(ms) 이전 발급 멤버 쿠키 무효)
 CREATE TABLE IF NOT EXISTS app_settings (
