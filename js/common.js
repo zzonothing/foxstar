@@ -97,9 +97,11 @@ var NAV_ITEMS = [
   ["index.html", "홈", "홈"],
   ["notice.html", "공지", "공지"],
   ["raid.html", "유니온레이드", "유레"],
+  ["submit.html", "제출·일정", "제출"],
   ["solo.html", "솔로레이드", "솔레"],
   ["shift.html", "시프티패드", "시프티"],
   ["stats.html", "여우별 통계", "통계"],
+  ["history.html", "성장 기록", "성장"],
   ["guide.html", "육성 가이드", "가이드"]
 ];
 function renderHeader(active){

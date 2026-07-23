@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#eef1f6" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
+  <title>제출·일정 | 승리의 여신: 니케</title>
+  <link rel="icon" type="image/png" href="image/foxstar.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <script>try{var t=localStorage.getItem("theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark");}catch(e){}</script>
+  <script>
+  /* ── 카카오톡 인앱 우회 + 로딩 워치독 (전 페이지 공통 인라인 블록) ──
+     ① 카카오톡 인앱 웹뷰는 쿠키 분리·네비게이션 멈춤 문제로 무한 로딩이
+        잦아 기본 브라우저로 우회한다(웹뷰 세션당 1회). 실패해도 페이지는
+        그대로 로드되며 ②의 워치독이 수동 탈출 버튼을 제공한다.
+     ② 10초 내 body 에 .ready 가 붙지 않으면 로더를 복구 안내(다시 시도·
+        기본 브라우저 열기·로그인 이동)로 교체한다. 로드가 늦게라도 완료되면
+        body.ready #fstarLoader{display:none} 규칙이 안내를 자동으로 치운다.
+     common.js·데이터 스크립트가 전부 실패해도 동작해야 하므로 외부 파일
+     의존 없는 인라인 ES5 로 유지하고, 수정 시 전 페이지에 동일하게 반영. */
+  (function () {
+    var KAKAO = /KAKAOTALK/i.test(navigator.userAgent);
+    var extUrl = "kakaotalk://web/openExternal?url=" + encodeURIComponent(location.href);
+    if (KAKAO) {
+      window.__KAKAO_INAPP = true;
+      var fired = false;
+      try { fired = sessionStorage.getItem("fstarKkEsc") === "1"; } catch (e) {}
+      if (!fired) {
+        try { sessionStorage.setItem("fstarKkEsc", "1"); } catch (e) {}
+        try { location.href = extUrl; } catch (e) {}
+      }
+    }
+    window.__fstarShowError = function () {
+      var host = document.getElementById("fstarLoader");
+      if (!host) {
+        host = document.createElement("div");
+        host.id = "fstarLoader";
+        host.style.cssText = "position:fixed;left:0;top:0;right:0;bottom:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--bg,#eef1f6)";
+        document.body.appendChild(host);
+      }
+      host.style.visibility = "visible"; /* style.css 실패 시 body:not(.ready) 의 visibility:hidden 을 자식에서 뒤집음 */
+      var base = "display:inline-block;margin:3px 4px;padding:10px 16px;border-radius:10px;border:0;font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer;";
+      var main = base + "background:var(--blue,#2563eb);color:#fff";
+      var sub  = base + "background:var(--muted,#f4f6fa);color:var(--sub,#64748b);border:1px solid var(--border,#e2e8f0)";
+      host.innerHTML =
+        '<div style="max-width:320px;margin:16px;padding:26px 20px;text-align:center;border-radius:14px;background:var(--card,#fff);border:1px solid var(--border,#e2e8f0);font-family:\'Noto Sans KR\',\'Apple SD Gothic Neo\',sans-serif">' +
+          '<div style="font-size:28px" aria-hidden="true">⚠️</div>' +
+          '<div style="margin-top:8px;font-size:15px;font-weight:800;color:var(--text,#1e293b)">페이지를 열지 못하고 있어요</div>' +
+          '<div style="margin-top:6px;font-size:12px;line-height:1.7;color:var(--sub,#64748b)">' +
+            (KAKAO ? "카카오톡 브라우저에서는 페이지가 열리지 않을 수 있어요.<br>기본 브라우저로 열어주세요." : "네트워크 상태를 확인한 뒤 다시 시도해 주세요.") +
+          '</div>' +
+          '<div style="margin-top:14px">' +
+            (KAKAO ? '<a style="' + main + '" href="' + extUrl + '">기본 브라우저에서 열기</a>' : "") +
+            '<button type="button" style="' + (KAKAO ? sub : main) + '" onclick="location.reload()">다시 시도</button>' +
+            (window.__AUTH_REQUIRED ? '<a style="' + sub + '" href="/login.html?return=' + encodeURIComponent(location.pathname + location.search) + '">로그인 페이지로</a>' : "") +
+          '</div>' +
+        '</div>';
+    };
+    var bodyTries = 0;
+    function fstarWatch() {
+      var b = document.body;
+      if (b && b.classList.contains("ready")) return;
+      if (!b) { /* head 파싱(렌더 블로킹) 중이거나 로드가 중단된 경우 — 재시도, 계속 없으면 body 를 직접 만들어서라도 안내를 띄운다 */
+        if (++bodyTries >= 3 && document.documentElement) {
+          try { document.documentElement.appendChild(document.createElement("body")); } catch (e) {}
+        }
+        setTimeout(fstarWatch, 3000);
+        return;
+      }
+      window.__fstarShowError();
+    }
+    setTimeout(fstarWatch, 10000);
+  })();
+  </script>
+  <style>html{background:#eef1f6}html.dark{background:#111827}body:not(.ready){visibility:hidden}</style>
+  <link rel="stylesheet" href="css/style.css?v=7" />
+  <style>
+    /* 공용 폼 (notice.html 의 nt-* 와 동일 계열) */
+    .sb-label{ display:block; font-size:12px; font-weight:700; color:var(--sub); margin-bottom:5px; }
+    .sb-input,.sb-select,.sb-textarea{ width:100%; box-sizing:border-box; border:1.5px solid var(--border); border-radius:10px; background:var(--muted); color:var(--text); font-family:inherit; font-size:14px; padding:10px 12px; outline:none; transition:border-color .15s; }
+    .sb-input:focus,.sb-select:focus,.sb-textarea:focus{ border-color:var(--blue); }
+    .sb-btn{ border:none; border-radius:9px; background:var(--blue); color:#fff; font-family:inherit; font-size:13px; font-weight:700; padding:9px 16px; cursor:pointer; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+    .sb-btn:disabled{ opacity:.6; cursor:default; }
+    .sb-btn-ghost{ border:1px solid var(--border); border-radius:9px; background:var(--card); color:var(--sub); font-family:inherit; font-size:13px; font-weight:700; padding:9px 16px; cursor:pointer; }
+    .sb-btn-danger{ border:1px solid var(--border); border-radius:8px; background:transparent; color:var(--sub); font-family:inherit; font-size:12px; font-weight:700; padding:6px 14px; cursor:pointer; }
+    .sb-btn-danger:hover{ color:var(--red); border-color:var(--red); }
+    .sb-sec-title{ font-size:17px; font-weight:800; color:var(--text); }
+    .sb-sec-sub{ font-size:12px; color:var(--sub); margin-top:2px; }
+    .sb-flash{ background:var(--blue-l); color:var(--blue); border:1px solid var(--blue); border-radius:10px; padding:10px 14px; font-size:13px; font-weight:600; }
+    /* 멤버 인증 카드 */
+    .sb-me{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .sb-me-name{ font-size:15px; font-weight:800; color:var(--text); }
+    /* 내 슬롯 카드 */
+    .sb-slot{ border:1px solid var(--border); border-radius:12px; background:var(--muted); padding:12px; display:flex; flex-direction:column; gap:8px; }
+    .sb-slot-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .sb-slot-title{ font-size:12px; font-weight:800; color:var(--sub); }
+    .sb-chips{ display:flex; gap:4px; flex-wrap:wrap; }
+    .sb-empty-slot{ font-size:12px; color:var(--dim); font-weight:600; }
+    /* 제출 현황 행 */
+    .sb-row{ display:flex; align-items:flex-start; gap:12px; padding:11px 0; border-top:1px solid var(--line); }
+    .sb-row:first-child{ border-top:none; }
+    .sb-row-name{ width:96px; flex-shrink:0; font-size:13px; font-weight:800; color:var(--text); word-break:break-all; padding-top:4px; }
+    .sb-row-decks{ flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
+    .sb-deckline{ display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+    .sb-deckline .tnum{ font-size:12px; font-weight:700; color:var(--text); }
+    .sb-deck-note{ font-size:11px; color:var(--sub); }
+    /* 캐릭터 선택 그리드 */
+    .sb-pick-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(64px, 1fr)); gap:7px; max-height:44vh; overflow-y:auto; padding:2px; }
+    .sb-pick{ position:relative; border:2px solid transparent; border-radius:9px; background:var(--muted); cursor:pointer; padding:0; overflow:hidden; -webkit-tap-highlight-color:transparent; }
+    .sb-pick img{ width:100%; aspect-ratio:1; object-fit:cover; display:block; }
+    .sb-pick-name{ display:block; font-size:10px; font-weight:700; color:var(--sub); padding:3px 2px 4px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .sb-pick.on{ border-color:var(--blue); }
+    .sb-pick.on::after{ content:"✓"; position:absolute; top:3px; right:3px; width:17px; height:17px; border-radius:50%; background:var(--blue); color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+    /* 폴 */
+    .sb-opt{ border:1.5px solid var(--border); border-radius:9px; background:var(--card); color:var(--text); font-family:inherit; font-size:13px; font-weight:700; padding:8px 14px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+    .sb-opt.on{ border-color:var(--blue); background:var(--blue-l); color:var(--blue); }
+    .sb-poll-table{ width:100%; border-collapse:collapse; font-size:12px; }
+    .sb-poll-table th,.sb-poll-table td{ padding:7px 8px; border-bottom:1px solid var(--line); text-align:center; }
+    .sb-poll-table th{ background:var(--muted); font-weight:800; color:var(--sub); }
+    .sb-poll-table td:first-child,.sb-poll-table th:first-child{ text-align:left; font-weight:700; }
+    .sb-poll-wrap{ overflow-x:auto; }
+    #sbPickModal,#sbPollModal{ max-height:92vh; overflow-y:auto; }
+    @media (max-width:640px){ .sb-row{ flex-direction:column; gap:6px; } .sb-row-name{ width:auto; padding-top:0; } }
+  </style>
+  <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
+</head>
+<body>
+
+<div id="fstarLoader" aria-live="polite"><div class="fstar-spin" aria-hidden="true"></div><span>불러오는 중…</span></div>
+
+<!-- ═══════════ 헤더 (js/common.js: renderHeader 주입) ═══════════ -->
+<header class="rd-header" id="rdHeader"></header>
+
+<main class="rd-main">
+  <div class="container">
+    <div id="rdContent" class="rd-stack"></div>
+  </div>
+</main>
+
+<!-- 덱 편집(캐릭터 선택) 팝업 -->
+<div id="sbPickOverlay" class="rd-overlay" style="display:none">
+  <div class="rd-modal" id="sbPickModal" style="max-width:680px"></div>
+</div>
+
+<!-- 일정 만들기 팝업 (관리자 전용) -->
+<div id="sbPollOverlay" class="rd-overlay" style="display:none">
+  <div class="rd-modal" id="sbPollModal" style="max-width:560px"></div>
+</div>
+
+<script src="data/config.js" onerror="window.__DATA_ERROR=1"></script>
+<script src="data/member.js" onerror="window.__DATA_ERROR=1"></script>
+<script src="data/character.js" onerror="window.__DATA_ERROR=1"></script>
+
+<!-- ═══════════ 공통 스크립트 (헬퍼·테마·인증·모달) ═══════════ -->
+<script src="js/common.js?v=8"></script>
+
+<script>
+if (window.__DATA_ERROR || typeof authGuardOrRedirect !== "function") {
+  // common.js 자체가 로드 실패한 경우 showDataError 도 없으므로 인라인 폴백 사용
+  if (typeof showDataError === "function") showDataError();
+  else if (window.__fstarShowError) window.__fstarShowError();
+} else if (!authGuardOrRedirect()) {
+try {
+
+renderHeader("submit.html");
+setupTheme();
+lockClipboard();
+document.title = "제출·일정 | " + CONFIG.unionName;
+
+const LATEST_UNION_SEASON = Math.max(...Object.keys(UNION).map(Number));
+
+const state = {
+  auth: null,        // /api/member-auth GET 결과 { admin, me, roster }
+  sub: null,         // /api/submit GET 결과 { season, seasons, submissions }
+  polls: null,       // /api/poll GET 결과 { polls }
+  season: null,      // 선택된 시즌 "S44"
+  flash: null,
+  pick: null,        // 덱 편집 상태 { slot, names:[], damage, note, boss, editing }
+};
+
+/* ─── 공통 fetch 헬퍼 ─── */
+function api(url, opts){
+  return fetch(url, opts).then(r => r.json().catch(() => ({})).then(j => ({ ok: r.ok, status: r.status, j: j })));
+}
+function postJSON(url, body){
+  return api(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+}
+function fmtDT(ts){
+  if (!ts) return "";
+  try {
+    const parts = new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date(ts));
+    const g = t => (parts.find(x => x.type === t) || {}).value || "";
+    return g("month") + "." + g("day") + " " + g("hour") + ":" + g("minute");
+  } catch (e) { return ""; }
+}
+function fmtScore(n){
+  if (n == null || n === "") return "";
+  const v = Number(n);
+  return isFinite(v) ? v.toLocaleString("en-US") : "";
+}
+
+/* ─── 내 캐릭터 목록 (덱 피커용) ─── */
+function myChars(){
+  const me = state.auth && state.auth.me;
+  if (!me || typeof CHARACTERS === "undefined") return [];
+  const arr = CHARACTERS[me.uid];
+  if (!Array.isArray(arr)) return [];
+  return arr.map(c => ({ name: c.subName ? c.name + " : " + c.subName : c.name, atk: c.atk || 0 }))
+    .sort((a, b) => b.atk - a.atk);
+}
+
+/* ═══════════ 멤버 인증 카드 ═══════════ */
+function authCardHTML(){
+  const a = state.auth;
+  if (!a) return '<article class="rd-card" style="padding:16px 18px"><div class="sb-sec-sub">멤버 정보를 불러오는 중…</div></article>';
+  let inner;
+  if (a.me) {
+    inner = '<div class="sb-me">' +
+      '<span class="sb-me-name">👤 ' + esc(a.me.name) + '</span>' +
+      '<span style="font-size:12px;color:var(--sub);font-weight:600">멤버 인증됨 — 이 기기에서 자동 유지됩니다</span>' +
+      '<span style="flex:1"></span>' +
+      '<button type="button" class="sb-btn-ghost" data-act="mem-logout">이 기기에서 로그아웃</button>' +
+    '</div>';
+  } else {
+    const opts = (a.roster || []).map(r =>
+      '<option value="' + esc(r.uid) + '" data-claimed="' + (r.claimed ? 1 : 0) + '">' + esc(r.name) + (r.claimed ? "" : " (미등록)") + '</option>').join("");
+    inner =
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end">' +
+        '<div><label class="sb-label" for="sbMemUid">닉네임</label><select id="sbMemUid" class="sb-select">' + opts + '</select></div>' +
+        '<div><label class="sb-label" for="sbMemPin">PIN (숫자 4~8자리)</label><input id="sbMemPin" class="sb-input" type="password" inputmode="numeric" maxlength="8" placeholder="••••" /></div>' +
+      '</div>' +
+      '<div id="sbMemMsg" style="min-height:18px;font-size:12px;font-weight:600;color:var(--sub);margin-top:8px">' +
+        '처음이면 자기 닉네임을 고르고 PIN 을 정해 등록하세요. 이후엔 같은 PIN 으로 인증합니다.</div>' +
+      '<div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" class="sb-btn" data-act="mem-auth">인증하기</button></div>';
+  }
+  // 관리자 도구
+  let adminTools = "";
+  if (a.admin) {
+    const resetOpts = (a.roster || []).filter(r => r.claimed).map(r => '<option value="' + esc(r.uid) + '">' + esc(r.name) + '</option>').join("");
+    adminTools = '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap;align-items:center">' +
+      '<span style="font-size:12px;font-weight:800;color:var(--sub)">관리자</span>' +
+      (resetOpts ? '<select id="sbResetUid" class="sb-select" style="width:auto">' + resetOpts + '</select>' +
+        '<button type="button" class="sb-btn-ghost" data-act="mem-reset">PIN 초기화</button>' : '<span style="font-size:12px;color:var(--dim)">등록된 멤버 없음</span>') +
+      '<button type="button" class="sb-btn-danger" data-act="mem-force">전원 재인증</button>' +
+    '</div>';
+  }
+  return '<article class="rd-card" style="padding:16px 18px">' +
+    '<div class="sb-sec-title" style="font-size:14px;margin-bottom:10px">멤버 인증</div>' + inner + adminTools + '</article>';
+}
+
+function memberAuth(){
+  const sel = document.getElementById("sbMemUid");
+  const pin = (document.getElementById("sbMemPin").value || "").trim();
+  const msg = document.getElementById("sbMemMsg");
+  if (!sel || !sel.value) return;
+  if (!/^\d{4,8}$/.test(pin)) { msg.style.color = "var(--red)"; msg.textContent = "PIN 은 숫자 4~8자리입니다"; return; }
+  const claimed = sel.selectedOptions[0].dataset.claimed === "1";
+  msg.style.color = "var(--sub)";
+  msg.textContent = claimed ? "인증 중…" : "등록 중…";
+  postJSON("/api/member-auth", { action: claimed ? "login" : "claim", uid: sel.value, pin: pin }).then(res => {
+    if (res.ok && res.j.ok) { state.flash = claimed ? "인증되었습니다." : "등록되었습니다. 다음부터는 이 PIN 으로 인증하세요."; loadAll(); }
+    else { msg.style.color = "var(--red)"; msg.textContent = res.j.error || "인증에 실패했어요"; }
+  }).catch(() => { msg.style.color = "var(--red)"; msg.textContent = "네트워크 오류. 다시 시도해 주세요"; });
+}
+
+/* ═══════════ 유레 덱/모의전 점수 제출 ═══════════ */
+function seasonOptions(){
+  const set = new Set(state.sub && state.sub.seasons || []);
+  set.add("S" + LATEST_UNION_SEASON);
+  set.add("S" + (LATEST_UNION_SEASON + 1)); // 다가오는 시즌 제출용
+  return [...set].sort((a, b) => Number(b.slice(1)) - Number(a.slice(1)));
+}
+function mySubs(){
+  const me = state.auth && state.auth.me;
+  if (!me || !state.sub) return {};
+  const out = {};
+  state.sub.submissions.filter(s => s.uid === me.uid).forEach(s => { out[s.slot] = s; });
+  return out;
+}
+function deckChipsHTML(deck, size){
+  const px = size || 30;
+  return '<span class="sb-chips">' + (deck.characters || []).map(c =>
+    charImg(c.name, { style: "width:" + px + "px;height:" + px + "px;border-radius:5px;object-fit:cover;background:var(--card)", title: true })
+  ).join("") + '</span>';
+}
+function submitSectionHTML(){
+  const me = state.auth && state.auth.me;
+  const seasons = seasonOptions();
+  const cur = state.season || (state.sub && state.sub.season) || seasons[0];
+  const selHtml = '<select id="sbSeason" class="sb-select" style="width:auto" aria-label="시즌 선택">' +
+    seasons.map(s => '<option value="' + esc(s) + '"' + (s === cur ? " selected" : "") + '>' + esc(s) + '</option>').join("") + '</select>';
+
+  let mine = "";
+  if (me) {
+    const subs = mySubs();
+    const slots = [1, 2, 3].map(slot => {
+      const s = subs[slot];
+      const body = s
+        ? deckChipsHTML(s.deck, 34) +
+          '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">' +
+            (s.damage != null ? '<span class="tnum" style="font-size:13px;font-weight:800;color:var(--text)">' + fmtScore(s.damage) + '</span>' : '<span class="sb-empty-slot">점수 미입력</span>') +
+            (s.deck.boss ? '<span style="font-size:11px;font-weight:700;color:var(--sub)">' + esc(s.deck.boss) + '</span>' : "") +
+          '</div>' +
+          (s.note ? '<div class="sb-deck-note">' + esc(s.note) + '</div>' : "")
+        : '<div class="sb-empty-slot">아직 제출한 덱이 없어요</div>';
+      return '<div class="sb-slot">' +
+        '<div class="sb-slot-head"><span class="sb-slot-title">덱 ' + slot + '</span>' +
+          '<span style="display:flex;gap:6px">' +
+            '<button type="button" class="sb-btn-ghost" style="padding:6px 12px;font-size:12px" data-act="deck-edit" data-slot="' + slot + '">' + (s ? "수정" : "제출") + '</button>' +
+            (s ? '<button type="button" class="sb-btn-danger" data-act="deck-del" data-slot="' + slot + '">삭제</button>' : "") +
+          '</span></div>' + body + '</div>';
+    }).join("");
+    mine = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-top:12px">' + slots + '</div>';
+  } else {
+    mine = '<div class="sb-sec-sub" style="margin-top:10px">덱을 제출하려면 위에서 멤버 인증을 먼저 해주세요.</div>';
+  }
+
+  // 전체 제출 현황
+  const byMember = {};
+  ((state.sub && state.sub.submissions) || []).forEach(s => {
+    (byMember[s.uid] = byMember[s.uid] || { name: s.name || s.uid, list: [] }).list.push(s);
+  });
+  const rows = Object.keys(byMember).map(uid => {
+    const m = byMember[uid];
+    const decks = m.list.sort((a, b) => a.slot - b.slot).map(s =>
+      '<div class="sb-deckline">' + deckChipsHTML(s.deck, 28) +
+        (s.damage != null ? '<span class="tnum">' + fmtScore(s.damage) + '</span>' : "") +
+        (s.deck.boss ? '<span class="sb-deck-note">' + esc(s.deck.boss) + '</span>' : "") +
+        (s.note ? '<span class="sb-deck-note">· ' + esc(s.note) + '</span>' : "") +
+      '</div>').join("");
+    return '<div class="sb-row"><div class="sb-row-name">' + esc(m.name) + '</div><div class="sb-row-decks">' + decks + '</div></div>';
+  }).join("");
+
+  return '<article class="rd-card" style="padding:16px 18px">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">' +
+      '<div><div class="sb-sec-title">유니온 레이드 덱 제출</div>' +
+        '<div class="sb-sec-sub">모의전 점수와 덱 편성을 공유해 주세요 (시즌당 덱 3개)</div></div>' + selHtml +
+    '</div>' + mine +
+    '<div style="margin-top:16px;padding-top:6px;border-top:1px solid var(--line)">' +
+      (rows || '<div class="sb-sec-sub" style="padding:10px 0">이 시즌 제출이 아직 없어요.</div>') +
+    '</div>' +
+  '</article>';
+}
+
+/* ─── 덱 편집 팝업 ─── */
+function openPick(slot){
+  const subs = mySubs();
+  const cur = subs[slot];
+  state.pick = {
+    slot: slot,
+    names: cur ? cur.deck.characters.map(c => c.name) : [],
+    damage: cur && cur.damage != null ? String(cur.damage) : "",
+    note: (cur && cur.note) || "",
+    boss: (cur && cur.deck.boss) || "",
+  };
+  renderPick();
+  openModal(document.getElementById("sbPickOverlay"), { label: "덱 " + slot + " 편집" });
+}
+function renderPick(){
+  const p = state.pick;
+  const chars = myChars();
+  const filter = (document.getElementById("sbPickSearch") || {}).value || "";
+  const grid = chars
+    .filter(c => !filter || c.name.toLowerCase().indexOf(filter.toLowerCase()) >= 0)
+    .map(c => {
+      const on = p.names.indexOf(c.name) >= 0;
+      return '<button type="button" class="sb-pick' + (on ? " on" : "") + '" data-act="pick-toggle" data-name="' + esc(c.name) + '">' +
+        charImg(c.name, { title: false }) + '<span class="sb-pick-name">' + esc(c.name) + '</span></button>';
+    }).join("");
+  const chosen = p.names.length
+    ? p.names.map(n => charImg(n, { style: "width:34px;height:34px;border-radius:5px;object-fit:cover;background:var(--muted)" })).join("")
+    : '<span class="sb-empty-slot">아래에서 캐릭터를 골라주세요 (최대 5명)</span>';
+  document.getElementById("sbPickModal").innerHTML =
+    '<div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">' +
+      '<span style="font-size:16px;font-weight:800;color:var(--text)">덱 ' + p.slot + ' — ' + esc(state.season || "") + '</span>' +
+      '<span class="rd-modal-close" data-act="pick-cancel">✕</span>' +
+    '</div>' +
+    '<div style="padding:14px 20px;display:flex;flex-direction:column;gap:12px">' +
+      '<div style="display:flex;align-items:center;gap:6px;min-height:38px">' + chosen + '</div>' +
+      '<input id="sbPickSearch" class="sb-input" placeholder="캐릭터 검색" value="' + esc(filter) + '" />' +
+      '<div class="sb-pick-grid">' + (grid || '<span class="sb-empty-slot">캐릭터 데이터가 없어요 — 직접 입력을 사용하세요</span>') + '</div>' +
+      '<div style="display:flex;gap:8px"><input id="sbPickManual" class="sb-input" placeholder="목록에 없는 캐릭터 직접 입력" />' +
+        '<button type="button" class="sb-btn-ghost" data-act="pick-manual" style="flex-shrink:0">추가</button></div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
+        '<div><label class="sb-label" for="sbPickDamage">모의전 점수 (선택)</label><input id="sbPickDamage" class="sb-input" type="number" min="0" step="1" inputmode="numeric" placeholder="예: 350000000" value="' + esc(p.damage) + '" /></div>' +
+        '<div><label class="sb-label" for="sbPickBoss">보스 (선택)</label><input id="sbPickBoss" class="sb-input" maxlength="50" placeholder="예: 크라켄" value="' + esc(p.boss) + '" /></div>' +
+      '</div>' +
+      '<div><label class="sb-label" for="sbPickNote">비고 (선택)</label><input id="sbPickNote" class="sb-input" maxlength="200" placeholder="풀버스트 타이밍, 대체 캐릭터 등" value="' + esc(p.note) + '" /></div>' +
+      '<div id="sbPickMsg" style="min-height:18px;font-size:12px;font-weight:600;color:var(--sub)"></div>' +
+      '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+        '<button type="button" class="sb-btn-ghost" data-act="pick-cancel">취소</button>' +
+        '<button type="button" class="sb-btn" id="sbPickSave" data-act="pick-save">저장</button>' +
+      '</div>' +
+    '</div>';
+}
+function pickSyncInputs(){
+  const p = state.pick;
+  p.damage = (document.getElementById("sbPickDamage") || {}).value || "";
+  p.note   = (document.getElementById("sbPickNote") || {}).value || "";
+  p.boss   = (document.getElementById("sbPickBoss") || {}).value || "";
+}
+function togglePick(name){
+  pickSyncInputs();
+  const p = state.pick;
+  const i = p.names.indexOf(name);
+  if (i >= 0) p.names.splice(i, 1);
+  else {
+    if (p.names.length >= 5) return;
+    p.names.push(name);
+  }
+  renderPick();
+}
+function savePick(){
+  pickSyncInputs();
+  const p = state.pick;
+  const msg = document.getElementById("sbPickMsg");
+  if (!p.names.length) { msg.style.color = "var(--red)"; msg.textContent = "캐릭터를 1명 이상 골라주세요"; return; }
+  const deck = { characters: p.names.map(n => ({ name: n })) };
+  if (p.boss.trim()) deck.boss = p.boss.trim();
+  document.getElementById("sbPickSave").disabled = true;
+  msg.style.color = "var(--sub)"; msg.textContent = "저장 중…";
+  postJSON("/api/submit", {
+    season: state.season || (state.sub && state.sub.season) || seasonOptions()[0],
+    slot: p.slot, deck: deck,
+    damage: p.damage.trim() === "" ? null : Number(p.damage),
+    note: p.note.trim(),
+  }).then(res => {
+    if (res.ok && res.j.ok) { closeModal(document.getElementById("sbPickOverlay")); state.pick = null; state.flash = "덱이 저장되었습니다."; loadAll(); }
+    else { msg.style.color = "var(--red)"; msg.textContent = res.j.error || "저장에 실패했어요"; document.getElementById("sbPickSave").disabled = false; }
+  }).catch(() => { msg.style.color = "var(--red)"; msg.textContent = "네트워크 오류. 다시 시도해 주세요"; document.getElementById("sbPickSave").disabled = false; });
+}
+function delDeck(slot){
+  if (!window.confirm("덱 " + slot + " 제출을 삭제할까요?")) return;
+  const season = state.season || (state.sub && state.sub.season);
+  api("/api/submit?season=" + encodeURIComponent(season) + "&slot=" + slot, { method: "DELETE" }).then(res => {
+    if (res.ok && res.j.ok) { state.flash = "삭제했습니다."; loadAll(); }
+    else window.alert(res.j.error || "삭제에 실패했어요");
+  }).catch(() => window.alert("네트워크 오류. 다시 시도해 주세요"));
+}
+
+/* ═══════════ 일정/참여 폴 ═══════════ */
+function pollCardHTML(p){
+  const me = state.auth && state.auth.me;
+  const myResp = me ? p.responses.find(r => r.uid === me.uid) : null;
+  const mySel = new Set((myResp && myResp.selected) || []);
+  const closed = !p.is_open;
+
+  const optBtns = p.options.map(o =>
+    '<button type="button" class="sb-opt' + (mySel.has(o.id) ? " on" : "") + '"' + (closed || !me ? " disabled" : "") +
+    ' data-act="poll-opt" data-poll="' + p.id + '" data-opt="' + esc(o.id) + '">' + esc(o.label) + '</button>').join("");
+
+  // 결과 표: 멤버 × 옵션
+  const counts = {};
+  p.options.forEach(o => { counts[o.id] = 0; });
+  p.responses.forEach(r => (r.selected || []).forEach(id => { if (id in counts) counts[id]++; }));
+  const head = '<tr><th>멤버</th>' + p.options.map(o => '<th>' + esc(o.label) + '<br><span class="tnum" style="color:var(--blue)">' + counts[o.id] + '</span></th>') .join("") + '<th>비고</th></tr>';
+  const body = p.responses.map(r =>
+    '<tr><td>' + esc(r.name || r.uid) + '</td>' +
+    p.options.map(o => '<td>' + ((r.selected || []).indexOf(o.id) >= 0 ? "✓" : "") + '</td>').join("") +
+    '<td style="text-align:left">' + esc(r.note || "") + '</td></tr>').join("");
+
+  const adminBtns = state.auth && state.auth.admin
+    ? '<span style="display:flex;gap:6px">' +
+        '<button type="button" class="sb-btn-ghost" style="padding:6px 12px;font-size:12px" data-act="poll-' + (closed ? "reopen" : "close") + '" data-poll="' + p.id + '">' + (closed ? "재개" : "마감") + '</button>' +
+        '<button type="button" class="sb-btn-danger" data-act="poll-del" data-poll="' + p.id + '">삭제</button>' +
+      '</span>' : "";
+
+  return '<article class="rd-card" style="padding:16px 18px">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">' +
+      '<div><div class="sb-sec-title" style="font-size:15px">' + esc(p.title) + (closed ? ' <span style="font-size:11px;color:var(--dim)">(마감)</span>' : "") + '</div>' +
+        '<div class="sb-sec-sub">' + (p.closes_at ? "마감 " + fmtDT(p.closes_at) + " · " : "") + (p.multi ? "복수 선택" : "하나만 선택") + '</div></div>' + adminBtns +
+    '</div>' +
+    '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:11px">' + optBtns + '</div>' +
+    (me && !closed
+      ? '<div style="display:flex;gap:8px;margin-top:10px"><input id="sbPollNote' + p.id + '" class="sb-input" maxlength="200" placeholder="비고 (선택)" value="' + esc((myResp && myResp.note) || "") + '" />' +
+        '<button type="button" class="sb-btn" data-act="poll-save" data-poll="' + p.id + '" style="flex-shrink:0">저장</button></div>'
+      : "") +
+    (p.responses.length
+      ? '<div class="sb-poll-wrap" style="margin-top:13px"><table class="sb-poll-table">' + head + body + '</table></div>'
+      : '<div class="sb-sec-sub" style="margin-top:11px">아직 응답이 없어요.</div>') +
+  '</article>';
+}
+function pollSectionHTML(){
+  const list = (state.polls && state.polls.polls) || [];
+  const header = '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px">' +
+    '<div><div class="sb-sec-title">일정 · 참여</div><div class="sb-sec-sub">레이드 참여 가능 시간 등을 응답해 주세요</div></div>' +
+    (state.auth && state.auth.admin ? '<button type="button" class="sb-btn" data-act="poll-new">＋ 일정 만들기</button>' : "") +
+  '</div>';
+  return header + (list.length ? list.map(pollCardHTML).join("") : '<article class="rd-card" style="padding:16px 18px"><div class="sb-sec-sub">진행 중인 일정 조사가 없어요.</div></article>');
+}
+// 옵션 토글은 로컬 상태 없이 즉시 저장하지 않고, 화면 클래스만 바꾼 뒤 '저장' 시 모아 보낸다
+function togglePollOpt(btn){
+  btn.classList.toggle("on");
+}
+function savePoll(pollId){
+  const card = document.querySelector('[data-act="poll-save"][data-poll="' + pollId + '"]').closest("article");
+  const selected = [...card.querySelectorAll('[data-act="poll-opt"].on')].map(b => b.dataset.opt);
+  const noteEl = document.getElementById("sbPollNote" + pollId);
+  if (!selected.length) { window.alert("하나 이상 선택해 주세요"); return; }
+  postJSON("/api/poll", { action: "respond", pollId: Number(pollId), selected: selected, note: noteEl ? noteEl.value : "" }).then(res => {
+    if (res.ok && res.j.ok) { state.flash = "응답이 저장되었습니다."; loadAll(); }
+    else window.alert(res.j.error || "저장에 실패했어요");
+  }).catch(() => window.alert("네트워크 오류. 다시 시도해 주세요"));
+}
+/* ─── 일정 만들기 팝업 (관리자) ─── */
+function openPollCompose(){
+  document.getElementById("sbPollModal").innerHTML =
+    '<div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">' +
+      '<span style="font-size:16px;font-weight:800;color:var(--text)">일정 만들기</span>' +
+      '<span class="rd-modal-close" data-act="pollc-cancel">✕</span></div>' +
+    '<div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">' +
+      '<div><label class="sb-label" for="sbPcTitle">제목</label><input id="sbPcTitle" class="sb-input" maxlength="100" placeholder="예: S44 유니온 레이드 참여 시간" /></div>' +
+      '<div><label class="sb-label" for="sbPcOptions">옵션 (한 줄에 하나, 2~20개)</label>' +
+        '<textarea id="sbPcOptions" class="sb-textarea" style="min-height:120px" placeholder="토 21시&#10;일 14시&#10;일 21시"></textarea></div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end">' +
+        '<div><label class="sb-label" for="sbPcCloses">마감 시각 (선택)</label><input id="sbPcCloses" class="sb-input" type="datetime-local" /></div>' +
+        '<label style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--text);padding-bottom:10px">' +
+          '<input id="sbPcMulti" type="checkbox" checked style="width:16px;height:16px" /> 복수 선택 허용</label>' +
+      '</div>' +
+      '<div id="sbPcMsg" style="min-height:18px;font-size:12px;font-weight:600;color:var(--sub)"></div>' +
+      '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+        '<button type="button" class="sb-btn-ghost" data-act="pollc-cancel">취소</button>' +
+        '<button type="button" class="sb-btn" id="sbPcSave" data-act="pollc-save">만들기</button>' +
+      '</div>' +
+    '</div>';
+  openModal(document.getElementById("sbPollOverlay"), { label: "일정 만들기" });
+}
+function savePollCompose(){
+  const title = (document.getElementById("sbPcTitle").value || "").trim();
+  const options = (document.getElementById("sbPcOptions").value || "").split("\n").map(s => s.trim()).filter(Boolean);
+  const multi = document.getElementById("sbPcMulti").checked;
+  const closesRaw = document.getElementById("sbPcCloses").value;
+  const msg = document.getElementById("sbPcMsg");
+  if (!title) { msg.style.color = "var(--red)"; msg.textContent = "제목을 입력하세요"; return; }
+  if (options.length < 2) { msg.style.color = "var(--red)"; msg.textContent = "옵션을 2개 이상 입력하세요"; return; }
+  document.getElementById("sbPcSave").disabled = true;
+  msg.style.color = "var(--sub)"; msg.textContent = "만드는 중…";
+  postJSON("/api/poll", { action: "create", title: title, options: options, multi: multi, closesAt: closesRaw ? new Date(closesRaw).toISOString() : null }).then(res => {
+    if (res.ok && res.j.ok) { closeModal(document.getElementById("sbPollOverlay")); state.flash = "일정을 만들었습니다."; loadAll(); }
+    else { msg.style.color = "var(--red)"; msg.textContent = res.j.error || "만들기에 실패했어요"; document.getElementById("sbPcSave").disabled = false; }
+  }).catch(() => { msg.style.color = "var(--red)"; msg.textContent = "네트워크 오류. 다시 시도해 주세요"; document.getElementById("sbPcSave").disabled = false; });
+}
+function pollAdminAct(action, pollId){
+  if (action === "delete" && !window.confirm("이 일정을 삭제할까요? 응답도 함께 삭제됩니다.")) return;
+  postJSON("/api/poll", { action: action, pollId: Number(pollId) }).then(res => {
+    if (res.ok && res.j.ok) loadAll();
+    else window.alert(res.j.error || "처리에 실패했어요");
+  }).catch(() => window.alert("네트워크 오류. 다시 시도해 주세요"));
+}
+
+/* ═══════════ 렌더 + 로드 ═══════════ */
+function render(){
+  let html = authCardHTML();
+  if (state.flash) { html += '<div class="sb-flash">' + esc(state.flash) + '</div>'; state.flash = null; }
+  html += submitSectionHTML();
+  html += pollSectionHTML();
+  document.getElementById("rdContent").innerHTML = html;
+}
+function loadAll(){
+  const seasonQ = state.season ? "?season=" + encodeURIComponent(state.season) : "";
+  Promise.all([
+    api("/api/member-auth", { method: "GET" }),
+    api("/api/submit" + seasonQ, { method: "GET" }),
+    api("/api/poll", { method: "GET" }),
+  ]).then(([a, s, p]) => {
+    if (a.ok) state.auth = a.j;
+    if (s.ok) { state.sub = s.j; if (!state.season) state.season = s.j.season || seasonOptions()[0]; }
+    if (p.ok) state.polls = p.j;
+    render();
+  }).catch(() => { /* 네트워크 실패 — 스켈레톤 유지 */ });
+}
+
+/* ─── 이벤트 ─── */
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-act]"); if (!t) return;
+  const act = t.dataset.act;
+  if (act === "mem-auth") memberAuth();
+  else if (act === "mem-logout") postJSON("/api/member-auth", { action: "logout" }).then(() => { state.flash = "이 기기에서 로그아웃했습니다."; loadAll(); });
+  else if (act === "mem-reset") {
+    const sel = document.getElementById("sbResetUid");
+    if (sel && sel.value && window.confirm(sel.selectedOptions[0].textContent + " 의 PIN 을 초기화할까요?")) {
+      postJSON("/api/member-auth", { action: "reset", uid: sel.value }).then(res => {
+        if (res.ok && res.j.ok) { state.flash = res.j.reset + " 의 PIN 을 초기화했습니다."; loadAll(); }
+        else window.alert(res.j.error || "초기화에 실패했어요");
+      });
+    }
+  }
+  else if (act === "mem-force") {
+    if (window.confirm("모든 멤버의 인증을 무효화할까요? 전원이 PIN 으로 다시 인증해야 합니다.")) {
+      postJSON("/api/member-auth", { action: "forceReauth" }).then(res => {
+        if (res.ok && res.j.ok) { state.flash = "전원 재인증이 적용되었습니다."; loadAll(); }
+        else window.alert(res.j.error || "처리에 실패했어요");
+      });
+    }
+  }
+  else if (act === "deck-edit") openPick(parseInt(t.dataset.slot, 10));
+  else if (act === "deck-del") delDeck(parseInt(t.dataset.slot, 10));
+  else if (act === "pick-toggle") togglePick(t.dataset.name);
+  else if (act === "pick-manual") {
+    const inp = document.getElementById("sbPickManual");
+    const name = (inp.value || "").trim();
+    if (name) { pickSyncInputs(); if (state.pick.names.length < 5 && state.pick.names.indexOf(name) < 0) state.pick.names.push(name); renderPick(); }
+  }
+  else if (act === "pick-save") savePick();
+  else if (act === "pick-cancel") { state.pick = null; closeModal(document.getElementById("sbPickOverlay")); }
+  else if (act === "poll-opt") togglePollOpt(t);
+  else if (act === "poll-save") savePoll(t.dataset.poll);
+  else if (act === "poll-new") openPollCompose();
+  else if (act === "pollc-save") savePollCompose();
+  else if (act === "pollc-cancel") closeModal(document.getElementById("sbPollOverlay"));
+  else if (act === "poll-close") pollAdminAct("close", t.dataset.poll);
+  else if (act === "poll-reopen") pollAdminAct("reopen", t.dataset.poll);
+  else if (act === "poll-del") pollAdminAct("delete", t.dataset.poll);
+});
+document.addEventListener("input", e => {
+  if (e.target && e.target.id === "sbPickSearch") { pickSyncInputs(); renderPick(); const s = document.getElementById("sbPickSearch"); s.focus(); s.setSelectionRange(s.value.length, s.value.length); }
+});
+document.addEventListener("change", e => {
+  if (e.target && e.target.id === "sbSeason") { state.season = e.target.value; loadAll(); }
+});
+document.getElementById("sbPickOverlay").addEventListener("click", e => { if (e.target === e.currentTarget) { state.pick = null; closeModal(e.currentTarget); } });
+document.getElementById("sbPollOverlay").addEventListener("click", e => { if (e.target === e.currentTarget) closeModal(e.currentTarget); });
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  const pick = document.getElementById("sbPickOverlay");
+  const pollc = document.getElementById("sbPollOverlay");
+  if (pick.style.display !== "none") { state.pick = null; closeModal(pick); }
+  else if (pollc.style.display !== "none") closeModal(pollc);
+});
+
+render();     // 스켈레톤 (인증 카드 로딩 문구)
+markReady();
+loadAll();
+
+} catch (e) { console.error(e); if (typeof showDataError === "function") showDataError(); }
+} // else if (!authGuardOrRedirect())
+</script>
+
+</body>
+</html>
