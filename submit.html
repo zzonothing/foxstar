@@ -487,15 +487,29 @@ function savePoll(pollId){
   }).catch(() => window.alert("네트워크 오류. 다시 시도해 주세요"));
 }
 /* ─── 일정 만들기 팝업 (관리자) ─── */
+// 유레 하루(레이드 리셋 새벽 5시 ~ 익일 새벽 5시)를 1시간 단위 24슬롯으로
+// 기본 채움 — 필요 없는 시간대는 줄을 지우면 된다. 자정은 23:00 ~ 24:00 →
+// 00:00 ~ 01:00 로 표기(24H).
+function defaultPollOptions(){
+  const pad = n => String(n).padStart(2, "0");
+  const lines = [];
+  for (let i = 0; i < 24; i++) {
+    const s = (5 + i) % 24;
+    const e = 5 + i + 1;
+    lines.push(pad(s) + ":00 ~ " + pad(e <= 24 ? e : e - 24) + ":00");
+  }
+  return lines.join("\n");
+}
 function openPollCompose(){
+  const season = state.season || (state.sub && state.sub.season) || "";
   document.getElementById("sbPollModal").innerHTML =
     '<div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">' +
       '<span style="font-size:16px;font-weight:800;color:var(--text)">일정 만들기</span>' +
       '<span class="rd-modal-close" data-act="pollc-cancel">✕</span></div>' +
     '<div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">' +
-      '<div><label class="sb-label" for="sbPcTitle">제목</label><input id="sbPcTitle" class="sb-input" maxlength="100" placeholder="예: S44 유니온 레이드 참여 시간" /></div>' +
-      '<div><label class="sb-label" for="sbPcOptions">옵션 (한 줄에 하나, 2~20개)</label>' +
-        '<textarea id="sbPcOptions" class="sb-textarea" style="min-height:120px" placeholder="토 21시&#10;일 14시&#10;일 21시"></textarea></div>' +
+      '<div><label class="sb-label" for="sbPcTitle">제목</label><input id="sbPcTitle" class="sb-input" maxlength="100" placeholder="예: ' + esc(season || "S44") + ' 유니온 레이드 참여 시간" /></div>' +
+      '<div><label class="sb-label" for="sbPcOptions">옵션 (한 줄에 하나, 2~36개) — 기본값: 새벽 5시부터 24시간, 필요 없는 줄은 삭제</label>' +
+        '<textarea id="sbPcOptions" class="sb-textarea" style="min-height:200px">' + defaultPollOptions() + '</textarea></div>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end">' +
         '<div><label class="sb-label" for="sbPcCloses">마감 시각 (선택)</label><input id="sbPcCloses" class="sb-input" type="datetime-local" /></div>' +
         '<label style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--text);padding-bottom:10px">' +

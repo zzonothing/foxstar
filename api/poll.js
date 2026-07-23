@@ -17,7 +17,7 @@ const { verifyRequest } = require('./_lib/session');
 const { UNION_ID, query } = require('./_lib/db');
 const { verifyMemberIdentity } = require('./_lib/member');
 
-const MAX_OPTIONS = 20;
+const MAX_OPTIONS = 36; // 유레 참여시간 조사(1시간 단위 24슬롯) 수용
 const MAX_TITLE = 100;
 const MAX_LABEL = 50;
 const MAX_NOTE = 200;
@@ -120,7 +120,7 @@ module.exports = async function handler(req, res) {
         .map(o => String(typeof o === 'object' && o !== null ? o.label : o).trim().slice(0, MAX_LABEL))
         .filter(Boolean);
       if (labels.length < 2 || labels.length > MAX_OPTIONS) {
-        return res.status(400).json({ error: '옵션은 2~' + MAX_OPTIONS + '개' });
+        return res.status(400).json({ error: '옵션은 2~' + MAX_OPTIONS + '개 (현재 ' + labels.length + '개)' });
       }
       const options = labels.map((label, i) => ({ id: 'o' + (i + 1), label })); // id 는 서버가 부여
       const multi = b.multi !== false;
