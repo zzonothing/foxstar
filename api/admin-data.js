@@ -1,4 +1,4 @@
-// api/admin-data.js — 게이트 문서(data_docs) 관리자 업로드/조회/삭제
+// api/admin-data.js — 게이트 문서(data_docs) 관리자 업로드/조회
 //
 // 새 시즌 데이터 갱신을 git 커밋 + 재배포 없이 처리하는 경로.
 // scripts/upload-doc.js 가 이 엔드포인트로 파일을 올린다 (curl 도 가능).
@@ -11,16 +11,15 @@
 //   GET    /api/admin-data                → { docs: [{key, bytes, content_hash, updated_at}] }
 //   PUT    /api/admin-data?key=<docKey>   → 본문 = 새 문서 전문. 헤더 X-Doc-Gzip: 1 이면
 //                                           gzip 본문(대형 파일용 — Vercel 요청 4.5MB 한도 회피)
-//   DELETE /api/admin-data?key=sim/detail/<uid>.json → sim detail 문서만 삭제 허용(로스터 변동)
 //
 // 검증: api/_lib/db.js 의 DOC_RULES — js 문서는 `const <GLOBAL> = …` 엔벨로프
-// (strict-JSON 문서는 JSON.parse 통과 필수), sim 문서는 JSON 파싱 필수.
+// (strict-JSON 문서는 JSON.parse 통과 필수).
 // member.js 업로드 시 부수효과로 members 로스터를 동기화한다(실패해도 업로드는 유지).
 
 const zlib = require('zlib');
 const crypto = require('crypto');
 const { verifyRequest } = require('./_lib/session');
-const { query, putDoc, sha1hex, isValidDocKey, validateDocContent, parseDocJson, SIM_DETAIL_KEY_RE } = require('./_lib/db');
+const { query, putDoc, sha1hex, isValidDocKey, validateDocContent, parseDocJson } = require('./_lib/db');
 const { syncRoster } = require('./_lib/history');
 
 const MAX_DOC_BYTES = 32 * 1024 * 1024; // gunzip 팽창 상한 (zip bomb 방어)
@@ -107,18 +106,6 @@ module.exports = async function handler(req, res) {
       }
 
       return res.status(200).json({ ok: true, key, bytes: buf.length, content_hash: sha1hex(text), roster });
-    }
-
-    if (req.method === 'DELETE') {
-      const key = req.query.key;
-      // 실수로 핵심 문서를 지우는 사고 방지 — 로스터 변동으로 불필요해진
-      // sim detail 문서만 삭제를 허용한다.
-      if (!key || !SIM_DETAIL_KEY_RE.test(key)) {
-        return res.status(403).json({ error: 'sim/detail/<uid>.json 만 삭제 가능' });
-      }
-      const rows = await query('DELETE FROM data_docs WHERE key = $1 RETURNING key', [key]);
-      if (!rows.length) return res.status(404).json({ error: '해당 문서 없음' });
-      return res.status(200).json({ ok: true, deleted: key });
     }
 
     return res.status(405).json({ error: 'method not allowed' });

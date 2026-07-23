@@ -3,12 +3,9 @@
 //
 // 사용법 (저장소 루트에서):
 //   ADMIN_KEY=… node scripts/upload-doc.js <docKey> [filePath]
-//   ADMIN_KEY=… node scripts/upload-doc.js --all-sim
 //
 //   docKey  : member.js | raid.js | character.js | solo.js | notice.js
-//             | sim/meta.json | sim/union.json | sim/detail/<uid>.json
 //   filePath: 생략 시 api/_data/<docKey> 를 읽는다.
-//   --all-sim: sim/meta.json + sim/union.json + sim/detail/*.json 일괄 업로드.
 //
 // 환경변수: SITE (기본 https://foxstar.vercel.app), ADMIN_KEY (필수)
 // 3MB 초과 파일은 gzip + X-Doc-Gzip: 1 로 전송해 Vercel 요청 4.5MB 한도를 피한다.
@@ -51,16 +48,6 @@ async function uploadOne(docKey, filePath) {
 
 (async () => {
   const arg = process.argv[2];
-  if (!arg) { console.error('사용법: node scripts/upload-doc.js <docKey>|--all-sim [filePath]'); process.exit(1); }
-
-  if (arg === '--all-sim') {
-    const simDir = path.join(__dirname, '..', 'api', '_data', 'sim');
-    await uploadOne('sim/meta.json');
-    await uploadOne('sim/union.json');
-    for (const f of fs.readdirSync(path.join(simDir, 'detail')).filter(n => n.endsWith('.json')).sort()) {
-      await uploadOne('sim/detail/' + f);
-    }
-    return;
-  }
+  if (!arg) { console.error('사용법: node scripts/upload-doc.js <docKey> [filePath]'); process.exit(1); }
   await uploadOne(arg, process.argv[3]);
 })().catch(e => { console.error('업로드 실패:', e.message || e); process.exit(1); });
