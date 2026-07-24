@@ -21,7 +21,15 @@
 //         members: [{uid,name,syncro:[a,b],acct?,outpost?,hasA}],   (active 로스터 전원)
 //         events:  [{uid,char,t,…}] }   t = acquire|upgrade|skill|item|cube|equip
 //       스냅샷이 2개 미만이거나 a===b 면 members/events 는 빈 배열.
-// from/to: YYYY-MM-DD (KST 날짜, 생략 시 최근 DEFAULT_RANGE_DAYS 일 — diff 는 전체 기간)
+//   ?kind=char-list                  → { date, characters: [{name, owners}] }
+//       (최신 스냅샷 기준 유니온 보유 캐릭터 목록 — 캐릭터 보기 선택 UI 용, 보유자 많은 순)
+//   ?kind=char-union&name=&from=&to= → 캐릭터 1종의 유니온 매트릭스 (history.html 캐릭터 보기).
+//       { compared:{a|null,b}|null, available, rows: [{uid, member, isNew,
+//         a: {up,s:[s1,s2,s3],item:[grade,lvl]|null,cube,atk,eq}|null, b: 동일 }] }
+//       b = 기간 끝 상태(항상), a = 비교 시작 상태(비교 불가 구간이면 null → 현재 상태만 표시).
+//       eq 는 장비 옵션 줄 수(extra 미수집이면 null). isNew 는 기간 내 신규 보유
+//       (diff 와 동일하게 a 시점 수집이 있던 멤버만 true — 신규 인원 오인 방지).
+// from/to: YYYY-MM-DD (KST 날짜, 생략 시 최근 DEFAULT_RANGE_DAYS 일 — diff/char-union 은 전체 기간)
 
 const { verifyRequest } = require('./_lib/session');
 const { UNION_ID, query, kstToday } = require('./_lib/db');
@@ -54,6 +62,15 @@ function snapLE(avail, d) {
   let r = null;
   for (const x of avail) { if (x <= d) r = x; else break; }
   return r;
+}
+
+// 가용 스냅샷 날짜 (멤버·캐릭터 테이블 합집합, 오름차순) — diff/char-union 공용
+async function availDates() {
+  const rows = await query(
+    'SELECT snapshot_date AS d FROM member_daily WHERE union_id = $1 UNION ' +
+    'SELECT snapshot_date FROM character_daily WHERE union_id = $1 ORDER BY d',
+    [UNION_ID]);
+  return rows.map(r => String(r.d).slice(0, 10));
 }
 
 // jsonb 컬럼 방어적 파싱 (드라이버가 객체/문자열 어느 쪽을 주든 수용)
@@ -139,13 +156,7 @@ module.exports = async function handler(req, res) {
     if (kind === 'diff') {
       const reqFrom = DATE_RE.test(req.query.from || '') ? req.query.from : null;
       const reqTo = DATE_RE.test(req.query.to || '') ? req.query.to : null;
-
-      // 가용 스냅샷 날짜 (멤버·캐릭터 테이블 합집합, 오름차순)
-      const dRows = await query(
-        'SELECT snapshot_date AS d FROM member_daily WHERE union_id = $1 UNION ' +
-        'SELECT snapshot_date FROM character_daily WHERE union_id = $1 ORDER BY d',
-        [UNION_ID]);
-      const avail = dRows.map(r => String(r.d).slice(0, 10));
+      const avail = await availDates();
       const base = {
         requested: { from: reqFrom, to: reqTo },
         compared: null,
@@ -249,6 +260,79 @@ module.exports = async function handler(req, res) {
         }
       }
 
+      return res.status(200).json(base);
+    }
+
+    if (kind === 'char-list') {
+      // 최신 스냅샷 날짜의 보유 캐릭터 목록 (보유자 많은 순 → 인기 캐릭터가 앞에)
+      const dRows = await query(
+        'SELECT max(snapshot_date) AS d FROM character_daily WHERE union_id = $1', [UNION_ID]);
+      const date = dRows.length && dRows[0].d ? String(dRows[0].d).slice(0, 10) : null;
+      if (!date) return res.status(200).json({ date: null, characters: [] });
+      const rows = await query(
+        'SELECT char_name AS name, count(*) AS owners FROM character_daily ' +
+        'WHERE union_id = $1 AND snapshot_date = $2 GROUP BY char_name ' +
+        'ORDER BY count(*) DESC, char_name',
+        [UNION_ID, date]);
+      return res.status(200).json({ date, characters: rows.map(r => ({ name: r.name, owners: Number(r.owners) })) });
+    }
+
+    if (kind === 'char-union') {
+      const name = req.query.name;
+      if (!name || name.length > 100) return res.status(400).json({ error: 'name 필요' });
+      const reqFrom = DATE_RE.test(req.query.from || '') ? req.query.from : null;
+      const reqTo = DATE_RE.test(req.query.to || '') ? req.query.to : null;
+      const avail = await availDates();
+      const base = {
+        requested: { from: reqFrom, to: reqTo },
+        compared: null,
+        available: { count: avail.length, first: avail[0] || null, last: avail[avail.length - 1] || null },
+        rows: [],
+      };
+      if (!avail.length) return res.status(200).json(base);
+      // b(기간 끝)는 항상 정하고, a 는 비교 가능한 구간일 때만 — a 없이도 현재 상태 매트릭스는 보여준다
+      const b = reqTo ? (snapLE(avail, reqTo) || avail[0]) : avail[avail.length - 1];
+      let a = reqFrom ? (snapLE(avail, reqFrom) || avail[0]) : avail[0];
+      if (!(a < b)) a = null;
+      base.compared = { a, b };
+
+      const aDate = a || '0001-01-01'; // a 없음 → a 쪽 JOIN 이 자연히 비게 되는 안전값
+      const [rows, aRows] = await Promise.all([
+        query(
+          'SELECT m.uid, m.name AS member, ' +
+          'a.upgrade AS au, a.skill1 AS as1, a.skill2 AS as2, a.skill3 AS as3, a.item_grade AS aig, ' +
+          'a.item_level AS ail, a.cube_level AS ac, a.atk AS aatk, a.extra AS ae, ' +
+          'b.upgrade AS bu, b.skill1 AS bs1, b.skill2 AS bs2, b.skill3 AS bs3, b.item_grade AS big, ' +
+          'b.item_level AS bil, b.cube_level AS bc, b.atk AS batk, b.extra AS be ' +
+          'FROM members m ' +
+          'LEFT JOIN character_daily a ON a.union_id = m.union_id AND a.uid = m.uid AND a.char_name = $2 AND a.snapshot_date = $3 ' +
+          'LEFT JOIN character_daily b ON b.union_id = m.union_id AND b.uid = m.uid AND b.char_name = $2 AND b.snapshot_date = $4 ' +
+          'WHERE m.union_id = $1 AND m.active AND (a.uid IS NOT NULL OR b.uid IS NOT NULL) ORDER BY m.name',
+          [UNION_ID, name, aDate, b]),
+        a ? query('SELECT DISTINCT uid FROM character_daily WHERE union_id = $1 AND snapshot_date = $2', [UNION_ID, a])
+          : Promise.resolve([]),
+      ]);
+      const hadCharsA = new Set(aRows.map(r => r.uid));
+      const pack = (r, p) => {
+        if (r[p + 'u'] == null && r[p + 's1'] == null && r[p + 'atk'] == null) return null; // JOIN 미매치
+        const extra = jsonOrNull(r[p + 'e']);
+        return {
+          up: r[p + 'u'] || null,
+          s: [r[p + 's1'], r[p + 's2'], r[p + 's3']],
+          item: r[p + 'ig'] ? [r[p + 'ig'], r[p + 'il']] : null,
+          cube: r[p + 'c'],
+          atk: r[p + 'atk'],
+          eq: extra ? eqLines(extra) : null,
+        };
+      };
+      base.rows = rows.map(r => {
+        const ra = pack(r, 'a'), rb = pack(r, 'b');
+        return {
+          uid: r.uid, member: r.member,
+          isNew: !!(a && !ra && rb && hadCharsA.has(r.uid)),
+          a: ra, b: rb,
+        };
+      });
       return res.status(200).json(base);
     }
 

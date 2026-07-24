@@ -127,7 +127,8 @@
     .hs-ev img{ width:26px; height:26px; border-radius:5px; object-fit:cover; background:var(--muted); flex-shrink:0; }
     .hs-ev-m{ font-weight:800; color:var(--text); cursor:pointer; flex-shrink:0; }
     .hs-ev-m:hover{ color:var(--blue); }
-    .hs-ev-c{ font-weight:700; color:var(--ink); flex-shrink:0; }
+    .hs-ev-c{ font-weight:700; color:var(--ink); flex-shrink:0; cursor:pointer; }
+    .hs-ev-c:hover{ color:var(--blue); }
     .hs-ev-d{ min-width:0; }
     /* 멤버 성장 상세 — 계정 지표 표 + 캐릭터 변화 그룹 */
     .hs-acct{ display:grid; grid-template-columns:1fr 1fr; gap:0 26px; margin-top:8px; }
@@ -139,6 +140,16 @@
     .hs-acct-d{ min-width:36px; text-align:right; font-weight:800; color:var(--blue); font-size:11px; }
     .hs-mv-grp{ margin-top:13px; }
     .hs-mv-h{ font-size:12px; font-weight:800; color:var(--sub); display:flex; align-items:center; gap:2px; }
+    /* 캐릭터 보기 — 유니온 매트릭스 */
+    .hs-mx{ width:100%; border-collapse:collapse; font-size:12px; margin-top:12px; min-width:660px; }
+    .hs-mx th{ text-align:left; padding:8px 10px; font-size:10px; font-weight:700; color:var(--sub); text-transform:uppercase; border-bottom:2px solid var(--border); white-space:nowrap; }
+    .hs-mx td{ padding:9px 10px; border-bottom:1px solid var(--line); white-space:nowrap; color:var(--sub); font-weight:600; }
+    .hs-mx tr:last-child td{ border-bottom:none; }
+    .hs-mx-new{ color:var(--text); font-weight:800; }
+    .hs-mx-name{ font-weight:800; color:var(--text); cursor:pointer; }
+    .hs-mx-name:hover{ color:var(--blue); }
+    .hs-pill-new{ font-size:10px; font-weight:800; color:var(--ev-acquire); background:var(--elbg-wind); border-radius:999px; padding:1px 7px; margin-left:6px; }
+    .hs-char-pick{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
   </style>
   <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
 </head>
@@ -184,20 +195,28 @@ const state = {
   charName: null,
   charSeries: null,
   charMetric: "atk",   // atk | characterLevel | skills
-  view: "union",       // 보기: "union"(유니온 전체) | "member"(멤버별 상세)
+  view: "union",       // 보기: "union"(유니온 전체) | "member"(멤버별 상세) | "char"(캐릭터별 매트릭스)
   range: "all",        // 성장 요약 기간: "7" | "30" | "all" | "custom"
   from: "", to: "",    // range==="custom" 일 때의 YYYY-MM-DD
   diff: null,           // ?kind=diff 결과 ({error:true} = 실패)
   feedType: "all",     // 변화 피드 필터: "all" | 이벤트 유형
+  charSel: "",         // 캐릭터 보기: 선택 캐릭터 표시명
+  charList: null,       // ?kind=char-list 결과
+  charMatrix: null,     // ?kind=char-union 결과 ({error:true} = 실패)
+  charSort: "invest",  // 매트릭스 정렬: "invest"(투자도) | "growth"(성장)
 };
-// URL 상태 복원 (?view=&uid= / ?range= 또는 ?from=&to=) — 공유·새로고침·로그인 왕복 생존
+// URL 상태 복원 (?view=&uid=&char= / ?range= 또는 ?from=&to=) — 공유·새로고침·로그인 왕복 생존
 (function initRange(){
   const f = readUrlParam("from"), t = readUrlParam("to"), rg = readUrlParam("range");
   if (f || t) { state.range = "custom"; state.from = f || ""; state.to = t || ""; }
   else if (rg === "7" || rg === "30") state.range = rg;
-  if (readUrlParam("view") === "member") state.view = "member";
+  const uv = readUrlParam("view");
+  if (uv === "member") state.view = "member";
+  else if (uv === "char") state.view = "char";
   const uu = readUrlParam("uid");
   if (uu && /^[0-9a-zA-Z]{1,32}$/.test(uu)) state.memberUid = uu;
+  const uc = readUrlParam("char");
+  if (uc && uc.length <= 100) state.charSel = uc;
 })();
 
 function api(url){
@@ -310,6 +329,8 @@ const OPF_LIST = [["common", "공용"], ["attack", "화력형"], ["defense", "�
   ["missilis", "미실리스"], ["elysion", "엘리시온"], ["tetra", "테트라"], ["pilgrim", "필그림"], ["abnormal", "어브노멀"]];
 const OPF_KO = {};
 OPF_LIST.forEach(p => { OPF_KO[p[0]] = p[1]; });
+// 돌파 단계 서열 (캐릭터 매트릭스 투자도 정렬용 — api/history.js 와 동일)
+const UP_ORD = ["명함", "1돌", "2돌", "풀돌", "1코", "2코", "3코", "4코", "5코", "6코", "풀코"];
 
 function diffDays(a, b){ try { return Math.round((new Date(b) - new Date(a)) / 86400000); } catch (e) { return 0; } }
 function hl(s){ return '<b style="color:var(--text)">' + s + '</b>'; } // 변화 후 값 강조
@@ -444,7 +465,7 @@ function summaryBodyHTML(){
       : "";
     const evRows = g.evs.map(e =>
       '<div class="hs-ev">' + charImg(e.char, { style: "width:26px;height:26px;border-radius:5px;object-fit:cover;background:var(--muted)" }) +
-        '<span class="hs-ev-c">' + esc(e.char) + "</span>" +
+        '<span class="hs-ev-c" data-act="pick-char" data-c="' + esc(e.char) + '" title="캐릭터 보기로 이동">' + esc(e.char) + "</span>" +
         '<span class="hs-ev-d"><span class="hs-dot" style="background:' + EVT_COL[e.t] + '"></span>' + evText(e) + "</span></div>").join("");
     return '<div class="hs-grp">' +
       '<div class="hs-grp-head"><span class="hs-ev-m" data-act="pick-member" data-uid="' + esc(g.m.uid) + '" title="아래에서 상세 추이 보기">' + esc(g.m.name) + "</span>" + synBadge +
@@ -472,8 +493,9 @@ function cmpLineHTML(){
 }
 function controlCardHTML(){
   const viewSeg = '<div class="rd-seg">' +
-    "<span" + (state.view !== "member" ? ' class="on"' : "") + ' data-act="view" data-v="union">유니온</span>' +
-    "<span" + (state.view === "member" ? ' class="on"' : "") + ' data-act="view" data-v="member">멤버</span></div>';
+    "<span" + (state.view === "union" ? ' class="on"' : "") + ' data-act="view" data-v="union">유니온</span>' +
+    "<span" + (state.view === "member" ? ' class="on"' : "") + ' data-act="view" data-v="member">멤버</span>' +
+    "<span" + (state.view === "char" ? ' class="on"' : "") + ' data-act="view" data-v="char">캐릭터</span></div>';
   return '<article class="rd-card" style="padding:16px 18px">' +
     '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">' +
       '<div><div class="hs-sec-title">성장 기록</div><div class="hs-sec-sub">유니온 전체 또는 멤버별로 기간 성장을 확인하세요</div></div>' +
@@ -542,7 +564,7 @@ function memberCardHTML(){
         if (!evs.length) return "";
         return '<div class="hs-mv-grp"><div class="hs-mv-h"><span class="hs-dot" style="background:' + ev[2] + '"></span>' + ev[1] + " " + evs.length + "건</div>" +
           evs.map(e => '<div class="hs-ev">' + charImg(e.char, { style: "width:26px;height:26px;border-radius:5px;object-fit:cover;background:var(--muted)" }) +
-            '<span class="hs-ev-c">' + esc(e.char) + '</span><span class="hs-ev-d">' + evText(e) + "</span></div>").join("") + "</div>";
+            '<span class="hs-ev-c" data-act="pick-char" data-c="' + esc(e.char) + '" title="캐릭터 보기로 이동">' + esc(e.char) + '</span><span class="hs-ev-d">' + evText(e) + "</span></div>").join("") + "</div>";
       }).join("");
       if (!charBlocks) charBlocks = '<div class="hs-empty" style="margin-top:10px">이 기간에 감지된 캐릭터 변화가 없어요</div>';
     }
@@ -556,7 +578,108 @@ function memberCardHTML(){
     "</div>" + body + "</article>";
 }
 
-// URL 동기화: 보기(?view=&uid=) + 기간(프리셋 ?range= / 직접 ?from=&to=; 전체 = 없음)
+/* ── 캐릭터 보기: 유니온 매트릭스 (행=보유 멤버, 열=육성 지표, 기간 변화 표시) ── */
+function upIdxC(v){ return UP_ORD.indexOf(String(v || "")); }
+
+// 매트릭스 열 정의: [라벨, 값 추출(표시 문자열|null), 변화 dot 색]
+const MX_COLS = [
+  ["돌파", r => r.up ? esc(r.up) : null, "var(--ev-upgrade)"],
+  ["스킬", r => r.s ? r.s.map(x => x == null ? "-" : x).join("/") : null, "var(--ev-skill)"],
+  ["소장품", r => r.item ? esc(String(r.item[0])) + (r.item[1] != null && r.item[1] !== "" ? " " + esc(String(r.item[1])) : "") : null, "var(--ev-item)"],
+  ["큐브", r => r.cube != null ? "Lv." + r.cube : null, "var(--ev-cube)"],
+  ["장비 옵션", r => r.eq != null ? r.eq + "줄" : null, "var(--ev-equip)"],
+  ["공격력", r => r.atk != null ? Number(r.atk).toLocaleString("en-US") : null, "var(--dim)"]
+];
+
+function mxChangedCount(row){
+  if (!row.a || !row.b) return 0;
+  return MX_COLS.reduce((n, c) => {
+    const va = c[1](row.a), vb = c[1](row.b);
+    return n + (va != null && vb != null && va !== vb ? 1 : 0);
+  }, 0);
+}
+
+function charMatrixHTML(){
+  const mx = state.charMatrix;
+  const rows = (mx.rows || []).filter(r => r.b || r.a);
+  if (!rows.length) return '<div class="hs-empty">이 캐릭터를 보유한 멤버가 없어요</div>';
+  const hasDiff = !!(mx.compared && mx.compared.a);
+
+  const sorted = rows.slice().sort((x, y) => {
+    const inv = r => (r.b ? upIdxC(r.b.up) : -1) * 1e12 + Number((r.b && r.b.atk) || 0);
+    if (state.charSort === "growth") {
+      const g = mxChangedCount(y) + (y.isNew ? 1 : 0) - (mxChangedCount(x) + (x.isNew ? 1 : 0));
+      if (g) return g;
+    }
+    return inv(y) - inv(x);
+  });
+
+  const head = "<tr><th>멤버</th>" + MX_COLS.map(c => "<th>" + c[0] + "</th>").join("") + "</tr>";
+  const body = sorted.map(r => {
+    const cells = MX_COLS.map(c => {
+      const va = r.a ? c[1](r.a) : null, vb = r.b ? c[1](r.b) : null;
+      if (vb == null) return "<td>—</td>";
+      if (hasDiff && va != null && va !== vb) {
+        return '<td title="' + c[0] + " 변화" + '"><span style="color:var(--dim)">' + va + "</span> " +
+          '<span style="color:var(--dim)">→</span> <span class="hs-mx-new">' + vb + "</span>" +
+          ' <span class="hs-dot" style="background:' + c[2] + ';width:6px;height:6px"></span></td>';
+      }
+      return "<td>" + vb + "</td>";
+    }).join("");
+    return '<tr><td><span class="hs-mx-name" data-act="pick-member" data-uid="' + esc(r.uid) + '" title="멤버 보기로 이동">' + esc(r.member) + "</span>" +
+      (r.isNew ? '<span class="hs-pill-new">신규</span>' : "") + "</td>" + cells + "</tr>";
+  }).join("");
+
+  const owners = rows.filter(r => r.b).length;
+  const changed = hasDiff ? rows.filter(r => mxChangedCount(r) > 0 || r.isNew).length : null;
+  const newN = hasDiff ? rows.filter(r => r.isNew).length : 0;
+  const summary = '<div class="hs-dates">' + charImg(state.charSel, { style: "width:30px;height:30px;border-radius:6px;object-fit:cover;background:var(--muted);vertical-align:middle;margin-right:7px" }) +
+    '보유 <b class="tnum" style="color:var(--text)">' + owners + "명</b>" +
+    (changed != null ? ' · 기간 내 변화 <b class="tnum" style="color:var(--text)">' + changed + "명</b>" : "") +
+    (newN ? ' · 신규 보유 <b class="tnum" style="color:var(--ev-acquire)">' + newN + "명</b>" : "") +
+    (hasDiff ? "" : ' · <span style="color:var(--dim)">비교할 이전 스냅샷이 없어 현재 상태만 표시</span>') + "</div>";
+
+  return summary + '<div class="rd-scroll"><table class="hs-mx">' + head + body + "</table></div>";
+}
+
+function charCardHTML(){
+  const list = (state.charList && state.charList.characters) || [];
+  const opts = list.map(c => '<option value="' + esc(c.name) + '"' + (c.name === state.charSel ? " selected" : "") + ">" +
+    esc(c.name) + " (" + c.owners + "명)</option>").join("");
+  const sortSeg = '<div class="rd-seg">' +
+    "<span" + (state.charSort === "invest" ? ' class="on"' : "") + ' data-act="char-sort" data-s="invest">투자도순</span>' +
+    "<span" + (state.charSort === "growth" ? ' class="on"' : "") + ' data-act="char-sort" data-s="growth">성장순</span></div>';
+  let body;
+  if (!state.charSel) body = '<div class="hs-empty">캐릭터를 선택하세요' + (state.charList ? "" : " — 목록을 불러오는 중…") + "</div>";
+  else if (!state.charMatrix) body = '<div class="hs-empty">불러오는 중…</div>';
+  else if (state.charMatrix.error) body = '<div class="hs-empty">매트릭스를 불러오지 못했어요 — 새로고침 해주세요</div>';
+  else body = charMatrixHTML();
+  return '<article class="rd-card" id="hsCharCard" style="padding:16px 18px">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">' +
+      '<div><div class="hs-sec-title">캐릭터별 육성 현황</div><div class="hs-sec-sub">이 캐릭터를 유니온 멤버들이 어떻게 키웠는지 + 기간 내 변화</div></div>' +
+      '<div class="hs-char-pick"><select id="hsCharSel" class="hs-select"><option value="">캐릭터 선택…</option>' + opts + "</select>" + sortSeg + "</div>" +
+    "</div>" + body +
+    '<div class="hs-note">변화(이전 → 현재)는 위에서 고른 기간 기준입니다. 멤버 이름을 누르면 그 멤버의 상세로 이동해요.</div>' +
+  "</article>";
+}
+
+function loadCharList(){
+  if (state.charList) return;
+  api("/api/history?kind=char-list").then(res => {
+    if (res.ok) { state.charList = res.j; render(); }
+  });
+}
+function loadCharMatrix(name){
+  state.charSel = name || "";
+  state.charMatrix = null;
+  render();
+  if (!name) return;
+  api("/api/history?kind=char-union&name=" + encodeURIComponent(name) + rangeQS())
+    .then(res => { state.charMatrix = res.ok ? res.j : { error: true }; render(); })
+    .catch(() => { state.charMatrix = { error: true }; render(); });
+}
+
+// URL 동기화: 보기(?view=&uid=&char=) + 기간(프리셋 ?range= / 직접 ?from=&to=; 전체 = 없음)
 function syncUrl(){
   if (state.range === "custom") {
     writeUrlParam("range", null);
@@ -566,40 +689,54 @@ function syncUrl(){
     writeUrlParam("from", null); writeUrlParam("to", null);
     writeUrlParam("range", state.range === "all" ? null : state.range);
   }
-  writeUrlParam("view", state.view === "member" ? "member" : null);
+  writeUrlParam("view", state.view === "union" ? null : state.view);
   writeUrlParam("uid", state.view === "member" && state.memberUid ? state.memberUid : null);
+  writeUrlParam("char", state.view === "char" && state.charSel ? state.charSel : null);
 }
-function loadDiff(){
-  state.diff = null;
-  render();
-  let q = "?kind=diff";
+// 현재 기간 선택 → API 쿼리 파라미터 (diff·char-union 공용)
+function rangeQS(){
   if (state.range === "7" || state.range === "30") {
     // toISOString 은 UTC 기준이라 KST 새벽엔 하루 어긋날 수 있으나 서버 스냅핑이 흡수
     const dt = new Date();
     dt.setDate(dt.getDate() - Number(state.range));
-    q += "&from=" + dt.toISOString().slice(0, 10);
-  } else if (state.range === "custom") {
-    if (state.from) q += "&from=" + encodeURIComponent(state.from);
-    if (state.to) q += "&to=" + encodeURIComponent(state.to);
+    return "&from=" + dt.toISOString().slice(0, 10);
   }
-  api("/api/history" + q)
+  if (state.range === "custom") {
+    return (state.from ? "&from=" + encodeURIComponent(state.from) : "") +
+      (state.to ? "&to=" + encodeURIComponent(state.to) : "");
+  }
+  return "";
+}
+function loadDiff(){
+  state.diff = null;
+  render();
+  api("/api/history?kind=diff" + rangeQS())
     .then(res => { state.diff = res.ok ? res.j : { error: true }; render(); })
     .catch(() => { state.diff = { error: true }; render(); });
+}
+// 기간이 바뀌면 diff 와 (캐릭터 보기일 때) 매트릭스를 함께 갱신
+function reloadPeriod(){
+  loadDiff();
+  if (state.view === "char" && state.charSel) loadCharMatrix(state.charSel);
 }
 
 /* ═══════════ 렌더 + 이벤트 ═══════════ */
 function render(){
-  document.getElementById("rdContent").innerHTML = controlCardHTML() +
-    (state.view === "member" ? memberCardHTML() + growthSectionHTML() : unionCardHTML());
+  let body;
+  if (state.view === "member") body = memberCardHTML() + growthSectionHTML();
+  else if (state.view === "char") body = charCardHTML();
+  else body = unionCardHTML();
+  document.getElementById("rdContent").innerHTML = controlCardHTML() + body;
 }
 document.addEventListener("change", e => {
   const id = e.target && e.target.id;
   if (id === "hsMember") { loadMember(e.target.value); syncUrl(); }
   else if (id === "hsChar") loadChar(e.target.value);
+  else if (id === "hsCharSel") { loadCharMatrix(e.target.value); syncUrl(); }
   else if (id === "hsFrom" || id === "hsTo") {
     state[id === "hsFrom" ? "from" : "to"] = e.target.value || "";
     syncUrl();
-    loadDiff();
+    reloadPeriod();
   }
 });
 document.addEventListener("click", e => {
@@ -610,6 +747,7 @@ document.addEventListener("click", e => {
     const v = t.dataset.v;
     if (v === state.view) return;
     state.view = v;
+    if (v === "char") loadCharList();
     syncUrl();
     render();
   }
@@ -623,16 +761,28 @@ document.addEventListener("click", e => {
       state.to = state.diff.available.last || "";
     }
     syncUrl();
-    loadDiff();
+    reloadPeriod();
   }
   else if (act === "feed-type") { state.feedType = t.dataset.t; render(); }
+  else if (act === "char-sort") { state.charSort = t.dataset.s; render(); }
   else if (act === "pick-member") {
-    // 유니온 보기에서 멤버 이름 클릭 → 멤버 보기로 전환
+    // 멤버 이름 클릭(유니온 보기·매트릭스) → 멤버 보기로 전환
     state.view = "member";
     loadMember(t.dataset.uid);
     syncUrl();
     requestAnimationFrame(() => {
       const el = document.getElementById("hsMemberCard");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+  else if (act === "pick-char") {
+    // 피드의 캐릭터 이름 클릭 → 캐릭터 보기로 전환
+    state.view = "char";
+    loadCharList();
+    loadCharMatrix(t.dataset.c);
+    syncUrl();
+    requestAnimationFrame(() => {
+      const el = document.getElementById("hsCharCard");
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }
@@ -642,6 +792,7 @@ render();
 markReady();
 loadDiff();
 if (state.memberUid) loadMember(state.memberUid); // URL ?uid= 복원
+if (state.view === "char") { loadCharList(); if (state.charSel) loadCharMatrix(state.charSel); } // URL ?char= 복원
 api("/api/history?kind=members").then(res => { if (res.ok) { state.members = res.j; render(); } });
 
 } catch (e) { console.error(e); if (typeof showDataError === "function") showDataError(); }
