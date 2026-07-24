@@ -113,12 +113,17 @@
     .hs-mover-bar{ display:flex; gap:2px; height:16px; }
     .hs-mover-seg{ height:100%; border-radius:3px; min-width:3px; }
     .hs-mover-n{ min-width:48px; text-align:right; font-size:12px; font-weight:800; color:var(--sub); flex-shrink:0; }
-    /* 변화 피드 */
+    /* 멤버별 변화 (싱크로 높은 순 그룹) */
     .hs-chipbar{ display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
     .hs-dot{ display:inline-block; width:8px; height:8px; border-radius:3px; margin-right:5px; }
-    .hs-feed{ max-height:420px; overflow-y:auto; margin-top:6px; }
-    .hs-ev{ display:flex; align-items:center; gap:9px; padding:7px 2px; border-top:1px solid var(--line); font-size:12px; color:var(--sub); flex-wrap:wrap; }
-    .hs-ev:first-child{ border-top:none; }
+    .hs-feed{ max-height:560px; overflow-y:auto; margin-top:6px; }
+    .hs-grp{ border-top:1px solid var(--line); padding:10px 2px; }
+    .hs-grp:first-child{ border-top:none; }
+    .hs-grp-head{ display:flex; align-items:center; gap:9px; }
+    .hs-grp-syn{ font-size:11px; font-weight:700; color:var(--sub); background:var(--muted); border:1px solid var(--border); border-radius:999px; padding:1px 9px; white-space:nowrap; }
+    .hs-grp-n{ margin-left:auto; font-size:11px; font-weight:800; color:var(--dim); flex-shrink:0; }
+    .hs-grp-acct{ margin:6px 0 0 2px; font-size:11.5px; color:var(--sub); font-weight:600; line-height:1.8; }
+    .hs-ev{ display:flex; align-items:center; gap:9px; padding:6px 0 0 2px; font-size:12px; color:var(--sub); flex-wrap:wrap; }
     .hs-ev img{ width:26px; height:26px; border-radius:5px; object-fit:cover; background:var(--muted); flex-shrink:0; }
     .hs-ev-m{ font-weight:800; color:var(--text); cursor:pointer; flex-shrink:0; }
     .hs-ev-m:hover{ color:var(--blue); }
@@ -295,10 +300,10 @@ EVT.forEach((e, i) => { EVT_COL[e[0]] = e[2]; EVT_KO[e[0]] = e[1]; EVT_ORD[e[0]]
 const PART_KO = { head: "머리", torso: "몸통", arm: "팔", leg: "다리" };
 
 function diffDays(a, b){ try { return Math.round((new Date(b) - new Date(a)) / 86400000); } catch (e) { return 0; } }
+function hl(s){ return '<b style="color:var(--text)">' + s + '</b>'; } // 변화 후 값 강조
 
 // 이벤트 1건의 설명 텍스트 (모든 외부 문자열은 esc)
 function evText(e){
-  const hl = s => '<b style="color:var(--text)">' + s + '</b>';
   if (e.t === "acquire") return "신규 보유" + (e.b ? " · " + hl(esc(e.b)) : "");
   if (e.t === "upgrade") return esc(e.a || "—") + " → " + hl(esc(e.b || "—"));
   if (e.t === "skill") {
@@ -395,26 +400,59 @@ function summaryBodyHTML(){
       moverRows + "</div>"
     : "";
 
-  // ── 변화 피드 (칩 = 범례 + 필터) ──
+  // ── 멤버별 변화 (싱크로 높은 순 그룹핑; 칩 = 범례 + 유형 필터) ──
   const chips = '<div class="hs-chipbar">' +
     '<button type="button" class="hs-metric' + (state.feedType === "all" ? " on" : "") + '" data-act="feed-type" data-t="all">전체 ' + events.length + "</button>" +
     EVT.map(e => '<button type="button" class="hs-metric' + (state.feedType === e[0] ? " on" : "") + '" data-act="feed-type" data-t="' + e[0] + '">' +
       '<span class="hs-dot" style="background:' + e[2] + '"></span>' + e[1] + " " + (cnt[e[0]] || 0) + "</button>").join("") + "</div>";
-  const feedEvents = events.filter(e => state.feedType === "all" || e.t === state.feedType).slice()
-    .sort((x, y) => (EVT_ORD[x.t] - EVT_ORD[y.t]) ||
-      String((byUid[x.uid] || {}).name || "").localeCompare(String((byUid[y.uid] || {}).name || ""), "ko") ||
-      String(x.char).localeCompare(String(y.char), "ko"));
-  const feed = feedEvents.length
-    ? '<div class="hs-feed">' + feedEvents.map(e => {
-        const nm = byUid[e.uid] ? byUid[e.uid].name : e.uid;
-        return '<div class="hs-ev">' + charImg(e.char, { style: "width:26px;height:26px;border-radius:5px;object-fit:cover;background:var(--muted)" }) +
-          '<span class="hs-ev-m" data-act="pick-member" data-uid="' + esc(e.uid) + '">' + esc(nm) + "</span>" +
-          '<span class="hs-ev-c">' + esc(e.char) + "</span>" +
-          '<span class="hs-ev-d"><span class="hs-dot" style="background:' + EVT_COL[e.t] + '"></span>' + evText(e) + "</span></div>";
-      }).join("") + "</div>"
+
+  const ACCT_KO = { normal: "노말", hard: "하드", tribeTower: "타워", overclock: "오버클럭" };
+  const OPF_KO = { common: "공용", attack: "화력형", defense: "방어형", support: "지원형",
+    missilis: "미실리스", elysion: "엘리시온", tetra: "테트라", pilgrim: "필그림", abnormal: "어브노멀" };
+  const evByUid = {};
+  events.forEach(e => { (evByUid[e.uid] = evByUid[e.uid] || []).push(e); });
+
+  const groups = (d.members || []).map(m => {
+    const evs = (evByUid[m.uid] || []).filter(e => state.feedType === "all" || e.t === state.feedType)
+      .slice().sort((x, y) => (EVT_ORD[x.t] - EVT_ORD[y.t]) || String(x.char).localeCompare(String(y.char), "ko"));
+    const syn = m.syncro && m.syncro[0] != null && m.syncro[1] != null && m.syncro[1] > m.syncro[0]
+      ? m.syncro[1] - m.syncro[0] : 0;
+    // 계정 지표 변화 문구 (싱크로는 헤더 배지에 표시하므로 제외)
+    const acctBits = [];
+    if (m.acct) Object.keys(ACCT_KO).forEach(k => {
+      if (m.acct[k]) acctBits.push(ACCT_KO[k] + ' <span class="tnum">' + esc(String(m.acct[k][0])) + " → " + hl(esc(String(m.acct[k][1]))) + "</span>");
+    });
+    if (m.outpost) {
+      const ops = Object.keys(m.outpost).map(k =>
+        (OPF_KO[k] || esc(k)) + ' <span class="tnum">' + esc(String(m.outpost[k][0])) + "→" + hl(esc(String(m.outpost[k][1]))) + "</span>");
+      if (ops.length) acctBits.push("연구소 " + ops.join(" · "));
+    }
+    const cur = m.syncro && m.syncro[1] != null ? m.syncro[1] : (m.syncro ? m.syncro[0] : null);
+    return { m, evs, syn, acctBits, cur };
+  })
+    .filter(g => g.evs.length || (state.feedType === "all" && g.acctBits.length))
+    .sort((a, b) => (b.cur == null ? -1 : b.cur) - (a.cur == null ? -1 : a.cur));
+
+  const grpHTML = groups.map(g => {
+    const synBadge = g.cur != null
+      ? '<span class="hs-grp-syn tnum">싱크로 ' + g.cur + (g.syn ? ' <b style="color:var(--blue)">+' + g.syn + "</b>" : "") + "</span>"
+      : "";
+    const evRows = g.evs.map(e =>
+      '<div class="hs-ev">' + charImg(e.char, { style: "width:26px;height:26px;border-radius:5px;object-fit:cover;background:var(--muted)" }) +
+        '<span class="hs-ev-c">' + esc(e.char) + "</span>" +
+        '<span class="hs-ev-d"><span class="hs-dot" style="background:' + EVT_COL[e.t] + '"></span>' + evText(e) + "</span></div>").join("");
+    return '<div class="hs-grp">' +
+      '<div class="hs-grp-head"><span class="hs-ev-m" data-act="pick-member" data-uid="' + esc(g.m.uid) + '" title="아래에서 상세 추이 보기">' + esc(g.m.name) + "</span>" + synBadge +
+        '<span class="hs-grp-n">' + (g.evs.length ? g.evs.length + "건" : "") + "</span></div>" +
+      (g.acctBits.length ? '<div class="hs-grp-acct">' + g.acctBits.join("&nbsp;&nbsp;·&nbsp;&nbsp;") + "</div>" : "") +
+      evRows + "</div>";
+  }).join("");
+  const feed = groups.length
+    ? '<div class="hs-feed">' + grpHTML + "</div>"
     : '<div class="hs-empty">이 기간에 감지된 변화가 없어요</div>';
   const feedBlock = '<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">' +
-    '<div style="font-size:13px;font-weight:800;color:var(--sub)">변화 피드</div>' + chips + feed + "</div>";
+    '<div style="font-size:13px;font-weight:800;color:var(--sub)">멤버별 변화 <span style="font-weight:600;color:var(--dim)">— 싱크로레벨 높은 순</span></div>' +
+    chips + feed + "</div>";
 
   return cmp + kpis + moversBlock + feedBlock;
 }
