@@ -129,6 +129,16 @@
     .hs-ev-m:hover{ color:var(--blue); }
     .hs-ev-c{ font-weight:700; color:var(--ink); flex-shrink:0; }
     .hs-ev-d{ min-width:0; }
+    /* 멤버 성장 상세 — 계정 지표 표 + 캐릭터 변화 그룹 */
+    .hs-acct{ display:grid; grid-template-columns:1fr 1fr; gap:0 26px; margin-top:8px; }
+    @media (max-width:640px){ .hs-acct{ grid-template-columns:1fr; } }
+    .hs-acct-row{ display:flex; align-items:center; gap:7px; padding:6px 2px; border-bottom:1px solid var(--line); font-size:12px; }
+    .hs-acct-l{ flex:1; color:var(--sub); font-weight:700; }
+    .hs-acct-v{ color:var(--dim); font-weight:700; }
+    .hs-acct-v.b{ color:var(--text); font-weight:800; }
+    .hs-acct-d{ min-width:36px; text-align:right; font-weight:800; color:var(--blue); font-size:11px; }
+    .hs-mv-grp{ margin-top:13px; }
+    .hs-mv-h{ font-size:12px; font-weight:800; color:var(--sub); display:flex; align-items:center; gap:2px; }
   </style>
   <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
 </head>
@@ -174,16 +184,20 @@ const state = {
   charName: null,
   charSeries: null,
   charMetric: "atk",   // atk | characterLevel | skills
+  view: "union",       // 보기: "union"(유니온 전체) | "member"(멤버별 상세)
   range: "all",        // 성장 요약 기간: "7" | "30" | "all" | "custom"
   from: "", to: "",    // range==="custom" 일 때의 YYYY-MM-DD
   diff: null,           // ?kind=diff 결과 ({error:true} = 실패)
   feedType: "all",     // 변화 피드 필터: "all" | 이벤트 유형
 };
-// URL 상태 복원 (?range= 또는 ?from=&to=) — 공유·새로고침·로그인 왕복 생존
+// URL 상태 복원 (?view=&uid= / ?range= 또는 ?from=&to=) — 공유·새로고침·로그인 왕복 생존
 (function initRange(){
   const f = readUrlParam("from"), t = readUrlParam("to"), rg = readUrlParam("range");
   if (f || t) { state.range = "custom"; state.from = f || ""; state.to = t || ""; }
   else if (rg === "7" || rg === "30") state.range = rg;
+  if (readUrlParam("view") === "member") state.view = "member";
+  const uu = readUrlParam("uid");
+  if (uu && /^[0-9a-zA-Z]{1,32}$/.test(uu)) state.memberUid = uu;
 })();
 
 function api(url){
@@ -221,14 +235,9 @@ function lineChartSVG(points, opts){
     dots + '</svg></div>';
 }
 
-/* ═══════════ ① 멤버 성장 섹션 ═══════════ */
+/* ═══════════ 성장 그래프 섹션 (멤버 보기 하단 — 선택은 멤버 카드가 담당) ═══════════ */
 function growthSectionHTML(){
-  const ms = (state.members && state.members.members) || [];
-  const memberOpts = ms.map(m =>
-    '<option value="' + esc(m.uid) + '"' + (m.uid === state.memberUid ? " selected" : "") + '>' +
-    esc(m.name) + (Number(m.days) ? "" : " (기록 없음)") + '</option>').join("");
-
-  let syncroChart = '<div class="hs-empty">멤버를 선택하세요</div>';
+  let syncroChart = '<div class="hs-empty">위에서 멤버를 선택하면 추이 그래프를 보여드려요</div>';
   if (state.memberSeries) {
     syncroChart = lineChartSVG(state.memberSeries.map(r => ({ x: fmtD(r.date), y: r.syncroLevel })), { label: "싱크로 레벨 추이" });
   }
@@ -249,10 +258,7 @@ function growthSectionHTML(){
   }
 
   return '<article class="rd-card" style="padding:16px 18px">' +
-    '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">' +
-      '<div><div class="hs-sec-title">멤버 성장</div><div class="hs-sec-sub">매일 수집된 데이터로 성장 추이를 그립니다</div></div>' +
-      '<select id="hsMember" class="hs-select"><option value="">멤버 선택…</option>' + memberOpts + '</select>' +
-    '</div>' +
+    '<div><div class="hs-sec-title">성장 그래프</div><div class="hs-sec-sub">선택한 멤버의 일자별 추이 (전체 기록 기준)</div></div>' +
     '<div style="margin-top:10px;font-size:13px;font-weight:800;color:var(--sub)">싱크로 레벨</div>' + syncroChart +
     (state.memberUid ?
       '<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
@@ -298,6 +304,12 @@ const EVT = [
 const EVT_COL = {}, EVT_KO = {}, EVT_ORD = {};
 EVT.forEach((e, i) => { EVT_COL[e[0]] = e[2]; EVT_KO[e[0]] = e[1]; EVT_ORD[e[0]] = i; });
 const PART_KO = { head: "머리", torso: "몸통", arm: "팔", leg: "다리" };
+const ACCT_KO = { normal: "노말", hard: "하드", tribeTower: "타워", overclock: "오버클럭" };
+// 연구소 항목 (index.html 의 OPF 와 동일한 라벨·순서)
+const OPF_LIST = [["common", "공용"], ["attack", "화력형"], ["defense", "방어형"], ["support", "지원형"],
+  ["missilis", "미실리스"], ["elysion", "엘리시온"], ["tetra", "테트라"], ["pilgrim", "필그림"], ["abnormal", "어브노멀"]];
+const OPF_KO = {};
+OPF_LIST.forEach(p => { OPF_KO[p[0]] = p[1]; });
 
 function diffDays(a, b){ try { return Math.round((new Date(b) - new Date(a)) / 86400000); } catch (e) { return 0; } }
 function hl(s){ return '<b style="color:var(--text)">' + s + '</b>'; } // 변화 후 값 강조
@@ -339,10 +351,6 @@ function summaryBodyHTML(){
     return '<div class="hs-empty">스냅샷이 2일치 이상 쌓이면 기간 비교를 보여드려요 (현재 ' + ((d.available && d.available.count) || 0) + '일치)</div>';
   if (!d.compared || d.compared.a >= d.compared.b)
     return '<div class="hs-empty">선택한 기간에는 비교할 스냅샷이 1개뿐이에요 — 기간을 넓혀보세요</div>';
-
-  const cmp = '<div class="hs-dates">실제 비교: <b class="tnum" style="color:var(--text)">' + esc(fmtD(d.compared.a)) +
-    '</b> → <b class="tnum" style="color:var(--text)">' + esc(fmtD(d.compared.b)) + "</b> (" +
-    diffDays(d.compared.a, d.compared.b) + "일간) · 스냅샷 " + d.available.count + "일치</div>";
 
   // ── 집계 ──
   const events = d.events || [];
@@ -406,9 +414,6 @@ function summaryBodyHTML(){
     EVT.map(e => '<button type="button" class="hs-metric' + (state.feedType === e[0] ? " on" : "") + '" data-act="feed-type" data-t="' + e[0] + '">' +
       '<span class="hs-dot" style="background:' + e[2] + '"></span>' + e[1] + " " + (cnt[e[0]] || 0) + "</button>").join("") + "</div>";
 
-  const ACCT_KO = { normal: "노말", hard: "하드", tribeTower: "타워", overclock: "오버클럭" };
-  const OPF_KO = { common: "공용", attack: "화력형", defense: "방어형", support: "지원형",
-    missilis: "미실리스", elysion: "엘리시온", tetra: "테트라", pilgrim: "필그림", abnormal: "어브노멀" };
   const evByUid = {};
   events.forEach(e => { (evByUid[e.uid] = evByUid[e.uid] || []).push(e); });
 
@@ -454,20 +459,104 @@ function summaryBodyHTML(){
     '<div style="font-size:13px;font-weight:800;color:var(--sub)">멤버별 변화 <span style="font-weight:600;color:var(--dim)">— 싱크로레벨 높은 순</span></div>' +
     chips + feed + "</div>";
 
-  return cmp + kpis + moversBlock + feedBlock;
+  return kpis + moversBlock + feedBlock;
 }
 
-function summarySectionHTML(){
+/* ── 상단 컨트롤 카드: 보기 선택(유니온|멤버) + 기간 + 실제 비교 날짜 ── */
+function cmpLineHTML(){
+  const d = state.diff;
+  if (!d || d.error || !d.compared || !(d.compared.a < d.compared.b)) return "";
+  return '<div class="hs-dates">실제 비교: <b class="tnum" style="color:var(--text)">' + esc(fmtD(d.compared.a)) +
+    '</b> → <b class="tnum" style="color:var(--text)">' + esc(fmtD(d.compared.b)) + "</b> (" +
+    diffDays(d.compared.a, d.compared.b) + "일간) · 스냅샷 " + d.available.count + "일치</div>";
+}
+function controlCardHTML(){
+  const viewSeg = '<div class="rd-seg">' +
+    "<span" + (state.view !== "member" ? ' class="on"' : "") + ' data-act="view" data-v="union">유니온</span>' +
+    "<span" + (state.view === "member" ? ' class="on"' : "") + ' data-act="view" data-v="member">멤버</span></div>';
   return '<article class="rd-card" style="padding:16px 18px">' +
     '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">' +
-      '<div><div class="hs-sec-title">유니온 성장 요약</div><div class="hs-sec-sub">선택한 기간 동안 유니온 전체가 얼마나 성장했는지 한눈에</div></div>' +
-      rangeSegHTML() +
-    "</div>" + summaryBodyHTML() +
+      '<div><div class="hs-sec-title">성장 기록</div><div class="hs-sec-sub">유니온 전체 또는 멤버별로 기간 성장을 확인하세요</div></div>' +
+      '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' + viewSeg + rangeSegHTML() + "</div>" +
+    "</div>" + cmpLineHTML() + "</article>";
+}
+
+/* ── 유니온 보기 ── */
+function unionCardHTML(){
+  return '<article class="rd-card" style="padding:16px 18px">' + summaryBodyHTML() +
     '<div class="hs-note">일 1회 수집되는 스냅샷 기준 비교입니다. 장비 옵션은 수집을 시작한 2026-07-24 이후 구간부터 비교돼요.</div>' +
   "</article>";
 }
 
-// URL 동기화: 프리셋은 ?range=, 직접 입력은 ?from=&to= (전체 = 파라미터 없음)
+/* ── 멤버 보기: 계정 지표 표 + 캐릭터 변화 그룹 (기간은 컨트롤 카드와 공유) ── */
+// 시계열에서 date 이하 마지막 스냅샷 행 (없으면 첫 행) — 서버 스냅핑과 동일 규칙
+function seriesAt(series, date){
+  let r = null;
+  for (const row of series) { if (String(row.date).slice(0, 10) <= date) r = row; else break; }
+  return r || series[0] || null;
+}
+function acctRowsHTML(ra, rb){
+  const g = (r, k) => r && r.fields && r.fields[k] != null ? r.fields[k] : null;
+  const go = (r, k) => r && r.fields && r.fields.outpost && r.fields.outpost[k] != null ? r.fields.outpost[k] : null;
+  const items = [["싱크로 레벨", ra ? ra.syncroLevel : null, rb ? rb.syncroLevel : null]];
+  [["normal", "노말 진행"], ["hard", "하드 진행"], ["tribeTower", "타워"], ["overclock", "오버클럭"]]
+    .forEach(p => items.push([p[1], g(ra, p[0]), g(rb, p[0])]));
+  OPF_LIST.forEach(p => items.push(["연구소 " + p[1], go(ra, p[0]), go(rb, p[0])]));
+  return items.map(it => {
+    const va = it[1], vb = it[2];
+    const changed = va != null && vb != null && String(va) !== String(vb);
+    let delta = null; // 숫자 지표만 ±표시 (노말 "41-3" 류는 '변경')
+    if (changed) { const n = Number(vb) - Number(va); if (isFinite(n) && n !== 0) delta = n; }
+    return '<div class="hs-acct-row"><span class="hs-acct-l">' + it[0] + "</span>" +
+      '<span class="hs-acct-v tnum">' + (va == null ? "—" : esc(String(va))) + "</span>" +
+      '<span style="color:var(--dim)">→</span>' +
+      '<span class="hs-acct-v tnum' + (changed ? " b" : "") + '">' + (vb == null ? "—" : esc(String(vb))) + "</span>" +
+      '<span class="hs-acct-d">' + (delta != null ? (delta > 0 ? "+" + delta : delta) : (changed ? "변경" : "")) + "</span></div>";
+  }).join("");
+}
+function memberCardHTML(){
+  const ms = (state.members && state.members.members) || [];
+  const opts = ms.map(m => '<option value="' + esc(m.uid) + '"' + (m.uid === state.memberUid ? " selected" : "") + '>' +
+    esc(m.name) + (Number(m.days) ? "" : " (기록 없음)") + "</option>").join("");
+  let body;
+  const d = state.diff;
+  if (!state.memberUid) {
+    body = '<div class="hs-empty">멤버를 선택하세요</div>';
+  } else {
+    let acct;
+    if (!d || d.error) acct = '<div class="hs-empty">기간 정보를 불러오는 중…</div>';
+    else if (!d.compared || !(d.compared.a < d.compared.b)) acct = '<div class="hs-empty">비교할 스냅샷이 부족해요 — 기간을 넓혀보세요</div>';
+    else if (!state.memberSeries) acct = '<div class="hs-empty">불러오는 중…</div>';
+    else {
+      const ra = seriesAt(state.memberSeries, d.compared.a);
+      const rb = seriesAt(state.memberSeries, d.compared.b);
+      acct = ra && rb && ra !== rb
+        ? '<div class="hs-acct">' + acctRowsHTML(ra, rb) + "</div>"
+        : '<div class="hs-empty">이 기간에 이 멤버의 스냅샷이 부족해요</div>';
+    }
+    let charBlocks = "";
+    if (d && !d.error && d.events && d.compared && d.compared.a < d.compared.b) {
+      const mine = d.events.filter(e => e.uid === state.memberUid);
+      charBlocks = EVT.map(ev => {
+        const evs = mine.filter(e => e.t === ev[0]);
+        if (!evs.length) return "";
+        return '<div class="hs-mv-grp"><div class="hs-mv-h"><span class="hs-dot" style="background:' + ev[2] + '"></span>' + ev[1] + " " + evs.length + "건</div>" +
+          evs.map(e => '<div class="hs-ev">' + charImg(e.char, { style: "width:26px;height:26px;border-radius:5px;object-fit:cover;background:var(--muted)" }) +
+            '<span class="hs-ev-c">' + esc(e.char) + '</span><span class="hs-ev-d">' + evText(e) + "</span></div>").join("") + "</div>";
+      }).join("");
+      if (!charBlocks) charBlocks = '<div class="hs-empty" style="margin-top:10px">이 기간에 감지된 캐릭터 변화가 없어요</div>';
+    }
+    body = '<div style="margin-top:12px;font-size:13px;font-weight:800;color:var(--sub)">계정 지표 변화</div>' + acct +
+      '<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;font-weight:800;color:var(--sub)">캐릭터 변화</div>' + charBlocks;
+  }
+  return '<article class="rd-card" id="hsMemberCard" style="padding:16px 18px">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">' +
+      '<div><div class="hs-sec-title">멤버 성장 상세</div><div class="hs-sec-sub">선택한 기간 동안 이 멤버의 계정·캐릭터 변화</div></div>' +
+      '<select id="hsMember" class="hs-select"><option value="">멤버 선택…</option>' + opts + "</select>" +
+    "</div>" + body + "</article>";
+}
+
+// URL 동기화: 보기(?view=&uid=) + 기간(프리셋 ?range= / 직접 ?from=&to=; 전체 = 없음)
 function syncUrl(){
   if (state.range === "custom") {
     writeUrlParam("range", null);
@@ -477,6 +566,8 @@ function syncUrl(){
     writeUrlParam("from", null); writeUrlParam("to", null);
     writeUrlParam("range", state.range === "all" ? null : state.range);
   }
+  writeUrlParam("view", state.view === "member" ? "member" : null);
+  writeUrlParam("uid", state.view === "member" && state.memberUid ? state.memberUid : null);
 }
 function loadDiff(){
   state.diff = null;
@@ -498,11 +589,12 @@ function loadDiff(){
 
 /* ═══════════ 렌더 + 이벤트 ═══════════ */
 function render(){
-  document.getElementById("rdContent").innerHTML = summarySectionHTML() + growthSectionHTML();
+  document.getElementById("rdContent").innerHTML = controlCardHTML() +
+    (state.view === "member" ? memberCardHTML() + growthSectionHTML() : unionCardHTML());
 }
 document.addEventListener("change", e => {
   const id = e.target && e.target.id;
-  if (id === "hsMember") loadMember(e.target.value);
+  if (id === "hsMember") { loadMember(e.target.value); syncUrl(); }
   else if (id === "hsChar") loadChar(e.target.value);
   else if (id === "hsFrom" || id === "hsTo") {
     state[id === "hsFrom" ? "from" : "to"] = e.target.value || "";
@@ -514,6 +606,13 @@ document.addEventListener("click", e => {
   const t = e.target.closest("[data-act]"); if (!t) return;
   const act = t.dataset.act;
   if (act === "metric") { state.charMetric = t.dataset.m; render(); if (state.charName) loadChar(state.charName); }
+  else if (act === "view") {
+    const v = t.dataset.v;
+    if (v === state.view) return;
+    state.view = v;
+    syncUrl();
+    render();
+  }
   else if (act === "range") {
     const r = t.dataset.r;
     if (r === state.range) return;
@@ -528,10 +627,13 @@ document.addEventListener("click", e => {
   }
   else if (act === "feed-type") { state.feedType = t.dataset.t; render(); }
   else if (act === "pick-member") {
+    // 유니온 보기에서 멤버 이름 클릭 → 멤버 보기로 전환
+    state.view = "member";
     loadMember(t.dataset.uid);
+    syncUrl();
     requestAnimationFrame(() => {
-      const el = document.getElementById("hsMember");
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      const el = document.getElementById("hsMemberCard");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }
 });
@@ -539,6 +641,7 @@ document.addEventListener("click", e => {
 render();
 markReady();
 loadDiff();
+if (state.memberUid) loadMember(state.memberUid); // URL ?uid= 복원
 api("/api/history?kind=members").then(res => { if (res.ok) { state.members = res.j; render(); } });
 
 } catch (e) { console.error(e); if (typeof showDataError === "function") showDataError(); }
