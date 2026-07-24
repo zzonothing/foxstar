@@ -10,7 +10,9 @@
 //   ?kind=member&uid=&from=&to=      → { series: [{date, syncroLevel, fields}] }
 //   ?kind=characters&uid=            → { characters: [{name, days, last}] } (캐릭터 선택 UI 용)
 //   ?kind=character&uid=&name=&from=&to= → { series: [{date, characterLevel, skill1..3,
-//                                              upgrade, itemLevel, cubeLevel, atk, hp, def}] }
+//                                              upgrade, itemLevel, cubeLevel, atk, hp, def,
+//                                              extra}] }  (extra: 장비 옵션·큐브명 —
+//                                              api/_lib/history.js buildCharExtra 형식, 없으면 null)
 // from/to: YYYY-MM-DD (KST 날짜, 생략 시 최근 DEFAULT_RANGE_DAYS 일)
 
 const { verifyRequest } = require('./_lib/session');
@@ -81,7 +83,7 @@ module.exports = async function handler(req, res) {
       const { from, to } = rangeOf(req);
       const rows = await query(
         'SELECT snapshot_date AS date, character_level, skill1, skill2, skill3, upgrade, ' +
-        'item_grade, item_level, cube_level, atk, hp, def FROM character_daily ' +
+        'item_grade, item_level, cube_level, atk, hp, def, extra FROM character_daily ' +
         'WHERE union_id = $1 AND uid = $2 AND char_name = $3 AND snapshot_date BETWEEN $4 AND $5 ORDER BY snapshot_date',
         [UNION_ID, uid, name, from, to]);
       return res.status(200).json({
@@ -91,6 +93,7 @@ module.exports = async function handler(req, res) {
           skill1: r.skill1, skill2: r.skill2, skill3: r.skill3,
           upgrade: r.upgrade, itemGrade: r.item_grade, itemLevel: r.item_level,
           cubeLevel: r.cube_level, atk: r.atk, hp: r.hp, def: r.def,
+          extra: r.extra || null,
         })),
       });
     }
