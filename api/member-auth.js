@@ -4,8 +4,9 @@
 // 페이지(submit.html)가 쓰는 상태 조회와 자기 관리·관리자 기능만 남긴다.
 //
 // 메서드:
-//   GET  /api/member-auth → { admin, me: {uid,name}|null, roster: [{uid,name,claimed}] }
-//                           (roster 는 관리자 PIN 초기화 드롭다운용; 세션 필수)
+//   GET  /api/member-auth → { admin, me: {uid,name}|null,
+//                             roster: [{uid,name,claimed,claimed_at,is_admin}] }
+//                           (roster 는 관리자 페이지의 인증 상태 목록/PIN 초기화용; 세션 필수)
 //   POST /api/member-auth   body: { action, … }
 //     action=logout             — 이 기기에서 로그아웃 (멤버·세션 쿠키 모두 삭제)
 //     action=changePin {pin}    — 로그인한 본인의 PIN 변경 (로그인 유지)
@@ -36,7 +37,7 @@ module.exports = async function handler(req, res) {
       const me = await verifyMemberIdentity(req);
       if (me && me.renewCookie) res.setHeader('Set-Cookie', me.renewCookie); // 슬라이딩 갱신
       const roster = await query(
-        'SELECT uid, name, (pin_hash IS NOT NULL) AS claimed FROM members ' +
+        'SELECT uid, name, (pin_hash IS NOT NULL) AS claimed, claimed_at, is_admin FROM members ' +
         'WHERE union_id = $1 AND active ORDER BY name',
         [UNION_ID]
       );

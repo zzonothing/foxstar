@@ -168,7 +168,7 @@
   var roster = null;  // [{name, claimed}]
 
   // return 파라미터 화이트리스트 검증 — same-origin 의 알려진 페이지만 허용
-  var ALLOWED_PATHS = ["/", "/index.html", "/notice.html", "/raid.html", "/submit.html", "/solo.html", "/shift.html", "/stats.html", "/history.html", "/guide.html"];
+  var ALLOWED_PATHS = ["/", "/index.html", "/notice.html", "/raid.html", "/submit.html", "/solo.html", "/shift.html", "/stats.html", "/history.html", "/guide.html", "/admin.html"];
   function getReturnPath() {
     try {
       var raw = new URLSearchParams(location.search).get("return");
@@ -248,6 +248,8 @@
     }).then(function(res) {
       if (res.ok) {
         try { if (res.j && res.j.me && res.j.me.name) localStorage.setItem("fstarNick", res.j.me.name); } catch (e) {}
+        // 관리자 여부 힌트 저장 (common.js 가 nav 에 '관리자' 탭 노출 여부로 사용)
+        try { localStorage.setItem("fstarAdmin", res.j && res.j.admin ? "1" : "0"); } catch (e) {}
         location.replace(getReturnPath());
       } else {
         onFail(res.j && res.j.error);
@@ -288,7 +290,11 @@
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ mode: "refresh" })
   }).then(function(r) { return r.ok ? r.json() : null; }).then(function(j) {
-    if (j && j.ok) { location.replace(getReturnPath()); return; }
+    if (j && j.ok) {
+      try { localStorage.setItem("fstarAdmin", j.admin ? "1" : "0"); } catch (e) {}
+      location.replace(getReturnPath());
+      return;
+    }
     err.textContent = "";
     loadRoster();
   }).catch(function() { err.textContent = ""; loadRoster(); });
