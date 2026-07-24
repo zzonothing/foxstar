@@ -58,6 +58,9 @@ CREATE INDEX IF NOT EXISTS member_daily_date_idx
 
 -- 캐릭터 데일리 히스토리: 멤버×캐릭터×날짜당 1 row.
 -- char_name 은 표시명("이름" 또는 "이름 : 서브명") — raid.js squad 표기와 동일.
+-- extra 는 장비 옵션·큐브명 jsonb: {"eq":{"head":[["ammo",68.93],…],…},"cube":"큐브명"}
+--   (api/_lib/history.js buildCharExtra — effect 축약 코드는 그 파일의 EFFECT_CODE).
+--   장비 옵션·큐브 둘 다 없으면 NULL. 적재 시작 시점부터의 변화만 diff 가능.
 CREATE TABLE IF NOT EXISTS character_daily (
   union_id        smallint NOT NULL DEFAULT 1,
   uid             text NOT NULL,
