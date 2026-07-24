@@ -88,18 +88,42 @@
     .hs-chart svg{ width:100%; height:auto; display:block; }
     .hs-empty{ padding:26px 0; text-align:center; font-size:13px; color:var(--sub); font-weight:600; }
     .hs-note{ font-size:11px; color:var(--dim); margin-top:8px; }
-    /* 레이드 메타 — 시즌별 막대 */
-    .hs-bars{ display:flex; align-items:flex-end; gap:10px; height:150px; margin-top:14px; padding:0 4px; }
-    .hs-bar-col{ flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; min-width:0; }
-    .hs-bar{ width:100%; max-width:46px; border-radius:6px 6px 0 0; background:var(--blue); min-height:2px; transition:height .25s; }
-    .hs-bar-v{ font-size:12px; font-weight:800; color:var(--text); }
-    .hs-bar-s{ font-size:11px; font-weight:700; color:var(--sub); }
-    /* 인기 덱 목록 */
-    .hs-deck-row{ display:flex; align-items:center; gap:12px; padding:9px 0; border-top:1px solid var(--line); }
-    .hs-deck-row:first-child{ border-top:none; }
-    .hs-deck-rank{ width:26px; font-size:13px; font-weight:800; color:var(--dim); text-align:center; flex-shrink:0; }
-    .hs-deck-chips{ display:flex; gap:4px; flex-wrap:wrap; flex:1; }
-    .hs-deck-cnt{ font-size:13px; font-weight:800; color:var(--text); flex-shrink:0; }
+    /* ── 유니온 성장 요약 ─────────────────────────────────────
+       이벤트 유형 색: 고정 순서(신규보유·스킬·돌파·큐브·소장품·장비).
+       라이트/다크 각각 색각이상(CVD)·대비 검증 통과 팔레트 — 순서를 바꾸면
+       인접쌍 검증이 깨질 수 있으니 스택/범례 순서(EVT)와 함께 유지할 것. */
+    :root{ --ev-acquire:#22c55e; --ev-skill:#3b82f6; --ev-upgrade:#ef4444; --ev-cube:#a855f7; --ev-item:#f59e0b; --ev-equip:#0891b2; }
+    html.dark{ --ev-acquire:#16a34a; --ev-item:#d97706; }
+    /* 기간 선택 */
+    .hs-range{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .hs-date-in{ height:34px; padding:0 8px; border:1.5px solid var(--border); border-radius:9px; background:var(--muted); color:var(--text); font-family:inherit; font-size:13px; outline:none; }
+    .hs-date-in:focus{ border-color:var(--blue); }
+    .hs-dates{ font-size:12px; color:var(--sub); font-weight:600; margin-top:10px; }
+    /* KPI 타일 */
+    .hs-kpis{ display:grid; grid-template-columns:repeat(auto-fit,minmax(112px,1fr)); gap:8px; margin-top:12px; }
+    .hs-kpi{ background:var(--muted); border:1px solid var(--border); border-radius:10px; padding:9px 8px; text-align:center; }
+    .hs-kpi-l{ font-size:10px; color:var(--dim); font-weight:700; margin-bottom:2px; white-space:nowrap; }
+    .hs-kpi-v{ font-size:15px; font-weight:800; color:var(--text); }
+    .hs-kpi-s{ font-size:10px; color:var(--sub); font-weight:600; margin-top:1px; }
+    /* Top 성장 멤버 — 이벤트 유형 스택 막대 */
+    .hs-mover{ display:flex; align-items:center; gap:10px; padding:6px 0; }
+    .hs-mover-name{ width:88px; flex-shrink:0; font-size:12px; font-weight:800; color:var(--text); cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .hs-mover-name:hover{ color:var(--blue); }
+    .hs-mover-track{ flex:1; min-width:0; }
+    .hs-mover-bar{ display:flex; gap:2px; height:16px; }
+    .hs-mover-seg{ height:100%; border-radius:3px; min-width:3px; }
+    .hs-mover-n{ min-width:48px; text-align:right; font-size:12px; font-weight:800; color:var(--sub); flex-shrink:0; }
+    /* 변화 피드 */
+    .hs-chipbar{ display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+    .hs-dot{ display:inline-block; width:8px; height:8px; border-radius:3px; margin-right:5px; }
+    .hs-feed{ max-height:420px; overflow-y:auto; margin-top:6px; }
+    .hs-ev{ display:flex; align-items:center; gap:9px; padding:7px 2px; border-top:1px solid var(--line); font-size:12px; color:var(--sub); flex-wrap:wrap; }
+    .hs-ev:first-child{ border-top:none; }
+    .hs-ev img{ width:26px; height:26px; border-radius:5px; object-fit:cover; background:var(--muted); flex-shrink:0; }
+    .hs-ev-m{ font-weight:800; color:var(--text); cursor:pointer; flex-shrink:0; }
+    .hs-ev-m:hover{ color:var(--blue); }
+    .hs-ev-c{ font-weight:700; color:var(--ink); flex-shrink:0; }
+    .hs-ev-d{ min-width:0; }
   </style>
   <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
 </head>
@@ -117,8 +141,9 @@
 </main>
 
 <script src="data/config.js" onerror="window.__DATA_ERROR=1"></script>
+<!-- member.js 는 이 페이지의 데이터 소스는 아니지만, 미인증 시 __AUTH_REQUIRED
+     센티널을 세워 로그인 리다이렉트를 발동시키는 인증 게이트 역할로 유지한다 -->
 <script src="data/member.js" onerror="window.__DATA_ERROR=1"></script>
-<script src="data/raid.js" onerror="window.__DATA_ERROR=1"></script>
 
 <!-- ═══════════ 공통 스크립트 (헬퍼·테마·인증·모달) ═══════════ -->
 <script src="js/common.js?v=9"></script>
@@ -144,9 +169,17 @@ const state = {
   charName: null,
   charSeries: null,
   charMetric: "atk",   // atk | characterLevel | skills
-  metaChar: null,       // 레이드 메타: 선택 캐릭터
-  metaSeason: null,     // 인기 덱: 선택 시즌
+  range: "all",        // 성장 요약 기간: "7" | "30" | "all" | "custom"
+  from: "", to: "",    // range==="custom" 일 때의 YYYY-MM-DD
+  diff: null,           // ?kind=diff 결과 ({error:true} = 실패)
+  feedType: "all",     // 변화 피드 필터: "all" | 이벤트 유형
 };
+// URL 상태 복원 (?range= 또는 ?from=&to=) — 공유·새로고침·로그인 왕복 생존
+(function initRange(){
+  const f = readUrlParam("from"), t = readUrlParam("to"), rg = readUrlParam("range");
+  if (f || t) { state.range = "custom"; state.from = f || ""; state.to = t || ""; }
+  else if (rg === "7" || rg === "30") state.range = rg;
+})();
 
 function api(url){
   return fetch(url).then(r => r.json().catch(() => ({})).then(j => ({ ok: r.ok, j: j })));
@@ -246,95 +279,228 @@ function loadChar(name){
   });
 }
 
-/* ═══════════ ② 레이드 메타 섹션 (RAID 전역 클라이언트 집계) ═══════════ */
-const RAID_SEASONS = Object.keys(RAID).sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)));
+/* ═══════════ ② 유니온 성장 요약 (기간 diff — /api/history?kind=diff) ═══════════ */
+// 이벤트 유형: 표시명·색 CSS 변수. 배열 순서 = 스택 막대/범례/피드 정렬의
+// 고정 순서 — 색과 함께 CVD 검증을 통과한 조합이므로 순서를 함부로 바꾸지 말 것.
+const EVT = [
+  ["acquire", "신규 보유", "var(--ev-acquire)"],
+  ["skill",   "스킬",      "var(--ev-skill)"],
+  ["upgrade", "돌파·코어", "var(--ev-upgrade)"],
+  ["cube",    "큐브",      "var(--ev-cube)"],
+  ["item",    "소장품",    "var(--ev-item)"],
+  ["equip",   "장비 옵션", "var(--ev-equip)"]
+];
+const EVT_COL = {}, EVT_KO = {}, EVT_ORD = {};
+EVT.forEach((e, i) => { EVT_COL[e[0]] = e[2]; EVT_KO[e[0]] = e[1]; EVT_ORD[e[0]] = i; });
+const PART_KO = { head: "머리", torso: "몸통", arm: "팔", leg: "다리" };
 
-// 시즌별 사용 횟수 집계: usage[name][season] = 그 캐릭터가 포함된 덱(라이드 기록) 수
-const META = (function(){
-  const usage = {}; // name → { season → count }
-  const totals = {}; // name → 전체 합
-  const decksBySeason = {}; // season → { comboKey → { names, count } }
-  RAID_SEASONS.forEach(season => {
-    decksBySeason[season] = {};
-    (RAID[season] || []).forEach(member => {
-      (member.raids || []).forEach(r => {
-        const names = (r.squad || []).map(c => c && c.name).filter(Boolean);
-        const uniq = [...new Set(names)];
-        uniq.forEach(n => {
-          (usage[n] = usage[n] || {})[season] = (usage[n][season] || 0) + 1;
-          totals[n] = (totals[n] || 0) + 1;
-        });
-        if (names.length) {
-          const key = names.slice().sort().join("|");
-          const slot = decksBySeason[season][key] || (decksBySeason[season][key] = { names: names.slice(), count: 0 });
-          slot.count++;
-        }
-      });
+function diffDays(a, b){ try { return Math.round((new Date(b) - new Date(a)) / 86400000); } catch (e) { return 0; } }
+
+// 이벤트 1건의 설명 텍스트 (모든 외부 문자열은 esc)
+function evText(e){
+  const hl = s => '<b style="color:var(--text)">' + s + '</b>';
+  if (e.t === "acquire") return "신규 보유" + (e.b ? " · " + hl(esc(e.b)) : "");
+  if (e.t === "upgrade") return esc(e.a || "—") + " → " + hl(esc(e.b || "—"));
+  if (e.t === "skill") {
+    const f = a => (a || []).map(v => v == null ? "-" : v).join("/");
+    return "스킬 " + f(e.a) + " → " + hl(f(e.b)) + ' <span class="tnum">(+' + (e.d || 0) + ")</span>";
+  }
+  if (e.t === "item") {
+    const g = p => p ? esc(String(p[0])) + (p[1] != null && p[1] !== "" ? " " + esc(String(p[1])) : "") : "";
+    return "소장품 " + (e.a ? g(e.a) + " → " : "장착 ") + hl(g(e.b));
+  }
+  if (e.t === "cube") return '큐브 <span class="tnum">Lv.' + (e.a == null ? 0 : e.a) + " → " + hl(e.b) + "</span>";
+  if (e.t === "equip") return '장비 옵션 <span class="tnum">' + e.a + "줄 → " + hl(e.b + "줄") + "</span>" +
+    (e.parts && e.parts.length ? " (" + e.parts.map(p => PART_KO[p] || esc(p)).join("·") + ")" : "");
+  return "";
+}
+
+function rangeSegHTML(){
+  const RANGES = [["7", "7일"], ["30", "30일"], ["all", "전체"], ["custom", "직접"]];
+  return '<div class="hs-range"><div class="rd-seg">' + RANGES.map(r =>
+    "<span" + (state.range === r[0] ? ' class="on"' : "") + ' data-act="range" data-r="' + r[0] + '">' + r[1] + "</span>").join("") + "</div>" +
+    (state.range === "custom"
+      ? '<input type="date" id="hsFrom" class="hs-date-in" value="' + esc(state.from || "") + '" aria-label="시작일" />' +
+        '<span style="color:var(--dim)">→</span>' +
+        '<input type="date" id="hsTo" class="hs-date-in" value="' + esc(state.to || "") + '" aria-label="종료일" />'
+      : "") + "</div>";
+}
+
+function summaryBodyHTML(){
+  const d = state.diff;
+  if (!d) return '<div class="hs-empty">불러오는 중…</div>';
+  if (d.error) return '<div class="hs-empty">요약을 불러오지 못했어요 — 새로고침 해주세요</div>';
+  if (!d.available || d.available.count < 2)
+    return '<div class="hs-empty">스냅샷이 2일치 이상 쌓이면 기간 비교를 보여드려요 (현재 ' + ((d.available && d.available.count) || 0) + '일치)</div>';
+  if (!d.compared || d.compared.a >= d.compared.b)
+    return '<div class="hs-empty">선택한 기간에는 비교할 스냅샷이 1개뿐이에요 — 기간을 넓혀보세요</div>';
+
+  const cmp = '<div class="hs-dates">실제 비교: <b class="tnum" style="color:var(--text)">' + esc(fmtD(d.compared.a)) +
+    '</b> → <b class="tnum" style="color:var(--text)">' + esc(fmtD(d.compared.b)) + "</b> (" +
+    diffDays(d.compared.a, d.compared.b) + "일간) · 스냅샷 " + d.available.count + "일치</div>";
+
+  // ── 집계 ──
+  const events = d.events || [];
+  const cnt = {};
+  let skillLv = 0, cubeLv = 0;
+  events.forEach(e => {
+    cnt[e.t] = (cnt[e.t] || 0) + 1;
+    if (e.t === "skill") skillLv += e.d || 0;
+    if (e.t === "cube") cubeLv += (e.b || 0) - (e.a || 0);
+  });
+  let syncroSum = 0, syncroN = 0, labSum = 0;
+  const byUid = {};
+  (d.members || []).forEach(m => {
+    byUid[m.uid] = m;
+    if (m.syncro && m.syncro[0] != null && m.syncro[1] != null && m.syncro[1] > m.syncro[0]) { syncroSum += m.syncro[1] - m.syncro[0]; syncroN++; }
+    if (m.outpost) Object.keys(m.outpost).forEach(k => {
+      const v = Number(m.outpost[k][1]) - Number(m.outpost[k][0]);
+      if (isFinite(v) && v > 0) labSum += v;
     });
   });
-  const allNames = Object.keys(totals).sort((a, b) => totals[b] - totals[a]);
-  return { usage, totals, decksBySeason, allNames };
-})();
 
-function metaSectionHTML(){
-  const char = state.metaChar || META.allNames[0] || null;
-  const charOpts = META.allNames.map(n =>
-    '<option value="' + esc(n) + '"' + (n === char ? " selected" : "") + '>' + esc(n) + " (" + META.totals[n] + ")" + '</option>').join("");
+  const kpi = (l, v, s) => '<div class="hs-kpi"><div class="hs-kpi-l">' + l + '</div><div class="hs-kpi-v tnum">' + v + "</div>" +
+    (s ? '<div class="hs-kpi-s">' + s + "</div>" : "") + "</div>";
+  const kpis = '<div class="hs-kpis">' +
+    kpi("싱크로 합계", syncroSum ? "+" + syncroSum : "—", syncroN ? syncroN + "명 상승" : "") +
+    kpi("연구소 합계", labSum ? "+" + labSum : "—", "") +
+    kpi("신규 보유", cnt.acquire || "—", cnt.acquire ? "캐릭터" : "") +
+    kpi("돌파·코어", cnt.upgrade || "—", cnt.upgrade ? "건" : "") +
+    kpi("스킬", skillLv ? "+" + skillLv + "렙" : "—", cnt.skill ? cnt.skill + "건" : "") +
+    kpi("소장품", cnt.item || "—", cnt.item ? "건" : "") +
+    kpi("큐브", cubeLv ? "+" + cubeLv + "렙" : "—", cnt.cube ? cnt.cube + "건" : "") +
+    kpi("장비 옵션", cnt.equip || "—", cnt.equip ? "건" : "") +
+  "</div>";
 
-  // 시즌별 사용 막대
-  let bars = '<div class="hs-empty">레이드 기록이 없어요</div>';
-  if (char) {
-    const counts = RAID_SEASONS.map(s => (META.usage[char] || {})[s] || 0);
-    const max = Math.max(...counts, 1);
-    bars = '<div class="hs-bars">' + RAID_SEASONS.map((s, i) =>
-      '<div class="hs-bar-col"><span class="hs-bar-v tnum">' + counts[i] + '</span>' +
-        '<div class="hs-bar" style="height:' + Math.round(counts[i] / max * 100) + '%"></div>' +
-        '<span class="hs-bar-s">' + esc(s) + '</span></div>').join("") + '</div>';
-  }
+  // ── TOP 성장 멤버 (이벤트 유형 스택 막대) ──
+  const per = {};
+  events.forEach(e => { const p = per[e.uid] || (per[e.uid] = { total: 0, by: {} }); p.total++; p.by[e.t] = (p.by[e.t] || 0) + 1; });
+  const movers = Object.keys(per).map(uid => {
+    const m = byUid[uid];
+    const syn = m && m.syncro && m.syncro[0] != null && m.syncro[1] != null ? m.syncro[1] - m.syncro[0] : 0;
+    return { uid, total: per[uid].total, by: per[uid].by, syn: syn > 0 ? syn : 0 };
+  }).sort((a, b) => b.total - a.total).slice(0, 10);
+  const maxT = movers.length ? movers[0].total : 1;
+  const moverRows = movers.map(mv => {
+    const segs = EVT.filter(e => mv.by[e[0]]).map(e =>
+      '<div class="hs-mover-seg" style="flex:' + mv.by[e[0]] + ";background:" + EVT_COL[e[0]] + '" title="' + e[1] + " " + mv.by[e[0]] + '건"></div>').join("");
+    const nm = byUid[mv.uid] ? byUid[mv.uid].name : mv.uid;
+    return '<div class="hs-mover"><span class="hs-mover-name" data-act="pick-member" data-uid="' + esc(mv.uid) + '" title="아래에서 상세 추이 보기">' + esc(nm) + "</span>" +
+      '<div class="hs-mover-track"><div class="hs-mover-bar" style="width:' + Math.max(6, Math.round(mv.total / maxT * 100)) + '%">' + segs + "</div></div>" +
+      '<span class="hs-mover-n tnum">' + mv.total + "건" + (mv.syn ? ' <span style="color:var(--blue)">+' + mv.syn + "</span>" : "") + "</span></div>";
+  }).join("");
+  const moversBlock = movers.length
+    ? '<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">' +
+      '<div style="font-size:13px;font-weight:800;color:var(--sub);margin-bottom:6px">TOP 성장 멤버 <span style="font-weight:600;color:var(--dim)">— 이름을 누르면 아래 상세 추이로</span></div>' +
+      moverRows + "</div>"
+    : "";
 
-  // 시즌별 인기 덱 TOP 10
-  const season = state.metaSeason || RAID_SEASONS[RAID_SEASONS.length - 1];
-  const seasonOpts = RAID_SEASONS.slice().reverse().map(s =>
-    '<option value="' + esc(s) + '"' + (s === season ? " selected" : "") + '>' + esc(s) + '</option>').join("");
-  const combos = Object.values(META.decksBySeason[season] || {}).sort((a, b) => b.count - a.count).slice(0, 10);
-  const deckRows = combos.length ? combos.map((d, i) =>
-    '<div class="hs-deck-row"><span class="hs-deck-rank">' + (i + 1) + '</span>' +
-      '<span class="hs-deck-chips">' + d.names.map(n =>
-        charImg(n, { style: "width:30px;height:30px;border-radius:5px;object-fit:cover;background:var(--muted)" })).join("") + '</span>' +
-      '<span class="hs-deck-cnt tnum">' + d.count + '회</span></div>').join("")
-    : '<div class="hs-empty">이 시즌 기록이 없어요</div>';
+  // ── 변화 피드 (칩 = 범례 + 필터) ──
+  const chips = '<div class="hs-chipbar">' +
+    '<button type="button" class="hs-metric' + (state.feedType === "all" ? " on" : "") + '" data-act="feed-type" data-t="all">전체 ' + events.length + "</button>" +
+    EVT.map(e => '<button type="button" class="hs-metric' + (state.feedType === e[0] ? " on" : "") + '" data-act="feed-type" data-t="' + e[0] + '">' +
+      '<span class="hs-dot" style="background:' + e[2] + '"></span>' + e[1] + " " + (cnt[e[0]] || 0) + "</button>").join("") + "</div>";
+  const feedEvents = events.filter(e => state.feedType === "all" || e.t === state.feedType).slice()
+    .sort((x, y) => (EVT_ORD[x.t] - EVT_ORD[y.t]) ||
+      String((byUid[x.uid] || {}).name || "").localeCompare(String((byUid[y.uid] || {}).name || ""), "ko") ||
+      String(x.char).localeCompare(String(y.char), "ko"));
+  const feed = feedEvents.length
+    ? '<div class="hs-feed">' + feedEvents.map(e => {
+        const nm = byUid[e.uid] ? byUid[e.uid].name : e.uid;
+        return '<div class="hs-ev">' + charImg(e.char, { style: "width:26px;height:26px;border-radius:5px;object-fit:cover;background:var(--muted)" }) +
+          '<span class="hs-ev-m" data-act="pick-member" data-uid="' + esc(e.uid) + '">' + esc(nm) + "</span>" +
+          '<span class="hs-ev-c">' + esc(e.char) + "</span>" +
+          '<span class="hs-ev-d"><span class="hs-dot" style="background:' + EVT_COL[e.t] + '"></span>' + evText(e) + "</span></div>";
+      }).join("") + "</div>"
+    : '<div class="hs-empty">이 기간에 감지된 변화가 없어요</div>';
+  const feedBlock = '<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">' +
+    '<div style="font-size:13px;font-weight:800;color:var(--sub)">변화 피드</div>' + chips + feed + "</div>";
 
+  return cmp + kpis + moversBlock + feedBlock;
+}
+
+function summarySectionHTML(){
   return '<article class="rd-card" style="padding:16px 18px">' +
-    '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">' +
-      '<div><div class="hs-sec-title">레이드 메타</div><div class="hs-sec-sub">전 시즌 유니온 레이드 기록(' + RAID_SEASONS.length + '시즌) 기준 집계</div></div>' +
-      '<select id="hsMetaChar" class="hs-select">' + charOpts + '</select>' +
-    '</div>' +
-    '<div style="margin-top:10px;font-size:13px;font-weight:800;color:var(--sub)">' + esc(char || "") + ' — 시즌별 사용 덱 수</div>' + bars +
-    '<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">' +
-      '<div style="font-size:13px;font-weight:800;color:var(--sub)">인기 덱 구성 TOP 10</div>' +
-      '<select id="hsMetaSeason" class="hs-select">' + seasonOpts + '</select>' +
-    '</div>' + deckRows +
-  '</article>';
+    '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">' +
+      '<div><div class="hs-sec-title">유니온 성장 요약</div><div class="hs-sec-sub">선택한 기간 동안 유니온 전체가 얼마나 성장했는지 한눈에</div></div>' +
+      rangeSegHTML() +
+    "</div>" + summaryBodyHTML() +
+    '<div class="hs-note">일 1회 수집되는 스냅샷 기준 비교입니다. 장비 옵션은 수집을 시작한 2026-07-24 이후 구간부터 비교돼요.</div>' +
+  "</article>";
+}
+
+// URL 동기화: 프리셋은 ?range=, 직접 입력은 ?from=&to= (전체 = 파라미터 없음)
+function syncUrl(){
+  if (state.range === "custom") {
+    writeUrlParam("range", null);
+    writeUrlParam("from", state.from || null);
+    writeUrlParam("to", state.to || null);
+  } else {
+    writeUrlParam("from", null); writeUrlParam("to", null);
+    writeUrlParam("range", state.range === "all" ? null : state.range);
+  }
+}
+function loadDiff(){
+  state.diff = null;
+  render();
+  let q = "?kind=diff";
+  if (state.range === "7" || state.range === "30") {
+    // toISOString 은 UTC 기준이라 KST 새벽엔 하루 어긋날 수 있으나 서버 스냅핑이 흡수
+    const dt = new Date();
+    dt.setDate(dt.getDate() - Number(state.range));
+    q += "&from=" + dt.toISOString().slice(0, 10);
+  } else if (state.range === "custom") {
+    if (state.from) q += "&from=" + encodeURIComponent(state.from);
+    if (state.to) q += "&to=" + encodeURIComponent(state.to);
+  }
+  api("/api/history" + q)
+    .then(res => { state.diff = res.ok ? res.j : { error: true }; render(); })
+    .catch(() => { state.diff = { error: true }; render(); });
 }
 
 /* ═══════════ 렌더 + 이벤트 ═══════════ */
 function render(){
-  document.getElementById("rdContent").innerHTML = growthSectionHTML() + metaSectionHTML();
+  document.getElementById("rdContent").innerHTML = summarySectionHTML() + growthSectionHTML();
 }
 document.addEventListener("change", e => {
   const id = e.target && e.target.id;
   if (id === "hsMember") loadMember(e.target.value);
   else if (id === "hsChar") loadChar(e.target.value);
-  else if (id === "hsMetaChar") { state.metaChar = e.target.value; render(); }
-  else if (id === "hsMetaSeason") { state.metaSeason = e.target.value; render(); }
+  else if (id === "hsFrom" || id === "hsTo") {
+    state[id === "hsFrom" ? "from" : "to"] = e.target.value || "";
+    syncUrl();
+    loadDiff();
+  }
 });
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-act]"); if (!t) return;
-  if (t.dataset.act === "metric") { state.charMetric = t.dataset.m; render(); if (state.charName) loadChar(state.charName); }
+  const act = t.dataset.act;
+  if (act === "metric") { state.charMetric = t.dataset.m; render(); if (state.charName) loadChar(state.charName); }
+  else if (act === "range") {
+    const r = t.dataset.r;
+    if (r === state.range) return;
+    state.range = r;
+    if (r === "custom" && !state.from && state.diff && state.diff.available) {
+      // 직접 입력 첫 진입: 가용 범위 전체를 기본값으로
+      state.from = state.diff.available.first || "";
+      state.to = state.diff.available.last || "";
+    }
+    syncUrl();
+    loadDiff();
+  }
+  else if (act === "feed-type") { state.feedType = t.dataset.t; render(); }
+  else if (act === "pick-member") {
+    loadMember(t.dataset.uid);
+    requestAnimationFrame(() => {
+      const el = document.getElementById("hsMember");
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  }
 });
 
 render();
 markReady();
+loadDiff();
 api("/api/history?kind=members").then(res => { if (res.ok) { state.members = res.j; render(); } });
 
 } catch (e) { console.error(e); if (typeof showDataError === "function") showDataError(); }
