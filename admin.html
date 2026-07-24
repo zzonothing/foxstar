@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#eef1f6" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
+  <title>관리자 | 승리의 여신: 니케</title>
+  <link rel="icon" type="image/png" href="image/foxstar.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <script>try{var t=localStorage.getItem("theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark");}catch(e){}</script>
+  <script>
+  /* ── 카카오톡 인앱 우회 + 로딩 워치독 (전 페이지 공통 인라인 블록) ──
+     ① 카카오톡 인앱 웹뷰는 쿠키 분리·네비게이션 멈춤 문제로 무한 로딩이
+        잦아 기본 브라우저로 우회한다(웹뷰 세션당 1회). 실패해도 페이지는
+        그대로 로드되며 ②의 워치독이 수동 탈출 버튼을 제공한다.
+     ② 10초 내 body 에 .ready 가 붙지 않으면 로더를 복구 안내(다시 시도·
+        기본 브라우저 열기·로그인 이동)로 교체한다. 로드가 늦게라도 완료되면
+        body.ready #fstarLoader{display:none} 규칙이 안내를 자동으로 치운다.
+     common.js·데이터 스크립트가 전부 실패해도 동작해야 하므로 외부 파일
+     의존 없는 인라인 ES5 로 유지하고, 수정 시 전 페이지에 동일하게 반영. */
+  (function () {
+    var KAKAO = /KAKAOTALK/i.test(navigator.userAgent);
+    var extUrl = "kakaotalk://web/openExternal?url=" + encodeURIComponent(location.href);
+    if (KAKAO) {
+      window.__KAKAO_INAPP = true;
+      var fired = false;
+      try { fired = sessionStorage.getItem("fstarKkEsc") === "1"; } catch (e) {}
+      if (!fired) {
+        try { sessionStorage.setItem("fstarKkEsc", "1"); } catch (e) {}
+        try { location.href = extUrl; } catch (e) {}
+      }
+    }
+    window.__fstarShowError = function () {
+      var host = document.getElementById("fstarLoader");
+      if (!host) {
+        host = document.createElement("div");
+        host.id = "fstarLoader";
+        host.style.cssText = "position:fixed;left:0;top:0;right:0;bottom:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--bg,#eef1f6)";
+        document.body.appendChild(host);
+      }
+      host.style.visibility = "visible"; /* style.css 실패 시 body:not(.ready) 의 visibility:hidden 을 자식에서 뒤집음 */
+      var base = "display:inline-block;margin:3px 4px;padding:10px 16px;border-radius:10px;border:0;font-family:'Noto Sans KR','Apple SD Gothic Neo',sans-serif;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer;";
+      var main = base + "background:var(--blue,#2563eb);color:#fff";
+      var sub  = base + "background:var(--muted,#f4f6fa);color:var(--sub,#64748b);border:1px solid var(--border,#e2e8f0)";
+      host.innerHTML =
+        '<div style="max-width:320px;margin:16px;padding:26px 20px;text-align:center;border-radius:14px;background:var(--card,#fff);border:1px solid var(--border,#e2e8f0);font-family:\'Noto Sans KR\',\'Apple SD Gothic Neo\',sans-serif">' +
+          '<div style="font-size:28px" aria-hidden="true">⚠️</div>' +
+          '<div style="margin-top:8px;font-size:15px;font-weight:800;color:var(--text,#1e293b)">페이지를 열지 못하고 있어요</div>' +
+          '<div style="margin-top:6px;font-size:12px;line-height:1.7;color:var(--sub,#64748b)">' +
+            (KAKAO ? "카카오톡 브라우저에서는 페이지가 열리지 않을 수 있어요.<br>기본 브라우저로 열어주세요." : "네트워크 상태를 확인한 뒤 다시 시도해 주세요.") +
+          '</div>' +
+          '<div style="margin-top:14px">' +
+            (KAKAO ? '<a style="' + main + '" href="' + extUrl + '">기본 브라우저에서 열기</a>' : "") +
+            '<button type="button" style="' + (KAKAO ? sub : main) + '" onclick="location.reload()">다시 시도</button>' +
+            (window.__AUTH_REQUIRED ? '<a style="' + sub + '" href="/login.html?return=' + encodeURIComponent(location.pathname + location.search) + '">로그인 페이지로</a>' : "") +
+          '</div>' +
+        '</div>';
+    };
+    var bodyTries = 0;
+    function fstarWatch() {
+      var b = document.body;
+      if (b && b.classList.contains("ready")) return;
+      if (!b) { /* head 파싱(렌더 블로킹) 중이거나 로드가 중단된 경우 — 재시도, 계속 없으면 body 를 직접 만들어서라도 안내를 띄운다 */
+        if (++bodyTries >= 3 && document.documentElement) {
+          try { document.documentElement.appendChild(document.createElement("body")); } catch (e) {}
+        }
+        setTimeout(fstarWatch, 3000);
+        return;
+      }
+      window.__fstarShowError();
+    }
+    setTimeout(fstarWatch, 10000);
+  })();
+  </script>
+  <style>html{background:#eef1f6}html.dark{background:#111827}body:not(.ready){visibility:hidden}</style>
+  <link rel="stylesheet" href="css/style.css?v=7" />
+  <style>
+    /* 관리자 페이지 전용 — 멤버 PIN 인증 관리 */
+    .ad-card{ padding:18px 20px; }
+    .ad-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .ad-title{ font-size:17px; font-weight:800; color:var(--text); }
+    .ad-sub{ font-size:12px; color:var(--sub); margin-top:3px; line-height:1.6; }
+    .ad-count{ font-size:12px; font-weight:700; color:var(--sub); background:var(--muted); border:1px solid var(--border); padding:6px 12px; border-radius:999px; white-space:nowrap; }
+    .ad-count b{ color:var(--blue); font-size:14px; }
+    .ad-note{ margin-top:12px; font-size:12px; color:var(--sub); background:var(--blue-l); border:1px solid var(--border); border-radius:10px; padding:9px 12px; line-height:1.6; }
+    .ad-list{ margin-top:14px; display:flex; flex-direction:column; }
+    .ad-row{ display:flex; align-items:center; gap:12px; padding:11px 2px; border-top:1px solid var(--line); }
+    .ad-row:first-child{ border-top:none; }
+    .ad-name{ flex:1; min-width:0; display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-size:14px; font-weight:800; color:var(--text); word-break:break-all; }
+    .ad-badge{ font-size:10px; font-weight:800; padding:2px 7px; border-radius:999px; white-space:nowrap; }
+    .ad-badge-admin{ background:var(--role-leader-bg); color:var(--role-leader); }
+    .ad-badge-me{ background:var(--blue-l); color:var(--blue); }
+    .ad-status{ font-size:12px; font-weight:700; white-space:nowrap; flex-shrink:0; min-width:104px; text-align:right; }
+    .ad-ok{ color:var(--green); }
+    .ad-no{ color:var(--red); }
+    .ad-date{ color:var(--dim); font-weight:600; }
+    .ad-reset{ flex-shrink:0; border:1px solid var(--border); border-radius:8px; background:var(--card); color:var(--sub); font-family:inherit; font-size:12px; font-weight:700; padding:7px 13px; cursor:pointer; -webkit-tap-highlight-color:transparent; touch-action:manipulation; transition:color .12s, border-color .12s; }
+    .ad-reset:hover{ color:var(--red); border-color:var(--red); }
+    .ad-await{ flex-shrink:0; font-size:11px; font-weight:700; color:var(--dim); min-width:74px; text-align:center; }
+    .ad-flash{ background:var(--blue-l); color:var(--blue); border:1px solid var(--blue); border-radius:10px; padding:10px 14px; font-size:13px; font-weight:600; }
+    .ad-danger{ border-color:var(--red); }
+    .ad-force{ margin-top:12px; border:1px solid var(--red); border-radius:9px; background:transparent; color:var(--red); font-family:inherit; font-size:13px; font-weight:700; padding:9px 18px; cursor:pointer; -webkit-tap-highlight-color:transparent; touch-action:manipulation; transition:background .12s, color .12s; }
+    .ad-force:hover{ background:var(--red); color:#fff; }
+    .ad-deny{ text-align:center; padding:26px 10px; }
+    .ad-deny-emoji{ font-size:34px; margin-bottom:10px; }
+    .ad-deny-title{ font-size:17px; font-weight:800; color:var(--text); margin-bottom:6px; }
+    .ad-deny-desc{ font-size:13px; color:var(--sub); margin-bottom:18px; line-height:1.6; }
+    .ad-home-btn{ display:inline-block; border:none; border-radius:9px; background:var(--blue); color:#fff; font-size:13px; font-weight:700; padding:9px 22px; text-decoration:none; }
+    @media (max-width:560px){
+      .ad-row{ flex-wrap:wrap; gap:6px 10px; }
+      .ad-name{ flex:1 1 100%; }
+      .ad-status{ text-align:left; min-width:0; flex:1; }
+    }
+  </style>
+  <script type="speculationrules">{"prerender":[{"source":"document","where":{"href_matches":"/*.html"},"eagerness":"moderate"}]}</script>
+</head>
+<body>
+
+<div id="fstarLoader" aria-live="polite"><div class="fstar-spin" aria-hidden="true"></div><span>불러오는 중…</span></div>
+
+<!-- ═══════════ 헤더 (js/common.js: renderHeader 주입) ═══════════ -->
+<header class="rd-header" id="rdHeader"></header>
+
+<main class="rd-main">
+  <div class="container">
+    <div id="rdContent" class="rd-stack"></div>
+  </div>
+</main>
+
+<script src="data/config.js" onerror="window.__DATA_ERROR=1"></script>
+
+<!-- ═══════════ 공통 스크립트 (헬퍼·테마·인증·모달) ═══════════ -->
+<script src="js/common.js?v=9"></script>
+
+<script>
+if (window.__DATA_ERROR || typeof authGuardOrRedirect !== "function") {
+  // common.js 자체가 로드 실패한 경우 showDataError 도 없으므로 인라인 폴백 사용
+  if (typeof showDataError === "function") showDataError();
+  else if (window.__fstarShowError) window.__fstarShowError();
+} else if (!authGuardOrRedirect()) {
+try {
+
+/* 이 페이지는 게이트 데이터(<script src="data/…">)를 싣지 않으므로 __AUTH_REQUIRED
+   센티넬 가드가 동작하지 않는다. 대신 /api/member-auth 의 401(미로그인) 로 리다이렉트하고,
+   admin 플래그로 관리자/비관리자 화면을 나눈다. 모든 액션은 서버가 다시 검증한다. */
+var LOGIN_RETURN = "/login.html?return=%2Fadmin.html";
+
+function api(url, opts){
+  return fetch(url, opts).then(function(r){
+    return r.json().catch(function(){ return {}; }).then(function(j){ return { ok: r.ok, status: r.status, j: j }; });
+  });
+}
+function postJSON(url, body){
+  return api(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+}
+function fmtDate(ts){
+  if (!ts) return "";
+  try {
+    var parts = new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", year: "2-digit", month: "2-digit", day: "2-digit" }).formatToParts(new Date(ts));
+    var g = function(t){ return (parts.find(function(x){ return x.type === t; }) || {}).value || ""; };
+    return g("year") + "." + g("month") + "." + g("day");
+  } catch (e) { return ""; }
+}
+
+var state = { admin: false, me: null, roster: [], flash: null };
+
+function memberRowHTML(m){
+  var isMe = state.me && state.me.uid === m.uid;
+  var name = '<div class="ad-name">' + esc(m.name) +
+    (m.is_admin ? '<span class="ad-badge ad-badge-admin">관리자</span>' : "") +
+    (isMe ? '<span class="ad-badge ad-badge-me">나</span>' : "") +
+    '</div>';
+  var status = m.claimed
+    ? '<div class="ad-status ad-ok">인증완료' + (m.claimed_at ? ' <span class="ad-date">· ' + esc(fmtDate(m.claimed_at)) + '</span>' : "") + '</div>'
+    : '<div class="ad-status ad-no">미인증</div>';
+  var action = m.claimed
+    ? '<button type="button" class="ad-reset" data-act="reset" data-uid="' + esc(m.uid) + '" data-name="' + esc(m.name) + '"' + (isMe ? ' data-self="1"' : "") + '>PIN 초기화</button>'
+    : '<span class="ad-await">등록 대기</span>';
+  return '<div class="ad-row">' + name + status + action + '</div>';
+}
+
+function render(){
+  var host = document.getElementById("rdContent");
+  if (!host) return;
+
+  if (!state.admin) {
+    host.innerHTML =
+      '<article class="rd-card ad-card">' +
+        '<div class="ad-deny">' +
+          '<div class="ad-deny-emoji" aria-hidden="true">🔒</div>' +
+          '<div class="ad-deny-title">관리자 전용 페이지</div>' +
+          '<div class="ad-deny-desc">이 페이지는 운영진(관리자)만 이용할 수 있어요.</div>' +
+          '<a class="ad-home-btn" href="/index.html">홈으로 돌아가기</a>' +
+        '</div>' +
+      '</article>';
+    return;
+  }
+
+  var roster = state.roster || [];
+  var claimed = roster.filter(function(m){ return m.claimed; }).length;
+  var total = roster.length;
+  var flash = state.flash ? '<div class="ad-flash">' + esc(state.flash) + '</div>' : "";
+  state.flash = null;
+  var rows = roster.length
+    ? roster.map(memberRowHTML).join("")
+    : '<div class="fstar-empty">로스터가 비어 있어요.</div>';
+
+  host.innerHTML =
+    flash +
+    '<article class="rd-card ad-card">' +
+      '<div class="ad-head">' +
+        '<div><div class="ad-title">멤버 PIN 인증 관리</div>' +
+          '<div class="ad-sub">멤버별 PIN 등록(인증) 상태를 확인하고, 필요 시 초기화해 재등록을 유도할 수 있어요.</div></div>' +
+        '<div class="ad-count"><b class="tnum">' + claimed + '</b> / ' + total + ' 인증완료</div>' +
+      '</div>' +
+      '<div class="ad-note">PIN 을 초기화하면 해당 멤버는 즉시 로그아웃되고, 로그인 페이지에서 PIN 을 다시 등록해야 합니다.</div>' +
+      '<div class="ad-list">' + rows + '</div>' +
+    '</article>' +
+    '<article class="rd-card ad-card ad-danger">' +
+      '<div class="ad-title" style="font-size:15px">전원 재인증</div>' +
+      '<div class="ad-sub">모든 멤버의 로그인을 한 번에 무효화합니다. 본인을 포함한 전원이 즉시 로그아웃되고, 각자 PIN 으로 다시 로그인해야 합니다. (등록된 PIN 자체는 그대로 유지됩니다)</div>' +
+      '<button type="button" class="ad-force" data-act="force">전원 재인증 실행</button>' +
+    '</article>';
+}
+
+function load(){
+  api("/api/member-auth", { method: "GET" }).then(function(res){
+    if (res.status === 401) { // 미로그인 → 로그인 페이지로 (로더 유지)
+      var sp = document.querySelector("#fstarLoader span"); if (sp) sp.textContent = "로그인 페이지로 이동 중…";
+      location.replace(LOGIN_RETURN);
+      return;
+    }
+    if (!res.ok) { showDataError(); return; }
+    state.admin  = !!res.j.admin;
+    state.me     = res.j.me || null;
+    state.roster = res.j.roster || [];
+    try { localStorage.setItem("fstarAdmin", state.admin ? "1" : "0"); } catch (e) {}
+    // 관리자 여부가 서버로 확정됐으니 헤더(네비 '관리자' 탭)를 정확한 상태로 그린다
+    renderHeader("admin.html");
+    setupTheme();
+    document.title = "관리자 | " + ((typeof CONFIG !== "undefined" && CONFIG.unionName) ? CONFIG.unionName : "여우별 유니온");
+    render();
+    markReady();
+  }).catch(function(){ showDataError(); });
+}
+
+/* 문서 클립보드/단축키 잠금은 표시 전에 걸어둔다. 헤더·본문은 load() 가
+   서버 응답(admin 여부) 확정 후 한 번에 그린다 — 그 전까지 로더만 보인다. */
+lockClipboard();
+
+document.addEventListener("click", function(e){
+  var t = e.target.closest("[data-act]"); if (!t) return;
+  var act = t.dataset.act;
+  if (act === "reset") {
+    var nm = t.dataset.name || "";
+    var self = t.dataset.self === "1";
+    var msg = self
+      ? "본인(" + nm + ")의 PIN 을 초기화할까요?\n즉시 로그아웃되어, 로그인 페이지에서 PIN 을 다시 등록해야 합니다."
+      : nm + " 님의 PIN 을 초기화할까요?\n해당 멤버는 즉시 로그아웃되고, 로그인 페이지에서 PIN 을 다시 등록해야 합니다.";
+    if (!window.confirm(msg)) return;
+    postJSON("/api/member-auth", { action: "reset", uid: t.dataset.uid }).then(function(res){
+      if (res.ok && res.j.ok) {
+        if (res.j.self) { try { localStorage.setItem("fstarAdmin", "0"); } catch (e) {} location.replace(LOGIN_RETURN); return; }
+        state.flash = (res.j.reset || nm) + " 님의 PIN 을 초기화했습니다.";
+        load();
+      } else window.alert(res.j.error || "초기화에 실패했어요");
+    }).catch(function(){ window.alert("네트워크 오류. 다시 시도해 주세요"); });
+  } else if (act === "force") {
+    if (!window.confirm("모든 멤버의 인증을 무효화할까요?\n본인을 포함한 전원이 즉시 로그아웃되고 PIN 으로 다시 로그인해야 합니다.")) return;
+    postJSON("/api/member-auth", { action: "forceReauth" }).then(function(res){
+      if (res.ok && res.j.ok) { location.replace(LOGIN_RETURN); }
+      else window.alert(res.j.error || "처리에 실패했어요");
+    }).catch(function(){ window.alert("네트워크 오류. 다시 시도해 주세요"); });
+  }
+});
+
+load();
+
+} catch (e) { console.error(e); if (typeof showDataError === "function") showDataError(); }
+} // else if (!authGuardOrRedirect())
+</script>
+
+</body>
+</html>

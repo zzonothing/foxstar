@@ -104,12 +104,20 @@ var NAV_ITEMS = [
   ["history.html", "성장 기록", "성장"],
   ["guide.html", "육성 가이드", "가이드"]
 ];
+/* 관리자(운영진) 전용 nav 항목 — SUM·유화 등 members.is_admin 인 멤버에게만 노출.
+   HttpOnly 세션 쿠키는 JS 가 못 읽으므로, 로그인 시 서버 응답(admin 여부)을
+   localStorage("fstarAdmin") 에 힌트로 남겨 즉시 표시한다. 실제 접근·액션은
+   admin.html 과 /api/member-auth 가 서버에서 재검증하므로 힌트 위조는 무해하다
+   (없는 링크를 눌러도 '권한 없음'). 세션 만료(1일) 후 로그인 왕복마다 재동기화. */
+var ADMIN_NAV_ITEM = ["admin.html", "관리자", "관리자"];
+function isAdminHint(){ try { return localStorage.getItem("fstarAdmin") === "1"; } catch (e) { return false; } }
 function renderHeader(active){
   var mount = document.getElementById("rdHeader");
   if (!mount) return;
   var name = (typeof CONFIG !== "undefined" && CONFIG.unionName) ? CONFIG.unionName : "여우별 유니온";
+  var items = isAdminHint() ? NAV_ITEMS.concat([ADMIN_NAV_ITEM]) : NAV_ITEMS;
   function links(mobile){
-    return NAV_ITEMS.map(function(n){
+    return items.map(function(n){
       var on = (n[0] === active) ? ' class="active"' : '';
       var ariaCur = (n[0] === active) ? ' aria-current="page"' : '';
       return '<a href="' + n[0] + '"' + on + ariaCur + '>' + (mobile ? n[2] : n[1]) + '</a>';

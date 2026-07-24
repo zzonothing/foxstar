@@ -155,7 +155,7 @@
 <script src="data/character.js" onerror="window.__DATA_ERROR=1"></script>
 
 <!-- ═══════════ 공통 스크립트 (헬퍼·테마·인증·모달) ═══════════ -->
-<script src="js/common.js?v=8"></script>
+<script src="js/common.js?v=9"></script>
 
 <script>
 if (window.__DATA_ERROR || typeof authGuardOrRedirect !== "function") {
@@ -233,15 +233,13 @@ function authCardHTML(){
       '<a class="sb-btn" style="text-decoration:none" href="/login.html?return=%2Fsubmit.html">로그인 페이지로</a>' +
     '</div>';
   }
-  // 관리자 도구
+  // 관리자 도구 — 멤버 인증 관리(PIN 초기화·전원 재인증)는 별도 관리자 페이지로 분리.
+  // 여기서는 서버가 판정한 a.admin 을 근거로 신뢰 가능한 진입 링크만 제공한다.
   let adminTools = "";
   if (a.admin) {
-    const resetOpts = (a.roster || []).filter(r => r.claimed).map(r => '<option value="' + esc(r.uid) + '">' + esc(r.name) + '</option>').join("");
     adminTools = '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap;align-items:center">' +
       '<span style="font-size:12px;font-weight:800;color:var(--sub)">관리자</span>' +
-      (resetOpts ? '<select id="sbResetUid" class="sb-select" style="width:auto">' + resetOpts + '</select>' +
-        '<button type="button" class="sb-btn-ghost" data-act="mem-reset">PIN 초기화</button>' : '<span style="font-size:12px;color:var(--dim)">등록된 멤버 없음</span>') +
-      '<button type="button" class="sb-btn-danger" data-act="mem-force">전원 재인증</button>' +
+      '<a class="sb-btn-ghost" style="text-decoration:none" href="/admin.html">멤버 인증 관리 →</a>' +
     '</div>';
   }
   return '<article class="rd-card" style="padding:16px 18px">' + inner + adminTools + '</article>';
@@ -561,7 +559,7 @@ function loadAll(){
     api("/api/submit" + seasonQ, { method: "GET" }),
     api("/api/poll", { method: "GET" }),
   ]).then(([a, s, p]) => {
-    if (a.ok) state.auth = a.j;
+    if (a.ok) { state.auth = a.j; try { localStorage.setItem("fstarAdmin", a.j.admin ? "1" : "0"); } catch (e) {} }
     if (s.ok) { state.sub = s.j; if (!state.season) state.season = s.j.season || seasonOptions()[0]; }
     if (p.ok) state.polls = p.j;
     render();
@@ -572,7 +570,7 @@ function loadAll(){
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-act]"); if (!t) return;
   const act = t.dataset.act;
-  if (act === "mem-logout") postJSON("/api/member-auth", { action: "logout" }).then(() => { location.replace("/login.html?return=%2Fsubmit.html"); });
+  if (act === "mem-logout") postJSON("/api/member-auth", { action: "logout" }).then(() => { try { localStorage.removeItem("fstarAdmin"); } catch (e) {} location.replace("/login.html?return=%2Fsubmit.html"); });
   else if (act === "mem-changepin") {
     const pin = window.prompt("새 PIN 을 입력하세요 (숫자 4~8자리). 로그인은 유지됩니다.");
     if (pin === null) return;
@@ -581,27 +579,6 @@ document.addEventListener("click", e => {
       if (res.ok && res.j.ok) { state.flash = "PIN 이 변경되었습니다. 다음 로그인부터 새 PIN 을 사용하세요."; loadAll(); }
       else window.alert(res.j.error || "변경에 실패했어요");
     });
-  }
-  else if (act === "mem-reset") {
-    const sel = document.getElementById("sbResetUid");
-    if (sel && sel.value && window.confirm(sel.selectedOptions[0].textContent + " 의 PIN 을 초기화할까요? (본인을 초기화하면 즉시 로그아웃됩니다)")) {
-      postJSON("/api/member-auth", { action: "reset", uid: sel.value }).then(res => {
-        if (res.ok && res.j.ok) {
-          if (res.j.self) { location.replace("/login.html?return=%2Fsubmit.html"); return; } // 본인 → 재등록하러
-          state.flash = res.j.reset + " 의 PIN 을 초기화했습니다.";
-          loadAll();
-        }
-        else window.alert(res.j.error || "초기화에 실패했어요");
-      });
-    }
-  }
-  else if (act === "mem-force") {
-    if (window.confirm("모든 멤버의 인증을 무효화할까요? 본인을 포함한 전원이 즉시 로그아웃되고 PIN 으로 다시 로그인해야 합니다.")) {
-      postJSON("/api/member-auth", { action: "forceReauth" }).then(res => {
-        if (res.ok && res.j.ok) { location.replace("/login.html?return=%2Fsubmit.html"); }
-        else window.alert(res.j.error || "처리에 실패했어요");
-      });
-    }
   }
   else if (act === "deck-edit") openPick(parseInt(t.dataset.slot, 10));
   else if (act === "deck-del") delDeck(parseInt(t.dataset.slot, 10));
