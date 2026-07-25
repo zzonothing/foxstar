@@ -64,13 +64,25 @@ function snapLE(avail, d) {
   return r;
 }
 
+// snapshot_date 값 → 'YYYY-MM-DD' 정규화. 드라이버 파서 오버라이드(_lib/db.js)로
+// 보통은 문자열이 오지만, 설정 누락·드라이버 변경으로 Date 객체가 와도 로컬 날짜
+// 기준으로 안전하게 문자열화한다. String(Date).slice(0,10) 은 "Thu Jul 23" 이 되어
+// 'YYYY-MM-DD' 와의 대소 비교·SQL 파라미터 재사용이 전부 깨지므로 금지.
+function ymd(v) {
+  if (v instanceof Date) {
+    const p = n => String(n).padStart(2, '0');
+    return v.getFullYear() + '-' + p(v.getMonth() + 1) + '-' + p(v.getDate());
+  }
+  return String(v).slice(0, 10);
+}
+
 // 가용 스냅샷 날짜 (멤버·캐릭터 테이블 합집합, 오름차순) — diff/char-union 공용
 async function availDates() {
   const rows = await query(
     'SELECT snapshot_date AS d FROM member_daily WHERE union_id = $1 UNION ' +
     'SELECT snapshot_date FROM character_daily WHERE union_id = $1 ORDER BY d',
     [UNION_ID]);
-  return rows.map(r => String(r.d).slice(0, 10));
+  return rows.map(r => ymd(r.d));
 }
 
 // jsonb 컬럼 방어적 파싱 (드라이버가 객체/문자열 어느 쪽을 주든 수용)
@@ -106,7 +118,13 @@ module.exports = async function handler(req, res) {
         'FROM members m LEFT JOIN member_daily d ON d.union_id = m.union_id AND d.uid = m.uid ' +
         'WHERE m.union_id = $1 AND m.active GROUP BY m.uid, m.name ORDER BY m.name',
         [UNION_ID]);
-      return res.status(200).json({ members: rows });
+      return res.status(200).json({
+        members: rows.map(r => ({
+          uid: r.uid, name: r.name, days: r.days,
+          first: r.first ? ymd(r.first) : null,
+          last: r.last ? ymd(r.last) : null,
+        })),
+      });
     }
 
     if (kind === 'member') {
@@ -118,7 +136,7 @@ module.exports = async function handler(req, res) {
         [UNION_ID, uid, from, to]);
       return res.status(200).json({
         from, to,
-        series: rows.map(r => ({ date: r.date, syncroLevel: r.syncro_level, fields: r.fields })),
+        series: rows.map(r => ({ date: ymd(r.date), syncroLevel: r.syncro_level, fields: r.fields })),
       });
     }
 
@@ -128,7 +146,9 @@ module.exports = async function handler(req, res) {
         'SELECT char_name AS name, count(*) AS days, max(snapshot_date) AS last FROM character_daily ' +
         'WHERE union_id = $1 AND uid = $2 GROUP BY char_name ORDER BY max(atk) DESC NULLS LAST',
         [UNION_ID, uid]);
-      return res.status(200).json({ characters: rows });
+      return res.status(200).json({
+        characters: rows.map(r => ({ name: r.name, days: r.days, last: r.last ? ymd(r.last) : null })),
+      });
     }
 
     if (kind === 'character') {
@@ -144,7 +164,7 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({
         from, to,
         series: rows.map(r => ({
-          date: r.date, characterLevel: r.character_level,
+          date: ymd(r.date), characterLevel: r.character_level,
           skill1: r.skill1, skill2: r.skill2, skill3: r.skill3,
           upgrade: r.upgrade, itemGrade: r.item_grade, itemLevel: r.item_level,
           cubeLevel: r.cube_level, atk: r.atk, hp: r.hp, def: r.def,
@@ -267,7 +287,7 @@ module.exports = async function handler(req, res) {
       // 최신 스냅샷 날짜의 보유 캐릭터 목록 (보유자 많은 순 → 인기 캐릭터가 앞에)
       const dRows = await query(
         'SELECT max(snapshot_date) AS d FROM character_daily WHERE union_id = $1', [UNION_ID]);
-      const date = dRows.length && dRows[0].d ? String(dRows[0].d).slice(0, 10) : null;
+      const date = dRows.length && dRows[0].d ? ymd(dRows[0].d) : null;
       if (!date) return res.status(200).json({ date: null, characters: [] });
       const rows = await query(
         'SELECT char_name AS name, count(*) AS owners FROM character_daily ' +
