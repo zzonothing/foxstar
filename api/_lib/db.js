@@ -24,7 +24,12 @@ let _sql = null;
 function client() {
   if (!_sql) {
     if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL 미설정');
-    const { neon } = require('@neondatabase/serverless');
+    const { neon, types } = require('@neondatabase/serverless');
+    // date 컬럼(OID 1082)은 JS Date 로 변환하지 않고 'YYYY-MM-DD' 문자열 그대로 받는다.
+    // 드라이버 기본 파서는 date → Date 객체를 만드는데, 이 코드베이스는 snapshot_date
+    // 를 문자열로 비교·직렬화한다 — Date 가 오면 String() 결과가 "Thu Jul 23" 류가
+    // 되어 api/history.js 의 스냅샷 날짜 스냅핑(성장 비교)이 전부 깨진다.
+    types.setTypeParser(1082, v => v);
     _sql = neon(process.env.DATABASE_URL);
   }
   return _sql;
