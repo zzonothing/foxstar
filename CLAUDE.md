@@ -16,7 +16,7 @@ Serverless functions (CommonJS, all under `api/`): `auth.js` (login), `data.js` 
 - **Local dev** (runs static files + serverless functions together): `vercel dev` (pull env first: `vercel env pull .env.local`)
 - **Deploy preview**: `vercel`
 - **Deploy production**: `vercel --prod`
-- **DB schema + initial seed** (idempotent; needs `DATABASE_URL`): `npm run seed` — creates tables, uploads every `api/_data/**` doc into `data_docs`, seeds the `members` roster, backfills one day of daily history
+- **DB schema + initial seed** (needs `DATABASE_URL`): `npm run seed` — runs `scripts/schema.sql` (table creation + repeat-safe migrations), then bootstraps **only what is missing**: `api/_data/**` docs are written to `data_docs` for keys the DB does not already have, the `members` roster is synced, and one day of daily history is backfilled **only if that date has no rows yet**. Roster/backfill read the doc from the **DB** when present, disk otherwise. This is what makes it safe to run on a live DB just to apply a schema migration — `api/_data/**` is a bootstrap copy, not the source of truth (`member.js`/`character.js` are regenerated into the DB by `api/ingest.js`; notice/raid/solo are updated in the DB only), so overwriting from disk silently rewinds production data. `npm run seed -- --force` restores the old behaviour (overwrite every doc + today's history from disk) — use it only for a deliberate full restore
 - **Upload a doc without redeploy**: `ADMIN_KEY=… node scripts/upload-doc.js <docKey>`; >3MB files auto-gzip to dodge the 4.5MB request limit
 - **Backup DB docs to disk**: `DATABASE_URL=… node scripts/dump-docs.js [outdir]`
 
