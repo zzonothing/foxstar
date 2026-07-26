@@ -307,9 +307,11 @@ module.exports = async function handler(req, res) {
           'OR a.skill1 IS DISTINCT FROM b.skill1 OR a.skill2 IS DISTINCT FROM b.skill2 ' +
           'OR a.skill3 IS DISTINCT FROM b.skill3 OR a.upgrade IS DISTINCT FROM b.upgrade ' +
           'OR a.item_grade IS DISTINCT FROM b.item_grade OR a.item_level IS DISTINCT FROM b.item_level ' +
-          // extra 는 text 라 통째로 비교한다. 큐브명만 바뀐 행도 딸려오지만
-          // eqDiff 가 빈 배열을 돌려줘 이벤트는 생기지 않는다(화면 영향 없음).
-          'OR a.extra IS DISTINCT FROM b.extra',
+          // extra 는 text 지만 ::jsonb 로 파싱해 eq 부분만 비교한다. 문자열 그대로
+          // 비교하면 (1) 큐브명만 바뀐 행이 딸려오고, (2) jsonb→text 마이그레이션으로
+          // 변환된 옛 행은 공백이 들어간 형태({"eq": {…})라 내용이 같아도 전부 다르다고
+          // 판정된다. 파싱 비용은 하루치 슬라이스(약 1.2만 행)에만 든다.
+          "OR (a.extra::jsonb -> 'eq') IS DISTINCT FROM (b.extra::jsonb -> 'eq')",
           [UNION_ID, a, b]),
         // a 시점에 캐릭터 수집이 있던 uid — 신규 인원의 전 캐릭터가 '신규 보유'로 오인되는 것을 차단
         query('SELECT DISTINCT uid FROM character_daily WHERE union_id = $1 AND snapshot_date = $2', [UNION_ID, a]),
