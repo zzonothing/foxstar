@@ -23,13 +23,16 @@
 //   2. members 로스터 동기화 (name/active)
 //   3. 최신 문서 재생성: member.js 는 해당 시즌 키만 병합(다른 시즌 보존),
 //      character.js 는 전체 교체 — putDoc 해시 가드 + 1회 재시도
+//   4. 오래된 히스토리 솎아내기(pruneHistory) — 별도 크론/서버리스 함수를 만들지
+//      않고 여기에 얹는다(Hobby 12개 함수 한도 절약). 지울 날짜가 없으면 조회 1회.
 //
-// 응답: { ok, date, membersUpserted, charsUpserted, docsUpdated, roster, warnings }
+// 응답: { ok, date, membersUpserted, charsUpserted, docsUpdated, roster, pruned, warnings }
+//   pruned = { dates: 지운 날짜 수, kept: 남은 날짜 수 }
 
 const zlib = require('zlib');
 const crypto = require('crypto');
 const { getDocText, putDoc, kstToday } = require('./_lib/db');
-const { syncRoster, upsertMemberDaily, upsertCharacterDaily } = require('./_lib/history');
+const { syncRoster, upsertMemberDaily, upsertCharacterDaily, pruneHistory } = require('./_lib/history');
 
 const MAX_BODY_BYTES = 32 * 1024 * 1024;
 const MAX_MEMBERS = 200;
@@ -182,6 +185,12 @@ module.exports = async function handler(req, res) {
       try { await replaceCharacterDoc(characters); out.docsUpdated.push('character.js'); }
       catch (e) { out.warnings.push('character.js 갱신 실패: ' + String(e.message || e).slice(0, 100)); }
     }
+
+    // 4) 오래된 히스토리 솎아내기 (별도 크론/함수 없이 수집 끝에 얹는다 —
+    //    Hobby 12개 함수 한도를 아끼기 위함). 지울 날짜가 없으면 조회 1회로 끝나고,
+    //    실패해도 수집 자체는 성공으로 둔다.
+    try { out.pruned = await pruneHistory(date); }
+    catch (e) { out.warnings.push('히스토리 정리 실패: ' + String(e.message || e).slice(0, 100)); }
 
     return res.status(200).json(out);
   } catch (e) {

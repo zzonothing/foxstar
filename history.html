@@ -236,7 +236,7 @@ function fmtD(d){ return String(d).slice(5).replace("-", "."); } // YYYY-MM-DD �
 
 /* ═══════════ SVG 라인 차트 (외부 라이브러리 없음) ═══════════ */
 function lineChartSVG(points, opts){
-  // points: [{x: 라벨, y: number|null}] — null 은 건너뜀
+  // points: [{x: 라벨, d: 'YYYY-MM-DD', y: number|null}] — null 은 건너뜀
   const data = points.filter(p => p.y != null && isFinite(p.y));
   if (data.length < 2) return '<div class="hs-empty">' + (data.length === 1 ? "데이터가 1일치뿐이에요 — 내일부터 선이 그려집니다" : "아직 쌓인 데이터가 없어요") + '</div>';
   const W = 640, H = 220, L = 46, R = 12, T = 14, B = 30;
@@ -245,7 +245,14 @@ function lineChartSVG(points, opts){
   if (min === max) { min -= 1; max += 1; }
   const pad = (max - min) * 0.08;
   min -= pad; max += pad;
-  const px = i => L + (W - L - R) * (data.length === 1 ? 0.5 : i / (data.length - 1));
+  // x 는 '점 순서'가 아니라 '실제 날짜'에 비례해 놓는다 — 오래된 구간은 주 1개만
+  // 남기고 솎아내므로(api/_lib/history.js pruneHistory) 간격이 고르지 않다.
+  // 인덱스로 배치하면 최근 30일이 폭의 절반 가까이를 먹어 시간 축이 왜곡된다.
+  const ts = data.map(p => Date.parse(String(p.d || "") + "T00:00:00Z"));
+  const evenX = ts.some(t => !isFinite(t)) || ts[ts.length - 1] === ts[0];
+  const px = i => L + (W - L - R) * (evenX
+    ? (data.length === 1 ? 0.5 : i / (data.length - 1))
+    : (ts[i] - ts[0]) / (ts[ts.length - 1] - ts[0]));
   const py = v => T + (H - T - B) * (1 - (v - min) / (max - min));
   const line = data.map((p, i) => (i ? "L" : "M") + px(i).toFixed(1) + " " + py(p.y).toFixed(1)).join(" ");
   const dots = data.length <= 60
@@ -268,7 +275,7 @@ function lineChartSVG(points, opts){
 function growthSectionHTML(){
   let syncroChart = '<div class="hs-empty">위에서 멤버를 선택하면 추이 그래프를 보여드려요</div>';
   if (state.memberSeries) {
-    syncroChart = lineChartSVG(state.memberSeries.map(r => ({ x: fmtD(r.date), y: r.syncroLevel })), { label: "싱크로 레벨 추이" });
+    syncroChart = lineChartSVG(state.memberSeries.map(r => ({ x: fmtD(r.date), d: r.date, y: r.syncroLevel })), { label: "싱크로 레벨 추이" });
   }
 
   const charOpts = ((state.chars && state.chars.characters) || []).map(c =>
@@ -281,7 +288,7 @@ function growthSectionHTML(){
     const val = r => state.charMetric === "skills"
       ? (r.skill1 || 0) + (r.skill2 || 0) + (r.skill3 || 0)
       : r[state.charMetric] != null ? Number(r[state.charMetric]) : null;
-    charChart = lineChartSVG(state.charSeries.map(r => ({ x: fmtD(r.date), y: val(r) })), { label: "캐릭터 추이" });
+    charChart = lineChartSVG(state.charSeries.map(r => ({ x: fmtD(r.date), d: r.date, y: val(r) })), { label: "캐릭터 추이" });
   } else if (state.memberUid) {
     charChart = '<div class="hs-empty">캐릭터를 선택하면 캐릭터별 추이를 볼 수 있어요</div>';
   }
