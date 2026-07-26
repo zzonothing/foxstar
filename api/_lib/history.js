@@ -73,6 +73,12 @@ function dedupeBy(list, keyFn, pickFn) {
 // 일찍 적재를 시작한다. effect 명은 축약 코드로 저장해 용량을 줄인다
 // (~3천 row/일 × 매일 적재 — Neon 무료 티어 저장량 배려). 게임 업데이트로
 // 새 effect 가 오면 코드맵에 없어도 원문을 그대로 저장한다(손실 방지).
+//
+// 슬롯 위치 보존: equipSlots 의 부위별 배열은 항상 3칸 고정이고 빈 칸은 null 인데,
+// 실데이터에 [옵션, null, 옵션] 처럼 중간이 빈 경우가 존재한다(전체 보유 부위의
+// 약 15%). 빈 칸을 버리고 압축하면 "2번 칸이 새로 열림"과 "2번 칸이 리롤됨"을
+// 구분할 수 없어 api/history.js 의 장비 옵션 상세 diff 가 어긋난다 — 그래서
+// 빈 칸을 null 로 남긴다. 뒤쪽 빈 칸만 잘라내 저장량 증가를 최소화한다.
 const EFFECT_CODE = {
   increaseElementDamage: 'elem',
   increaseAtk: 'atk',
@@ -86,8 +92,10 @@ const EFFECT_CODE = {
 };
 const EQUIP_PARTS = ['head', 'torso', 'arm', 'leg'];
 
-// 캐릭터 1명의 extra 직렬화: {"eq":{"head":[["ammo",68.93],…],…},"cube":"큐브명"}.
-// 빈 슬롯(null)은 버리고 옵션 있는 부위만 남긴다. 장비 옵션도 큐브명도 없으면
+// 캐릭터 1명의 extra 직렬화:
+//   {"eq":{"head":[["ammo",68.93],null,["hit",11.81]],…},"cube":"큐브명"}
+// 부위 배열의 인덱스 = 게임의 옵션 칸 번호, null = 빈 칸(뒤쪽 빈 칸은 잘라냄).
+// 옵션이 하나도 없는 부위는 키 자체를 생략하고, 장비 옵션도 큐브명도 없으면
 // null 반환 → 컬럼 NULL (미육성 캐릭터가 과반이라 저장량이 크게 준다).
 function buildCharExtra(c) {
   const extra = {};
@@ -97,12 +105,15 @@ function buildCharExtra(c) {
     for (const part of EQUIP_PARTS) {
       const arr = Array.isArray(slots[part]) ? slots[part] : [];
       const opts = [];
-      for (const o of arr) {
-        if (!o || typeof o.effect !== 'string' || !o.effect) continue;
+      let last = -1;
+      for (let i = 0; i < arr.length; i++) {
+        const o = arr[i];
+        if (!o || typeof o.effect !== 'string' || !o.effect) { opts.push(null); continue; }
         const v = Number(o.value);
         opts.push([EFFECT_CODE[o.effect] || String(o.effect).slice(0, 40), Number.isFinite(v) ? v : null]);
+        last = i;
       }
-      if (opts.length) eq[part] = opts;
+      if (last >= 0) eq[part] = opts.slice(0, last + 1); // 뒤쪽 빈 칸 제거
     }
     if (Object.keys(eq).length) extra.eq = eq;
   }

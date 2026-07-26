@@ -89,10 +89,11 @@
     .hs-empty{ padding:26px 0; text-align:center; font-size:13px; color:var(--sub); font-weight:600; }
     .hs-note{ font-size:11px; color:var(--dim); margin-top:8px; }
     /* ── 유니온 성장 요약 ─────────────────────────────────────
-       이벤트 유형 색: 고정 순서(신규보유·스킬·돌파·큐브·소장품·장비).
+       이벤트 유형 색: 고정 순서(신규보유·스킬·돌파·소장품·장비).
        라이트/다크 각각 색각이상(CVD)·대비 검증 통과 팔레트 — 순서를 바꾸면
-       인접쌍 검증이 깨질 수 있으니 스택/범례 순서(EVT)와 함께 유지할 것. */
-    :root{ --ev-acquire:#22c55e; --ev-skill:#3b82f6; --ev-upgrade:#ef4444; --ev-cube:#a855f7; --ev-item:#f59e0b; --ev-equip:#0891b2; }
+       인접쌍 검증이 깨질 수 있으니 스택/범례 순서(EVT)와 함께 유지할 것.
+       큐브(--ev-cube)는 성장 비교에서 제외되어 이벤트 색이 필요 없다. */
+    :root{ --ev-acquire:#22c55e; --ev-skill:#3b82f6; --ev-upgrade:#ef4444; --ev-item:#f59e0b; --ev-equip:#0891b2; }
     html.dark{ --ev-acquire:#16a34a; --ev-item:#d97706; }
     /* 기간 선택 */
     .hs-range{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
@@ -130,6 +131,15 @@
     .hs-ev-c{ font-weight:700; color:var(--ink); flex-shrink:0; cursor:pointer; }
     .hs-ev-c:hover{ color:var(--blue); }
     .hs-ev-d{ min-width:0; }
+    /* 장비 옵션 상세 — .hs-ev 의 flex 줄을 통째로 차지해(flex-basis:100%) 다음 줄로
+       내려간다. 덕분에 캐릭터 이름 길이와 무관하게 모든 행에서 좌측이 맞는다.
+       padding-left = 초상화 26px + .hs-ev 의 gap 9px. */
+    .hs-eq{ flex-basis:100%; width:100%; margin:2px 0 1px; padding-left:35px; }
+    .hs-eq-i{ display:flex; gap:6px; font-size:11.5px; line-height:1.8; color:var(--sub); font-weight:600; }
+    .hs-eq-p{ flex-shrink:0; min-width:26px; color:var(--dim); font-weight:800; }
+    .hs-eq-t{ min-width:0; }
+    .hs-eq-max{ font-size:9.5px; font-weight:800; color:var(--ev-acquire); border:1px solid currentColor; border-radius:4px; padding:0 3px; margin-left:3px; vertical-align:1px; white-space:nowrap; }
+    @media (max-width:520px){ .hs-eq{ padding-left:0; } }
     /* 멤버 성장 상세 — 계정 지표 표 + 캐릭터 변화 그룹 */
     .hs-acct{ display:grid; grid-template-columns:1fr 1fr; gap:0 26px; margin-top:8px; }
     @media (max-width:640px){ .hs-acct{ grid-template-columns:1fr; } }
@@ -312,17 +322,27 @@ function loadChar(name){
 /* ═══════════ ② 유니온 성장 요약 (기간 diff — /api/history?kind=diff) ═══════════ */
 // 이벤트 유형: 표시명·색 CSS 변수. 배열 순서 = 스택 막대/범례/피드 정렬의
 // 고정 순서 — 색과 함께 CVD 검증을 통과한 조합이므로 순서를 함부로 바꾸지 말 것.
+// 큐브는 character_daily 에 계속 기록되지만 성장 비교에서는 빠진다(api/history.js
+// 가 cube 이벤트를 내보내지 않음) — 재료 소모로 수시 변동해 노이즈였다.
 const EVT = [
   ["acquire", "신규 보유", "var(--ev-acquire)"],
   ["skill",   "스킬",      "var(--ev-skill)"],
   ["upgrade", "돌파·코어", "var(--ev-upgrade)"],
-  ["cube",    "큐브",      "var(--ev-cube)"],
   ["item",    "소장품",    "var(--ev-item)"],
   ["equip",   "장비 옵션", "var(--ev-equip)"]
 ];
 const EVT_COL = {}, EVT_KO = {}, EVT_ORD = {};
 EVT.forEach((e, i) => { EVT_COL[e[0]] = e[2]; EVT_KO[e[0]] = e[1]; EVT_ORD[e[0]] = i; });
 const PART_KO = { head: "머리", torso: "몸통", arm: "팔", leg: "다리" };
+// 장비 옵션 축약 코드 → 한글 라벨. 코드는 api/_lib/history.js 의 EFFECT_CODE 값,
+// 문구는 shift.html ELABEL 과 같되 "증가"를 뺀 짧은 형태(피드 한 줄에 여러 건).
+const EQ_KO = { elem: "우월코드 대미지", atk: "공격력", def: "방어력", hit: "명중률",
+  chgSpd: "차지 속도", chgDmg: "차지 대미지", critRate: "크리티컬 확률",
+  critDmg: "크리티컬 대미지", ammo: "최대 장탄 수" };
+// 옵션 1칸의 최대치 (shift.html TIERS.max 와 동일 — 실데이터 관측 최대값과 일치).
+// 최대 달성 시 MAX 배지를 붙인다. 게임 확장으로 모르는 코드가 오면 배지 없이 표시.
+const EQ_MAX = { elem: 29.16, atk: 14.63, def: 14.63, hit: 14.63, chgSpd: 6.09,
+  chgDmg: 14.63, critRate: 7.07, critDmg: 20.36, ammo: 85.37 };
 const ACCT_KO = { normal: "노말", hard: "하드", tribeTower: "타워", overclock: "오버클럭" };
 // 연구소 항목 (index.html 의 OPF 와 동일한 라벨·순서)
 const OPF_LIST = [["common", "공용"], ["attack", "화력형"], ["defense", "방어형"], ["support", "지원형"],
@@ -347,10 +367,56 @@ function evText(e){
     const g = p => p ? esc(String(p[0])) + (p[1] != null && p[1] !== "" ? " " + esc(String(p[1])) : "") : "";
     return "소장품 " + (e.a ? g(e.a) + " → " : "장착 ") + hl(g(e.b));
   }
-  if (e.t === "cube") return '큐브 <span class="tnum">Lv.' + (e.a == null ? 0 : e.a) + " → " + hl(e.b) + "</span>";
-  if (e.t === "equip") return '장비 옵션 <span class="tnum">' + e.a + "줄 → " + hl(e.b + "줄") + "</span>" +
-    (e.parts && e.parts.length ? " (" + e.parts.map(p => PART_KO[p] || esc(p)).join("·") + ")" : "");
+  if (e.t === "equip") return eqText(e);
   return "";
+}
+
+/* ── 장비 옵션 상세 (api/history.js equip 이벤트의 parts[].ch) ── */
+function eqPct(v){ return v == null ? "—" : Number(v).toFixed(2) + "%"; }
+function eqName(code){ return EQ_KO[code] || esc(String(code)); }
+// 옵션 값이 그 옵션의 최대치면 MAX 배지 (부동소수 비교라 여유 폭을 둔다)
+function eqMax(code, v){
+  const m = EQ_MAX[code];
+  return (m != null && v != null && Math.abs(Number(v) - m) < 0.005) ? '<span class="hs-eq-max">MAX</span>' : "";
+}
+// 변화 1건 → 문구. k = up|down(강화) / add(새 옵션) / drop(해제) / swap(리롤)
+// 칸 번호(c.s)는 일부러 표시하지 않는다 — 장비 옵션 수집 초기 행은 빈 칸을 버리고
+// 저장해서 칸 번호가 밀려 있고(자세한 건 api/history.js 의 diff 주석), 밀린 번호를
+// 그대로 쓰면 "2칸"이 실제로는 3칸인 거짓 정보가 된다. 부위 라벨 + 옵션 이름만으로도
+// "무엇이 어떻게 바뀌었는지"는 정확히 전달된다.
+function eqChText(c){
+  if (c.k === "add") return eqName(c.e) + " " + hl(eqPct(c.b)) + eqMax(c.e, c.b) + " 추가";
+  if (c.k === "drop") return '<span style="text-decoration:line-through">' + eqName(c.e) + " " + eqPct(c.a) + "</span> 해제";
+  if (c.k === "swap") return eqName(c.e) + " " + eqPct(c.a) + " → " + hl(eqName(c.e2) + " " + eqPct(c.b)) + eqMax(c.e2, c.b);
+  return eqName(c.e) + " " + eqPct(c.a) + " → " + hl(eqPct(c.b)) + eqMax(c.e, c.b);
+}
+// 요약 한 줄: 줄 수는 변했을 때만 화살표로 (리롤만 있으면 "3줄 → 3줄" 이 되어 헷갈린다)
+function eqText(e){
+  return e.a === e.b
+    ? '장비 옵션 <span class="tnum">' + e.b + "줄</span>"
+    : '장비 옵션 <span class="tnum">' + e.a + "줄 → " + hl(e.b + "줄") + "</span>";
+}
+// 상세 블록: 변화 1건 = 1줄, 부위 라벨은 그 부위의 첫 줄에만 (나머지는 들여쓰기 유지)
+function eqDetailHTML(e){
+  const rows = [];
+  (e.parts || []).forEach(p => {
+    if (!p || !p.ch || !p.ch.length) return;
+    p.ch.forEach((c, i) => {
+      rows.push('<div class="hs-eq-i"><span class="hs-eq-p">' + (i ? "" : (PART_KO[p.p] || esc(String(p.p)))) + "</span>" +
+        '<span class="hs-eq-t">' + eqChText(c) + "</span></div>");
+    });
+  });
+  return rows.length ? '<div class="hs-eq">' + rows.join("") + "</div>" : "";
+}
+
+// 이벤트 1행 (유니온 피드·멤버 상세 공용; showDot = 유형 색 점 표시)
+function evRowHTML(e, showDot){
+  const detail = e.t === "equip" ? eqDetailHTML(e) : "";
+  return '<div class="hs-ev">' +
+    charImg(e.char, { style: "width:26px;height:26px;border-radius:5px;object-fit:cover;background:var(--muted)" }) +
+    '<span class="hs-ev-c" data-act="pick-char" data-c="' + esc(e.char) + '" title="캐릭터 보기로 이동">' + esc(e.char) + "</span>" +
+    '<span class="hs-ev-d">' + (showDot ? '<span class="hs-dot" style="background:' + EVT_COL[e.t] + '"></span>' : "") +
+    evText(e) + "</span>" + detail + "</div>";
 }
 
 function rangeSegHTML(){
@@ -376,11 +442,11 @@ function summaryBodyHTML(){
   // ── 집계 ──
   const events = d.events || [];
   const cnt = {};
-  let skillLv = 0, cubeLv = 0;
+  let skillLv = 0, eqCh = 0; // eqCh = 장비 옵션 변화 건수 (캐릭터 수가 아니라 옵션 단위)
   events.forEach(e => {
     cnt[e.t] = (cnt[e.t] || 0) + 1;
     if (e.t === "skill") skillLv += e.d || 0;
-    if (e.t === "cube") cubeLv += (e.b || 0) - (e.a || 0);
+    if (e.t === "equip") (e.parts || []).forEach(p => { eqCh += (p.ch || []).length; });
   });
   let syncroSum = 0, syncroN = 0, labSum = 0;
   const byUid = {};
@@ -402,8 +468,7 @@ function summaryBodyHTML(){
     kpi("돌파·코어", cnt.upgrade || "—", cnt.upgrade ? "건" : "") +
     kpi("스킬", skillLv ? "+" + skillLv + "렙" : "—", cnt.skill ? cnt.skill + "건" : "") +
     kpi("소장품", cnt.item || "—", cnt.item ? "건" : "") +
-    kpi("큐브", cubeLv ? "+" + cubeLv + "렙" : "—", cnt.cube ? cnt.cube + "건" : "") +
-    kpi("장비 옵션", cnt.equip || "—", cnt.equip ? "건" : "") +
+    kpi("장비 옵션", eqCh || "—", cnt.equip ? cnt.equip + "캐릭터" : "") +
   "</div>";
 
   // ── TOP 성장 멤버 (이벤트 유형 스택 막대) ──
@@ -463,10 +528,7 @@ function summaryBodyHTML(){
     const synBadge = g.cur != null
       ? '<span class="hs-grp-syn tnum">싱크로 ' + g.cur + (g.syn ? ' <b style="color:var(--blue)">+' + g.syn + "</b>" : "") + "</span>"
       : "";
-    const evRows = g.evs.map(e =>
-      '<div class="hs-ev">' + charImg(e.char, { style: "width:26px;height:26px;border-radius:5px;object-fit:cover;background:var(--muted)" }) +
-        '<span class="hs-ev-c" data-act="pick-char" data-c="' + esc(e.char) + '" title="캐릭터 보기로 이동">' + esc(e.char) + "</span>" +
-        '<span class="hs-ev-d"><span class="hs-dot" style="background:' + EVT_COL[e.t] + '"></span>' + evText(e) + "</span></div>").join("");
+    const evRows = g.evs.map(e => evRowHTML(e, true)).join("");
     return '<div class="hs-grp">' +
       '<div class="hs-grp-head"><span class="hs-ev-m" data-act="pick-member" data-uid="' + esc(g.m.uid) + '" title="아래에서 상세 추이 보기">' + esc(g.m.name) + "</span>" + synBadge +
         '<span class="hs-grp-n">' + (g.evs.length ? g.evs.length + "건" : "") + "</span></div>" +
@@ -506,7 +568,7 @@ function controlCardHTML(){
 /* ── 유니온 보기 ── */
 function unionCardHTML(){
   return '<article class="rd-card" style="padding:16px 18px">' + summaryBodyHTML() +
-    '<div class="hs-note">일 1회 수집되는 스냅샷 기준 비교입니다. 장비 옵션은 수집을 시작한 2026-07-24 이후 구간부터 비교돼요.</div>' +
+    '<div class="hs-note">일 1회 수집되는 스냅샷 기준 비교입니다. 장비 옵션은 수집을 시작한 2026-07-24 이후 구간부터 옵션 칸 단위로 비교돼요. 큐브 레벨은 기록만 하고 성장 비교에서는 제외합니다.</div>' +
   "</article>";
 }
 
@@ -563,8 +625,7 @@ function memberCardHTML(){
         const evs = mine.filter(e => e.t === ev[0]);
         if (!evs.length) return "";
         return '<div class="hs-mv-grp"><div class="hs-mv-h"><span class="hs-dot" style="background:' + ev[2] + '"></span>' + ev[1] + " " + evs.length + "건</div>" +
-          evs.map(e => '<div class="hs-ev">' + charImg(e.char, { style: "width:26px;height:26px;border-radius:5px;object-fit:cover;background:var(--muted)" }) +
-            '<span class="hs-ev-c" data-act="pick-char" data-c="' + esc(e.char) + '" title="캐릭터 보기로 이동">' + esc(e.char) + '</span><span class="hs-ev-d">' + evText(e) + "</span></div>").join("") + "</div>";
+          evs.map(e => evRowHTML(e, false)).join("") + "</div>";
       }).join("");
       if (!charBlocks) charBlocks = '<div class="hs-empty" style="margin-top:10px">이 기간에 감지된 캐릭터 변화가 없어요</div>';
     }
@@ -581,12 +642,14 @@ function memberCardHTML(){
 /* ── 캐릭터 보기: 유니온 매트릭스 (행=보유 멤버, 열=육성 지표, 기간 변화 표시) ── */
 function upIdxC(v){ return UP_ORD.indexOf(String(v || "")); }
 
-// 매트릭스 열 정의: [라벨, 값 추출(표시 문자열|null), 변화 dot 색]
+// 매트릭스 열 정의: [라벨, 값 추출(표시 문자열|null), 변화 dot 색, 비교 제외 여부]
+// 큐브는 '기록은 유지하되 비교에서는 제외' — 현재 상태(b 시점)만 보여주고
+// 이전 → 현재 화살표도, 아래 '기간 내 변화' 집계도 타지 않는다.
 const MX_COLS = [
   ["돌파", r => r.up ? esc(r.up) : null, "var(--ev-upgrade)"],
   ["스킬", r => r.s ? r.s.map(x => x == null ? "-" : x).join("/") : null, "var(--ev-skill)"],
   ["소장품", r => r.item ? esc(String(r.item[0])) + (r.item[1] != null && r.item[1] !== "" ? " " + esc(String(r.item[1])) : "") : null, "var(--ev-item)"],
-  ["큐브", r => r.cube != null ? "Lv." + r.cube : null, "var(--ev-cube)"],
+  ["큐브", r => r.cube != null ? "Lv." + r.cube : null, "var(--dim)", true],
   ["장비 옵션", r => r.eq != null ? r.eq + "줄" : null, "var(--ev-equip)"],
   ["공격력", r => r.atk != null ? Number(r.atk).toLocaleString("en-US") : null, "var(--dim)"]
 ];
@@ -594,6 +657,7 @@ const MX_COLS = [
 function mxChangedCount(row){
   if (!row.a || !row.b) return 0;
   return MX_COLS.reduce((n, c) => {
+    if (c[3]) return n; // 비교 제외 열(큐브)
     const va = c[1](row.a), vb = c[1](row.b);
     return n + (va != null && vb != null && va !== vb ? 1 : 0);
   }, 0);
@@ -614,10 +678,12 @@ function charMatrixHTML(){
     return inv(y) - inv(x);
   });
 
-  const head = "<tr><th>멤버</th>" + MX_COLS.map(c => "<th>" + c[0] + "</th>").join("") + "</tr>";
+  // 비교 제외 열(큐브)은 제목에 '현재'를 붙여 화살표가 없는 이유를 표에서 바로 알 수 있게 한다
+  const head = "<tr><th>멤버</th>" + MX_COLS.map(c => "<th>" + c[0] +
+    (c[3] ? ' <span style="font-weight:600;text-transform:none;color:var(--dim)">현재</span>' : "") + "</th>").join("") + "</tr>";
   const body = sorted.map(r => {
     const cells = MX_COLS.map(c => {
-      const va = r.a ? c[1](r.a) : null, vb = r.b ? c[1](r.b) : null;
+      const va = r.a && !c[3] ? c[1](r.a) : null, vb = r.b ? c[1](r.b) : null;
       if (vb == null) return "<td>—</td>";
       if (hasDiff && va != null && va !== vb) {
         return '<td title="' + c[0] + " 변화" + '"><span style="color:var(--dim)">' + va + "</span> " +
@@ -659,7 +725,7 @@ function charCardHTML(){
       '<div><div class="hs-sec-title">캐릭터별 육성 현황</div><div class="hs-sec-sub">이 캐릭터를 유니온 멤버들이 어떻게 키웠는지 + 기간 내 변화</div></div>' +
       '<div class="hs-char-pick"><select id="hsCharSel" class="hs-select"><option value="">캐릭터 선택…</option>' + opts + "</select>" + sortSeg + "</div>" +
     "</div>" + body +
-    '<div class="hs-note">변화(이전 → 현재)는 위에서 고른 기간 기준입니다. 멤버 이름을 누르면 그 멤버의 상세로 이동해요.</div>' +
+    '<div class="hs-note">변화(이전 → 현재)는 위에서 고른 기간 기준입니다. 큐브 열은 기록만 하고 비교에서는 빠져 현재 값만 보여줘요. 멤버 이름을 누르면 그 멤버의 상세로 이동해요.</div>' +
   "</article>";
 }
 
