@@ -11,8 +11,9 @@
 //   ?kind=characters&uid=            → { characters: [{name, days, last}] } (캐릭터 선택 UI 용)
 //   ?kind=character&uid=&name=&from=&to= → { series: [{date, characterLevel, skill1..3,
 //                                              upgrade, itemLevel, cubeLevel, atk, hp, def,
-//                                              extra}] }  (extra: 장비 옵션·큐브명 —
-//                                              api/_lib/history.js buildCharExtra 형식, 없으면 null)
+//                                              extra}] }  (extra: 장비 옵션·큐브명 JSON
+//                                              문자열 — api/_lib/history.js buildCharExtra 형식,
+//                                              없으면 null. text 컬럼이라 객체가 아닌 문자열)
 //   ?kind=diff&from=&to=             → 기간 성장 diff (history.html 유니온 성장 요약용).
 //       요청 날짜는 실제 보유 스냅샷으로 스냅된다: a = from 이전 마지막(없으면 첫)
 //       스냅샷, b = to 이전 마지막 스냅샷. from/to 생략 시 전체 기간.
@@ -45,10 +46,14 @@
 
 const { verifyRequest } = require('./_lib/session');
 const { UNION_ID, query, kstToday } = require('./_lib/db');
+const { snapshotDates, PRUNE_TOTAL_WEEKS } = require('./_lib/history');
 
 const UID_RE = /^[0-9a-zA-Z]{1,32}$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-const DEFAULT_RANGE_DAYS = 180;
+// from 미지정 시 기본 조회 범위. 보관 상한(pruneHistory)과 같게 두어 '전체 기록'이
+// 실제로 전체가 되게 한다 — 이 값이 보관 기간보다 짧으면 성장 그래프가 "전체 기록
+// 기준"이라고 표시하면서 조용히 최근 일부만 그리게 된다.
+const DEFAULT_RANGE_DAYS = PRUNE_TOTAL_WEEKS * 7;
 
 function rangeOf(req) {
   let from = req.query.from, to = req.query.to;
@@ -88,14 +93,11 @@ function ymd(v) {
   return String(v).slice(0, 10);
 }
 
-// 가용 스냅샷 날짜 (멤버·캐릭터 테이블 합집합, 오름차순) — diff/char-union 공용
-async function availDates() {
-  const rows = await query(
-    'SELECT snapshot_date AS d FROM member_daily WHERE union_id = $1 UNION ' +
-    'SELECT snapshot_date FROM character_daily WHERE union_id = $1 ORDER BY d',
-    [UNION_ID]);
-  return rows.map(r => ymd(r.d));
-}
+// 가용 스냅샷 날짜 (멤버·캐릭터 테이블 합집합, 오름차순) — diff/char-union 공용.
+// 구현은 api/_lib/history.js 의 snapshotDates() — 재귀 CTE loose index scan 이라
+// 비용이 누적 행 수가 아니라 고유 날짜 수에 비례한다. 솎아내기(pruneHistory)와
+// 같은 목록을 봐야 하므로 한 곳에 둔다.
+const availDates = snapshotDates;
 
 // jsonb 컬럼 방어적 파싱 (드라이버가 객체/문자열 어느 쪽을 주든 수용)
 function jsonOrNull(v) {
@@ -305,7 +307,9 @@ module.exports = async function handler(req, res) {
           'OR a.skill1 IS DISTINCT FROM b.skill1 OR a.skill2 IS DISTINCT FROM b.skill2 ' +
           'OR a.skill3 IS DISTINCT FROM b.skill3 OR a.upgrade IS DISTINCT FROM b.upgrade ' +
           'OR a.item_grade IS DISTINCT FROM b.item_grade OR a.item_level IS DISTINCT FROM b.item_level ' +
-          "OR (a.extra -> 'eq') IS DISTINCT FROM (b.extra -> 'eq')",
+          // extra 는 text 라 통째로 비교한다. 큐브명만 바뀐 행도 딸려오지만
+          // eqDiff 가 빈 배열을 돌려줘 이벤트는 생기지 않는다(화면 영향 없음).
+          'OR a.extra IS DISTINCT FROM b.extra',
           [UNION_ID, a, b]),
         // a 시점에 캐릭터 수집이 있던 uid — 신규 인원의 전 캐릭터가 '신규 보유'로 오인되는 것을 차단
         query('SELECT DISTINCT uid FROM character_daily WHERE union_id = $1 AND snapshot_date = $2', [UNION_ID, a]),

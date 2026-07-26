@@ -58,9 +58,11 @@ CREATE INDEX IF NOT EXISTS member_daily_date_idx
 
 -- 캐릭터 데일리 히스토리: 멤버×캐릭터×날짜당 1 row.
 -- char_name 은 표시명("이름" 또는 "이름 : 서브명") — raid.js squad 표기와 동일.
--- extra 는 장비 옵션·큐브명 jsonb: {"eq":{"head":[["ammo",68.93],…],…},"cube":"큐브명"}
+-- extra 는 장비 옵션·큐브명 JSON 문자열: {"eq":{"head":[["ammo",68.93],…],…},"cube":"큐브명"}
 --   (api/_lib/history.js buildCharExtra — effect 축약 코드는 그 파일의 EFFECT_CODE).
 --   장비 옵션·큐브 둘 다 없으면 NULL. 적재 시작 시점부터의 변화만 diff 가능.
+--   타입이 jsonb 가 아니라 text 인 이유: 같은 내용을 jsonb 는 365B, text 는 194B 로
+--   담는다(실측 1.88배). 이 테이블이 저장량의 대부분이라 차이가 크다.
 CREATE TABLE IF NOT EXISTS character_daily (
   union_id        smallint NOT NULL DEFAULT 1,
   uid             text NOT NULL,
@@ -77,13 +79,24 @@ CREATE TABLE IF NOT EXISTS character_daily (
   atk             bigint,
   hp              bigint,
   def             bigint,
-  extra           jsonb,
+  extra           text,
   updated_at      timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY (union_id, uid, char_name, snapshot_date)
 );
 
 CREATE INDEX IF NOT EXISTS character_daily_date_idx
   ON character_daily (union_id, snapshot_date);
+
+-- 기존 배포 DB 마이그레이션: extra 를 jsonb → text 로 (신규 생성 시엔 no-op).
+-- 테이블을 한 번 재작성하므로 데이터가 많으면 시간이 걸린다 — 대신 그만큼 줄어든다.
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+             WHERE table_name = 'character_daily' AND column_name = 'extra'
+               AND data_type = 'jsonb') THEN
+    ALTER TABLE character_daily ALTER COLUMN extra TYPE text;
+  END IF;
+END $$;
 
 -- 유니온 레이드 덱/모의전 점수 제출 (멤버당 시즌당 슬롯 1~3)
 CREATE TABLE IF NOT EXISTS raid_submissions (
