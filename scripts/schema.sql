@@ -1,5 +1,9 @@
 -- scripts/schema.sql — foxstar Neon Postgres 스키마 (멱등: IF NOT EXISTS)
 -- 실행: npm run seed (scripts/seed.js 가 이 파일을 문장 단위로 실행)
+-- ★ 문장 분리는 '세미콜론 + 줄바꿈' 기준이다. 따라서 한 문장 안에 세미콜론을 두면
+--   중간에서 잘려 실행이 깨진다 — DO $$ … $$ 블록·함수 본문·문자열 리터럴 안의
+--   세미콜론 모두 금지. 조건부 마이그레이션이 필요하면 반복 실행해도 안전한
+--   단일 문장(IF NOT EXISTS / 같은 타입으로의 ALTER 등)으로 표현할 것.
 -- 규칙: 표준 PostgreSQL 만 사용. 트리거 없음 — updated_at 은 쿼리에서 명시 갱신.
 -- 다중 유니온 대비: 모든 테이블에 union_id (기본 1 = 여우별).
 
@@ -87,16 +91,12 @@ CREATE TABLE IF NOT EXISTS character_daily (
 CREATE INDEX IF NOT EXISTS character_daily_date_idx
   ON character_daily (union_id, snapshot_date);
 
--- 기존 배포 DB 마이그레이션: extra 를 jsonb → text 로 (신규 생성 시엔 no-op).
--- 테이블을 한 번 재작성하므로 데이터가 많으면 시간이 걸린다 — 대신 그만큼 줄어든다.
-DO $$
-BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.columns
-             WHERE table_name = 'character_daily' AND column_name = 'extra'
-               AND data_type = 'jsonb') THEN
-    ALTER TABLE character_daily ALTER COLUMN extra TYPE text;
-  END IF;
-END $$;
+-- 기존 배포 DB 마이그레이션: extra 를 jsonb → text 로.
+-- USING 절 없이 변환되고, 이미 text 면 아무 일도 하지 않으므로 반복 실행해도 안전하다.
+-- 주의: 변환된 값은 jsonb 의 직렬화 형태라 공백이 들어간다
+-- ({"eq": {"head": …}}). 새로 적재되는 행은 JSON.stringify 의 압축 형태라 문자열이
+-- 다른데, api/history.js 의 diff 는 ::jsonb 로 파싱해 비교하므로 영향이 없다.
+ALTER TABLE character_daily ALTER COLUMN extra TYPE text;
 
 -- 유니온 레이드 덱/모의전 점수 제출 (멤버당 시즌당 슬롯 1~3)
 CREATE TABLE IF NOT EXISTS raid_submissions (
