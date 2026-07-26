@@ -19,7 +19,19 @@
 //       { requested:{from,to}, compared:{a,b}|null,
 //         available:{count,first,last},
 //         members: [{uid,name,syncro:[a,b],acct?,outpost?,hasA}],   (active 로스터 전원)
-//         events:  [{uid,char,t,…}] }   t = acquire|upgrade|skill|item|cube|equip
+//         events:  [{uid,char,t,…}] }   t = acquire|upgrade|skill|item|equip
+//       큐브 레벨은 character_daily 에 계속 기록하되 이벤트로는 내보내지 않는다
+//       (재료 소모로 수시 변동 — 성장 비교에서는 노이즈).
+//       equip 이벤트는 옵션 칸 단위 상세를 싣는다:
+//         { t:'equip', a,b: 총 옵션 줄 수,
+//           parts: [{ p:'head'|'torso'|'arm'|'leg', ch: [변화, …] }] }
+//         변화 = { k:'up'|'down', s, e:코드, a:이전값, b:이후값 }   (옵션 강화)
+//               | { k:'add',  s, e, b }                            (새 옵션)
+//               | { k:'drop', s, e, a }                            (옵션 해제)
+//               | { k:'swap', s, e:이전코드, a, e2:이후코드, b }     (리롤)
+//         e/e2 는 api/_lib/history.js EFFECT_CODE 의 축약 코드.
+//         s 는 정렬용 칸 번호 — 초기 수집 행은 칸이 밀려 있어 표시하지 않는다
+//         (아래 diffPartSlots 주석 참고).
 //       스냅샷이 2개 미만이거나 a===b 면 members/events 는 빈 배열.
 //   ?kind=char-list                  → { date, characters: [{name, owners}] }
 //       (최신 스냅샷 기준 유니온 보유 캐릭터 목록 — 캐릭터 보기 선택 UI 용, 보유자 많은 순)
@@ -92,12 +104,89 @@ function jsonOrNull(v) {
   try { return JSON.parse(v); } catch { return null; }
 }
 
-// extra.eq 의 옵션 줄 수 합계 (장비 4부위 × 최대 3줄)
+// extra.eq 의 옵션 줄 수 합계 (장비 4부위 × 최대 3칸; 빈 칸 null 은 제외)
 function eqLines(extra) {
   if (!extra || !extra.eq) return 0;
   let n = 0;
-  for (const k of Object.keys(extra.eq)) n += Array.isArray(extra.eq[k]) ? extra.eq[k].length : 0;
+  for (const k of Object.keys(extra.eq)) {
+    const arr = extra.eq[k];
+    if (Array.isArray(arr)) for (const o of arr) if (Array.isArray(o) && o[0]) n++;
+  }
   return n;
+}
+
+// ── 장비 옵션 상세 diff ─────────────────────────────────────────
+// extra.eq 의 부위 배열([[code,value]|null, …])을 비교해 "이 부위가 가진 옵션이
+// 어떻게 달라졌는가"를 만든다. 짝짓는 순서는 좁은 조건부터:
+//   ① 같은 칸 + 코드·값 동일   → 변화 없음
+//   ② 다른 칸 + 코드·값 동일   → 변화 없음   (※ 구 형식 관용 — 아래 설명)
+//   ③ 같은 칸 + 코드 동일      → up/down (옵션 강화)
+//   ④ 다른 칸 + 코드 동일      → up/down    (※ 구 형식 관용)
+//   ⑤ 같은 칸 + 코드 다름      → swap    (리롤 — 옵션 종류 교체)
+//   ⑥ 남은 b 쪽 → add(새 옵션) / 남은 a 쪽 → drop(해제)
+//
+// ★ s(칸 번호)는 정렬용일 뿐이며 화면에 표시하지 않는다.
+//   장비 옵션 적재를 시작한 2026-07-24~26 행은 빈 칸을 버리고 압축 저장해서
+//   인덱스가 밀려 있다(실데이터 기준 보유 부위의 15.6% 가 [옵션,빈칸,옵션] 형태).
+//   그 행과 비교하면 "2칸"이 실제로는 3칸이라 칸 번호는 날조가 된다. 이 구간은
+//   '전체' 기간과 from=2026-07-24 지정에서 영구히 조회되므로 사라지지 않는다.
+//   그래서 칸 번호를 버리고 부위 단위 옵션 집합의 변화로만 이야기한다 — 이 수준에서는
+//   ①~⑥이 만드는 문장이 모두 참이다("공격력 9.7%→12.52%", "명중률 8.29% 추가" 등).
+//   칸 번호를 되살리려면 buildCharExtra 가 형식 버전(extra.v)을 함께 적재하고
+//   양쪽 v 가 신 형식일 때만 s 를 노출하면 된다.
+//
+// ④가 ⑤보다 먼저인 이유: 구 형식의 밀린 칸을 ⑤가 먼저 집으면, 실제로는 그대로인
+// 옵션을 "리롤됐다"고 지어내고 멀쩡한 옵션에 drop 을 붙인다(예: a 구 형식
+// [critRate 5.71, ammo 68.93] × b 신 형식 [critRate 5.71, atk 12.4, ammo 85.37]).
+// 반대로 ④를 먼저 두면 그 경우가 "ammo 강화 + atk 추가"로 바르게 읽힌다.
+const EQ_PARTS = ['head', 'torso', 'arm', 'leg'];
+
+function eqSlots(extra, part) {
+  const arr = extra && extra.eq && Array.isArray(extra.eq[part]) ? extra.eq[part] : [];
+  const out = [];
+  for (let i = 0; i < arr.length; i++) {
+    const o = arr[i];
+    if (Array.isArray(o) && o[0]) out.push({ i, e: String(o[0]), v: o[1] == null ? null : Number(o[1]) });
+  }
+  return out;
+}
+
+function diffPartSlots(A, B) {
+  const usedA = new Set(), usedB = new Set(), ch = [];
+  // pass: 술어 match 를 만족하는 쌍을 소거. sameSlot=true 면 같은 칸만 짝짓는다.
+  const pair = (match, sameSlot, emit) => {
+    for (let x = 0; x < A.length; x++) {
+      if (usedA.has(x)) continue;
+      for (let y = 0; y < B.length; y++) {
+        if (usedB.has(y)) continue;
+        if (sameSlot && A[x].i !== B[y].i) continue;
+        if (!match(A[x], B[y])) continue;
+        usedA.add(x); usedB.add(y);
+        if (emit) ch.push(emit(A[x], B[y]));
+        break;
+      }
+    }
+  };
+  const same = (a, b) => a.e === b.e && a.v === b.v;
+  const sameCode = (a, b) => a.e === b.e;
+  pair(same, true, null);
+  pair(same, false, null);
+  pair(sameCode, true, (a, b) => ({ k: (b.v || 0) >= (a.v || 0) ? 'up' : 'down', s: b.i, e: b.e, a: a.v, b: b.v }));
+  pair(sameCode, false, (a, b) => ({ k: (b.v || 0) >= (a.v || 0) ? 'up' : 'down', s: b.i, e: b.e, a: a.v, b: b.v }));
+  pair(() => true, true, (a, b) => ({ k: 'swap', s: b.i, e: a.e, a: a.v, e2: b.e, b: b.v }));
+  for (let y = 0; y < B.length; y++) if (!usedB.has(y)) ch.push({ k: 'add', s: B[y].i, e: B[y].e, b: B[y].v });
+  for (let x = 0; x < A.length; x++) if (!usedA.has(x)) ch.push({ k: 'drop', s: A[x].i, e: A[x].e, a: A[x].v });
+  return ch.sort((p, q) => p.s - q.s);
+}
+
+// 두 시점의 extra → [{p, ch:[…]}] (변화 있는 부위만). 변화 없으면 빈 배열.
+function eqDiff(ae, be) {
+  const parts = [];
+  for (const p of EQ_PARTS) {
+    const ch = diffPartSlots(eqSlots(ae, p), eqSlots(be, p));
+    if (ch.length) parts.push({ p, ch });
+  }
+  return parts;
 }
 
 module.exports = async function handler(req, res) {
@@ -200,13 +289,14 @@ module.exports = async function handler(req, res) {
           'LEFT JOIN member_daily b ON b.union_id = m.union_id AND b.uid = m.uid AND b.snapshot_date = $3 ' +
           'WHERE m.union_id = $1 AND m.active ORDER BY m.name',
           [UNION_ID, a, b]),
-        // 변화 있는 캐릭터 행만 (atk/hp/def/레벨은 싱크로 연동 상시 변동이라 제외)
+        // 변화 있는 캐릭터 행만 (atk/hp/def/레벨은 싱크로 연동 상시 변동이라 제외;
+        // 큐브 레벨은 기록만 하고 비교에서는 제외 — 재료 소모로 수시 변동해 노이즈)
         query(
           'SELECT COALESCE(a.uid, b.uid) AS uid, COALESCE(a.char_name, b.char_name) AS name, ' +
           '(a.uid IS NULL) AS added, (b.uid IS NULL) AS removed, ' +
           'a.skill1 AS as1, a.skill2 AS as2, a.skill3 AS as3, b.skill1 AS bs1, b.skill2 AS bs2, b.skill3 AS bs3, ' +
           'a.upgrade AS au, b.upgrade AS bu, a.item_grade AS aig, a.item_level AS ail, ' +
-          'b.item_grade AS big, b.item_level AS bil, a.cube_level AS ac, b.cube_level AS bc, ' +
+          'b.item_grade AS big, b.item_level AS bil, ' +
           'a.extra AS ae, b.extra AS be ' +
           'FROM (SELECT * FROM character_daily WHERE union_id = $1 AND snapshot_date = $2) a ' +
           'FULL OUTER JOIN (SELECT * FROM character_daily WHERE union_id = $1 AND snapshot_date = $3) b ' +
@@ -215,7 +305,6 @@ module.exports = async function handler(req, res) {
           'OR a.skill1 IS DISTINCT FROM b.skill1 OR a.skill2 IS DISTINCT FROM b.skill2 ' +
           'OR a.skill3 IS DISTINCT FROM b.skill3 OR a.upgrade IS DISTINCT FROM b.upgrade ' +
           'OR a.item_grade IS DISTINCT FROM b.item_grade OR a.item_level IS DISTINCT FROM b.item_level ' +
-          'OR a.cube_level IS DISTINCT FROM b.cube_level ' +
           "OR (a.extra -> 'eq') IS DISTINCT FROM (b.extra -> 'eq')",
           [UNION_ID, a, b]),
         // a 시점에 캐릭터 수집이 있던 uid — 신규 인원의 전 캐릭터가 '신규 보유'로 오인되는 것을 차단
@@ -268,15 +357,11 @@ module.exports = async function handler(req, res) {
         if (gb > ga || (gb > 0 && gb === ga && (r.bil || 0) > (r.ail || 0))) {
           base.events.push({ uid, char, t: 'item', a: ga ? [r.aig, r.ail] : null, b: [r.big, r.bil] });
         }
-        if (r.bc != null && (r.bc || 0) > (r.ac || 0)) base.events.push({ uid, char, t: 'cube', a: r.ac, b: r.bc });
         // 장비 옵션 — 양 시점 모두 extra 가 수집된 경우만 (수집 개시 이전과의 비교 노이즈 방지)
         const ae = jsonOrNull(r.ae), be = jsonOrNull(r.be);
-        if (ae && be && JSON.stringify(ae.eq || null) !== JSON.stringify(be.eq || null)) {
-          const parts = [];
-          for (const p of ['head', 'torso', 'arm', 'leg']) {
-            if (JSON.stringify((ae.eq || {})[p] || null) !== JSON.stringify((be.eq || {})[p] || null)) parts.push(p);
-          }
-          base.events.push({ uid, char, t: 'equip', a: eqLines(ae), b: eqLines(be), parts });
+        if (ae && be) {
+          const parts = eqDiff(ae, be);
+          if (parts.length) base.events.push({ uid, char, t: 'equip', a: eqLines(ae), b: eqLines(be), parts });
         }
       }
 
