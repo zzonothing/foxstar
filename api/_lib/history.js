@@ -292,7 +292,7 @@ async function snapshotDates() {
 //     등호에서 성립하는 메커니즘이 미묘하다 — dailyFrom 은 today-29 라 today-30 은
 //     이미 주간 구간이다. 그런데도 정확히 30일이 나오는 건 일별 창 경계에 걸친 주
 //     버킷의 생존자가 항상 today-30(= dailyFrom-1)이기 때문이다. 이 생존자만은
-//     수요일이 아니며, 그 덕에 '30일' 프리셋이 정확히 착지한다.
+//     일요일이 아니며, 그 덕에 '30일' 프리셋이 정확히 착지한다.
 // * 상한을 26주(반년)로 줄인 이유는 용량 압박이 아니라 타이밍이다. 히스토리
 //   테이블은 2026-07-23 부터 쌓기 시작해 지금 며칠치뿐이라 지금 낮추면 삭제되는
 //   행이 0이고, 상한이 실제로 무는 것은 2027-01 이후다. 반대로 포화된 뒤에 낮추면
@@ -316,6 +316,15 @@ const PRUNE_DAILY_DAYS = 30;   // 이 기간 안은 매일 보관 (UI 의 7일·
 const PRUNE_TOTAL_WEEKS = 26;  // 전체 보관 상한 (반년). api/history.js 의 DEFAULT_RANGE_DAYS 가 이 값에서 파생된다
 const PRUNE_BATCH = 60;        // 한 DELETE 에 넣을 날짜 수
 
+// 주 버킷의 시작 요일 보정. dayNum 은 에폭 기준 일 번호이고 에폭 day 0(1970-01-01)이
+// 목요일이라, 보정 없이 floor(dayNum/7) 을 쓰면 버킷이 목~수로 끊겨 '그 주의 마지막'
+// 이 수요일이 된다. 4를 빼면 버킷이 월~일이 되어 **일요일 스냅샷**이 남는다 —
+// 니케의 주간 리셋 직전, 즉 '그 주에 최종적으로 도달한 상태'다.
+// 다른 요일로 옮기려면 (남길 요일 - 3) mod 7 (0=일 … 6=토): 일 4 / 월 5 / 수 0 / 토 3.
+// 바꿔도 비싸지 않다 — 주간 구간의 생존 날짜는 정확히 7일 등차수열이라 어떤 7일
+// 분할로 다시 나눠도 버킷당 1개씩 들어간다(실측: 보정값 0~4 삭제 0건, 5~6 최대 1건).
+const PRUNE_WEEK_OFFSET = 4;
+
 const DAY_MS = 86400000;
 const dayNum = d => Math.floor(Date.parse(d + 'T00:00:00Z') / DAY_MS);
 const shiftDate = (d, days) =>
@@ -327,11 +336,11 @@ function datesToPrune(dates, today) {
   const dailyFrom = shiftDate(today, -(PRUNE_DAILY_DAYS - 1));
   const totalFrom = shiftDate(today, -(PRUNE_TOTAL_WEEKS * 7 - 1));
   const keep = new Set();
-  const weekLast = new Map(); // 주 버킷(에폭 기준 7일) → 그 주의 마지막 날짜
+  const weekLast = new Map(); // 주 버킷(월~일) → 그 주의 마지막 날짜 = 일요일
   for (const d of dates) {
     if (d < totalFrom) continue;                    // 보관 상한 밖 → 삭제
     if (d >= dailyFrom) { keep.add(d); continue; }  // 일별 창 안 → 보관
-    const wk = Math.floor(dayNum(d) / 7);
+    const wk = Math.floor((dayNum(d) - PRUNE_WEEK_OFFSET) / 7);
     const prev = weekLast.get(wk);
     if (prev === undefined || d > prev) weekLast.set(wk, d);
   }
