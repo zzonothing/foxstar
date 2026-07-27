@@ -17,7 +17,7 @@ Serverless functions (CommonJS, all under `api/`): `auth.js` (login), `data.js` 
 - **Deploy preview**: `vercel`
 - **Deploy production**: `vercel --prod`
 - **DB schema + initial seed** (needs `DATABASE_URL`): `npm run seed` — runs `scripts/schema.sql` (table creation + repeat-safe migrations), then bootstraps **only what is missing**: `api/_data/**` docs are written to `data_docs` for keys the DB does not already have, the `members` roster is synced, and one day of daily history is backfilled **only if that date has no rows yet**. Roster/backfill read the doc from the **DB** when present, disk otherwise. This is what makes it safe to run on a live DB just to apply a schema migration — `api/_data/**` is a bootstrap copy, not the source of truth (`member.js`/`character.js` are regenerated into the DB by `api/ingest.js`; notice/raid/solo are updated in the DB only), so overwriting from disk silently rewinds production data. `npm run seed -- --force` restores the old behaviour (overwrite every doc + today's history from disk) — use it only for a deliberate full restore
-- **Upload a doc without redeploy**: `ADMIN_KEY=… node scripts/upload-doc.js <docKey>`; >3MB files auto-gzip to dodge the 4.5MB request limit
+- **Upload a doc without redeploy**: `SITE=https://<deployment> ADMIN_KEY=… node scripts/upload-doc.js <docKey>`; >3MB files auto-gzip to dodge the 4.5MB request limit. `SITE` has **no default** on purpose — one repo serves several union deployments but `.env.local` is singular, so a default would silently upload to the wrong union (`api/admin-data.js` has no union concept and would accept it). The script prints its target
 - **Backup DB docs to disk**: `DATABASE_URL=… node scripts/dump-docs.js [outdir]`
 
 Required environment variables (set in Vercel project settings or `.env.local`):
@@ -63,7 +63,7 @@ Consequences for editing:
 - Keep `/login.html` structurally minimal. Do **not** add a sticky header, view-transition, speculation rules, or `position: fixed` elements — those bring the iOS 26 bug back.
 - When adding a new top-level page: (1) add its path to the `ALLOWED_PATHS` whitelist in `login.html`, (2) add it to `NAV_ITEMS` in `js/common.js` if it should appear in the nav, (3) load `js/common.js` and call `authGuardOrRedirect()` in the page's main-script guard (copy the pattern from `index.html`/`raid.html`), and (4) copy the `카카오톡 인앱 우회 + 로딩 워치독` inline block and the non-render-blocking Google Fonts `<link>` into its `<head>`.
 - Vercel functions use CommonJS (`module.exports = function handler(req, res) {}`), not ES modules. New endpoints count against the Hobby plan's 12-function limit (currently 10 in use).
-- `js/common.js` and `css/style.css` are cached for a day (`vercel.json` `/js/*`·`/css/*` headers) — when you change either, bump its `?v=N` query on **every** page that references it (`<script src="js/common.js?v=N">` on the 9 nav pages; `<link href="css/style.css?v=N">` on all pages) so browsers refetch. Keep the version identical across pages — a mismatch means pages pick up a CSS/JS change on different days. (Current: `common.js?v=9`, `style.css?v=7`.)
+- `js/common.js` and `css/style.css` are cached for a day (`vercel.json` `/js/*`·`/css/*` headers) — when you change either, bump its `?v=N` query on **every** page that references it (`<script src="js/common.js?v=N">` on the 9 nav pages; `<link href="css/style.css?v=N">` on all pages) so browsers refetch. Keep the version identical across pages — a mismatch means pages pick up a CSS/JS change on different days. (Current: `common.js?v=10`, `style.css?v=7`.)
 
 ### Page layout
 
@@ -83,7 +83,9 @@ Standalone HTML files share `css/style.css` and `js/common.js`. There is no bund
 
 Two pages sit outside the shared nav: `login.html` (the auth gate) and `admin.html` (운영진 전용 멤버 인증 관리). `admin.html` is not in `NAV_ITEMS`; instead `renderHeader` appends a "관리자" tab only when `isAdminHint()` (a `localStorage.fstarAdmin` hint set by `login.html`/`submit.html`/`admin.html` from the server's `admin` flag — the hint is UI-only, the page and `/api/member-auth` re-verify server-side, and it re-syncs on each login round-trip). `admin.html` loads no gated data file; it gates itself on the `/api/member-auth` GET (401 → login redirect) and splits admin/non-admin views on the returned `admin` flag. It lists every member's PIN-registration state (`claimed` + `claimed_at`), lets an admin reset an individual member's PIN (immediate logout for that member; resetting yourself logs you out), and force-reauth everyone — all via existing `/api/member-auth` actions (`reset`, `forceReauth`).
 
-`data/config.js` and `data/raidGuide.js` are the truly static, public data files. `config.js` contains `CONFIG = { unionName, kakaoUrl, schedule: { unionRaid, soloRaid } }` — the schedule fields are `null` until confirmed (pages render "미정" when null). `raidGuide.js` holds `RAID_GUIDE`, the manually tuned tier/role cultivation rules `guide.html` reads.
+`data/config.js` and `data/raidGuide.js` are the truly static, public data files. `config.js` exposes `CONFIG = { unionName, kakaoUrl, logo, schedule: { unionRaid, soloRaid } }` — the schedule fields are game-global (shared by every union) and stay `null` until confirmed (pages render "미정" when null). `raidGuide.js` holds `RAID_GUIDE`, the manually tuned tier/role cultivation rules `guide.html` reads.
+
+**Per-union branding lives in `config.js`'s `SITES` table, keyed by hostname prefix** (see 다중 유니온 배포 below). Never hardcode a union name or logo into a shared file (`js/common.js`, any page) — it will show up on the other union's site. The `<link rel="icon">` in each page's `<head>` stays `image/foxstar.png` as a static default and is swapped at runtime by `applyFavicon()` in `common.js` (and by `login.html`'s own inline script, since that page deliberately does not load `common.js`).
 
 The home (`index.html`) member popup and the raid (`raid.html`) member popup are the **same** component: `buildMemberPopupHTML(ctx, name, season)` in `js/common.js`. Each page passes a small `POPUP_CTX = { members, ROLE_KO, roleOf, seasonKeys, lvlMaps, raidKeys, OPF }` (page-local data); the function reads the `UNION`/`RAID` globals and common helpers directly. Edit the popup once, in `common.js`.
 
@@ -131,6 +133,37 @@ Pure CSS custom properties on `:root` and `html.dark`. Dark-mode preference is p
 - UI strings, comments, and commit messages in the existing code are Korean; match that when editing user-visible text.
 - Character portrait images live in `image/<korean-name>.webp`; the `image/D_<name>.webp` prefix marks "deprecated/old" portraits kept for historical seasons.
 - No module system on the front-end — every data file declares a global (`CONFIG`, `UNION`, `RAID`, `CHARACTERS`, `SOLO`, `NOTICE`, `RAID_GUIDE`), and `js/common.js` declares its shared helpers as bare globals too. Keep that pattern; the auth gate relies on `<script src>` semantics.
+
+## 다중 유니온 배포 (여우별 · 나증단)
+
+One repo, one branch (`main`), **two Vercel projects, two Neon projects**:
+
+| | 여우별 | 나증단 |
+|---|---|---|
+| 도메인 | `foxstar.vercel.app` | `nzdunion.vercel.app` |
+| `UNION_ID` | 1 (미설정) | 2 |
+| `ADMIN_NAMES` | 미설정 → 기본 `SUM,유화` | `솜사탕` |
+| 서명 키 | `ACCESS_KEY` (레거시 폴백) | `SESSION_SECRET` |
+| ingest 키 | `ADMIN_KEY` (폴백) | `INGEST_KEY` |
+
+**한 DB 를 공유하는 구성은 불가능하다** — `data_docs` 만 `union_id` 컬럼이 없어 두 유니온의 `member.js`/`character.js` 가 같은 행을 덮어쓴다. 나머지 테이블(`members`, `app_settings`, `member_daily`, `character_daily`, `raid_submissions`, `polls`; `poll_responses` 는 `poll_id` FK 로 상속)은 전부 `union_id` 로 격리돼 있다. Neon 무료 0.5 GB 도 계정 합산이 아니라 **프로젝트당**이라 분리가 용량 면에서도 유리하다.
+
+배포별로 반드시 **달라야** 하는 값 둘:
+- **서명 키** (`SESSION_SECRET`, 미설정 시 `ACCESS_KEY`) — `api/_lib/session.js` 의 서명 페이로드에 유니온 귀속이 없어, 같으면 한쪽 쿠키가 다른 쪽에서 검증을 통과한다. 쿠키가 host-only + `SameSite=Strict` 라 브라우저 자동 전송 경로는 없지만, 관리자 비트도 uid·유니온에 묶여 있지 않아 관리 액션 전권이 넘어간다
+- **ingest 키** (`INGEST_KEY`, 미설정 시 `ADMIN_KEY`) — 스크래퍼가 URL 을 잘못 쓰면 `syncRoster` 가 목록에 없는 기존 인원을 전부 `active=false` 로 만든다. 키가 다르면 `api/ingest.js` 가 403 으로 튕겨 사고 자체가 사라진다
+
+**브랜딩 분기**: `data/config.js` 의 `SITES` 를 `location.hostname` 접두어로 고른다. 이 파일은 게이트를 타지 않는 정적 파일이라 CDN 이 그대로 내려주고 서버 env 를 못 읽는다(함수로 바꾸면 12개 함수 슬롯을 하나 더 먹고 전 페이지 로딩 경로에 요청이 하나 붙는다). 키가 접두어라 프리뷰 배포(`<key>-git-<branch>-<team>.vercel.app`)도 함께 잡히고, 알 수 없는 호스트(localhost/`vercel dev`)는 `DEFAULT_KEY` 로 떨어진다. 유니온을 추가하려면 `SITES` 에 항목 하나만 늘리면 된다.
+
+**`index.html` 의 `og:*` 만은 분기할 수 없다** — 크롤러(카카오톡 등)가 JS 를 실행하지 않는다. 그래서 유니온 이름과 절대 URL 을 빼고 중립으로 두었고, `og:url` 을 생략해 크롤러가 실제 요청 URL 을 쓰게 했다. 유니온별 썸네일이 필요해지면 `index.html` 을 함수로 서빙하거나 배포별 브랜치를 나누는 수밖에 없다.
+
+**신규 유니온 부트스트랩 순서** (순서를 지켜야 한다):
+1. Neon 프로젝트 + Vercel 프로젝트 생성, env 설정 → 재배포 (env 는 기존 배포에 소급되지 않는다)
+2. `npm run seed` 로 스키마 생성. ⚠️ cutover 전이라면 `api/_data/**` 를 잠시 치우고 돌릴 것 — 안 그러면 **다른 유니온의 문서 5개 + 로스터 + `ADMIN_NAMES` 기본값이 그대로 심긴다**(`scripts/seed.js` 의 `seedDocs`/`seedRosterAndHistory` 는 "DB 에 없으면 디스크 사본"이 기준이고, 신규 DB 는 전부 없다). 로그인 콤보는 `members` 테이블에서 오므로 남의 유니온 닉네임이 공개 노출되고 등록 게이트가 없어 선점까지 가능하다. cutover 후에는 디스크 사본이 없어 저절로 스키마 전용이 된다
+3. `raid.js`/`solo.js`/`notice.js` 스텁 업로드 (`const RAID = {};` / `const SOLO = [];` / `const NOTICE = [];`) — cutover 후에는 문서 행이 없으면 `api/data.js` 가 404 를 반환해 페이지가 데이터 오류를 띄운다
+4. 스크래퍼 첫 ingest → 로스터 + `member.js`·`character.js` 생성. **로스터가 비면 로그인 콤보가 비어 아무도 로그인할 수 없다**
+5. 로스터가 생긴 **뒤에** `ADMIN_NAMES=… npm run seed` 재실행 → 관리자 플래그. 시드가 진실 원천이라 목록에 없는 사람의 플래그는 회수된다
+
+**스크래퍼**는 유니온을 payload 가 아니라 **전송 대상(URL + 키)** 으로 구분한다 — `/api/ingest` 에는 유니온 파라미터가 없고 자기 배포의 DB 에만 쓴다. 본문 형식·`season` 키·gzip 은 완전히 동일하다(`season` 은 게임 전역 번호라 두 유니온이 같은 값을 쓰지만 DB 가 분리돼 있어 무해). `members` 만 또는 `characters` 만 보내는 부분 전송은 피할 것 — 두 데일리 테이블의 날짜 집합이 어긋난다(위 불변식 (1)).
 
 ## Pending cutover (post-verification follow-up)
 

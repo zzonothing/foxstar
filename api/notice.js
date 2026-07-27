@@ -44,7 +44,7 @@ function safeJson(v) {
 }
 
 function serialize(list) {
-  return '// data/notice.js — 여우별 유니온 운영진 공지 (api/notice.js 가 자동 관리)\n'
+  return '// data/notice.js — 유니온 운영진 공지 (api/notice.js 가 자동 관리)\n'
        + '// 공지 작성/삭제 시 서버가 data_docs 의 이 문서를 갱신한다.\n'
        + 'const NOTICE = ' + safeJson(list) + ';\n';
 }

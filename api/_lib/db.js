@@ -17,7 +17,10 @@
 const crypto = require('crypto');
 const { makeEntry } = require('./compress');
 
-// 다중 유니온 대비: 유니온별 배포에서 env 로 구분 (기본 1 = 여우별)
+// 유니온별 배포에서 env 로 구분. 유니온마다 Neon 프로젝트가 따로라 DB 안에는
+// 유니온이 하나뿐이므로 값 자체는 뭐든 되지만, 배포마다 다르게 두면
+// DATABASE_URL 오설정으로 남의 DB 를 보게 됐을 때 조용히 쓰는 대신 빈 유니온이
+// 보인다(여우별 1 / 나증단 2). ★ data_docs 만 union_id 가 없어 DB 공유는 불가.
 const UNION_ID = parseInt(process.env.UNION_ID || '1', 10);
 
 let _sql = null;

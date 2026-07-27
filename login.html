@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#eef1f6" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
-  <title>로그인 | 여우별 유니온 포털</title>
+  <title>로그인 | 유니온 포털</title>
   <link rel="icon" type="image/png" href="image/foxstar.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -126,8 +126,8 @@
 <body>
 
 <form class="card" id="authForm" action="/api/auth" method="post" novalidate>
-  <img class="logo" src="image/foxstar.png" alt="" width="40" height="40" />
-  <div class="title" id="authTitle">여우별 유니온</div>
+  <img class="logo" id="authLogo" src="image/foxstar.png" alt="" width="40" height="40" />
+  <div class="title" id="authTitle">유니온 포털</div>
   <div class="sub" id="authSub">닉네임을 선택하고 PIN 을 입력하세요</div>
 
   <!-- ── 로그인 (기본): 등록 완료된 닉네임만 표시 ── -->
@@ -155,9 +155,16 @@
 <script src="data/config.js"></script>
 <script>
 (function() {
+  // 유니온 브랜딩 — 이 페이지는 common.js 를 쓰지 않으므로(구조 최소화 원칙,
+  // iOS 26 버그) applyFavicon 과 같은 일을 여기서 직접 한다.
   if (typeof CONFIG !== "undefined" && CONFIG && CONFIG.unionName) {
     document.getElementById("authTitle").textContent = CONFIG.unionName;
     document.title = "로그인 | " + CONFIG.unionName;
+    if (CONFIG.logo) {
+      document.getElementById("authLogo").src = CONFIG.logo;
+      var icon = document.querySelector('link[rel="icon"]');
+      if (icon) icon.setAttribute("href", CONFIG.logo);
+    }
   }
 
   var form = document.getElementById("authForm");
