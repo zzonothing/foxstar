@@ -33,8 +33,22 @@ if (!process.env.DATABASE_URL) {
   process.exit(1);
 }
 
-const { query, getDocText, parseDocJson, kstToday } = require('../api/_lib/db');
+const { query, getDocText, parseDocJson, kstToday, UNION_ID } = require('../api/_lib/db');
 const { syncRoster, upsertMemberDaily, upsertCharacterDaily } = require('../api/_lib/history');
+
+// 어느 유니온·어느 DB 에 쓰는지 먼저 찍는다. 저장소 하나를 여러 유니온이
+// 공유하고 클론도 유니온별로 두는 구성이라, 엉뚱한 클론에서 돌린 시드가
+// 조용히 다른 유니온을 건드리는 사고가 가능하다. 특히 UNION_ID 미설정 시
+// 기본 1(여우별)이 되어, 다른 유니온 DB 에 접속하고도 그 배포에는 아무
+// 효과가 없다(에러도 안 난다). 사전 점검은 `npm run whoami`.
+function dbLabel(url) {
+  try { const u = new URL(url); return u.host + u.pathname; } catch { return '(파싱 불가)'; }
+}
+console.log('대상 DB   : ' + dbLabel(process.env.DATABASE_URL));
+console.log('UNION_ID  : ' + UNION_ID + (process.env.UNION_ID ? '' : '  (미설정 → 기본 1)'));
+console.log('ADMIN_NAMES: ' + (process.env.ADMIN_NAMES || 'SUM,유화') +
+  (process.env.ADMIN_NAMES ? '' : '  (미설정 → 기본값)'));
+console.log();
 
 // 문서 원문은 DB 에서만 읽는다 (컷오버 이후 디스크 사본 없음).
 // 신규 유니온에서는 첫 ingest 전까지 null 이라 로스터·백필이 건너뛰어진다 —
