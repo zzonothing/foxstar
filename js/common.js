@@ -95,17 +95,29 @@ function themeIcon(){ return document.documentElement.classList.contains("dark")
 /* ─── 헤더/네비게이션 주입 (한 곳에서 관리) ───────────────────────
    각 페이지는 <header class="rd-header" id="rdHeader"></header> placeholder 만 둔다.
    active: 현재 페이지 파일명(예: "index.html"). */
+/* [경로, 데스크톱 라벨, 모바일 라벨, 기능키]
+   기능키가 CONFIG.features 에서 false 인 유니온에서는 nav 에서 빠지고,
+   해당 페이지를 직접 열어도 featureGuard 가 안내 화면으로 바꾼다.
+   홈은 착지 페이지라 기능키가 없다(끌 수 없음). 키 목록은 data/config.js. */
 var NAV_ITEMS = [
-  ["index.html", "홈", "홈"],
-  ["notice.html", "공지", "공지"],
-  ["raid.html", "유니온레이드", "유레"],
-  ["submit.html", "제출·일정", "제출"],
-  ["solo.html", "솔로레이드", "솔레"],
-  ["shift.html", "시프티패드", "시프티"],
-  ["stats.html", "통계", "통계"],
-  ["history.html", "성장 기록", "성장"],
-  ["guide.html", "육성 가이드", "가이드"]
+  ["index.html", "홈", "홈", null],
+  ["notice.html", "공지", "공지", "notice"],
+  ["raid.html", "유니온레이드", "유레", "raid"],
+  ["submit.html", "제출·일정", "제출", "submit"],
+  ["solo.html", "솔로레이드", "솔레", "solo"],
+  ["shift.html", "시프티패드", "시프티", "shift"],
+  ["stats.html", "통계", "통계", "stats"],
+  ["history.html", "성장 기록", "성장", "history"],
+  ["guide.html", "육성 가이드", "가이드", "guide"]
 ];
+
+/* 이 유니온에서 그 메뉴가 켜져 있는가. CONFIG 가 없으면(설정 로드 실패)
+   막지 않는다 — 데이터 오류 경로가 따로 처리한다. */
+function featureOn(key){
+  if (!key) return true;
+  if (typeof CONFIG === "undefined" || !CONFIG.features) return true;
+  return CONFIG.features[key] !== false;
+}
 /* 관리자(운영진) 전용 nav 항목 — SUM·유화 등 members.is_admin 인 멤버에게만 노출.
    HttpOnly 세션 쿠키는 JS 가 못 읽으므로, 로그인 시 서버 응답(admin 여부)을
    localStorage("fstarAdmin") 에 힌트로 남겨 즉시 표시한다. 실제 접근·액션은
@@ -127,7 +139,8 @@ function renderHeader(active){
   if (!mount) return;
   var name = (typeof CONFIG !== "undefined" && CONFIG.unionName) ? CONFIG.unionName : "유니온";
   var logo = (typeof CONFIG !== "undefined" && CONFIG.logo) ? CONFIG.logo : "image/foxstar.png";
-  var items = isAdminHint() ? NAV_ITEMS.concat([ADMIN_NAV_ITEM]) : NAV_ITEMS;
+  var items = (isAdminHint() ? NAV_ITEMS.concat([ADMIN_NAV_ITEM]) : NAV_ITEMS)
+    .filter(function(n){ return featureOn(n[3]); });
   function links(mobile){
     return items.map(function(n){
       var on = (n[0] === active) ? ' class="active"' : '';
@@ -219,6 +232,30 @@ function authGuardOrRedirect(){
     return true;
   }
   return false;
+}
+
+/* 이 유니온에서 꺼 둔 메뉴를 주소로 직접 열었을 때 — 안내 화면으로 바꾸고
+   true 를 반환한다(페이지 본 스크립트는 실행하지 않는다). 보안 경계가 아니라
+   UI 토글이다: 데이터 자체는 api/data.js 의 인증이 지킨다.
+   호출부는 __DATA_ERROR 검사보다 **앞에** 둔다 — 꺼 둔 유니온에는 그 문서
+   행이 없어 404 가 나므로, 순서가 뒤바뀌면 '데이터 오류'가 먼저 뜬다. */
+function featureGuard(key){
+  if (featureOn(key)) return false;
+  document.body.classList.add("ready");
+  try { renderHeader(""); setupTheme(); } catch (e) {}
+  var host = document.getElementById("rdContent")
+    || document.querySelector("main .container")
+    || document.body;
+  host.innerHTML =
+    '<div class="fstar-error" role="status">' +
+      '<div class="fstar-error-emoji" aria-hidden="true">🔒</div>' +
+      '<div class="fstar-error-title">사용하지 않는 메뉴예요</div>' +
+      '<div class="fstar-error-desc">' +
+        esc((typeof CONFIG !== "undefined" && CONFIG.unionName) ? CONFIG.unionName : "이 유니온") +
+        ' 에서는 이 기능을 쓰지 않습니다.</div>' +
+      '<a class="fstar-error-btn" href="index.html">홈으로</a>' +
+    '</div>';
+  return true;
 }
 
 /* ─── 렌더 완료 표시(로더 숨김 + 본문 노출) ─────────────────────── */

@@ -27,6 +27,15 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 const CONFIG = (function () {
+  // 유니온별로 끌 수 있는 메뉴. 여기 적힌 키를 site.features 에 false 로 두면
+  // nav 에서 사라지고, 주소로 직접 열어도 '사용하지 않는 메뉴' 안내가 뜬다.
+  // 홈(index)은 착지 페이지라 끌 수 없다. 다시 켜려면 false 를 지우면 된다.
+  //
+  // ※ 이 파일은 게이트를 타지 않는 공개 정적 파일이다 — 기능 토글은 비밀이
+  //   아니라 UI 노출 제어일 뿐이며, 데이터 자체는 api/data.js 인증이 지킨다.
+  var FEATURE_KEYS = ["notice", "raid", "submit", "solo",
+                      "shift", "stats", "history", "guide"];
+
   var SITES = [
     {
       // Vercel 프로젝트 foxstar — foxstar.vercel.app
@@ -34,6 +43,7 @@ const CONFIG = (function () {
       unionName: "여우별 유니온",
       kakaoUrl:  "https://open.kakao.com/o/gBwHo1tg",  // 가입 문의 오픈톡방 링크
       logo:      "image/foxstar.png",
+      // features 생략 = 전부 켜짐
     },
     {
       // Vercel 프로젝트 nzd — 프로덕션 nzdunion.vercel.app · 프리뷰 nzd-git-… 둘 다 커버
@@ -41,6 +51,7 @@ const CONFIG = (function () {
       unionName: "나증단",
       kakaoUrl:  "",                  // 오픈톡방 링크가 정해지면 채울 것
       logo:      "image/foxstar.png", // image/nzd.png 를 넣으면 여기만 교체
+      features:  { notice: false, submit: false, solo: false },
     },
   ];
   // 알 수 없는 호스트(localhost·vercel dev·미등록 커스텀 도메인)의 기본값
@@ -54,10 +65,18 @@ const CONFIG = (function () {
     }
   }
 
+  // 알려진 키를 전부 채워 둔다 — 소비자가 기본값 처리를 안 해도 되게.
+  var features = {};
+  for (var k = 0; k < FEATURE_KEYS.length; k++) {
+    var key = FEATURE_KEYS[k];
+    features[key] = !(site.features && site.features[key] === false);
+  }
+
   return {
     unionName: site.unionName,
     kakaoUrl:  site.kakaoUrl,
     logo:      site.logo,
+    features:  features,
 
     // 일정 설정 — 게임 전역이라 유니온 공통이다.
     // 확정 전: null → "미정" 으로 표시
