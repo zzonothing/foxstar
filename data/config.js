@@ -14,11 +14,11 @@
 //  형태라 접두어여야 프로덕션과 프리뷰가 함께 잡힌다.
 //
 //  ★ 접두어는 **도메인이 아니라 Vercel 프로젝트 이름**을 기준으로 잡을 것.
-//    프로덕션 도메인은 프로젝트 이름과 다르게 지정할 수 있지만(예: 프로젝트 nzd
-//    → nzdunion.vercel.app), 프리뷰 URL 은 언제나 프로젝트 이름으로 시작한다.
-//    프로젝트 이름을 접두어로 두면 프로덕션 도메인이 그것으로 시작하는 한
-//    (nzd → nzd.vercel.app · nzdunion.vercel.app) 둘 다 커버된다.
-//    커스텀 도메인을 붙였다면 hosts 에 그 호스트를 추가해야 한다.
+//    프로덕션 도메인은 프로젝트 이름과 다르게 지정할 수 있고 나증단이 그 경우다 —
+//    nzd.vercel.app 은 외부 사용자가 선점해 프로덕션이 nzdunion.vercel.app 이다.
+//    그래도 프리뷰 URL 은 언제나 프로젝트 이름으로 시작하므로, 접두어 하나가
+//    프로덕션(nzdunion…)과 프리뷰(nzd-git-…)를 함께 잡는다.
+//    프로젝트 이름으로 시작하지 않는 커스텀 도메인을 붙였다면 hosts 에 추가할 것.
 //
 //  ★ og:* 메타태그는 여기서 못 고친다 — 크롤러(카카오톡 등)는 JS 를 실행하지
 //    않으므로 index.html 의 정적 값이 그대로 쓰인다. 그래서 og 는 유니온 이름을
@@ -36,7 +36,7 @@ const CONFIG = (function () {
       logo:      "image/foxstar.png",
     },
     {
-      // Vercel 프로젝트 nzd — nzd.vercel.app · nzdunion.vercel.app 둘 다 커버
+      // Vercel 프로젝트 nzd — 프로덕션 nzdunion.vercel.app · 프리뷰 nzd-git-… 둘 다 커버
       hosts:     ["nzd"],
       unionName: "나증단",
       kakaoUrl:  "",                  // 오픈톡방 링크가 정해지면 채울 것
