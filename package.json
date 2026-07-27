@@ -6,6 +6,7 @@
     "@neondatabase/serverless": "^1.0.0"
   },
   "scripts": {
+    "whoami": "node scripts/whoami.js",
     "seed": "node scripts/seed.js",
     "upload-doc": "node scripts/upload-doc.js",
     "dump-docs": "node scripts/dump-docs.js"

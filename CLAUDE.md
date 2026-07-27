@@ -19,6 +19,7 @@ Serverless functions (CommonJS, all under `api/`): `auth.js` (login), `data.js` 
 - **DB schema + initial seed** (needs `DATABASE_URL`): `npm run seed` — runs `scripts/schema.sql` (table creation + repeat-safe migrations), then reports which of the 5 docs the DB holds, syncs the `members` roster from the DB's `member.js`, and backfills one day of daily history **only if that date has no rows yet**. It **never writes docs** — since the cutover there is no disk copy to seed from, so the script is effectively "schema + roster + admin flags", safe to run on a live DB just to apply a migration. If `member.js` is absent (a new union before its first ingest) the roster/backfill steps are skipped, which is normal. `npm run seed -- --force` only re-backfills today's history — use it to overwrite a day the scraper got wrong
 - **Upload a doc without redeploy**: `SITE=https://<deployment> ADMIN_KEY=… node scripts/upload-doc.js <docKey> <filePath>`; >3MB files auto-gzip to dodge the 4.5MB request limit. `filePath` is **required** (the cutover removed `api/_data/`, so there is no default source — pull the current doc with `dump-docs.js` if you want to edit it). `SITE` has **no default** on purpose — one repo serves several union deployments but `.env.local` is singular, so a default would silently upload to the wrong union (`api/admin-data.js` has no union concept and would accept it). The script prints its target
 - **Backup DB docs to disk**: `DATABASE_URL=… node scripts/dump-docs.js [outdir]`
+- **Which union does this clone point at?**: `npm run whoami` — read-only preflight. Prints the DB host, effective `UNION_ID`/`ADMIN_NAMES`, that union's roster/admin counts, doc presence, and history span, then says whether `npm run seed` would revoke anyone's admin. Run it before `seed` on any clone you did not just verify
 
 Required environment variables (set in Vercel project settings or `.env.local`):
 - `SESSION_SECRET` — HMAC secret for session/member cookies. **Set this explicitly** — the code falls back to `ACCESS_KEY` if unset, and `ACCESS_KEY` is otherwise unused since password login was removed
@@ -159,12 +160,16 @@ One repo, one branch (`main`), **two Vercel projects, two Neon projects**:
 
 **`index.html` 의 `og:*` 만은 분기할 수 없다** — 크롤러(카카오톡 등)가 JS 를 실행하지 않는다. 그래서 유니온 이름과 절대 URL 을 빼고 중립으로 두었고, `og:url` 을 생략해 크롤러가 실제 요청 URL 을 쓰게 했다. 유니온별 썸네일이 필요해지면 `index.html` 을 함수로 서빙하거나 배포별 브랜치를 나누는 수밖에 없다.
 
+**로컬 클론은 유니온마다 따로 둔다.** 배포별 env 가 다르므로 `.env.local`(=`vercel env pull` 산출물)도 배포별이고, 한 클론에서 두 유니온을 오가면 `DATABASE_URL`·`UNION_ID`·`ADMIN_NAMES` 를 매번 손으로 갈아야 한다. 클론이 나뉘어 있으면 `npm run seed` 를 인자 없이 돌리는 것만으로 그 유니온에 맞게 동작한다.
+
+★ **로컬 스크립트에는 Vercel env 가 붙지 않는다.** `api/_lib/db.js` 의 `UNION_ID` 는 `process.env.UNION_ID || 1` 이라, 나증단 DB 에 접속하고도 `UNION_ID` 가 없으면 `union_id=1` 행을 건드린다 — 나증단 배포는 `union_id=2` 를 읽으므로 **아무 효과가 없고 에러도 나지 않는다.** 반대로 `ADMIN_NAMES` 를 빠뜨리면 기본값 `SUM,유화` 가 적용되어 그 유니온의 관리자가 회수된다(시드가 진실 원천). 그래서 `.env.local` 에 `UNION_ID`·`ADMIN_NAMES` 가 실제로 들어 있는지가 중요하고, Vercel 에 나중에 추가했다면 `vercel env pull .env.local` 을 다시 해야 한다. `npm run whoami` 가 이 셋을 그대로 찍어 준다 — 쓰기 전에 그걸 먼저 볼 것. (셸 환경변수는 `.env.local` 을 이긴다 — Node `loadEnvFile` 는 이미 설정된 값을 덮어쓰지 않는다.)
+
 **신규 유니온 부트스트랩 순서** (순서를 지켜야 한다):
 1. Neon 프로젝트 + Vercel 프로젝트 생성, env 설정 → 재배포 (env 는 기존 배포에 소급되지 않는다)
 2. `npm run seed` 로 스키마 생성. 컷오버 이후로는 디스크 사본이 없어 **스키마 전용**이다 — 문서를 쓰지 않고, `member.js` 가 없으니 로스터/백필도 건너뛴다(정상). 예전에는 이 단계가 신규 DB 에 **다른 유니온의 문서 5개 + 로스터 + `ADMIN_NAMES` 기본값을 그대로 심는** 사고 경로였다(로그인 콤보가 `members` 에서 오므로 남의 유니온 닉네임이 공개 노출되고, 등록 게이트가 없어 선점까지 가능했다)
 3. `raid.js`/`solo.js`/`notice.js` 스텁 업로드 (`const RAID = {};` / `const SOLO = [];` / `const NOTICE = [];`) — 문서 행이 없으면 `api/data.js` 가 404 를 반환해 페이지가 데이터 오류를 띄운다. 파일을 만들어 `node scripts/upload-doc.js raid.js ./raid.js` 처럼 경로를 넘긴다
 4. 스크래퍼 첫 ingest → 로스터 + `member.js`·`character.js` 생성. **로스터가 비면 로그인 콤보가 비어 아무도 로그인할 수 없다**
-5. 로스터가 생긴 **뒤에** `ADMIN_NAMES=… npm run seed` 재실행 → 관리자 플래그. 시드가 진실 원천이라 목록에 없는 사람의 플래그는 회수된다
+5. 로스터가 생긴 **뒤에** `npm run seed` 재실행 → 관리자 플래그. 시드가 진실 원천이라 목록에 없는 사람의 플래그는 회수된다. 그 클론의 `.env.local` 에 `UNION_ID`·`ADMIN_NAMES` 가 있는지 `npm run whoami` 로 먼저 확인할 것
 
 **스크래퍼**는 유니온을 payload 가 아니라 **전송 대상(URL + 키)** 으로 구분한다 — `/api/ingest` 에는 유니온 파라미터가 없고 자기 배포의 DB 에만 쓴다. 본문 형식·`season` 키·gzip 은 완전히 동일하다(`season` 은 게임 전역 번호라 두 유니온이 같은 값을 쓰지만 DB 가 분리돼 있어 무해). `members` 만 또는 `characters` 만 보내는 부분 전송은 피할 것 — 두 데일리 테이블의 날짜 집합이 어긋난다(위 불변식 (1)).
 
