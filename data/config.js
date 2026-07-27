@@ -9,8 +9,16 @@
 //  Hobby 12개 함수 슬롯을 하나 더 먹고, 모든 페이지의 로딩 경로에 요청이 하나
 //  붙는다 — 이 파일은 전 페이지가 맨 처음 로드하는 파일이라 특히 비싸다.)
 //
-//  새 유니온을 추가하려면 SITES 에 항목 하나만 늘리면 된다. 키는 호스트명의
-//  '접두어' 라서 프리뷰 배포(<key>-git-<branch>-<team>.vercel.app)도 함께 잡힌다.
+//  새 유니온을 추가하려면 SITES 에 항목 하나만 늘리면 된다. hosts 는 호스트명의
+//  '접두어' 목록이다 — 프리뷰 배포가 <프로젝트명>-git-<브랜치>-<팀>.vercel.app
+//  형태라 접두어여야 프로덕션과 프리뷰가 함께 잡힌다.
+//
+//  ★ 접두어는 **도메인이 아니라 Vercel 프로젝트 이름**을 기준으로 잡을 것.
+//    프로덕션 도메인은 프로젝트 이름과 다르게 지정할 수 있지만(예: 프로젝트 nzd
+//    → nzdunion.vercel.app), 프리뷰 URL 은 언제나 프로젝트 이름으로 시작한다.
+//    프로젝트 이름을 접두어로 두면 프로덕션 도메인이 그것으로 시작하는 한
+//    (nzd → nzd.vercel.app · nzdunion.vercel.app) 둘 다 커버된다.
+//    커스텀 도메인을 붙였다면 hosts 에 그 호스트를 추가해야 한다.
 //
 //  ★ og:* 메타태그는 여기서 못 고친다 — 크롤러(카카오톡 등)는 JS 를 실행하지
 //    않으므로 index.html 의 정적 값이 그대로 쓰인다. 그래서 og 는 유니온 이름을
@@ -19,29 +27,32 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 const CONFIG = (function () {
-  var SITES = {
-    // 여우별 — https://foxstar.vercel.app
-    foxstar: {
+  var SITES = [
+    {
+      // Vercel 프로젝트 foxstar — foxstar.vercel.app
+      hosts:     ["foxstar"],
       unionName: "여우별 유니온",
       kakaoUrl:  "https://open.kakao.com/o/gBwHo1tg",  // 가입 문의 오픈톡방 링크
       logo:      "image/foxstar.png",
     },
-    // 나증단 — https://nzdunion.vercel.app
-    nzdunion: {
+    {
+      // Vercel 프로젝트 nzd — nzd.vercel.app · nzdunion.vercel.app 둘 다 커버
+      hosts:     ["nzd"],
       unionName: "나증단",
-      kakaoUrl:  "",                    // 오픈톡방 링크가 정해지면 채울 것
-      logo:      "image/foxstar.png",   // image/nzdunion.png 를 넣으면 여기만 교체
+      kakaoUrl:  "",                  // 오픈톡방 링크가 정해지면 채울 것
+      logo:      "image/foxstar.png", // image/nzd.png 를 넣으면 여기만 교체
     },
-  };
-  // 알 수 없는 호스트(localhost·vercel dev·커스텀 도메인 추가 전)의 기본값
-  var DEFAULT_KEY = "foxstar";
+  ];
+  // 알 수 없는 호스트(localhost·vercel dev·미등록 커스텀 도메인)의 기본값
+  var DEFAULT_SITE = SITES[0];
 
   var host = (typeof location !== "undefined" && location.hostname) || "";
-  var key = DEFAULT_KEY;
-  for (var k in SITES) {
-    if (Object.prototype.hasOwnProperty.call(SITES, k) && host.indexOf(k) === 0) { key = k; break; }
+  var site = DEFAULT_SITE;
+  for (var i = 0; i < SITES.length; i++) {
+    for (var j = 0; j < SITES[i].hosts.length; j++) {
+      if (host.indexOf(SITES[i].hosts[j]) === 0) { site = SITES[i]; i = SITES.length; break; }
+    }
   }
-  var site = SITES[key];
 
   return {
     unionName: site.unionName,

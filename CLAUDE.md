@@ -140,7 +140,8 @@ One repo, one branch (`main`), **two Vercel projects, two Neon projects**:
 
 | | 여우별 | 나증단 |
 |---|---|---|
-| 도메인 | `foxstar.vercel.app` | `nzdunion.vercel.app` |
+| Vercel 프로젝트 | `foxstar` | `nzd` |
+| 도메인 | `foxstar.vercel.app` | `nzd.vercel.app` / `nzdunion.vercel.app` |
 | `UNION_ID` | 1 (미설정) | 2 |
 | `ADMIN_NAMES` | 미설정 → 기본 `SUM,유화` | `솜사탕` |
 | 서명 키 | `ACCESS_KEY` (레거시 폴백) | `SESSION_SECRET` |
@@ -152,7 +153,9 @@ One repo, one branch (`main`), **two Vercel projects, two Neon projects**:
 - **서명 키** (`SESSION_SECRET`, 미설정 시 `ACCESS_KEY`) — `api/_lib/session.js` 의 서명 페이로드에 유니온 귀속이 없어, 같으면 한쪽 쿠키가 다른 쪽에서 검증을 통과한다. 쿠키가 host-only + `SameSite=Strict` 라 브라우저 자동 전송 경로는 없지만, 관리자 비트도 uid·유니온에 묶여 있지 않아 관리 액션 전권이 넘어간다
 - **ingest 키** (`INGEST_KEY`, 미설정 시 `ADMIN_KEY`) — 스크래퍼가 URL 을 잘못 쓰면 `syncRoster` 가 목록에 없는 기존 인원을 전부 `active=false` 로 만든다. 키가 다르면 `api/ingest.js` 가 403 으로 튕겨 사고 자체가 사라진다
 
-**브랜딩 분기**: `data/config.js` 의 `SITES` 를 `location.hostname` 접두어로 고른다. 이 파일은 게이트를 타지 않는 정적 파일이라 CDN 이 그대로 내려주고 서버 env 를 못 읽는다(함수로 바꾸면 12개 함수 슬롯을 하나 더 먹고 전 페이지 로딩 경로에 요청이 하나 붙는다). 키가 접두어라 프리뷰 배포(`<key>-git-<branch>-<team>.vercel.app`)도 함께 잡히고, 알 수 없는 호스트(localhost/`vercel dev`)는 `DEFAULT_KEY` 로 떨어진다. 유니온을 추가하려면 `SITES` 에 항목 하나만 늘리면 된다.
+**브랜딩 분기**: `data/config.js` 의 `SITES` 를 `location.hostname` 접두어(`hosts` 배열)로 고른다. 이 파일은 게이트를 타지 않는 정적 파일이라 CDN 이 그대로 내려주고 서버 env 를 못 읽는다(함수로 바꾸면 12개 함수 슬롯을 하나 더 먹고 전 페이지 로딩 경로에 요청이 하나 붙는다). 알 수 없는 호스트(localhost/`vercel dev`/미등록 커스텀 도메인)는 `SITES[0]` 로 떨어진다. 유니온을 추가하려면 항목 하나만 늘리면 된다.
+
+★ **접두어는 도메인이 아니라 Vercel 프로젝트 이름 기준으로 잡을 것.** 프로덕션 도메인은 프로젝트 이름과 다르게 지정할 수 있지만(프로젝트 `nzd` → `nzdunion.vercel.app`), **프리뷰 URL 은 언제나 프로젝트 이름으로 시작한다**(`nzd-git-<branch>-<team>.vercel.app`). 프로젝트 이름을 접두어로 두면 프로덕션 도메인이 그것으로 시작하는 한 둘 다 커버된다. 그렇지 않은 커스텀 도메인을 붙였다면 `hosts` 에 추가해야 한다 — 빠뜨리면 그 사이트가 조용히 `SITES[0]`(여우별) 브랜딩으로 뜬다.
 
 **`index.html` 의 `og:*` 만은 분기할 수 없다** — 크롤러(카카오톡 등)가 JS 를 실행하지 않는다. 그래서 유니온 이름과 절대 URL 을 빼고 중립으로 두었고, `og:url` 을 생략해 크롤러가 실제 요청 URL 을 쓰게 했다. 유니온별 썸네일이 필요해지면 `index.html` 을 함수로 서빙하거나 배포별 브랜치를 나누는 수밖에 없다.
 
