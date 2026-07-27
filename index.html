@@ -7,10 +7,12 @@
   <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
   <title>유니온 포털 | 승리의 여신: 니케</title>
   <meta property="og:type"        content="website" />
-  <meta property="og:title"       content="여우별 유니온 포털" />
-  <meta property="og:description" content="여우별 유니온 멤버 현황 및 유니온레이드 통계" />
-  <meta property="og:image"       content="https://foxstar.vercel.app/image/foxstar.png" />
-  <meta property="og:url"         content="https://foxstar.vercel.app/" />
+  <!-- og:* 는 크롤러(카카오톡 등)가 JS 를 실행하지 않아 data/config.js 로 갈 수 없다.
+       여러 유니온이 이 파일을 공유하므로 유니온 이름과 절대 URL 을 넣지 않는다 —
+       og:url 을 빼면 크롤러가 실제 요청 URL 을 쓰므로 배포별로 알아서 맞는다.
+       유니온별 썸네일이 필요해지면 index.html 을 함수로 서빙해야 한다. -->
+  <meta property="og:title"       content="유니온 포털 | 승리의 여신: 니케" />
+  <meta property="og:description" content="유니온 멤버 현황 및 유니온레이드 통계" />
   <link rel="icon" type="image/png" href="image/foxstar.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -109,7 +111,7 @@
 <script src="data/raid.js" onerror="window.__DATA_ERROR=1"></script>
 
 <!-- ═══════════ 공통 스크립트 (헬퍼·테마·인증·차트·모달) ═══════════ -->
-<script src="js/common.js?v=9"></script>
+<script src="js/common.js?v=10"></script>
 
 <!-- ═══════════ 메인 스크립트 ═══════════ -->
 <script>

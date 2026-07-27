@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#eef1f6" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
-  <title>여우별 통계 | 승리의 여신: 니케</title>
+  <title>통계 | 승리의 여신: 니케</title>
   <link rel="icon" type="image/png" href="image/foxstar.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -97,7 +97,7 @@
 <script src="data/character.js" onerror="window.__DATA_ERROR=1"></script>
 
 <!-- ═══════════ 공통 스크립트 (헬퍼·테마·인증·차트·모달) ═══════════ -->
-<script src="js/common.js?v=9"></script>
+<script src="js/common.js?v=10"></script>
 
 <script>
 if (window.__DATA_ERROR || typeof authGuardOrRedirect !== "function") {
@@ -110,7 +110,7 @@ try {
 renderHeader("stats.html");
 setupTheme();
 lockClipboard();
-document.title = "여우별 통계 | " + CONFIG.unionName;
+document.title = CONFIG.unionName + " 통계 | 승리의 여신: 니케";
 
 const seasonKeys = Object.keys(UNION).map(Number).sort((a, b) => a - b);
 const latestKey = seasonKeys[seasonKeys.length - 1];

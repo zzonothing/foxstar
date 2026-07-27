@@ -1,8 +1,10 @@
 /* ═══════════════════════════════════════════════════════════════
-   여우별 유니온 포털 — 공통 스크립트 (비게이트 정적 파일, 비밀 없음)
+   유니온 포털 — 공통 스크립트 (비게이트 정적 파일, 비밀 없음)
+   유니온 이름·로고는 data/config.js 의 CONFIG 에서 온다 — 여러 배포가 이 파일을
+   공유하므로 특정 유니온 이름을 여기에 박지 말 것.
    nav 5개 페이지가 데이터 스크립트 뒤에 로드해 공유한다.
    - 호출부 유지를 위해 헬퍼/상수는 전역(bare global)으로 선언한다.
-   - 데이터 파일(api/_data) 의 auth 게이트와 무관(여긴 순수 UI 로직).
+   - 데이터 파일(api/data.js) 의 auth 게이트와 무관(여긴 순수 UI 로직).
    ═══════════════════════════════════════════════════════════════ */
 
 /* ─── 상수 ─────────────────────────────────────────────────────── */
@@ -100,7 +102,7 @@ var NAV_ITEMS = [
   ["submit.html", "제출·일정", "제출"],
   ["solo.html", "솔로레이드", "솔레"],
   ["shift.html", "시프티패드", "시프티"],
-  ["stats.html", "여우별 통계", "통계"],
+  ["stats.html", "통계", "통계"],
   ["history.html", "성장 기록", "성장"],
   ["guide.html", "육성 가이드", "가이드"]
 ];
@@ -111,10 +113,20 @@ var NAV_ITEMS = [
    (없는 링크를 눌러도 '권한 없음'). 세션 만료(1일) 후 로그인 왕복마다 재동기화. */
 var ADMIN_NAV_ITEM = ["admin.html", "관리자", "관리자"];
 function isAdminHint(){ try { return localStorage.getItem("fstarAdmin") === "1"; } catch (e) { return false; } }
+/* 파비콘을 유니온 로고로 교체. <head> 의 <link rel="icon"> 은 파싱 시점 값이라
+   정적일 수밖에 없어서(모든 페이지가 같은 파일을 공유한다) 여기서 갈아끼운다.
+   common.js 를 안 쓰는 login.html 은 자체 인라인 스크립트에서 같은 일을 한다. */
+function applyFavicon(){
+  if (typeof CONFIG === "undefined" || !CONFIG.logo) return;
+  var link = document.querySelector('link[rel="icon"]');
+  if (link && link.getAttribute("href") !== CONFIG.logo) link.setAttribute("href", CONFIG.logo);
+}
 function renderHeader(active){
+  applyFavicon();
   var mount = document.getElementById("rdHeader");
   if (!mount) return;
-  var name = (typeof CONFIG !== "undefined" && CONFIG.unionName) ? CONFIG.unionName : "여우별 유니온";
+  var name = (typeof CONFIG !== "undefined" && CONFIG.unionName) ? CONFIG.unionName : "유니온";
+  var logo = (typeof CONFIG !== "undefined" && CONFIG.logo) ? CONFIG.logo : "image/foxstar.png";
   var items = isAdminHint() ? NAV_ITEMS.concat([ADMIN_NAV_ITEM]) : NAV_ITEMS;
   function links(mobile){
     return items.map(function(n){
@@ -128,7 +140,7 @@ function renderHeader(active){
     '<div class="container">' +
       '<div class="rd-head-inner">' +
         '<div class="rd-brand">' +
-          '<img src="image/foxstar.png" alt="여우별 유니온" width="38" height="38" />' +
+          '<img src="' + logo + '" alt="' + esc(name) + '" width="38" height="38" />' +
           '<div>' +
             '<div class="rd-eyebrow">승리의 여신: 니케 · UNION PORTAL</div>' +
             '<div class="rd-title" id="headerTitle">' + esc(name) + '</div>' +

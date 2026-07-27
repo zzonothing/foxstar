@@ -133,7 +133,7 @@
 <script src="data/config.js" onerror="window.__DATA_ERROR=1"></script>
 
 <!-- ═══════════ 공통 스크립트 (헬퍼·테마·인증·모달) ═══════════ -->
-<script src="js/common.js?v=9"></script>
+<script src="js/common.js?v=10"></script>
 
 <script>
 if (window.__DATA_ERROR || typeof authGuardOrRedirect !== "function") {
@@ -241,7 +241,7 @@ function load(){
     // 관리자 여부가 서버로 확정됐으니 헤더(네비 '관리자' 탭)를 정확한 상태로 그린다
     renderHeader("admin.html");
     setupTheme();
-    document.title = "관리자 | " + ((typeof CONFIG !== "undefined" && CONFIG.unionName) ? CONFIG.unionName : "여우별 유니온");
+    document.title = "관리자 | " + ((typeof CONFIG !== "undefined" && CONFIG.unionName) ? CONFIG.unionName : "유니온 포털");
     render();
     markReady();
   }).catch(function(){ showDataError(); });
