@@ -294,13 +294,13 @@ function growthSectionHTML(){
   }
 
   return '<article class="rd-card" style="padding:16px 18px">' +
-    '<div><div class="hs-sec-title">성장 그래프</div><div class="hs-sec-sub">선택한 멤버의 일자별 추이 (전체 기록 기준)</div></div>' +
+    '<div><div class="hs-sec-title">성장 그래프</div><div class="hs-sec-sub">선택한 멤버의 추이 (보관 중인 전체 기록)</div></div>' +
     '<div style="margin-top:10px;font-size:13px;font-weight:800;color:var(--sub)">싱크로 레벨</div>' + syncroChart +
     (state.memberUid ?
       '<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
         '<select id="hsChar" class="hs-select"><option value="">캐릭터 선택…</option>' + charOpts + '</select>' + metricBtns +
       '</div>' + charChart : "") +
-    '<div class="hs-note">데이터는 수집 시점(하루 1회 기록) 기준입니다. 아직 기록이 적으면 그래프가 짧아요.</div>' +
+    '<div class="hs-note">스냅샷은 최근 반년(26주)치만 보관합니다 — 최근 30일은 매일, 그 이전은 주 1개씩이라 30일보다 오래된 구간은 점이 듬성해요. 아직 기록이 적으면 그래프가 짧습니다.</div>' +
   '</article>';
 }
 
@@ -558,7 +558,7 @@ function cmpLineHTML(){
   if (!d || d.error || !d.compared || !(d.compared.a < d.compared.b)) return "";
   return '<div class="hs-dates">실제 비교: <b class="tnum" style="color:var(--text)">' + esc(fmtD(d.compared.a)) +
     '</b> → <b class="tnum" style="color:var(--text)">' + esc(fmtD(d.compared.b)) + "</b> (" +
-    diffDays(d.compared.a, d.compared.b) + "일간) · 스냅샷 " + d.available.count + "일치</div>";
+    diffDays(d.compared.a, d.compared.b) + "일간) · 보관 중인 스냅샷 " + d.available.count + "일치</div>";
 }
 function controlCardHTML(){
   const viewSeg = '<div class="rd-seg">' +
@@ -575,7 +575,7 @@ function controlCardHTML(){
 /* ── 유니온 보기 ── */
 function unionCardHTML(){
   return '<article class="rd-card" style="padding:16px 18px">' + summaryBodyHTML() +
-    '<div class="hs-note">일 1회 수집되는 스냅샷 기준 비교입니다. 장비 옵션은 수집을 시작한 2026-07-24 이후 구간부터 옵션 칸 단위로 비교돼요. 큐브 레벨은 기록만 하고 성장 비교에서는 제외합니다.</div>' +
+    '<div class="hs-note">스냅샷은 최근 반년(26주)치만 보관합니다 — 최근 30일은 매일, 그 이전은 주 1개씩이에요. 그래서 30일보다 이전을 기준으로 잡으면 비교 시작일이 실제 보유한 스냅샷 날짜로 옮겨집니다(위의 &lsquo;실제 비교&rsquo; 날짜가 언제나 정답이에요). 장비 옵션은 수집을 시작한 2026-07-24 이후 구간부터 옵션 칸 단위로 비교돼요. 큐브 레벨은 기록만 하고 성장 비교에서는 제외합니다.</div>' +
   "</article>";
 }
 
@@ -769,9 +769,13 @@ function syncUrl(){
 // 현재 기간 선택 → API 쿼리 파라미터 (diff·char-union 공용)
 function rangeQS(){
   if (state.range === "7" || state.range === "30") {
-    // toISOString 은 UTC 기준이라 KST 새벽엔 하루 어긋날 수 있으나 서버 스냅핑이 흡수
-    const dt = new Date();
-    dt.setDate(dt.getDate() - Number(state.range));
+    // 기준일은 반드시 KST 오늘이어야 한다(서버 kstToday 와 동일하게 UTC+9 로 계산).
+    // 로컬 시각에서 빼고 toISOString(UTC) 으로 자르면 KST 00:00~08:59 에 하루가 더
+    // 밀려 from=today-31 이 나가는데, 그 날짜는 일별 보관 창(최근 30일) 밖이라
+    // 서버 snapLE 이 최대 6일 더 과거의 주간 스냅샷으로 스냅한다 —
+    // '30일' 버튼이 새벽에만 31~37일을 비교하게 되므로 흡수되지 않는다.
+    const dt = new Date(Date.now() + 9 * 3600 * 1000);
+    dt.setUTCDate(dt.getUTCDate() - Number(state.range));
     return "&from=" + dt.toISOString().slice(0, 10);
   }
   if (state.range === "custom") {
