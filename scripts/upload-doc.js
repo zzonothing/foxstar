@@ -2,10 +2,10 @@
 // scripts/upload-doc.js — 게이트 문서를 배포 없이 사이트에 업로드
 //
 // 사용법 (저장소 루트에서):
-//   ADMIN_KEY=… node scripts/upload-doc.js <docKey> [filePath]
+//   SITE=… ADMIN_KEY=… node scripts/upload-doc.js <docKey> <filePath>
 //
 //   docKey  : member.js | raid.js | character.js | solo.js | notice.js
-//   filePath: 생략 시 api/_data/<docKey> 를 읽는다.
+//   filePath: 필수. 컷오버로 api/_data/ 사본이 사라져 기본 경로가 없다.
 //
 // 환경변수: SITE (필수 — 예: https://foxstar.vercel.app), ADMIN_KEY (필수)
 //   ★ SITE 에 기본값을 두지 않는다. 저장소 하나를 여러 유니온 배포가 공유하는데
@@ -34,8 +34,7 @@ if (!KEY) { console.error('ADMIN_KEY 환경변수가 필요합니다.'); process
 console.log('대상: ' + SITE);
 
 async function uploadOne(docKey, filePath) {
-  const p = filePath || path.join(__dirname, '..', 'api', '_data', docKey);
-  const raw = fs.readFileSync(p);
+  const raw = fs.readFileSync(filePath);
   const useGzip = raw.length > GZIP_OVER_BYTES;
   const body = useGzip ? zlib.gzipSync(raw, { level: 9 }) : raw;
 
@@ -59,6 +58,12 @@ async function uploadOne(docKey, filePath) {
 
 (async () => {
   const arg = process.argv[2];
-  if (!arg) { console.error('사용법: node scripts/upload-doc.js <docKey> [filePath]'); process.exit(1); }
-  await uploadOne(arg, process.argv[3]);
+  const file = process.argv[3];
+  if (!arg || !file) {
+    console.error('사용법: node scripts/upload-doc.js <docKey> <filePath>');
+    console.error('  컷오버로 api/_data/ 사본이 없어졌으므로 파일 경로가 필요합니다.');
+    console.error('  현재 DB 문서를 내려받으려면: DATABASE_URL=… node scripts/dump-docs.js');
+    process.exit(1);
+  }
+  await uploadOne(arg, file);
 })().catch(e => { console.error('업로드 실패:', e.message || e); process.exit(1); });

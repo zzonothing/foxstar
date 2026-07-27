@@ -16,8 +16,8 @@ Serverless functions (CommonJS, all under `api/`): `auth.js` (login), `data.js` 
 - **Local dev** (runs static files + serverless functions together): `vercel dev` (pull env first: `vercel env pull .env.local`)
 - **Deploy preview**: `vercel`
 - **Deploy production**: `vercel --prod`
-- **DB schema + initial seed** (needs `DATABASE_URL`): `npm run seed` — runs `scripts/schema.sql` (table creation + repeat-safe migrations), then bootstraps **only what is missing**: `api/_data/**` docs are written to `data_docs` for keys the DB does not already have, the `members` roster is synced, and one day of daily history is backfilled **only if that date has no rows yet**. Roster/backfill read the doc from the **DB** when present, disk otherwise. This is what makes it safe to run on a live DB just to apply a schema migration — `api/_data/**` is a bootstrap copy, not the source of truth (`member.js`/`character.js` are regenerated into the DB by `api/ingest.js`; notice/raid/solo are updated in the DB only), so overwriting from disk silently rewinds production data. `npm run seed -- --force` restores the old behaviour (overwrite every doc + today's history from disk) — use it only for a deliberate full restore
-- **Upload a doc without redeploy**: `SITE=https://<deployment> ADMIN_KEY=… node scripts/upload-doc.js <docKey>`; >3MB files auto-gzip to dodge the 4.5MB request limit. `SITE` has **no default** on purpose — one repo serves several union deployments but `.env.local` is singular, so a default would silently upload to the wrong union (`api/admin-data.js` has no union concept and would accept it). The script prints its target
+- **DB schema + initial seed** (needs `DATABASE_URL`): `npm run seed` — runs `scripts/schema.sql` (table creation + repeat-safe migrations), then reports which of the 5 docs the DB holds, syncs the `members` roster from the DB's `member.js`, and backfills one day of daily history **only if that date has no rows yet**. It **never writes docs** — since the cutover there is no disk copy to seed from, so the script is effectively "schema + roster + admin flags", safe to run on a live DB just to apply a migration. If `member.js` is absent (a new union before its first ingest) the roster/backfill steps are skipped, which is normal. `npm run seed -- --force` only re-backfills today's history — use it to overwrite a day the scraper got wrong
+- **Upload a doc without redeploy**: `SITE=https://<deployment> ADMIN_KEY=… node scripts/upload-doc.js <docKey> <filePath>`; >3MB files auto-gzip to dodge the 4.5MB request limit. `filePath` is **required** (the cutover removed `api/_data/`, so there is no default source — pull the current doc with `dump-docs.js` if you want to edit it). `SITE` has **no default** on purpose — one repo serves several union deployments but `.env.local` is singular, so a default would silently upload to the wrong union (`api/admin-data.js` has no union concept and would accept it). The script prints its target
 - **Backup DB docs to disk**: `DATABASE_URL=… node scripts/dump-docs.js [outdir]`
 
 Required environment variables (set in Vercel project settings or `.env.local`):
@@ -34,11 +34,11 @@ Required environment variables (set in Vercel project settings or `.env.local`):
 
 ### Auth + data-gating model (the non-obvious core)
 
-Sensitive data (`member.js`, `raid.js`, `character.js`, `solo.js`, `notice.js`) is **not** a static asset. It lives in the **`data_docs` table** (verbatim file text, keyed by filename), served through the gate function. The copies under `api/_data/` are a **transition-period disk fallback only** (used when the DB errors or a doc row is missing) — they may lag the DB and will be removed together with `vercel.json`'s `includeFiles` once DB operation is verified (cutover). The flow:
+Sensitive data (`member.js`, `raid.js`, `character.js`, `solo.js`, `notice.js`) is **not** a static asset. It lives in the **`data_docs` table** (verbatim file text, keyed by filename), served through the gate function — and since the cutover the DB is the **only** source: there is no disk copy and no fallback. A DB outage returns `503`, a missing doc row returns `404` (both `no-store`), and the page shows its data-error screen. The flow:
 
 1. HTML pages include them naively: `<script src="data/member.js"></script>`.
 2. `vercel.json` rewrites `/data/{member,raid,character,solo,notice}.js` → `/api/data?file=<name>`.
-3. `api/data.js` requires BOTH cookies to be HMAC-valid — `fstar_session` (1-day expiry) AND `fstar_member` (30-day identity; login always issues both) — so logout/`forceReauth` also ends page *viewing*, not just writes. It additionally rejects member tokens issued before `app_settings.member_epoch` (the value rides along in the doc query — `getDocEntry` returns `{entry, memberEpoch}` — so this costs no extra round trip; the disk-fallback path can't check it and fails open for availability). It implements **sliding renewal for both cookies**: session re-issued when >12h old, member cookie when >15d old, so members who visit at least monthly stay logged in. `SESSION_EPOCH` force-logout still applies to renewed tokens. On **authenticated** requests it serves the doc via `getDocEntry()` in `api/_lib/db.js` — a per-warm-instance cache validated by a single content-hash query per request (the body is only re-downloaded from the DB when the hash changed) — with `ETag` + `Cache-Control: private, no-cache` (see Caching below) and `Content-Type: application/javascript`. The cookie checks are pure HMAC and return **before any DB access**, so Neon cold starts never delay the login-redirect flow. On **unauthenticated** requests:
+3. `api/data.js` requires BOTH cookies to be HMAC-valid — `fstar_session` (1-day expiry) AND `fstar_member` (30-day identity; login always issues both) — so logout/`forceReauth` also ends page *viewing*, not just writes. It additionally rejects member tokens issued before `app_settings.member_epoch` (the value rides along in the doc query — `getDocEntry` returns `{entry, memberEpoch}` — so this costs no extra round trip; before the cutover the disk-fallback path could not check it and failed open, which is one of the reasons the fallback is gone). It implements **sliding renewal for both cookies**: session re-issued when >12h old, member cookie when >15d old, so members who visit at least monthly stay logged in. `SESSION_EPOCH` force-logout still applies to renewed tokens. On **authenticated** requests it serves the doc via `getDocEntry()` in `api/_lib/db.js` — a per-warm-instance cache validated by a single content-hash query per request (the body is only re-downloaded from the DB when the hash changed) — with `ETag` + `Cache-Control: private, no-cache` (see Caching below) and `Content-Type: application/javascript`. The cookie checks are pure HMAC and return **before any DB access**, so Neon cold starts never delay the login-redirect flow. On **unauthenticated** requests:
    - **`api/data.js`** returns `200 OK` with body `window.__AUTH_REQUIRED=true;` and `Cache-Control: no-store`. It is deliberately `200` (not 401) so the `<script src>` tag still executes and sets the sentinel global.
    - Dynamic JSON endpoints (`/api/submit`, `/api/poll`, `/api/history`, `/api/member-auth`) return `401` with JSON instead — they are consumed by `fetch()`, so there is no sentinel to set.
 4. Each HTML page guards its main script with `js/common.js`'s `authGuardOrRedirect()`: if `window.__AUTH_REQUIRED` is set it **redirects to `/login.html?return=<path+search>`** via `location.replace()` and returns `true`. Pages wrap their main logic in `} else if (!authGuardOrRedirect()) { try { … } catch { showDataError() } }` (search for the closing comment `} // else if (!authGuardOrRedirect())` near the end of the file).
@@ -58,7 +58,7 @@ The redirect-to-dedicated-page approach (instead of an in-page overlay) was chos
 Google Fonts CSS는 전 페이지에서 `media="print" onload="this.media='all'"` 패턴으로 **비-렌더블로킹**으로 로드한다. 렌더블로킹 `<link>`로 되돌리지 말 것 — fonts.googleapis.com 요청이 멈추면 페이지 전체(특히 리다이렉트 도착지 `login.html`)가 영영 안 그려지는 단일 실패점이었다.
 
 Consequences for editing:
-- Never expose the gated data as static assets — it must always flow through `api/data.js`. The transition-period copies under `api/_data/` are safe (underscore prefix keeps Vercel from serving them), but do not add new consumers of those files.
+- Never expose the gated data as static assets — it must always flow through `api/data.js`, and the DB is its only source. Do not reintroduce a repo-side copy of any gated doc: a file in the repo is bundled into **every** union's deployment, so it leaks one union's roster into the other's site and bypasses the `member_epoch` check (that is exactly what the removed `api/_data/` fallback did). Use `scripts/dump-docs.js` when you need the current contents on disk.
 - The auth guard `} else if (!authGuardOrRedirect()) { … }` wraps the entire main script on each HTML page. When editing main-page JS, keep the brace balance intact (the closing `}` is far from the opening; search for the comment `} // else if (!authGuardOrRedirect())` to find it).
 - Keep `/login.html` structurally minimal. Do **not** add a sticky header, view-transition, speculation rules, or `position: fixed` elements — those bring the iOS 26 bug back.
 - When adding a new top-level page: (1) add its path to the `ALLOWED_PATHS` whitelist in `login.html`, (2) add it to `NAV_ITEMS` in `js/common.js` if it should appear in the nav, (3) load `js/common.js` and call `authGuardOrRedirect()` in the page's main-script guard (copy the pattern from `index.html`/`raid.html`), and (4) copy the `카카오톡 인앱 우회 + 로딩 워치독` inline block and the non-render-blocking Google Fonts `<link>` into its `<head>`.
@@ -161,16 +161,26 @@ One repo, one branch (`main`), **two Vercel projects, two Neon projects**:
 
 **신규 유니온 부트스트랩 순서** (순서를 지켜야 한다):
 1. Neon 프로젝트 + Vercel 프로젝트 생성, env 설정 → 재배포 (env 는 기존 배포에 소급되지 않는다)
-2. `npm run seed` 로 스키마 생성. ⚠️ cutover 전이라면 `api/_data/**` 를 잠시 치우고 돌릴 것 — 안 그러면 **다른 유니온의 문서 5개 + 로스터 + `ADMIN_NAMES` 기본값이 그대로 심긴다**(`scripts/seed.js` 의 `seedDocs`/`seedRosterAndHistory` 는 "DB 에 없으면 디스크 사본"이 기준이고, 신규 DB 는 전부 없다). 로그인 콤보는 `members` 테이블에서 오므로 남의 유니온 닉네임이 공개 노출되고 등록 게이트가 없어 선점까지 가능하다. cutover 후에는 디스크 사본이 없어 저절로 스키마 전용이 된다
-3. `raid.js`/`solo.js`/`notice.js` 스텁 업로드 (`const RAID = {};` / `const SOLO = [];` / `const NOTICE = [];`) — cutover 후에는 문서 행이 없으면 `api/data.js` 가 404 를 반환해 페이지가 데이터 오류를 띄운다
+2. `npm run seed` 로 스키마 생성. 컷오버 이후로는 디스크 사본이 없어 **스키마 전용**이다 — 문서를 쓰지 않고, `member.js` 가 없으니 로스터/백필도 건너뛴다(정상). 예전에는 이 단계가 신규 DB 에 **다른 유니온의 문서 5개 + 로스터 + `ADMIN_NAMES` 기본값을 그대로 심는** 사고 경로였다(로그인 콤보가 `members` 에서 오므로 남의 유니온 닉네임이 공개 노출되고, 등록 게이트가 없어 선점까지 가능했다)
+3. `raid.js`/`solo.js`/`notice.js` 스텁 업로드 (`const RAID = {};` / `const SOLO = [];` / `const NOTICE = [];`) — 문서 행이 없으면 `api/data.js` 가 404 를 반환해 페이지가 데이터 오류를 띄운다. 파일을 만들어 `node scripts/upload-doc.js raid.js ./raid.js` 처럼 경로를 넘긴다
 4. 스크래퍼 첫 ingest → 로스터 + `member.js`·`character.js` 생성. **로스터가 비면 로그인 콤보가 비어 아무도 로그인할 수 없다**
 5. 로스터가 생긴 **뒤에** `ADMIN_NAMES=… npm run seed` 재실행 → 관리자 플래그. 시드가 진실 원천이라 목록에 없는 사람의 플래그는 회수된다
 
 **스크래퍼**는 유니온을 payload 가 아니라 **전송 대상(URL + 키)** 으로 구분한다 — `/api/ingest` 에는 유니온 파라미터가 없고 자기 배포의 DB 에만 쓴다. 본문 형식·`season` 키·gzip 은 완전히 동일하다(`season` 은 게임 전역 번호라 두 유니온이 같은 값을 쓰지만 DB 가 분리돼 있어 무해). `members` 만 또는 `characters` 만 보내는 부분 전송은 피할 것 — 두 데일리 테이블의 날짜 집합이 어긋난다(위 불변식 (1)).
 
-## Pending cutover (post-verification follow-up)
+## Cutover (완료)
 
-Once DB serving is verified in production: remove the disk-fallback branch in `api/data.js`, drop the `includeFiles` entry from `vercel.json`, delete `api/_data/**` from the repo (backup path: `scripts/dump-docs.js`; git history retains the files), and remove the now-unused `GH_TOKEN`/`GH_REPO`/`GH_BRANCH` env vars. Until then the fallback keeps the site working even with no DB seeded.
+과도기의 디스크 폴백은 제거됐다. `api/data.js` 의 폴백 분기, `vercel.json` 의 `includeFiles`, `api/_data/**` 다섯 파일이 모두 사라졌고, `scripts/seed.js` 의 문서 시드 단계와 `scripts/upload-doc.js` 의 기본 경로도 함께 없어졌다. **DB 가 유일한 출처다.**
+
+폴백을 걷은 이유는 용량이 아니라 두 가지 사고 경로였다:
+1. **유니온 간 데이터 유출** — 사본이 저장소에 있어 두 배포에 똑같이 번들됐다. 나증단 배포에서 DB 가 흔들리면 여우별의 실명·싱크로·장비를 나증단 사이트가 서빙했다
+2. **강제 재인증 무력화** — 폴백 경로는 `member_epoch` 를 확인할 수 없어 가용성 우선으로 통과시켰다. `forceReauth` 를 눌러도 DB 가 흔들리는 동안에는 옛 쿠키가 계속 열람됐다
+
+부수적으로 `scripts/seed.js` 가 신규 유니온 DB 에 남의 문서·로스터를 심던 경로도 같이 막혔다.
+
+남은 정리: **`GH_TOKEN`/`GH_REPO`/`GH_BRANCH` 환경변수 제거** — 저장소 코드에는 참조가 없고 Vercel 프로젝트 설정에만 남아 있다(두 프로젝트 모두).
+
+되돌리려면 이 커밋을 revert 하면 된다(파일은 git 히스토리에 남아 있다). 다만 폴백을 되살리는 것이므로 위 두 사고 경로도 함께 돌아온다 — DB 를 복구하는 쪽이 맞다. 현재 DB 문서를 디스크로 내려받는 경로는 `scripts/dump-docs.js` 다.
 
 ## Workflow preferences
 

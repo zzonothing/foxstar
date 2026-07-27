@@ -6,11 +6,6 @@
     { "source": "/data/solo.js",      "destination": "/api/data?file=solo.js"      },
     { "source": "/data/notice.js",    "destination": "/api/data?file=notice.js"    }
   ],
-  "functions": {
-    "api/data.js": {
-      "includeFiles": "api/_data/**"
-    }
-  },
   "headers": [
     {
       "source": "/css/:path*",
