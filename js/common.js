@@ -9,7 +9,9 @@
 
 /* ─── 상수 ─────────────────────────────────────────────────────── */
 var OFFSET = 35066789198;
-var ELEM_TAG = {"Z.E.U.S.":"철갑","H.S.T.A.":"수냉","D.M.T.R.":"풍압","A.N.M.I.":"작열","A.N.M.I":"작열","P.S.I.D.":"전격"};
+/* 보스 태그 → 속성. 태그는 블라블라링크 원문 그대로라 마침표 표기가 들쭉날쭉함
+   ("시니스터 [A.N.M.I.]" vs "리빌드 핑거즈 [A.N.M.I]") — 영문자만 남긴 키로 조회한다. */
+var ELEM_TAG = {ZEUS:"철갑",HSTA:"수냉",DMTR:"풍압",ANMI:"작열",PSID:"전격"};
 var EL_COL = {수냉:"var(--el-water)",작열:"var(--el-fire)",철갑:"var(--el-iron)",전격:"var(--el-elec)",풍압:"var(--el-wind)"};
 var EL_BG  = {수냉:"var(--elbg-water)",작열:"var(--elbg-fire)",철갑:"var(--elbg-iron)",전격:"var(--elbg-elec)",풍압:"var(--elbg-wind)"};
 
@@ -27,7 +29,7 @@ function fmtEok(num){
 /* 순위 스타일: 1·2·3위 금·은·동 강조 없이 전부 동일(평범) — 사용자 결정 */
 function medal(i){ return { bg: "var(--muted)", col: "var(--sub)" }; }
 function bossShort(bn){ return bn.replace(/\s*\[[^\]]*\]\s*$/, "").trim(); }
-function bossElem(bn){ var m = bn.match(/\[([^\]]+)\]\s*$/); return m ? (ELEM_TAG[m[1]] || "") : ""; }
+function bossElem(bn){ var m = bn.match(/\[([^\]]+)\]\s*$/); return m ? (ELEM_TAG[m[1].replace(/[^A-Za-z]/g, "").toUpperCase()] || "") : ""; }
 
 var _bossCache = {};
 function bossesOf(season){
