@@ -4,7 +4,7 @@
 // 사용법 (저장소 루트에서):
 //   SITE=… ADMIN_KEY=… node scripts/upload-doc.js <docKey> <filePath>
 //
-//   docKey  : member.js | raid.js | character.js | solo.js | notice.js
+//   docKey  : member.js | raid.js | character.js | solo.js | notice.js | char_details.js
 //   filePath: 필수. 컷오버로 api/_data/ 사본이 사라져 기본 경로가 없다.
 //
 // 환경변수: SITE (필수 — 예: https://foxstar.vercel.app), ADMIN_KEY (필수)

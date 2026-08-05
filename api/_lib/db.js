@@ -82,11 +82,12 @@ function jsonParseWrap(buf) {
 // strictJson=false(solo.js): 엔벨로프(const SOLO = [{ …)만 확인 — 수동 편집
 // 파일이라 내용 검증은 관리자 신뢰.
 const DOC_RULES = {
-  'member.js':    { global: 'UNION',      strictJson: true },
-  'raid.js':      { global: 'RAID',       strictJson: true },
-  'character.js': { global: 'CHARACTERS', strictJson: true },
-  'solo.js':      { global: 'SOLO',       strictJson: false },
-  'notice.js':    { global: 'NOTICE',     strictJson: true },
+  'member.js':       { global: 'UNION',        strictJson: true },
+  'raid.js':         { global: 'RAID',         strictJson: true },
+  'character.js':    { global: 'CHARACTERS',   strictJson: true },
+  'solo.js':         { global: 'SOLO',         strictJson: false },
+  'notice.js':       { global: 'NOTICE',       strictJson: true },
+  'char_details.js': { global: 'CHAR_DETAILS', strictJson: true },
 };
 
 function isValidDocKey(key) {
