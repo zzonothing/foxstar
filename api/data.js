@@ -8,7 +8,7 @@ const { getDocEntry } = require('./_lib/db');
 const SESSION_REFRESH_AFTER_MS = 12 * 60 * 60 * 1000;
 const MEMBER_REFRESH_AFTER_MS  = 15 * 24 * 60 * 60 * 1000;
 
-const ALLOWED = new Set(['member.js', 'raid.js', 'character.js', 'solo.js', 'notice.js']);
+const ALLOWED = new Set(['member.js', 'raid.js', 'character.js', 'solo.js', 'notice.js', 'char_details.js']);
 
 // ── 인증 모델 ────────────────────────────────────────────────────
 // 로그인 = 멤버 로그인(닉네임+PIN)뿐이므로, 열람 권한도 '세션 + 멤버 신원'

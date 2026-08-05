@@ -1,10 +1,11 @@
 {
   "rewrites": [
-    { "source": "/data/member.js",    "destination": "/api/data?file=member.js"    },
-    { "source": "/data/raid.js",      "destination": "/api/data?file=raid.js"      },
-    { "source": "/data/character.js", "destination": "/api/data?file=character.js" },
-    { "source": "/data/solo.js",      "destination": "/api/data?file=solo.js"      },
-    { "source": "/data/notice.js",    "destination": "/api/data?file=notice.js"    }
+    { "source": "/data/member.js",       "destination": "/api/data?file=member.js"       },
+    { "source": "/data/raid.js",         "destination": "/api/data?file=raid.js"         },
+    { "source": "/data/character.js",    "destination": "/api/data?file=character.js"    },
+    { "source": "/data/solo.js",         "destination": "/api/data?file=solo.js"         },
+    { "source": "/data/notice.js",       "destination": "/api/data?file=notice.js"       },
+    { "source": "/data/char_details.js", "destination": "/api/data?file=char_details.js" }
   ],
   "headers": [
     {

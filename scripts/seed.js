@@ -33,7 +33,7 @@ if (!process.env.DATABASE_URL) {
   process.exit(1);
 }
 
-const { query, getDocText, parseDocJson, kstToday, UNION_ID } = require('../api/_lib/db');
+const { query, getDocText, parseDocJson, kstToday, UNION_ID, DOC_RULES } = require('../api/_lib/db');
 const { syncRoster, upsertMemberDaily, upsertCharacterDaily } = require('../api/_lib/history');
 
 // 어느 유니온·어느 DB 에 쓰는지 먼저 찍는다. 저장소 하나를 여러 유니온이
@@ -71,20 +71,22 @@ async function runSchema() {
 }
 
 // 현재 DB 에 어떤 문서가 있는지만 보여준다 (시드하지 않는다 — 위 ★ 참고).
+// 기대 목록은 DOC_RULES 가 진실 원천 — 키를 추가하면 여기 보고에도 자동 반영된다.
 async function reportDocs() {
   const rows = await query(
     'SELECT key, length(content) AS bytes FROM data_docs ORDER BY key', []);
-  console.log('\nDB 문서 ' + rows.length + '/5:');
+  const expected = Object.keys(DOC_RULES);
+  console.log('\nDB 문서 ' + rows.length + '/' + expected.length + ':');
   const have = new Set(rows.map(r => r.key));
   for (const row of rows) {
     console.log('  ' + row.key.padEnd(32) + String(row.bytes).padStart(9) + ' bytes');
   }
-  const missing = ['member.js', 'raid.js', 'character.js', 'solo.js', 'notice.js']
-    .filter(k => !have.has(k));
+  const missing = expected.filter(k => !have.has(k));
   if (missing.length) {
     console.log('  없음: ' + missing.join(', '));
-    console.log('  → member/character 는 api/ingest.js 가, raid/solo/notice 는');
-    console.log('    scripts/upload-doc.js 가 넣습니다. 문서 행이 없으면 해당 페이지는 데이터 오류를 띄웁니다.');
+    console.log('  → member/character 는 api/ingest.js 가, raid/solo/notice 는 scripts/upload-doc.js 가,');
+    console.log('    char_details 는 스크래퍼(einkk)의 tools/upload_char_details.py 가 넣습니다.');
+    console.log('    문서 행이 없으면 그 문서를 읽는 페이지는 데이터 오류를 띄웁니다 (char_details 는 아직 소비 페이지 없음).');
   }
   return rows.length;
 }

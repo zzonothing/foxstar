@@ -26,7 +26,7 @@ if (!process.env.DATABASE_URL) {
 }
 
 // db.js 는 로드 시점에 UNION_ID 를 읽으므로 env 로드 뒤에 require 해야 한다.
-const { query, UNION_ID } = require('../api/_lib/db');
+const { query, UNION_ID, DOC_RULES } = require('../api/_lib/db');
 
 // 자격증명은 찍지 않는다 — 호스트/DB 이름만으로 어느 Neon 프로젝트인지 구분된다.
 function dbLabel(url) {
@@ -65,11 +65,12 @@ const adminNames = (ADMIN_NAMES_RAW || 'SUM,유화').split(',').map(s => s.trim(
   console.log('현재 관리자   : ' + (adminRows.map(r => r.name).join(', ') || '없음'));
 
   // data_docs 만 union_id 컬럼이 없다 — 이 DB 를 공유하면 문서가 서로 덮어써진다.
-  console.log(`문서(전체 DB) : ${docs.length}/5` +
+  // 기대 목록은 DOC_RULES 가 진실 원천 (scripts/seed.js 의 reportDocs 와 동일).
+  const expected = Object.keys(DOC_RULES);
+  console.log(`문서(전체 DB) : ${docs.length}/${expected.length}` +
     (docs.length ? ' — ' + docs.map(d => d.key).join(', ') : ' — 없음'));
-  const missing = ['member.js', 'raid.js', 'character.js', 'solo.js', 'notice.js']
-    .filter(k => !docs.some(d => d.key === k));
-  if (missing.length) console.log('  없는 문서   : ' + missing.join(', ') + '  (해당 페이지는 데이터 오류)');
+  const missing = expected.filter(k => !docs.some(d => d.key === k));
+  if (missing.length) console.log('  없는 문서   : ' + missing.join(', ') + '  (그 문서를 읽는 페이지는 데이터 오류)');
 
   console.log(`데일리 히스토리: ${hist.days}일치` +
     (hist.days > 0 ? ` (${hist.oldest} ~ ${hist.newest})` : ''));
