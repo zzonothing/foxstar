@@ -171,7 +171,7 @@ const membersVM = sortedMembers.map((m, i) => {
   const hasTrend = riseSlots.some(x => x.bar);
   const md = medal(i);
   const roleKo = ROLE_KO[roleOf(m)] || "";
-  const nMax = m.normal === CAMPAIGN_MAX_STAGE, hMax = m.hard === CAMPAIGN_MAX_STAGE, tMax = m.tribeTower === 1450, oMax = m.overclock >= 51;
+  const nMax = m.normal === CAMPAIGN_MAX_STAGE, hMax = m.hard === CAMPAIGN_MAX_STAGE, tMax = m.tribeTower === TRIBE_TOWER_MAX, oMax = m.overclock >= 51;
   const outpostFull = OPF.map(([label, key]) => {
     const v = m.outpost ? m.outpost[key] : null;
     const isMax = key !== "common" && m.outpost && v === m.outpost.common;

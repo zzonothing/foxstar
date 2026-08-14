@@ -73,9 +73,10 @@ function charImg(name, opts){
    그 사이에 원본 숫자가 화면에 노출되지 않게 막는 방어선이다. */
 var RAW_STAGE_RE = /^([678])(\d{3})(\d{3})$/;
 
-/* 게임 최종 스테이지 — 노말·하드 칸의 빨강(만렙) 강조 기준.
-   신규 챕터가 열려 최종 스테이지가 바뀌면 이 한 줄만 고치면 된다. */
+/* 만렙(빨강) 강조 기준 — 게임 최종 스테이지·전관예우 최고층.
+   게임 업데이트로 상한이 올라가면 이 두 줄만 고치면 홈·팝업에 함께 반영된다. */
 var CAMPAIGN_MAX_STAGE = "48-36";
+var TRIBE_TOWER_MAX = 1550;
 
 /* 원본 스테이지 id 면 {chapter, index}, 정상 표기명이면 null */
 function parseRawStage(v){
@@ -370,7 +371,7 @@ function buildMemberPopupHTML(ctx, name, season){
     statsHTML = '<div><div class="rd-uplabel" style="margin-bottom:10px">스탯 요약</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">' +
       sc("노말", stageLabel(cur.normal), cur.normal === CAMPAIGN_MAX_STAGE ? "var(--red)" : "var(--text)", stageTitle(cur.normal)) +
       sc("하드", stageLabel(cur.hard), cur.hard === CAMPAIGN_MAX_STAGE ? "var(--red)" : "var(--text)", stageTitle(cur.hard)) +
-      sc("타워", cur.tribeTower, cur.tribeTower === 1450 ? "var(--red)" : "var(--text)") +
+      sc("타워", cur.tribeTower, cur.tribeTower === TRIBE_TOWER_MAX ? "var(--red)" : "var(--text)") +
       sc("오버클럭", cur.overclock >= 51 ? "∞" : cur.overclock, cur.overclock >= 51 ? "var(--red)" : "var(--text)") +
       '</div></div>';
     if (cur.outpost) {
