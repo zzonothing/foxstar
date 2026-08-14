@@ -182,7 +182,7 @@
 <script src="data/member.js" onerror="window.__DATA_ERROR=1"></script>
 
 <!-- ═══════════ 공통 스크립트 (헬퍼·테마·인증·모달) ═══════════ -->
-<script src="js/common.js?v=12"></script>
+<script src="js/common.js?v=13"></script>
 
 <script>
 if (typeof featureGuard === "function" && featureGuard("history")) {
@@ -353,6 +353,8 @@ const EQ_KO = { elem: "우월코드 대미지", atk: "공격력", def: "방어�
 const EQ_MAX = { elem: 29.16, atk: 14.63, def: 14.63, hit: 14.63, chgSpd: 6.09,
   chgDmg: 14.63, critRate: 7.07, critDmg: 20.36, ammo: 85.37 };
 const ACCT_KO = { normal: "노말", hard: "하드", tribeTower: "타워", overclock: "오버클럭" };
+// 캠페인 스테이지 값이라 표기 변환(common.js stageLabel)이 필요한 항목
+const ACCT_STAGE = { normal: true, hard: true };
 // 연구소 항목 (index.html 의 OPF 와 동일한 라벨·순서)
 const OPF_LIST = [["common", "공용"], ["attack", "화력형"], ["defense", "방어형"], ["support", "지원형"],
   ["missilis", "미실리스"], ["elysion", "엘리시온"], ["tetra", "테트라"], ["pilgrim", "필그림"], ["abnormal", "어브노멀"]];
@@ -520,7 +522,9 @@ function summaryBodyHTML(){
     // 계정 지표 변화 문구 (싱크로는 헤더 배지에 표시하므로 제외)
     const acctBits = [];
     if (m.acct) Object.keys(ACCT_KO).forEach(k => {
-      if (m.acct[k]) acctBits.push(ACCT_KO[k] + ' <span class="tnum">' + esc(String(m.acct[k][0])) + " → " + hl(esc(String(m.acct[k][1]))) + "</span>");
+      // 노말·하드는 스크래퍼 표가 낡으면 원본 스테이지 id 로 오므로 stageLabel 을 태운다
+      const f = ACCT_STAGE[k] ? stageLabel : String;
+      if (m.acct[k]) acctBits.push(ACCT_KO[k] + ' <span class="tnum">' + esc(f(m.acct[k][0])) + " → " + hl(esc(f(m.acct[k][1]))) + "</span>");
     });
     if (m.outpost) {
       const ops = Object.keys(m.outpost).map(k =>
@@ -591,19 +595,21 @@ function seriesAt(series, date){
 function acctRowsHTML(ra, rb){
   const g = (r, k) => r && r.fields && r.fields[k] != null ? r.fields[k] : null;
   const go = (r, k) => r && r.fields && r.fields.outpost && r.fields.outpost[k] != null ? r.fields.outpost[k] : null;
-  const items = [["싱크로 레벨", ra ? ra.syncroLevel : null, rb ? rb.syncroLevel : null]];
+  // 4번째 원소 = 캠페인 스테이지 값 표시(stageLabel + ± 대신 '변경')
+  const items = [["싱크로 레벨", ra ? ra.syncroLevel : null, rb ? rb.syncroLevel : null, false]];
   [["normal", "노말 진행"], ["hard", "하드 진행"], ["tribeTower", "타워"], ["overclock", "오버클럭"]]
-    .forEach(p => items.push([p[1], g(ra, p[0]), g(rb, p[0])]));
-  OPF_LIST.forEach(p => items.push(["연구소 " + p[1], go(ra, p[0]), go(rb, p[0])]));
+    .forEach(p => items.push([p[1], g(ra, p[0]), g(rb, p[0]), !!ACCT_STAGE[p[0]]]));
+  OPF_LIST.forEach(p => items.push(["연구소 " + p[1], go(ra, p[0]), go(rb, p[0]), false]));
   return items.map(it => {
-    const va = it[1], vb = it[2];
+    const va = it[1], vb = it[2], isStage = it[3];
     const changed = va != null && vb != null && String(va) !== String(vb);
-    let delta = null; // 숫자 지표만 ±표시 (노말 "41-3" 류는 '변경')
-    if (changed) { const n = Number(vb) - Number(va); if (isFinite(n) && n !== 0) delta = n; }
+    const show = v => v == null ? "—" : esc(isStage ? stageLabel(v) : String(v));
+    let delta = null; // 숫자 지표만 ±표시 (노말 "41-3"·원본 id "6048044" 류는 '변경')
+    if (changed && !isStage) { const n = Number(vb) - Number(va); if (isFinite(n) && n !== 0) delta = n; }
     return '<div class="hs-acct-row"><span class="hs-acct-l">' + it[0] + "</span>" +
-      '<span class="hs-acct-v tnum">' + (va == null ? "—" : esc(String(va))) + "</span>" +
+      '<span class="hs-acct-v tnum">' + show(va) + "</span>" +
       '<span style="color:var(--dim)">→</span>' +
-      '<span class="hs-acct-v tnum' + (changed ? " b" : "") + '">' + (vb == null ? "—" : esc(String(vb))) + "</span>" +
+      '<span class="hs-acct-v tnum' + (changed ? " b" : "") + '">' + show(vb) + "</span>" +
       '<span class="hs-acct-d">' + (delta != null ? (delta > 0 ? "+" + delta : delta) : (changed ? "변경" : "")) + "</span></div>";
   }).join("");
 }
