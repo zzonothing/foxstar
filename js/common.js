@@ -59,6 +59,55 @@ function charImg(name, opts){
     + ' loading="lazy" onerror="this.style.opacity=0.15">';
 }
 
+/* ─── 캠페인 진행도(노말·하드) 표기 ───────────────────────────────
+   member.js 의 normal/hard 는 스크래퍼(einkk)가 게임 CDN 스테이지 표로
+   "46-40" 같은 표기명으로 바꿔 보낸 값이다. 신규 챕터가 열린 직후 그 표가
+   아직 낡았으면 원본 스테이지 id("6048044")가 그대로 실려 온다.
+
+   id 는 <난이도 1자리><챕터 3자리><챕터 내 순번 3자리> 구조(6=노말, 7=하드)라
+   챕터까지는 정확히 복원된다. 하지만 뒤 3자리는 분기 스테이지(46-14A-1 …)까지
+   세는 순번이라 표기 번호와 어긋난다 — 46장은 순번 44 가 46-40(차이 4),
+   48장은 순번 44 가 48-36(차이 8)으로 챕터마다 다르다. 그래서 스테이지 번호는
+   추측하지 않고 "48장" 까지만 보여준다. 근본 해결은 스크래퍼가 스테이지 표를
+   다시 받는 것이고(einkk 가 모르는 id 를 만나면 자동으로 한다), 이 함수들은
+   그 사이에 원본 숫자가 화면에 노출되지 않게 막는 방어선이다. */
+var RAW_STAGE_RE = /^([678])(\d{3})(\d{3})$/;
+
+/* 게임 최종 스테이지 — 노말·하드 칸의 빨강(만렙) 강조 기준.
+   신규 챕터가 열려 최종 스테이지가 바뀌면 이 한 줄만 고치면 된다. */
+var CAMPAIGN_MAX_STAGE = "48-36";
+
+/* 원본 스테이지 id 면 {chapter, index}, 정상 표기명이면 null */
+function parseRawStage(v){
+  var mt = RAW_STAGE_RE.exec(String(v == null ? "" : v).trim());
+  return mt ? { chapter: +mt[2], index: +mt[3] } : null;
+}
+
+/* 화면 표시용 — 정상 표기명은 그대로, 원본 id 는 "48장" 으로 */
+function stageLabel(v){
+  var p = parseRawStage(v);
+  return p ? (p.chapter + "장") : String(v == null ? "" : v);
+}
+
+/* 원본 id 일 때만 붙일 툴팁 문구 (정상 표기명이면 빈 문자열) */
+function stageTitle(v){
+  var p = parseRawStage(v);
+  return p ? (p.chapter + "장 진행 중 · 스테이지 표가 갱신되기 전이라 세부 번호는 "
+    + "표시하지 않습니다 (수집 원본 " + v + ")") : "";
+}
+
+/* 정렬용 숫자 — 표기명과 원본 id 를 같은 축(챕터*1000+번호)에 올린다.
+   원본 id 는 표기 번호 대신 순번이 들어가므로 같은 챕터 안에서 표기명과
+   섞이면 미세하게 어긋나지만, 한 챕터는 통째로 해석되거나 통째로 안 되므로
+   실제로는 섞이지 않는다. 형식을 모르면 -1 (맨 뒤로). */
+function stageSortValue(v){
+  var s = String(v == null ? "" : v).trim();
+  var mt = /^(\d+)-(\d+)/.exec(s);
+  if (mt) return (+mt[1]) * 1000 + (+mt[2]);
+  var p = parseRawStage(v);
+  return p ? p.chapter * 1000 + p.index : -1;
+}
+
 /* ─── 차트 스케일 공용 헬퍼 ─────────────────────────────────────
    선형 최소~최대 막대 높이. 기존 인라인 공식을 그대로 재현한다.
    values: 숫자 배열(null/≤0 는 empty 로 취급 가능)
@@ -317,10 +366,10 @@ function buildMemberPopupHTML(ctx, name, season){
   const hasStats = !!(cur && cur.normal);
   let statsHTML = "", outpostHTML = "";
   if (hasStats) {
-    const sc = (label, val, col) => '<div style="background:var(--muted);border:1px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center"><div style="font-size:10px;color:var(--dim);font-weight:700;margin-bottom:3px">' + label + '</div><div style="font-size:13px;font-weight:800;color:' + col + '" class="tnum">' + val + '</div></div>';
+    const sc = (label, val, col, tip) => '<div style="background:var(--muted);border:1px solid var(--border);border-radius:10px;padding:10px 6px;text-align:center"' + (tip ? ' title="' + esc(tip) + '"' : '') + '><div style="font-size:10px;color:var(--dim);font-weight:700;margin-bottom:3px">' + label + '</div><div style="font-size:13px;font-weight:800;color:' + col + '" class="tnum">' + val + '</div></div>';
     statsHTML = '<div><div class="rd-uplabel" style="margin-bottom:10px">스탯 요약</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">' +
-      sc("노말", cur.normal, cur.normal === "46-40" ? "var(--red)" : "var(--text)") +
-      sc("하드", cur.hard, cur.hard === "46-40" ? "var(--red)" : "var(--text)") +
+      sc("노말", stageLabel(cur.normal), cur.normal === CAMPAIGN_MAX_STAGE ? "var(--red)" : "var(--text)", stageTitle(cur.normal)) +
+      sc("하드", stageLabel(cur.hard), cur.hard === CAMPAIGN_MAX_STAGE ? "var(--red)" : "var(--text)", stageTitle(cur.hard)) +
       sc("타워", cur.tribeTower, cur.tribeTower === 1450 ? "var(--red)" : "var(--text)") +
       sc("오버클럭", cur.overclock >= 51 ? "∞" : cur.overclock, cur.overclock >= 51 ? "var(--red)" : "var(--text)") +
       '</div></div>';
