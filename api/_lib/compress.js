@@ -25,14 +25,16 @@ function makeEntry(buf) {
 }
 
 // 인증된 데이터 응답 공용 처리: Accept-Encoding 협상 + ETag 조건부 응답(304).
-// Cache-Control 정책(private, no-cache)은 기존 그대로 유지한다 (CLAUDE.md
-// Caching 절 참고 — max-age 로 바꾸지 말 것).
-function sendEntry(req, res, entry) {
+// Cache-Control 기본값(private, no-cache)은 기존 그대로 유지한다 (CLAUDE.md
+// Caching 절 참고 — max-age 로 바꾸지 말 것). cacheControl 인자는 관리자
+// 전용 응답(api/admin-data.js 의 문서 읽기)이 no-store 를 쓰기 위한 것 —
+// 게이트 문서 원문이 디스크 캐시에 남지 않게 한다.
+function sendEntry(req, res, entry, cacheControl) {
   const acceptsGzip = /\bgzip\b/i.test(req.headers['accept-encoding'] || '');
   const etag = acceptsGzip ? entry.etagGz : entry.etag;
 
   res.setHeader('ETag', etag);
-  res.setHeader('Cache-Control', 'private, no-cache');
+  res.setHeader('Cache-Control', cacheControl || 'private, no-cache');
   res.setHeader('Vary', 'Accept-Encoding');
 
   if (req.headers['if-none-match'] === etag) {
