@@ -131,19 +131,37 @@
     .hs-ev-c{ font-weight:700; color:var(--ink); flex-shrink:0; cursor:pointer; }
     .hs-ev-c:hover{ color:var(--blue); }
     .hs-ev-d{ min-width:0; }
-    /* 오버로드 옵션 상세 — .hs-ev 의 flex 줄을 통째로 차지해(flex-basis:100%) 다음 줄로
-       내려간다. 덕분에 캐릭터 이름 길이와 무관하게 모든 행에서 좌측이 맞는다.
-       padding-left = 초상화 26px + .hs-ev 의 gap 9px. */
-    .hs-eq{ flex-basis:100%; width:100%; margin:2px 0 1px; padding-left:35px; }
-    .hs-eq-i{ display:flex; gap:6px; font-size:11.5px; line-height:1.8; color:var(--sub); font-weight:600; }
-    .hs-eq-p{ flex-shrink:0; min-width:26px; color:var(--dim); font-weight:800; }
-    .hs-eq-t{ min-width:0; }
     .hs-eq-max{ font-size:9.5px; font-weight:800; color:var(--ev-acquire); border:1px solid currentColor; border-radius:4px; padding:0 3px; margin-left:3px; vertical-align:1px; white-space:nowrap; }
     .hs-eq-none{ font-size:12px; color:var(--dim); font-weight:600; padding:6px 0 2px; }
-    @media (max-width:520px){ .hs-eq{ padding-left:0; } }
-    /* 오버로드 옵션 1칸 (캐릭터 현재 상태) — 한 부위에 최대 3칸이라 가로로 잇는다 */
-    .hs-ov{ display:inline-flex; align-items:baseline; gap:4px; margin-right:10px; white-space:nowrap; }
-    .hs-ov b{ color:var(--text); }
+    /* ── 오버로드 옵션 표시 ───────────────────────────────────
+       합계(결과)와 부위별 내역(과정)을 시각적으로 갈라 놓는다. 예전에는 둘 다
+       '라벨 + 한 줄 텍스트' 같은 모양이라 무엇이 요약이고 무엇이 상세인지,
+       한 줄 안에서 어떤 숫자가 이전이고 이후인지가 읽히지 않았다.
+       .hs-ovb 는 .hs-ev 의 flex 줄을 통째로 차지해(flex-basis:100%) 다음 줄로
+       내려간다 — 캐릭터 이름 길이와 무관하게 모든 행에서 좌측이 맞는다.
+       padding-left = 초상화 26px + .hs-ev 의 gap 9px. */
+    .hs-ovb{ flex-basis:100%; width:100%; margin:4px 0 2px; padding-left:35px; }
+    @media (max-width:520px){ .hs-ovb{ padding-left:0; } }
+    /* 합계 = 효과별 '지금 얼마 + 얼마나 움직였나' 칩 */
+    .hs-ov-sum{ display:flex; flex-wrap:wrap; gap:5px; }
+    .hs-ov-chip{ display:inline-flex; align-items:baseline; gap:5px; font-size:11.5px; font-weight:700; color:var(--sub); background:var(--muted); border:1px solid var(--border); border-radius:999px; padding:3px 10px; white-space:nowrap; }
+    .hs-ov-chip b{ color:var(--text); font-weight:800; }
+    .hs-ov-chip i{ font-style:normal; font-weight:800; color:var(--ev-equip); }
+    .hs-ov-chip.down i{ color:var(--dim); }
+    /* 부위별 내역 = 부위 배지 + 변화 줄 목록 */
+    .hs-ov-parts{ margin-top:7px; display:flex; flex-direction:column; gap:4px; }
+    .hs-ov-part{ display:flex; align-items:flex-start; gap:8px; }
+    .hs-ov-pl{ flex-shrink:0; width:32px; margin-top:2px; font-size:10px; font-weight:800; color:var(--sub); background:var(--muted); border:1px solid var(--border); border-radius:5px; text-align:center; padding:1px 0; }
+    .hs-ov-list{ flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; }
+    .hs-ov-line{ font-size:11.5px; line-height:1.8; color:var(--sub); font-weight:600; }
+    .hs-ov-line b{ color:var(--text); font-weight:800; }
+    /* 변화 종류 배지 — 줄 맨 앞에 두어 '무슨 일이 있었나'가 먼저 읽히게 한다.
+       배경 토큰을 새로 만들지 않고 .hs-eq-max 와 같은 'currentColor 테두리' 방식. */
+    .hs-ov-k{ display:inline-block; min-width:30px; text-align:center; font-size:9.5px; font-weight:800; border:1px solid currentColor; border-radius:4px; padding:0 4px; margin-right:6px; vertical-align:1px; white-space:nowrap; }
+    .hs-ov-k.add{ color:var(--ev-acquire); }
+    .hs-ov-k.up{ color:var(--ev-equip); }
+    .hs-ov-k.swap{ color:var(--ev-item); }
+    .hs-ov-k.down, .hs-ov-k.drop{ color:var(--dim); }
     /* 스킬 1/2/3 변화량 카드 */
     .hs-sk-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:8px; }
     .hs-sk{ background:var(--muted); border:1px solid var(--border); border-radius:10px; padding:9px 8px; text-align:center; }
@@ -157,11 +175,6 @@
     .hs-tl-d{ width:44px; flex-shrink:0; font-size:11px; font-weight:800; color:var(--dim); padding-top:3px; }
     .hs-tl-b{ flex:1; min-width:0; }
     .hs-tl-i{ font-size:12px; line-height:1.85; color:var(--sub); font-weight:600; }
-    /* 오버로드 옵션 합산 변화 칩 (멤버 성장 상세의 멤버 단위 집계) */
-    .hs-eqsum-row{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
-    .hs-eqsum{ display:inline-flex; align-items:baseline; gap:5px; font-size:12px; font-weight:700; color:var(--sub); background:var(--muted); border:1px solid var(--border); border-radius:999px; padding:3px 11px; white-space:nowrap; }
-    .hs-eqsum b{ color:var(--ev-equip); }
-    .hs-eqsum.down b{ color:var(--dim); }
     /* 매트릭스 오버로드 옵션 칸 — 효과가 여럿이라 이 칸만 줄바꿈을 허용한다 */
     .hs-mx td.hs-mx-eqc{ white-space:normal; min-width:190px; }
     .hs-mx-eq{ display:flex; flex-wrap:wrap; gap:0 10px; }
@@ -233,6 +246,7 @@ const state = {
   charName: null,
   charSeries: null,
   charChanges: null,   // ?kind=character 의 changes (연속 스냅샷 변화 이력)
+  charQuery: "", charOpen: false,   // 캐릭터 검색 콤보 (shift.html 과 같은 패턴)
   view: "union",       // 보기: "union"(유니온 전체) | "member"(멤버별 상세) | "char"(캐릭터별 매트릭스)
   range: "all",        // 성장 요약 기간: "7" | "30" | "all" | "custom"
   from: "", to: "",    // range==="custom" 일 때의 YYYY-MM-DD
@@ -340,19 +354,19 @@ function eqTotalsC(eq){
   return t;
 }
 
-// 현재(마지막 스냅샷) 오버로드 옵션 — 효과별 합계 + 부위별 칸 나열, 최대치는 MAX 배지
+// 현재(마지막 스냅샷) 오버로드 옵션 — 효과별 합계 칩 + 부위별 칸 목록, 최대치는 MAX 배지
 function eqNowHTML(row){
   const ex = parseExtra(row && row.extra);
   const eq = ex && ex.eq;
-  const rows = eq ? [eqTotalsRowHTML(eqTotalsC(eq))].concat(EQ_PART_ORDER.map(part => {
-    const opts = (Array.isArray(eq[part]) ? eq[part] : []).filter(o => Array.isArray(o) && o[0]);
-    if (!opts.length) return "";
-    return '<div class="hs-eq-i"><span class="hs-eq-p">' + (PART_KO[part] || esc(part)) + "</span>" +
-      '<span class="hs-eq-t">' + opts.map(o =>
-        '<span class="hs-ov">' + eqName(o[0]) + ' <b class="tnum">' + eqPct(o[1]) + "</b>" + eqMax(o[0], o[1]) + "</span>"
-      ).join("") + "</span></div>";
-  })).filter(Boolean).join("") : "";
-  return rows ? '<div class="hs-eq" style="padding-left:0">' + rows + "</div>"
+  const parts = eq ? EQ_PART_ORDER.map(part => ({
+    p: part,
+    items: (Array.isArray(eq[part]) ? eq[part] : []).filter(o => Array.isArray(o) && o[0]),
+  })) : [];
+  const inner = eq
+    ? eqNowChipsHTML(eqTotalsC(eq)) +
+      eqPartsHTML(parts, o => eqName(o[0]) + ' <b class="tnum">' + eqPct(o[1]) + "</b>" + eqMax(o[0], o[1]))
+    : "";
+  return inner ? '<div class="hs-ovb" style="padding-left:0">' + inner + "</div>"
     : '<div class="hs-eq-none">붙어 있는 오버로드 옵션이 없어요</div>';
 }
 
@@ -376,13 +390,12 @@ function charChangeHTML(){
       const g = pr => pr ? esc(String(pr[0])) + (pr[1] != null && pr[1] !== "" ? " " + esc(String(pr[1])) : "") : "";
       bits.push(tlItem("var(--ev-item)", "소장품 " + (c.item.a ? g(c.item.a) + " → " : "장착 ") + hl(g(c.item.b))));
     }
-    // 합계 변화를 먼저(그날 총합이 얼마나 움직였나), 그 아래 칸 단위 상세
-    if (c.eqSum) {
-      const items = eqSumItemsHTML(c.eqSum);
-      if (items) bits.push(tlItem("var(--ev-equip)", '<span style="color:var(--dim);font-weight:800">합계</span> ' + items));
+    // 오버로드는 한 덩어리로 — 합계 칩(그날 총합이 얼마나 움직였나) + 부위별 내역
+    if (c.eqSum || c.eq) {
+      const inner = eqSumChipsHTML(c.eqSum) +
+        eqPartsHTML((c.eq || []).map(pt => ({ p: pt.p, items: pt.ch || [] })), eqChLine);
+      if (inner) bits.push(tlItem("var(--ev-equip)", "오버로드 옵션") + '<div class="hs-ovb" style="padding-left:14px">' + inner + "</div>");
     }
-    (c.eq || []).forEach(pt => (pt.ch || []).forEach(x => bits.push(tlItem("var(--ev-equip)",
-      '<span style="color:var(--dim);font-weight:800">' + (PART_KO[pt.p] || esc(String(pt.p))) + "</span> " + eqChText(x)))));
     return '<div class="hs-tl-r"><div class="hs-tl-d tnum">' + esc(fmtD(c.date)) + "</div>" +
       '<div class="hs-tl-b">' + bits.join("") + "</div></div>";
   }).join("") + "</div>";
@@ -393,14 +406,53 @@ function subHeadHTML(title, note){
     (note ? ' <span style="font-weight:600;color:var(--dim)">— ' + note + "</span>" : "") + "</div>";
 }
 
+/* ── 캐릭터 검색 콤보 (shift.html 과 같은 .combo-* 패턴, 단일 선택) ──
+   캐릭터가 190종 가까이라 <select> 로는 찾기 어렵다. 검색 입력 + 필터 목록으로
+   바꾸되, CSS 는 css/style.css 의 .combo-* 를 그대로 쓴다(파일 변경 없음 → ?v= 유지).
+   ★ 이 페이지는 상태가 바뀔 때마다 #rdContent 를 통째로 다시 그리므로, 타이핑 중에는
+     render() 를 부르면 안 된다(입력 포커스가 날아간다). input 이벤트는 드롭다운만
+     갱신하고(updateCharDrop), 실제 선택에서만 render() 가 도는 loadChar 를 부른다. */
+function charComboHTML(){
+  const chip = state.charName
+    ? '<span class="combo-chip" style="background:var(--muted);border:1px solid var(--border);color:var(--text)">' +
+        charImg(state.charName, { title: false, style: "width:18px;height:18px;border-radius:4px;object-fit:cover" }) +
+        esc(state.charName) + '<span class="x" data-act="char-clear" title="선택 해제">×</span></span>'
+    : "";
+  return '<div class="combo-box" id="hsCharBox" style="max-width:340px">' +
+    '<span class="combo-chips">' + chip + "</span>" +
+    '<input class="combo-input" id="hsCharInput" placeholder="' + (state.charName ? "다른 캐릭터 검색" : "캐릭터 검색") +
+      '" autocomplete="off" value="' + esc(state.charQuery) + '" />' +
+    '<div class="combo-drop" id="hsCharDrop" style="display:none"></div></div>';
+}
+// 현재 검색어로 걸러낸 캐릭터 목록 (Enter 로 첫 항목 선택에도 쓴다)
+function charMatches(){
+  const q = state.charQuery.trim().toLowerCase();
+  return ((state.chars && state.chars.characters) || []).filter(c => !q || String(c.name).toLowerCase().includes(q));
+}
+function updateCharDrop(){
+  const box = document.getElementById("hsCharBox"), drop = document.getElementById("hsCharDrop");
+  if (!box || !drop) return;
+  box.classList.toggle("open", state.charOpen);
+  if (!state.charOpen) { drop.style.display = "none"; return; }
+  drop.style.display = "block";
+  const list = charMatches();
+  drop.innerHTML = list.length
+    ? list.map(c => {
+        const on = c.name === state.charName;
+        return '<div class="combo-item" data-pick="hs-char" data-name="' + esc(c.name) + '" style="font-weight:' +
+          (on ? "700" : "500") + ';background:' + (on ? "var(--muted)" : "transparent") + '">' +
+          charImg(c.name, { title: false, style: "width:20px;height:20px;border-radius:4px;object-fit:cover;background:var(--muted);flex-shrink:0" }) +
+          (on ? "✓ " : "") + esc(c.name) + "</div>";
+      }).join("")
+    : '<div style="padding:10px 12px;font-size:12px;color:var(--dim);text-align:center">검색 결과 없음</div>';
+}
+
 function growthSectionHTML(){
   let syncroChart = '<div class="hs-empty">위에서 멤버를 선택하면 추이 그래프를 보여드려요</div>';
   if (state.memberSeries) {
     syncroChart = lineChartSVG(state.memberSeries.map(r => ({ x: fmtD(r.date), d: r.date, y: r.syncroLevel })), { label: "싱크로 레벨 추이" });
   }
 
-  const charOpts = ((state.chars && state.chars.characters) || []).map(c =>
-    '<option value="' + esc(c.name) + '"' + (c.name === state.charName ? " selected" : "") + '>' + esc(c.name) + '</option>').join("");
 
   let charBody = "";
   if (state.charName && state.charSeries) {
@@ -421,10 +473,8 @@ function growthSectionHTML(){
     '<div><div class="hs-sec-title">성장 그래프</div><div class="hs-sec-sub">선택한 멤버의 싱크로 추이 + 캐릭터별 스킬·오버로드 옵션 변화 (보관 중인 전체 기록)</div></div>' +
     '<div style="margin-top:10px;font-size:13px;font-weight:800;color:var(--sub)">싱크로 레벨</div>' + syncroChart +
     (state.memberUid ?
-      '<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
-        (state.charName ? charImg(state.charName, { style: "width:26px;height:26px;border-radius:5px;object-fit:cover;background:var(--muted)" }) : "") +
-        '<select id="hsChar" class="hs-select"><option value="">캐릭터 선택…</option>' + charOpts + '</select>' +
-      '</div>' + charBody : "") +
+      '<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line)">' + charComboHTML() + '</div>' +
+      charBody : "") +
     '<div class="hs-note">스냅샷은 최근 반년(26주)치만 보관합니다 — 최근 30일은 매일, 그 이전은 주 1개씩이라 30일보다 오래된 구간은 듬성해요. 캐릭터 쪽은 위에서 고른 기간이 아니라 <b>보관 중인 전체 기록</b> 기준입니다(기간별 요약은 위 &lsquo;캐릭터 변화&rsquo;). 레벨·공격력은 싱크로 레벨에 연동돼 저절로 오르므로 변화 이력에서 뺐고, 오버로드 옵션은 적재를 시작한 날짜 이후 구간부터 비교돼요.</div>' +
   '</article>';
 }
@@ -433,6 +483,7 @@ function loadMember(uid){
   state.memberUid = uid || null;
   state.memberSeries = null; state.chars = null; state.charName = null;
   state.charSeries = null; state.charChanges = null;
+  state.charQuery = ""; state.charOpen = false;
   render();
   if (!uid) return;
   api("/api/history?kind=member&uid=" + encodeURIComponent(uid)).then(res => {
@@ -445,6 +496,7 @@ function loadMember(uid){
 function loadChar(name){
   state.charName = name || null;
   state.charSeries = null; state.charChanges = null;
+  state.charQuery = ""; state.charOpen = false;
   render();
   if (!name) return;
   api("/api/history?kind=character&uid=" + encodeURIComponent(state.memberUid) + "&name=" + encodeURIComponent(name)).then(res => {
@@ -544,67 +596,76 @@ function eqMax(code, v){
   const m = EQ_MAX[code];
   return (m != null && v != null && Math.abs(Number(v) - m) < 0.005) ? '<span class="hs-eq-max">MAX</span>' : "";
 }
-// 변화 1건 → 문구. k = up|down(강화) / add(새 옵션) / drop(해제) / swap(리롤)
-// 칸 번호(c.s)는 일부러 표시하지 않는다 — 오버로드 옵션 수집 초기 행은 빈 칸을 버리고
-// 저장해서 칸 번호가 밀려 있고(자세한 건 api/history.js 의 diff 주석), 밀린 번호를
-// 그대로 쓰면 "2칸"이 실제로는 3칸인 거짓 정보가 된다. 부위 라벨 + 옵션 이름만으로도
-// "무엇이 어떻게 바뀌었는지"는 정확히 전달된다.
-function eqChText(c){
-  if (c.k === "add") return eqName(c.e) + " " + hl(eqPct(c.b)) + eqMax(c.e, c.b) + " 추가";
-  if (c.k === "drop") return '<span style="text-decoration:line-through">' + eqName(c.e) + " " + eqPct(c.a) + "</span> 해제";
-  if (c.k === "swap") return eqName(c.e) + " " + eqPct(c.a) + " → " + hl(eqName(c.e2) + " " + eqPct(c.b)) + eqMax(c.e2, c.b);
-  return eqName(c.e) + " " + eqPct(c.a) + " → " + hl(eqPct(c.b)) + eqMax(c.e, c.b);
+// 변화 종류 배지. 줄 맨 앞에 두어 '무슨 일이 있었나'가 먼저 읽히게 한다.
+const EQ_KIND = { add: ["추가", "add"], up: ["강화", "up"], down: ["하락", "down"], swap: ["리롤", "swap"], drop: ["해제", "drop"] };
+function eqKindTag(k){
+  const t = EQ_KIND[k] || ["변경", "up"];
+  return '<span class="hs-ov-k ' + t[1] + '">' + t[0] + "</span>";
 }
-// 효과별 합계 변화 { 코드: [이전, 이후] } → "공격력 12.52% → 25.04% (+12.52)".
-// 칸 단위 상세가 '무엇을 굴렸나'라면 이 줄은 '그래서 총합이 얼마가 됐나'다 —
-// 같은 옵션이 4부위에 흩어지고 리롤로 오르내림이 섞여서, 칸만 봐서는 실제로 얼마나
-// 끌어올렸는지가 보이지 않는다.
 function round2(v){ return Math.round(v * 100) / 100; }   // 부동소수 누적 표시 방지
 function eqDelta(a, b){ return round2(b - a); }
-function eqSumItemsHTML(sum){
-  return eqCodesOf(sum).map(k => {
-    const a = Number(sum[k][0]) || 0, b = Number(sum[k][1]) || 0, d = eqDelta(a, b);
-    return '<span class="hs-ov">' + eqName(k) + " " +
-      '<span style="color:var(--dim)">' + (a ? eqPct(a) : "—") + " →</span> " +
-      '<b class="tnum">' + (b ? eqPct(b) : "—") + "</b>" +
-      '<span class="tnum" style="color:' + (d >= 0 ? "var(--ev-equip)" : "var(--dim)") + '">(' +
-        (d > 0 ? "+" : "") + d.toFixed(2) + ")</span></span>";
-  }).join("");
+
+// 변화 1건 → 배지 + 문구. k = up|down(강화) / add(새 옵션) / drop(해제) / swap(리롤)
+// 칸 번호(c.s)는 일부러 표시하지 않는다 — 오버로드 옵션 수집 초기 행은 빈 칸을 버리고
+// 저장해서 칸 번호가 밀려 있고(자세한 건 api/history.js 의 diff 주석), 밀린 번호를
+// 그대로 쓰면 "2칸"이 실제로는 3칸인 거짓 정보가 된다. 부위 배지 + 옵션 이름만으로도
+// "무엇이 어떻게 바뀌었는지"는 정확히 전달된다.
+function eqChLine(c){
+  const tag = eqKindTag(c.k);
+  const arrow = ' <span style="color:var(--dim)">→</span> ';
+  if (c.k === "add") return tag + eqName(c.e) + ' <b class="tnum">' + eqPct(c.b) + "</b>" + eqMax(c.e, c.b);
+  if (c.k === "drop") return tag + '<span style="text-decoration:line-through">' + eqName(c.e) + " " + eqPct(c.a) + "</span>";
+  if (c.k === "swap") return tag + eqName(c.e) + ' <span class="tnum">' + eqPct(c.a) + "</span>" + arrow +
+    eqName(c.e2) + ' <b class="tnum">' + eqPct(c.b) + "</b>" + eqMax(c.e2, c.b);
+  const d = eqDelta(Number(c.a) || 0, Number(c.b) || 0);
+  return tag + eqName(c.e) + ' <span class="tnum">' + eqPct(c.a) + "</span>" + arrow +
+    '<b class="tnum">' + eqPct(c.b) + "</b>" + eqMax(c.e, c.b) +
+    ' <span class="tnum" style="color:' + (d >= 0 ? "var(--ev-equip)" : "var(--dim)") + '">' +
+    (d > 0 ? "+" : "") + d.toFixed(2) + "</span>";
 }
-// '합계' 라벨이 붙은 한 줄 (부위 줄들과 같은 그리드에 맞춘다)
-function eqSumRowHTML(sum){
-  if (!sum) return "";
-  const items = eqSumItemsHTML(sum);
-  return items ? '<div class="hs-eq-i"><span class="hs-eq-p">합계</span><span class="hs-eq-t">' + items + "</span></div>" : "";
-}
-// 현재 상태의 효과별 합계 한 줄 (화살표 없음 — 변화가 아니라 지금 값)
-function eqTotalsRowHTML(totals){
-  const codes = eqCodesOf(totals);
+
+// 합계 칩 { 코드: [이전, 이후] } → "공격력 25.04% +12.52".
+// 칸 단위 상세가 '무엇을 굴렸나'라면 이 칩은 '그래서 지금 얼마인가'다 — 같은 옵션이
+// 4부위에 흩어지고 리롤로 오르내림이 섞여서, 칸만 봐서는 실제로 얼마나 끌어올렸는지가
+// 보이지 않는다. 이전 값은 바로 아래 부위별 내역에 그대로 있으므로 칩에서는 뺀다:
+// 한 칩에 숫자를 셋(이전·이후·증감) 넣으면 아무것도 안 읽힌다.
+function eqSumChipsHTML(sum){
+  const codes = eqCodesOf(sum);
   if (!codes.length) return "";
-  return '<div class="hs-eq-i"><span class="hs-eq-p">합계</span><span class="hs-eq-t">' +
-    codes.map(k => '<span class="hs-ov">' + eqName(k) + ' <b class="tnum">' + eqPct(totals[k]) + "</b></span>").join("") +
-    "</span></div>";
+  return '<div class="hs-ov-sum">' + codes.map(k => {
+    const a = Number(sum[k][0]) || 0, b = Number(sum[k][1]) || 0, d = eqDelta(a, b);
+    return '<span class="hs-ov-chip' + (d < 0 ? " down" : "") + '">' + eqName(k) +
+      (b ? ' <b class="tnum">' + eqPct(b) + "</b>" : ' <b style="color:var(--dim)">해제</b>') +
+      ' <i class="tnum">' + (d > 0 ? "+" : "") + d.toFixed(2) + "</i></span>";
+  }).join("") + "</div>";
 }
+// 현재 값 칩 (변화가 아니라 지금 상태 — 증감 없음)
+function eqNowChipsHTML(totals){
+  const codes = eqCodesOf(totals);
+  return codes.length ? '<div class="hs-ov-sum">' + codes.map(k =>
+    '<span class="hs-ov-chip">' + eqName(k) + ' <b class="tnum">' + eqPct(totals[k]) + "</b></span>").join("") + "</div>" : "";
+}
+// 부위 배지 + 그 부위의 줄 목록. parts = [{p, items:[…]}], lineOf = 항목 → HTML
+function eqPartsHTML(parts, lineOf){
+  const rows = (parts || []).map(p => {
+    const items = (p.items || []).map(x => '<div class="hs-ov-line">' + lineOf(x) + "</div>").join("");
+    return items ? '<div class="hs-ov-part"><span class="hs-ov-pl">' + (PART_KO[p.p] || esc(String(p.p))) + "</span>" +
+      '<div class="hs-ov-list">' + items + "</div></div>" : "";
+  }).filter(Boolean).join("");
+  return rows ? '<div class="hs-ov-parts">' + rows + "</div>" : "";
+}
+
 // 요약 한 줄: 줄 수는 변했을 때만 화살표로 (리롤만 있으면 "3줄 → 3줄" 이 되어 헷갈린다)
 function eqText(e){
   return e.a === e.b
     ? '오버로드 옵션 <span class="tnum">' + e.b + "줄</span>"
     : '오버로드 옵션 <span class="tnum">' + e.a + "줄 → " + hl(e.b + "줄") + "</span>";
 }
-// 상세 블록: 맨 위에 효과별 합계 변화, 그 아래 칸 단위 변화 1건 = 1줄.
-// 부위 라벨은 그 부위의 첫 줄에만 (나머지는 들여쓰기 유지)
+// 상세 블록: 효과별 합계 칩(결과) 위, 부위별 변화 목록(과정) 아래
 function eqDetailHTML(e){
-  const rows = [];
-  const sumRow = eqSumRowHTML(e.sum);
-  if (sumRow) rows.push(sumRow);
-  (e.parts || []).forEach(p => {
-    if (!p || !p.ch || !p.ch.length) return;
-    p.ch.forEach((c, i) => {
-      rows.push('<div class="hs-eq-i"><span class="hs-eq-p">' + (i ? "" : (PART_KO[p.p] || esc(String(p.p)))) + "</span>" +
-        '<span class="hs-eq-t">' + eqChText(c) + "</span></div>");
-    });
-  });
-  return rows.length ? '<div class="hs-eq">' + rows.join("") + "</div>" : "";
+  const inner = eqSumChipsHTML(e.sum) +
+    eqPartsHTML((e.parts || []).map(p => ({ p: p.p, items: p.ch || [] })), eqChLine);
+  return inner ? '<div class="hs-ovb">' + inner + "</div>" : "";
 }
 
 // 이벤트 1행 (유니온 피드·멤버 상세 공용; showDot = 유형 색 점 표시)
@@ -810,42 +871,6 @@ function acctRowsHTML(ra, rb){
       '<span class="hs-acct-d">' + (delta != null ? (delta > 0 ? "+" + delta : delta) : (changed ? "변경" : "")) + "</span></div>";
   }).join("");
 }
-// 멤버 단위 오버로드 옵션 합산 변화 — 이 멤버의 equip 이벤트를 효과별로 합친다.
-// 캐릭터가 달라도 "이 기간에 오버로드로 얼마나 끌어올렸나"는 합쳐 보는 편이 읽기 쉽다
-// (캐릭터별 칸 단위 상세는 바로 아래 '캐릭터 변화'에 그대로 남아 있다).
-// 절대 합계가 아니라 증가량 합계다 — 서로 다른 캐릭터의 옵션 총량을 더한 값은
-// 의미가 없지만, 기간 내 증가분은 '얼마나 투자했나'로 읽힌다.
-function memberEqSummaryHTML(evs){
-  const eqs = (evs || []).filter(e => e.t === "equip");
-  const delta = {};
-  let lineA = 0, lineB = 0;
-  eqs.forEach(e => {
-    lineA += e.a || 0; lineB += e.b || 0;
-    const sum = e.sum || {};
-    Object.keys(sum).forEach(k => {
-      delta[k] = round2((delta[k] || 0) + eqDelta(Number(sum[k][0]) || 0, Number(sum[k][1]) || 0));
-    });
-  });
-  const d = state.diff;
-  const codes = eqCodesOf(delta).filter(k => delta[k]);
-  // 비어 있을 때 '변화가 없다'와 '비교할 수 없다'를 반드시 구분한다 — 옵션 적재
-  // 개시 이전이 기간에 걸리면 후자인데, 전자로 적으면 명백한 거짓말이 된다.
-  const empty = d && d.compared && !d.eqCompared
-    ? "이 기간은 오버로드 옵션 비교 구간이 아니에요 — 기간을 좁혀 보세요"
-    : "이 기간에 오버로드 옵션 변화가 없어요";
-  const chips = codes.length
-    ? codes.map(k => '<span class="hs-eqsum' + (delta[k] < 0 ? " down" : "") + '">' + eqName(k) +
-        ' <b class="tnum">' + (delta[k] > 0 ? "+" : "") + delta[k].toFixed(2) + "%</b></span>").join("")
-    : '<span style="font-size:12px;color:var(--dim);font-weight:600">' + empty + "</span>";
-  const win = d && d.eqCompared && d.compared && d.eqCompared.a !== d.compared.a
-    ? fmtD(d.eqCompared.a) + " → " + fmtD(d.eqCompared.b) + " 기준" : "";
-  const note = [eqs.length ? eqs.length + "캐릭터 · 옵션 " + lineA + "줄 → " + lineB + "줄" : "", win]
-    .filter(Boolean).join(" · ");
-  return '<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;font-weight:800;color:var(--sub)">오버로드 옵션 합산 변화' +
-    (note ? ' <span style="font-weight:600;color:var(--dim)">— ' + esc(note) + "</span>" : "") + "</div>" +
-    '<div class="hs-eqsum-row">' + chips + "</div>";
-}
-
 function memberCardHTML(){
   const ms = (state.members && state.members.members) || [];
   const opts = ms.map(m => '<option value="' + esc(m.uid) + '"' + (m.uid === state.memberUid ? " selected" : "") + '>' +
@@ -866,10 +891,9 @@ function memberCardHTML(){
         ? '<div class="hs-acct">' + acctRowsHTML(ra, rb) + "</div>"
         : '<div class="hs-empty">이 기간에 이 멤버의 스냅샷이 부족해요</div>';
     }
-    let charBlocks = "", eqSummary = "";
+    let charBlocks = "";
     if (d && !d.error && d.events && d.compared && d.compared.a < d.compared.b) {
       const mine = d.events.filter(e => e.uid === state.memberUid);
-      eqSummary = memberEqSummaryHTML(mine);
       charBlocks = EVT.map(ev => {
         const evs = mine.filter(e => e.t === ev[0]);
         if (!evs.length) return "";
@@ -878,9 +902,12 @@ function memberCardHTML(){
       }).join("");
       if (!charBlocks) charBlocks = '<div class="hs-empty" style="margin-top:10px">이 기간에 감지된 캐릭터 변화가 없어요</div>';
     }
+    // 옵션 비교가 불가능한 기간이면 그 사실을 여기서도 밝힌다 — 안 밝히면
+    // '오버로드' 그룹이 없는 것이 '변화가 없었다'로 읽힌다(사실이 아니다).
+    const eqNote = d && !d.error && d.compared && !d.eqCompared
+      ? ' <span style="font-weight:600;color:var(--dim)">— 오버로드 옵션은 이 기간에 비교 불가</span>' : "";
     body = '<div style="margin-top:12px;font-size:13px;font-weight:800;color:var(--sub)">계정 지표 변화</div>' + acct +
-      eqSummary +
-      '<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;font-weight:800;color:var(--sub)">캐릭터 변화</div>' + charBlocks;
+      '<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;font-weight:800;color:var(--sub)">캐릭터 변화' + eqNote + "</div>" + charBlocks;
   }
   return '<article class="rd-card" id="hsMemberCard" style="padding:16px 18px">' +
     '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">' +
@@ -1094,7 +1121,6 @@ function render(){
 document.addEventListener("change", e => {
   const id = e.target && e.target.id;
   if (id === "hsMember") { loadMember(e.target.value); syncUrl(); }
-  else if (id === "hsChar") loadChar(e.target.value);
   else if (id === "hsCharSel") { loadCharMatrix(e.target.value); syncUrl(); }
   else if (id === "hsFrom" || id === "hsTo") {
     state[id === "hsFrom" ? "from" : "to"] = e.target.value || "";
@@ -1102,6 +1128,35 @@ document.addEventListener("change", e => {
     reloadPeriod();
   }
 });
+// ── 캐릭터 검색 콤보 (전역 위임) ───────────────────────────────────
+document.addEventListener("input", e => {
+  if (!e.target || e.target.id !== "hsCharInput") return;
+  state.charQuery = e.target.value;
+  state.charOpen = true;
+  updateCharDrop();          // ★ render() 를 부르면 입력 포커스가 날아간다
+});
+document.addEventListener("focusin", e => {
+  if (e.target && e.target.id === "hsCharInput") { state.charOpen = true; updateCharDrop(); }
+});
+document.addEventListener("focusout", e => {
+  // 목록 클릭이 blur 보다 늦게 오므로 약간 늦춰 닫는다 (선택은 아래 mousedown 이 먼저 처리)
+  if (e.target && e.target.id === "hsCharInput") setTimeout(() => { state.charOpen = false; updateCharDrop(); }, 160);
+});
+document.addEventListener("mousedown", e => {
+  const pick = e.target.closest && e.target.closest('[data-pick="hs-char"]');
+  if (!pick) return;
+  e.preventDefault();        // 입력의 blur 를 막아 선택이 먼저 처리되게
+  loadChar(pick.dataset.name);
+});
+document.addEventListener("keydown", e => {
+  if (!e.target || e.target.id !== "hsCharInput") return;
+  if (e.key === "Escape") { state.charOpen = false; updateCharDrop(); e.target.blur(); }
+  else if (e.key === "Enter") {
+    const first = charMatches()[0];
+    if (first) { e.preventDefault(); loadChar(first.name); }
+  }
+});
+
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-act]"); if (!t) return;
   const act = t.dataset.act;
@@ -1125,6 +1180,7 @@ document.addEventListener("click", e => {
     syncUrl();
     reloadPeriod();
   }
+  else if (act === "char-clear") loadChar("");
   else if (act === "feed-type") { state.feedType = t.dataset.t; render(); }
   else if (act === "char-sort") { state.charSort = t.dataset.s; render(); }
   else if (act === "pick-member") {
