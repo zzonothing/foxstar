@@ -157,6 +157,11 @@
     .hs-tl-d{ width:44px; flex-shrink:0; font-size:11px; font-weight:800; color:var(--dim); padding-top:3px; }
     .hs-tl-b{ flex:1; min-width:0; }
     .hs-tl-i{ font-size:12px; line-height:1.85; color:var(--sub); font-weight:600; }
+    /* 오버로드 옵션 합산 변화 칩 (멤버 성장 상세의 멤버 단위 집계) */
+    .hs-eqsum-row{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+    .hs-eqsum{ display:inline-flex; align-items:baseline; gap:5px; font-size:12px; font-weight:700; color:var(--sub); background:var(--muted); border:1px solid var(--border); border-radius:999px; padding:3px 11px; white-space:nowrap; }
+    .hs-eqsum b{ color:var(--ev-equip); }
+    .hs-eqsum.down b{ color:var(--dim); }
     /* 매트릭스 오버로드 옵션 칸 — 효과가 여럿이라 이 칸만 줄바꿈을 허용한다 */
     .hs-mx td.hs-mx-eqc{ white-space:normal; min-width:190px; }
     .hs-mx-eq{ display:flex; flex-wrap:wrap; gap:0 10px; }
@@ -323,18 +328,30 @@ function skillDeltaHTML(series){
   }).join("") + "</div>";
 }
 
-// 현재(마지막 스냅샷) 오버로드 옵션 — 부위별 칸 나열, 최대치는 MAX 배지
+// extra.eq → 효과별 합계 { 코드: 합계 } (api/history.js 의 eqTotals 와 같은 계산)
+function eqTotalsC(eq){
+  const t = {};
+  if (!eq) return t;
+  EQ_PART_ORDER.forEach(part => (Array.isArray(eq[part]) ? eq[part] : []).forEach(o => {
+    if (!Array.isArray(o) || !o[0]) return;
+    const k = String(o[0]), v = Number(o[1]);
+    t[k] = round2((t[k] || 0) + (isFinite(v) ? v : 0));
+  }));
+  return t;
+}
+
+// 현재(마지막 스냅샷) 오버로드 옵션 — 효과별 합계 + 부위별 칸 나열, 최대치는 MAX 배지
 function eqNowHTML(row){
   const ex = parseExtra(row && row.extra);
   const eq = ex && ex.eq;
-  const rows = eq ? EQ_PART_ORDER.map(part => {
+  const rows = eq ? [eqTotalsRowHTML(eqTotalsC(eq))].concat(EQ_PART_ORDER.map(part => {
     const opts = (Array.isArray(eq[part]) ? eq[part] : []).filter(o => Array.isArray(o) && o[0]);
     if (!opts.length) return "";
     return '<div class="hs-eq-i"><span class="hs-eq-p">' + (PART_KO[part] || esc(part)) + "</span>" +
       '<span class="hs-eq-t">' + opts.map(o =>
         '<span class="hs-ov">' + eqName(o[0]) + ' <b class="tnum">' + eqPct(o[1]) + "</b>" + eqMax(o[0], o[1]) + "</span>"
       ).join("") + "</span></div>";
-  }).filter(Boolean).join("") : "";
+  })).filter(Boolean).join("") : "";
   return rows ? '<div class="hs-eq" style="padding-left:0">' + rows + "</div>"
     : '<div class="hs-eq-none">붙어 있는 오버로드 옵션이 없어요</div>';
 }
@@ -358,6 +375,11 @@ function charChangeHTML(){
     if (c.item) {
       const g = pr => pr ? esc(String(pr[0])) + (pr[1] != null && pr[1] !== "" ? " " + esc(String(pr[1])) : "") : "";
       bits.push(tlItem("var(--ev-item)", "소장품 " + (c.item.a ? g(c.item.a) + " → " : "장착 ") + hl(g(c.item.b))));
+    }
+    // 합계 변화를 먼저(그날 총합이 얼마나 움직였나), 그 아래 칸 단위 상세
+    if (c.eqSum) {
+      const items = eqSumItemsHTML(c.eqSum);
+      if (items) bits.push(tlItem("var(--ev-equip)", '<span style="color:var(--dim);font-weight:800">합계</span> ' + items));
     }
     (c.eq || []).forEach(pt => (pt.ch || []).forEach(x => bits.push(tlItem("var(--ev-equip)",
       '<span style="color:var(--dim);font-weight:800">' + (PART_KO[pt.p] || esc(String(pt.p))) + "</span> " + eqChText(x)))));
@@ -456,6 +478,16 @@ const EQ_SHORT = { elem: "우월", atk: "공격", def: "방어", hit: "명중", 
   chgDmg: "차지뎀", critRate: "크확", critDmg: "크뎀", ammo: "장탄" };
 // 효과 표시 순서 (shift.html EORDER_EFF 와 동일한 서열을 축약 코드로 옮긴 것)
 const EQ_ORDER = ["elem", "atk", "ammo", "critDmg", "critRate", "chgSpd", "chgDmg", "def", "hit"];
+// 넘긴 맵들 중 하나라도 값이 있는 효과 코드를, 표시 순서(EQ_ORDER; 게임 확장으로
+// 들어온 모르는 코드는 뒤)로 돌려준다. 합산 표시·매트릭스 칸이 함께 쓴다.
+function eqCodesOf(){
+  const maps = Array.prototype.slice.call(arguments).filter(Boolean);
+  const rest = [];
+  maps.forEach(m => Object.keys(m).forEach(k => {
+    if (EQ_ORDER.indexOf(k) < 0 && rest.indexOf(k) < 0) rest.push(k);
+  }));
+  return EQ_ORDER.concat(rest).filter(k => maps.some(m => m[k] != null));
+}
 // 옵션 1칸의 최대치 (shift.html TIERS.max 와 동일 — 실데이터 관측 최대값과 일치).
 // 최대 달성 시 MAX 배지를 붙인다. 게임 확장으로 모르는 코드가 오면 배지 없이 표시.
 const EQ_MAX = { elem: 29.16, atk: 14.63, def: 14.63, hit: 14.63, chgSpd: 6.09,
@@ -523,15 +555,48 @@ function eqChText(c){
   if (c.k === "swap") return eqName(c.e) + " " + eqPct(c.a) + " → " + hl(eqName(c.e2) + " " + eqPct(c.b)) + eqMax(c.e2, c.b);
   return eqName(c.e) + " " + eqPct(c.a) + " → " + hl(eqPct(c.b)) + eqMax(c.e, c.b);
 }
+// 효과별 합계 변화 { 코드: [이전, 이후] } → "공격력 12.52% → 25.04% (+12.52)".
+// 칸 단위 상세가 '무엇을 굴렸나'라면 이 줄은 '그래서 총합이 얼마가 됐나'다 —
+// 같은 옵션이 4부위에 흩어지고 리롤로 오르내림이 섞여서, 칸만 봐서는 실제로 얼마나
+// 끌어올렸는지가 보이지 않는다.
+function round2(v){ return Math.round(v * 100) / 100; }   // 부동소수 누적 표시 방지
+function eqDelta(a, b){ return round2(b - a); }
+function eqSumItemsHTML(sum){
+  return eqCodesOf(sum).map(k => {
+    const a = Number(sum[k][0]) || 0, b = Number(sum[k][1]) || 0, d = eqDelta(a, b);
+    return '<span class="hs-ov">' + eqName(k) + " " +
+      '<span style="color:var(--dim)">' + (a ? eqPct(a) : "—") + " →</span> " +
+      '<b class="tnum">' + (b ? eqPct(b) : "—") + "</b>" +
+      '<span class="tnum" style="color:' + (d >= 0 ? "var(--ev-equip)" : "var(--dim)") + '">(' +
+        (d > 0 ? "+" : "") + d.toFixed(2) + ")</span></span>";
+  }).join("");
+}
+// '합계' 라벨이 붙은 한 줄 (부위 줄들과 같은 그리드에 맞춘다)
+function eqSumRowHTML(sum){
+  if (!sum) return "";
+  const items = eqSumItemsHTML(sum);
+  return items ? '<div class="hs-eq-i"><span class="hs-eq-p">합계</span><span class="hs-eq-t">' + items + "</span></div>" : "";
+}
+// 현재 상태의 효과별 합계 한 줄 (화살표 없음 — 변화가 아니라 지금 값)
+function eqTotalsRowHTML(totals){
+  const codes = eqCodesOf(totals);
+  if (!codes.length) return "";
+  return '<div class="hs-eq-i"><span class="hs-eq-p">합계</span><span class="hs-eq-t">' +
+    codes.map(k => '<span class="hs-ov">' + eqName(k) + ' <b class="tnum">' + eqPct(totals[k]) + "</b></span>").join("") +
+    "</span></div>";
+}
 // 요약 한 줄: 줄 수는 변했을 때만 화살표로 (리롤만 있으면 "3줄 → 3줄" 이 되어 헷갈린다)
 function eqText(e){
   return e.a === e.b
     ? '오버로드 옵션 <span class="tnum">' + e.b + "줄</span>"
     : '오버로드 옵션 <span class="tnum">' + e.a + "줄 → " + hl(e.b + "줄") + "</span>";
 }
-// 상세 블록: 변화 1건 = 1줄, 부위 라벨은 그 부위의 첫 줄에만 (나머지는 들여쓰기 유지)
+// 상세 블록: 맨 위에 효과별 합계 변화, 그 아래 칸 단위 변화 1건 = 1줄.
+// 부위 라벨은 그 부위의 첫 줄에만 (나머지는 들여쓰기 유지)
 function eqDetailHTML(e){
   const rows = [];
+  const sumRow = eqSumRowHTML(e.sum);
+  if (sumRow) rows.push(sumRow);
   (e.parts || []).forEach(p => {
     if (!p || !p.ch || !p.ch.length) return;
     p.ch.forEach((c, i) => {
@@ -735,6 +800,33 @@ function acctRowsHTML(ra, rb){
       '<span class="hs-acct-d">' + (delta != null ? (delta > 0 ? "+" + delta : delta) : (changed ? "변경" : "")) + "</span></div>";
   }).join("");
 }
+// 멤버 단위 오버로드 옵션 합산 변화 — 이 멤버의 equip 이벤트를 효과별로 합친다.
+// 캐릭터가 달라도 "이 기간에 오버로드로 얼마나 끌어올렸나"는 합쳐 보는 편이 읽기 쉽다
+// (캐릭터별 칸 단위 상세는 바로 아래 '캐릭터 변화'에 그대로 남아 있다).
+// 절대 합계가 아니라 증가량 합계다 — 서로 다른 캐릭터의 옵션 총량을 더한 값은
+// 의미가 없지만, 기간 내 증가분은 '얼마나 투자했나'로 읽힌다.
+function memberEqSummaryHTML(evs){
+  const eqs = (evs || []).filter(e => e.t === "equip");
+  const delta = {};
+  let lineA = 0, lineB = 0;
+  eqs.forEach(e => {
+    lineA += e.a || 0; lineB += e.b || 0;
+    const sum = e.sum || {};
+    Object.keys(sum).forEach(k => {
+      delta[k] = round2((delta[k] || 0) + eqDelta(Number(sum[k][0]) || 0, Number(sum[k][1]) || 0));
+    });
+  });
+  const codes = eqCodesOf(delta).filter(k => delta[k]);
+  const chips = codes.length
+    ? codes.map(k => '<span class="hs-eqsum' + (delta[k] < 0 ? " down" : "") + '">' + eqName(k) +
+        ' <b class="tnum">' + (delta[k] > 0 ? "+" : "") + delta[k].toFixed(2) + "%</b></span>").join("")
+    : '<span style="font-size:12px;color:var(--dim);font-weight:600">이 기간에 오버로드 옵션 변화가 없어요</span>';
+  const note = eqs.length ? eqs.length + "캐릭터 · 옵션 " + lineA + "줄 → " + lineB + "줄" : "";
+  return '<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;font-weight:800;color:var(--sub)">오버로드 옵션 합산 변화' +
+    (note ? ' <span style="font-weight:600;color:var(--dim)">— ' + esc(note) + "</span>" : "") + "</div>" +
+    '<div class="hs-eqsum-row">' + chips + "</div>";
+}
+
 function memberCardHTML(){
   const ms = (state.members && state.members.members) || [];
   const opts = ms.map(m => '<option value="' + esc(m.uid) + '"' + (m.uid === state.memberUid ? " selected" : "") + '>' +
@@ -755,9 +847,10 @@ function memberCardHTML(){
         ? '<div class="hs-acct">' + acctRowsHTML(ra, rb) + "</div>"
         : '<div class="hs-empty">이 기간에 이 멤버의 스냅샷이 부족해요</div>';
     }
-    let charBlocks = "";
+    let charBlocks = "", eqSummary = "";
     if (d && !d.error && d.events && d.compared && d.compared.a < d.compared.b) {
       const mine = d.events.filter(e => e.uid === state.memberUid);
+      eqSummary = memberEqSummaryHTML(mine);
       charBlocks = EVT.map(ev => {
         const evs = mine.filter(e => e.t === ev[0]);
         if (!evs.length) return "";
@@ -767,6 +860,7 @@ function memberCardHTML(){
       if (!charBlocks) charBlocks = '<div class="hs-empty" style="margin-top:10px">이 기간에 감지된 캐릭터 변화가 없어요</div>';
     }
     body = '<div style="margin-top:12px;font-size:13px;font-weight:800;color:var(--sub)">계정 지표 변화</div>' + acct +
+      eqSummary +
       '<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;font-weight:800;color:var(--sub)">캐릭터 변화</div>' + charBlocks;
   }
   return '<article class="rd-card" id="hsMemberCard" style="padding:16px 18px">' +
@@ -804,8 +898,7 @@ const MX_COLS = [
 // 돌려줘 '변화 없음'으로 처리한다 — 미수집을 변화로 오인하지 않게.
 function eqSumKey(sum){
   if (!sum) return null;
-  return EQ_ORDER.concat(Object.keys(sum).filter(k => EQ_ORDER.indexOf(k) < 0))
-    .filter(k => sum[k] != null).map(k => k + ":" + sum[k]).join(",");
+  return eqCodesOf(sum).map(k => k + ":" + sum[k]).join(",");
 }
 
 // 오버로드 옵션 칸: 효과별 합계를 나열하고, 바뀐 효과만 이전 → 현재로 보여준다.
@@ -818,9 +911,7 @@ function mxEqCellHTML(ra, rb){
   const sa = ra && ra.eqSum ? ra.eqSum : null;
   const sb = rb.eqSum || null;
   if (!sa && !sb) return "—";
-  const codes = EQ_ORDER.concat(
-    [sa, sb].reduce((acc, m) => acc.concat(m ? Object.keys(m) : []), []).filter(k => EQ_ORDER.indexOf(k) < 0)
-  ).filter(k => (sa && sa[k] != null) || (sb && sb[k] != null));
+  const codes = eqCodesOf(sa, sb);
   if (!codes.length) return '<span style="color:var(--dim)">옵션 없음</span>';
   const cmp = !!(sa && sb); // 양쪽 다 적재된 구간에서만 이전 → 현재를 말할 수 있다
   return '<div class="hs-mx-eq">' + codes.map(k => {

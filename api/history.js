@@ -16,7 +16,9 @@
 //       형식, 없으면 null. text 컬럼이라 객체가 아닌 문자열.
 //       changes = 연속한 두 스냅샷 사이의 변화 이력(오름차순, 변화가 있는 날만):
 //         { date, prev, skill?: [{n:1|2|3, a, b}], up?: {a,b}, item?: {a,b},
-//           eq?: [{p, ch:[…]}] }   ch 는 kind=diff 의 equip 이벤트와 같은 형식.
+//           eq?: [{p, ch:[…]}], eqSum?: {코드:[이전합계,이후합계]} }
+//         eq 의 ch 는 kind=diff 의 equip 이벤트와 같은 형식이고, eqSum 은 그 변화를
+//         효과별 합계로 접은 것(총합이 달라진 효과만).
 //       레벨·공격력·HP·방어력은 싱크로 연동으로 상시 변해 변화 이력에서 제외한다
 //       (큐브 레벨도 재료 소모로 오르내려 제외 — kind=diff 와 같은 기준).
 //       extraFrom = 오버로드 옵션 적재가 시작된 첫 스냅샷 날짜(없으면 null).
@@ -29,9 +31,11 @@
 //         events:  [{uid,char,t,…}] }   t = acquire|upgrade|skill|item|equip
 //       큐브 레벨은 character_daily 에 계속 기록하되 이벤트로는 내보내지 않는다
 //       (재료 소모로 수시 변동 — 성장 비교에서는 노이즈).
-//       equip 이벤트는 옵션 칸 단위 상세를 싣는다:
+//       equip 이벤트는 옵션 칸 단위 상세 + 효과별 합계 변화를 함께 싣는다:
 //         { t:'equip', a,b: 총 옵션 줄 수,
-//           parts: [{ p:'head'|'torso'|'arm'|'leg', ch: [변화, …] }] }
+//           parts: [{ p:'head'|'torso'|'arm'|'leg', ch: [변화, …] }],
+//           sum:   { 코드: [이전 합계, 이후 합계] }   (총합이 달라진 효과만;
+//                   한쪽에만 있는 효과는 반대쪽이 0 — 신규 부착/완전 해제) }
 //         변화 = { k:'up'|'down', s, e:코드, a:이전값, b:이후값 }   (옵션 강화)
 //               | { k:'add',  s, e, b }                            (새 옵션)
 //               | { k:'drop', s, e, a }                            (옵션 해제)
@@ -211,6 +215,22 @@ function eqTotals(extra) {
   return t;
 }
 
+// 효과별 합계의 변화 { 코드: [이전, 이후] } — 실제로 총합이 달라진 효과만.
+// 칸 단위 변화(eqDiff 의 parts)가 "무엇을 어떻게 굴렸나"라면 이쪽은 "그래서 총합이
+// 얼마가 됐나"다. 오버로드는 같은 옵션이 4부위에 흩어져 붙고 리롤로 오르내림이
+// 섞이므로, 칸만 봐서는 실제로 얼마나 끌어올렸는지가 보이지 않는다.
+// 한쪽에만 있는 효과는 반대쪽을 0 으로 읽는다(신규 부착 / 완전 해제).
+function eqSumDiff(ae, be) {
+  const ta = eqTotals(ae), tb = eqTotals(be), out = {};
+  const keys = Object.keys(ta);
+  for (const k of Object.keys(tb)) if (keys.indexOf(k) < 0) keys.push(k);
+  for (const k of keys) {
+    const va = ta[k] || 0, vb = tb[k] || 0;
+    if (va !== vb) out[k] = [va, vb];
+  }
+  return out;
+}
+
 // 오버로드 옵션(extra.eq) 적재가 시작된 첫 스냅샷 날짜 (아직 없으면 null).
 //
 // ★ 옵션 비교의 가부는 반드시 이 '스냅샷 단위' 경계로 판정해야 한다. 예전에는
@@ -275,8 +295,9 @@ function charChanges(series, extraFrom) {
     // '새로 추가됨'이 된다). 그 안에서는 extra NULL 을 '옵션 없음'으로 읽으므로,
     // 옵션이 처음 붙는 순간도 add 로 잡힌다.
     if (extraFrom && p.date >= extraFrom) {
-      const parts = eqDiff(jsonOrNull(p.extra), jsonOrNull(c.extra));
-      if (parts.length) ch.eq = parts;
+      const pe = jsonOrNull(p.extra), ce = jsonOrNull(c.extra);
+      const parts = eqDiff(pe, ce);
+      if (parts.length) { ch.eq = parts; ch.eqSum = eqSumDiff(pe, ce); }
     }
     if (ch.skill || ch.up || ch.item || ch.eq) out.push(ch);
   }
@@ -467,7 +488,12 @@ module.exports = async function handler(req, res) {
         if (eqComparable) {
           const ae = jsonOrNull(r.ae), be = jsonOrNull(r.be);
           const parts = eqDiff(ae, be);
-          if (parts.length) base.events.push({ uid, char, t: 'equip', a: eqLines(ae), b: eqLines(be), parts });
+          if (parts.length) {
+            base.events.push({
+              uid, char, t: 'equip', a: eqLines(ae), b: eqLines(be),
+              parts, sum: eqSumDiff(ae, be),
+            });
+          }
         }
       }
 
