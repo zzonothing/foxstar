@@ -25,7 +25,7 @@
 //   ?kind=diff&from=&to=             → 기간 성장 diff (history.html 유니온 성장 요약용).
 //       요청 날짜는 실제 보유 스냅샷으로 스냅된다: a = from 이전 마지막(없으면 첫)
 //       스냅샷, b = to 이전 마지막 스냅샷. from/to 생략 시 전체 기간.
-//       { requested:{from,to}, compared:{a,b}|null,
+//       { requested:{from,to}, compared:{a,b}|null, eqCompared:{a,b}|null,
 //         available:{count,first,last},
 //         members: [{uid,name,syncro:[a,b],acct?,outpost?,hasA}],   (active 로스터 전원)
 //         events:  [{uid,char,t,…}] }   t = acquire|upgrade|skill|item|equip
@@ -43,15 +43,20 @@
 //         e/e2 는 api/_lib/history.js EFFECT_CODE 의 축약 코드.
 //         s 는 정렬용 칸 번호 — 초기 수집 행은 칸이 밀려 있어 표시하지 않는다
 //         (아래 diffPartSlots 주석 참고).
+//       eqCompared = 오버로드 옵션의 **실제** 비교 구간. compared.a 가 옵션 적재
+//       개시(extraSince) 이전이면 옵션만 개시 이후 첫 스냅샷으로 당겨 비교하므로
+//       compared 와 시작 날짜가 다를 수 있다. 당겨도 b 보다 앞설 수 없으면 null
+//       (그 기간은 옵션 비교 자체가 불가) — 화면은 '변화 없음'과 구분해 표시할 것.
 //       스냅샷이 2개 미만이거나 a===b 면 members/events 는 빈 배열.
 //   ?kind=char-list                  → { date, characters: [{name, owners}] }
 //       (최신 스냅샷 기준 유니온 보유 캐릭터 목록 — 캐릭터 보기 선택 UI 용, 보유자 많은 순)
 //   ?kind=char-union&name=&from=&to= → 캐릭터 1종의 유니온 매트릭스 (history.html 캐릭터 보기).
-//       { compared:{a|null,b}|null, available, rows: [{uid, member, isNew,
+//       { compared:{a|null,b}|null, eqCompared:{a,b}|null, available, rows: [{uid, member, isNew,
 //         a: {up,s:[s1,s2,s3],item:[grade,lvl]|null,cube,atk,eq,eqSum}|null, b: 동일 }] }
 //       b = 기간 끝 상태(항상), a = 비교 시작 상태(비교 불가 구간이면 null → 현재 상태만 표시).
 //       eq 는 오버로드 옵션 줄 수, eqSum 은 효과별 합계 { 코드: 합계 } — 그 시점에
 //       옵션 적재가 없었으면 둘 다 null(옵션이 하나도 없는 것과 '미수집'을 구분한다).
+//       a 쪽 옵션은 eqCompared.a 시점 값이다 (kind=diff 와 같은 당김 규칙).
 //       isNew 는 기간 내 신규 보유
 //       (diff 와 동일하게 a 시점 수집이 있던 멤버만 true — 신규 인원 오인 방지).
 // from/to: YYYY-MM-DD (KST 날짜, 생략 시 최근 DEFAULT_RANGE_DAYS 일 — diff/char-union 은 전체 기간)
@@ -95,6 +100,12 @@ function snapLE(avail, d) {
   let r = null;
   for (const x of avail) { if (x <= d) r = x; else break; }
   return r;
+}
+
+// avail(오름차순 날짜 배열)에서 d 이상의 첫 날짜 (없으면 null)
+function snapGE(avail, d) {
+  for (const x of avail) if (x >= d) return x;
+  return null;
 }
 
 // snapshot_date 값 → 'YYYY-MM-DD' 정규화. 드라이버 파서 오버라이드(_lib/db.js)로
@@ -266,6 +277,35 @@ function eqDiff(ae, be) {
   return parts;
 }
 
+// 오버로드 옵션 diff 전용 슬라이스. 나머지 지표와 달리 **비교 시작점이 다를 수 있어서**
+// 따로 뽑는다 — 요청 기간의 시작(a)이 옵션 적재 개시 이전이면 옵션만 개시 이후 첫
+// 스냅샷으로 당겨 비교한다.
+//
+// ★ 예전에는 'a 가 적재 개시 이전이면 옵션 비교를 통째로 포기'했는데, 적재 개시
+//   하루 전부터 히스토리가 있다는 이유만으로 '전체'·'30일' 프리셋(= 기본값)에서
+//   유니온 전원의 옵션 변화가 전부 사라졌다. 캐릭터 변화 이력(kind=character)은
+//   연속 스냅샷 쌍마다 판정해서 그 한 쌍만 건너뛰므로 멀쩡히 보였고, 그래서
+//   "캐릭터별로는 보이는데 요약에는 없다"로 드러났다. 시작점을 당기면 비교 구간이
+//   나머지 지표와 며칠 어긋나는데, 그건 응답의 eqCompared 로 알려 화면에 표기한다.
+//
+// y(끝 시점)에 없는 캐릭터는 제외한다 — 스크랩 누락 노이즈이고, 기간 내 신규 보유는
+// acquire 이벤트가 따로 알린다.
+const EQ_SLICE_SQL =
+  'SELECT COALESCE(x.uid, y.uid) AS uid, COALESCE(x.char_name, y.char_name) AS name, ' +
+  'x.extra AS ae, y.extra AS be ' +
+  'FROM (SELECT uid, char_name, extra FROM character_daily WHERE union_id = $1 AND snapshot_date = $2) x ' +
+  'FULL OUTER JOIN (SELECT uid, char_name, extra FROM character_daily WHERE union_id = $1 AND snapshot_date = $3) y ' +
+  'ON x.uid = y.uid AND x.char_name = y.char_name ' +
+  "WHERE y.uid IS NOT NULL AND (x.extra::jsonb -> 'eq') IS DISTINCT FROM (y.extra::jsonb -> 'eq')";
+
+// 요청 비교 구간 [a, b] → 오버로드 옵션을 실제로 비교할 시작 날짜 (불가능하면 null).
+// a 가 적재 개시 이후면 그대로, 이전이면 개시 이후 첫 스냅샷으로 당긴다.
+function eqStart(avail, extraFrom, a, b) {
+  if (!extraFrom || !a) return null;
+  const eqA = a >= extraFrom ? a : snapGE(avail, extraFrom);
+  return eqA && eqA < b ? eqA : null;
+}
+
 // ── 캐릭터 1종의 변화 이력 (kind=character) ─────────────────────
 // 연속한 두 스냅샷을 비교해 "언제 무엇이 바뀌었는가"를 만든다. 담는 항목은
 // kind=diff 의 이벤트와 같은 기준: 레벨·공격력·HP·방어력은 싱크로 연동으로 상시
@@ -383,10 +423,11 @@ module.exports = async function handler(req, res) {
     if (kind === 'diff') {
       const reqFrom = DATE_RE.test(req.query.from || '') ? req.query.from : null;
       const reqTo = DATE_RE.test(req.query.to || '') ? req.query.to : null;
-      const avail = await availDates();
+      const [avail, extraFrom] = await Promise.all([availDates(), extraSince()]);
       const base = {
         requested: { from: reqFrom, to: reqTo },
         compared: null,
+        eqCompared: null,   // 오버로드 옵션의 실제 비교 구간 (compared 와 다를 수 있다)
         available: { count: avail.length, first: avail[0] || null, last: avail[avail.length - 1] || null },
         members: [], events: [],
       };
@@ -398,7 +439,11 @@ module.exports = async function handler(req, res) {
       base.compared = { a, b };
       if (a >= b) return res.status(200).json(base); // 구간 내 스냅샷 1개 — 비교 불가
 
-      const [mrows, crows, aRows, extraFrom] = await Promise.all([
+      // 오버로드 옵션만 비교 시작점이 다를 수 있다 (EQ_SLICE_SQL 주석 참고)
+      const eqA = eqStart(avail, extraFrom, a, b);
+      base.eqCompared = eqA ? { a: eqA, b } : null;
+
+      const [mrows, crows, aRows, eqRows] = await Promise.all([
         // active 로스터 전원의 계정 지표 (양 시점 LEFT JOIN — 미수집 시 NULL)
         query(
           'SELECT m.uid, m.name, a.syncro_level AS sa, b.syncro_level AS sb, a.fields AS fa, b.fields AS fb ' +
@@ -414,31 +459,24 @@ module.exports = async function handler(req, res) {
           '(a.uid IS NULL) AS added, (b.uid IS NULL) AS removed, ' +
           'a.skill1 AS as1, a.skill2 AS as2, a.skill3 AS as3, b.skill1 AS bs1, b.skill2 AS bs2, b.skill3 AS bs3, ' +
           'a.upgrade AS au, b.upgrade AS bu, a.item_grade AS aig, a.item_level AS ail, ' +
-          'b.item_grade AS big, b.item_level AS bil, ' +
-          'a.extra AS ae, b.extra AS be ' +
+          'b.item_grade AS big, b.item_level AS bil ' +
           'FROM (SELECT * FROM character_daily WHERE union_id = $1 AND snapshot_date = $2) a ' +
           'FULL OUTER JOIN (SELECT * FROM character_daily WHERE union_id = $1 AND snapshot_date = $3) b ' +
           'ON a.uid = b.uid AND a.char_name = b.char_name ' +
           'WHERE a.uid IS NULL OR b.uid IS NULL ' +
           'OR a.skill1 IS DISTINCT FROM b.skill1 OR a.skill2 IS DISTINCT FROM b.skill2 ' +
           'OR a.skill3 IS DISTINCT FROM b.skill3 OR a.upgrade IS DISTINCT FROM b.upgrade ' +
-          'OR a.item_grade IS DISTINCT FROM b.item_grade OR a.item_level IS DISTINCT FROM b.item_level ' +
-          // extra 는 text 지만 ::jsonb 로 파싱해 eq 부분만 비교한다. 문자열 그대로
-          // 비교하면 (1) 큐브명만 바뀐 행이 딸려오고, (2) jsonb→text 마이그레이션으로
-          // 변환된 옛 행은 공백이 들어간 형태({"eq": {…})라 내용이 같아도 전부 다르다고
-          // 판정된다. 파싱 비용은 하루치 슬라이스(약 1.2만 행)에만 든다.
-          "OR (a.extra::jsonb -> 'eq') IS DISTINCT FROM (b.extra::jsonb -> 'eq')",
+          'OR a.item_grade IS DISTINCT FROM b.item_grade OR a.item_level IS DISTINCT FROM b.item_level',
           [UNION_ID, a, b]),
         // a 시점에 캐릭터 수집이 있던 uid — 신규 인원의 전 캐릭터가 '신규 보유'로 오인되는 것을 차단
         query('SELECT DISTINCT uid FROM character_daily WHERE union_id = $1 AND snapshot_date = $2', [UNION_ID, a]),
-        extraSince(),
+        // 오버로드 옵션은 별도 구간(eqA)으로 비교한다 — 비교 불가 구간이면 아예 뽑지 않는다
+        eqA ? query(EQ_SLICE_SQL, [UNION_ID, eqA, b]) : Promise.resolve([]),
       ]);
 
       const activeUids = new Set(mrows.map(r => r.uid));
       const hadCharsA = new Set(aRows.map(r => r.uid));
-      // 오버로드 옵션 비교 가부는 스냅샷 단위로 판정한다 (extraSince 주석 참고).
-      // b > a 가 보장되므로 a 만 확인하면 양쪽 모두 적재 개시 이후임이 성립한다.
-      const eqComparable = !!(extraFrom && a >= extraFrom);
+      const acquired = new Set(); // 신규 보유로 보고된 캐릭터 — 옵션 변화로 중복 보고하지 않는다
 
       base.members = mrows.map(r => {
         const fa = jsonOrNull(r.fa), fb = jsonOrNull(r.fb);
@@ -469,6 +507,7 @@ module.exports = async function handler(req, res) {
           // a 시점 수집 자체가 없던 멤버(신규 합류/수집 개시)는 전 캐릭터가 added 로 잡힘 — 제외
           if (!hadCharsA.has(uid)) continue;
           base.events.push({ uid, char, t: 'acquire', b: r.bu || null });
+          acquired.add(uid + '\x00' + char);
           continue; // 신규 보유면 세부 변화 이벤트는 무의미
         }
         if (r.au !== r.bu) {
@@ -483,18 +522,21 @@ module.exports = async function handler(req, res) {
         if (gb > ga || (gb > 0 && gb === ga && (r.bil || 0) > (r.ail || 0))) {
           base.events.push({ uid, char, t: 'item', a: ga ? [r.aig, r.ail] : null, b: [r.big, r.bil] });
         }
-        // 오버로드 옵션 — 적재 개시 이후 구간에서만. 캐릭터별 extra 가 NULL 이어도
-        // 건너뛰지 않는다: NULL = '옵션 없음'이라 옵션이 처음 붙은 변화가 여기서 잡힌다.
-        if (eqComparable) {
-          const ae = jsonOrNull(r.ae), be = jsonOrNull(r.be);
-          const parts = eqDiff(ae, be);
-          if (parts.length) {
-            base.events.push({
-              uid, char, t: 'equip', a: eqLines(ae), b: eqLines(be),
-              parts, sum: eqSumDiff(ae, be),
-            });
-          }
-        }
+      }
+
+      // 오버로드 옵션 이벤트 (별도 구간 eqA → b). 캐릭터별 extra 가 NULL 이어도
+      // 건너뛰지 않는다: 적재 개시 이후의 NULL 은 '옵션 없음'이라, 옵션이 처음 붙은
+      // 변화가 여기서 잡힌다.
+      for (const r of eqRows) {
+        if (!activeUids.has(r.uid)) continue;                       // 탈퇴(비활성) 멤버 제외
+        if (acquired.has(r.uid + '\x00' + r.name)) continue;         // 신규 보유는 acquire 로 이미 보고
+        const ae = jsonOrNull(r.ae), be = jsonOrNull(r.be);
+        const parts = eqDiff(ae, be);
+        if (!parts.length) continue;
+        base.events.push({
+          uid: r.uid, char: r.name, t: 'equip', a: eqLines(ae), b: eqLines(be),
+          parts, sum: eqSumDiff(ae, be),
+        });
       }
 
       return res.status(200).json(base);
@@ -519,10 +561,11 @@ module.exports = async function handler(req, res) {
       if (!name || name.length > 100) return res.status(400).json({ error: 'name 필요' });
       const reqFrom = DATE_RE.test(req.query.from || '') ? req.query.from : null;
       const reqTo = DATE_RE.test(req.query.to || '') ? req.query.to : null;
-      const avail = await availDates();
+      const [avail, extraFrom] = await Promise.all([availDates(), extraSince()]);
       const base = {
         requested: { from: reqFrom, to: reqTo },
         compared: null,
+        eqCompared: null,   // 오버로드 옵션의 실제 비교 구간 (compared 와 다를 수 있다)
         available: { count: avail.length, first: avail[0] || null, last: avail[avail.length - 1] || null },
         rows: [],
       };
@@ -532,28 +575,33 @@ module.exports = async function handler(req, res) {
       let a = reqFrom ? (snapLE(avail, reqFrom) || avail[0]) : avail[0];
       if (!(a < b)) a = null;
       base.compared = { a, b };
+      // 오버로드 옵션만 비교 시작점이 다를 수 있다 (kind=diff 와 같은 규칙 — eqStart 참고)
+      const eqA = eqStart(avail, extraFrom, a, b);
+      base.eqCompared = eqA ? { a: eqA, b } : null;
 
       const aDate = a || '0001-01-01'; // a 없음 → a 쪽 JOIN 이 자연히 비게 되는 안전값
-      const [rows, aRows, extraFrom] = await Promise.all([
+      const eqADate = eqA || '0001-01-01';
+      const [rows, aRows] = await Promise.all([
         query(
           'SELECT m.uid, m.name AS member, ' +
           'a.upgrade AS au, a.skill1 AS as1, a.skill2 AS as2, a.skill3 AS as3, a.item_grade AS aig, ' +
-          'a.item_level AS ail, a.cube_level AS ac, a.atk AS aatk, a.extra AS ae, ' +
+          'a.item_level AS ail, a.cube_level AS ac, a.atk AS aatk, e.extra AS ae, ' +
           'b.upgrade AS bu, b.skill1 AS bs1, b.skill2 AS bs2, b.skill3 AS bs3, b.item_grade AS big, ' +
           'b.item_level AS bil, b.cube_level AS bc, b.atk AS batk, b.extra AS be ' +
           'FROM members m ' +
           'LEFT JOIN character_daily a ON a.union_id = m.union_id AND a.uid = m.uid AND a.char_name = $2 AND a.snapshot_date = $3 ' +
           'LEFT JOIN character_daily b ON b.union_id = m.union_id AND b.uid = m.uid AND b.char_name = $2 AND b.snapshot_date = $4 ' +
+          // 오버로드 옵션의 '이전' 값만 별도 날짜(eqA)에서 가져온다 — eqA === a 면 a 조인과 같은 행
+          'LEFT JOIN character_daily e ON e.union_id = m.union_id AND e.uid = m.uid AND e.char_name = $2 AND e.snapshot_date = $5 ' +
           'WHERE m.union_id = $1 AND m.active AND (a.uid IS NOT NULL OR b.uid IS NOT NULL) ORDER BY m.name',
-          [UNION_ID, name, aDate, b]),
+          [UNION_ID, name, aDate, b, eqADate]),
         a ? query('SELECT DISTINCT uid FROM character_daily WHERE union_id = $1 AND snapshot_date = $2', [UNION_ID, a])
           : Promise.resolve([]),
-        extraSince(),
       ]);
       const hadCharsA = new Set(aRows.map(r => r.uid));
-      // 그 스냅샷에 오버로드 옵션 적재가 있었는가 (extraSince 주석 참고).
-      // 적재 이전이면 eq/eqSum 을 null 로 두어 '옵션 없음'과 '미수집'을 구분한다.
-      const eqOK = { a: !!(extraFrom && a && a >= extraFrom), b: !!(extraFrom && b >= extraFrom) };
+      // 그 시점에 오버로드 옵션 적재가 있었는가 — 없으면 eq/eqSum 을 null 로 두어
+      // '옵션 없음'({})과 '미수집'(null)을 구분한다 (extraSince 주석 참고).
+      const eqOK = { a: !!eqA, b: !!(extraFrom && b >= extraFrom) };
       const pack = (r, p) => {
         if (r[p + 'u'] == null && r[p + 's1'] == null && r[p + 'atk'] == null) return null; // JOIN 미매치
         const extra = jsonOrNull(r[p + 'e']);

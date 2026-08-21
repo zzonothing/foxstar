@@ -746,12 +746,22 @@ function summaryBodyHTML(){
 }
 
 /* ── 상단 컨트롤 카드: 보기 선택(유니온|멤버) + 기간 + 실제 비교 날짜 ── */
+// 오버로드 옵션의 비교 구간이 나머지 지표와 다를 때 덧붙일 문구.
+// 옵션은 적재 개시일 이후만 비교할 수 있어서, 기간 시작이 그보다 이르면 서버가
+// 시작점을 개시일로 당긴다(api/history.js eqStart). 당겨도 안 되면 비교 불가.
+function eqWindowNote(d){
+  if (!d || !d.compared) return "";
+  if (!d.eqCompared) return ' · <span style="color:var(--dim)">오버로드 옵션은 이 기간에 비교 불가</span>';
+  if (d.eqCompared.a === d.compared.a) return "";
+  return ' · 오버로드 옵션은 <b class="tnum" style="color:var(--text)">' + esc(fmtD(d.eqCompared.a)) + "</b>부터";
+}
 function cmpLineHTML(){
   const d = state.diff;
   if (!d || d.error || !d.compared || !(d.compared.a < d.compared.b)) return "";
   return '<div class="hs-dates">실제 비교: <b class="tnum" style="color:var(--text)">' + esc(fmtD(d.compared.a)) +
     '</b> → <b class="tnum" style="color:var(--text)">' + esc(fmtD(d.compared.b)) + "</b> (" +
-    diffDays(d.compared.a, d.compared.b) + "일간) · 보관 중인 스냅샷 " + d.available.count + "일치</div>";
+    diffDays(d.compared.a, d.compared.b) + "일간) · 보관 중인 스냅샷 " + d.available.count + "일치" +
+    eqWindowNote(d) + "</div>";
 }
 function controlCardHTML(){
   const viewSeg = '<div class="rd-seg">' +
@@ -816,12 +826,21 @@ function memberEqSummaryHTML(evs){
       delta[k] = round2((delta[k] || 0) + eqDelta(Number(sum[k][0]) || 0, Number(sum[k][1]) || 0));
     });
   });
+  const d = state.diff;
   const codes = eqCodesOf(delta).filter(k => delta[k]);
+  // 비어 있을 때 '변화가 없다'와 '비교할 수 없다'를 반드시 구분한다 — 옵션 적재
+  // 개시 이전이 기간에 걸리면 후자인데, 전자로 적으면 명백한 거짓말이 된다.
+  const empty = d && d.compared && !d.eqCompared
+    ? "이 기간은 오버로드 옵션 비교 구간이 아니에요 — 기간을 좁혀 보세요"
+    : "이 기간에 오버로드 옵션 변화가 없어요";
   const chips = codes.length
     ? codes.map(k => '<span class="hs-eqsum' + (delta[k] < 0 ? " down" : "") + '">' + eqName(k) +
         ' <b class="tnum">' + (delta[k] > 0 ? "+" : "") + delta[k].toFixed(2) + "%</b></span>").join("")
-    : '<span style="font-size:12px;color:var(--dim);font-weight:600">이 기간에 오버로드 옵션 변화가 없어요</span>';
-  const note = eqs.length ? eqs.length + "캐릭터 · 옵션 " + lineA + "줄 → " + lineB + "줄" : "";
+    : '<span style="font-size:12px;color:var(--dim);font-weight:600">' + empty + "</span>";
+  const win = d && d.eqCompared && d.compared && d.eqCompared.a !== d.compared.a
+    ? fmtD(d.eqCompared.a) + " → " + fmtD(d.eqCompared.b) + " 기준" : "";
+  const note = [eqs.length ? eqs.length + "캐릭터 · 옵션 " + lineA + "줄 → " + lineB + "줄" : "", win]
+    .filter(Boolean).join(" · ");
   return '<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:13px;font-weight:800;color:var(--sub)">오버로드 옵션 합산 변화' +
     (note ? ' <span style="font-weight:600;color:var(--dim)">— ' + esc(note) + "</span>" : "") + "</div>" +
     '<div class="hs-eqsum-row">' + chips + "</div>";
