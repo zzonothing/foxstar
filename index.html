@@ -136,6 +136,29 @@ const members    = UNION[latestKey].members;
 const lvlMaps = {};
 seasonKeys.forEach(k => { const mp = {}; (UNION[k].members || []).forEach(m => { mp[m.name] = m.syncroLevel; }); lvlMaps[k] = mp; });
 
+/* 시즌별 '유니온레이드 참여 당시' 싱크로 레벨 — raid.js 의 squad[].characterLevel.
+   ★ member.js 의 UNION[k] 를 쓰지 않는 이유: 그 값은 그 시즌의 '마지막 수집 시점'
+     이라 레이드가 끝난 뒤의 성장까지 섞인다. 특히 최신 키는 api/ingest.js 가 6시간마다
+     현재값으로 덮어쓰므로 사실상 '오늘'이다(2026-09-21 실측: UNION[44] == 그날
+     member_daily 32/32 일치). 참여 시점끼리 비교하는 게 목적이라 raid.js 를 쓴다.
+     실측 괴리: S35~S39 는 UNION 과 100% 일치, S43 평균 +2.8, S44 평균 +6.9.
+   ★ 한 멤버가 여러 번 출전하면 레벨이 갈릴 수 있어(전체의 3.1%) 최댓값을 쓴다.
+   ★ 미참여 시즌은 키가 없다 — 그 시즌 막대는 빈 칸이 된다(현행 null 처리와 동일).
+     UNION 값으로 폴백하지 말 것: 기준이 섞여 '참여 시점 대비'가 아니게 된다
+     (폴백해도 막대는 135 → 136 개로 1개 느는 데 그친다) */
+const raidLvlMaps = {};
+seasonKeys.forEach(k => {
+  const mp = {};
+  ((typeof RAID !== "undefined" && RAID["S" + k]) || []).forEach(e => {
+    let mx = null;
+    (e.raids || []).forEach(rd => (rd.squad || []).forEach(sq => {
+      if (sq.characterLevel != null && (mx == null || sq.characterLevel > mx)) mx = sq.characterLevel;
+    }));
+    if (mx != null) mp[e.name] = mx;
+  });
+  raidLvlMaps[k] = mp;
+});
+
 const ROLE_OVERRIDE = { "유화": "Leader", "SUM": "Officer" };
 const ROLE_KO = { Leader: "리더", Officer: "서브리더" };
 function roleOf(m){ const r = ROLE_OVERRIDE[m.name] || m.role; return (r === "Leader" || r === "Officer") ? r : ""; }
@@ -159,20 +182,21 @@ const sortedMembers = [...members].sort((a, b) => b.syncroLevel - a.syncroLevel 
    (신규 챕터로 스크래퍼 표가 낡으면 원본 id 가 들어오는 경우까지 처리) */
 
 const membersVM = sortedMembers.map((m, i) => {
-  /* 레벨 우측 배지 = 최신 시즌 스냅샷 -> 현재. 시즌 간 상승분은 막대가 맡는다.
-     ★ 현재 파이프라인에서는 이 값이 항상 0 이다 — m.syncroLevel 이 곧 UNION[latestKey]
-       의 값이고 ingest 가 그 키를 6시간마다 현재값으로 덮어쓰기 때문. 의도된 표기다.
-     ★ m.syncroLevel - seasonLvl 을 0 으로 접지 말 것 — 훗날 ingest 가 시즌 키를 개막
-       시점에 동결하도록 바뀌면 이 식이 그대로 '개막 이후 현재까지'를 뜻하게 된다 */
+  /* 레벨 우측 배지 = 최신 시즌 '레이드 참여 시점' -> 현재.
+     참여 레벨은 raid.js(raidLvlMaps), 현재 레벨은 m.syncroLevel(= ingest 가 6시간마다
+     갱신하는 최신 시즌 키)에서 온다. 두 출처가 다르다는 점이 이 값이 0 이 아닌 이유다. */
   const prevLvl   = lvlMaps[prevKey] ? lvlMaps[prevKey][m.name] : null;
-  const seasonLvl = lvlMaps[latestKey] ? lvlMaps[latestKey][m.name] : null;
+  const seasonLvl = raidLvlMaps[latestKey] ? raidLvlMaps[latestKey][m.name] : null;
   const isNew0 = prevLvl == null, diff = seasonLvl == null ? null : m.syncroLevel - seasonLvl;
   const dText = isNew0 ? "New" : (diff == null ? "—" : diff > 0 ? "+" + diff : diff < 0 ? String(diff) : "+0");
   const dCol  = isNew0 ? "var(--role-officer)" : (diff > 0 ? "var(--green)" : diff < 0 ? "var(--red)" : "var(--dim)");
-  const dTip  = isNew0 ? ("S" + latestKey + " 합류") : ("S" + latestKey + " → 현재 상승 " + dText);
+  const dTip  = isNew0 ? ("S" + latestKey + " 합류")
+              : (seasonLvl == null ? ("S" + latestKey + " 레이드 미참여")
+              : ("S" + latestKey + " 참여(" + seasonLvl + ") → 현재(" + m.syncroLevel + ") " + dText));
   const riseDeltas = TREND_KEYS.map(k => {
     const idx = seasonKeys.indexOf(k), pk = seasonKeys[idx - 1];
-    const a = lvlMaps[k][m.name], b = pk != null ? lvlMaps[pk][m.name] : null;
+    const a = raidLvlMaps[k] ? raidLvlMaps[k][m.name] : null;
+    const b = (pk != null && raidLvlMaps[pk]) ? raidLvlMaps[pk][m.name] : null;
     return (a == null || b == null) ? null : a - b;
   });
   const memMax = Math.max(12, ...riseDeltas.filter(d => d != null).map(d => Math.max(0, d)));
@@ -180,7 +204,7 @@ const membersVM = sortedMembers.map((m, i) => {
     /* 출발 시즌 = seasonKeys 상의 이전 키. k-1 로 계산하지 말 것 — 시즌 번호가
        건너뛰면 없는 시즌이 툴팁에 찍힌다 */
     const from = seasonKeys[seasonKeys.indexOf(k) - 1];
-    const label = "S" + k, tip = (from != null ? "S" + from : "이전 시즌") + " → S" + k + " 상승";
+    const label = "S" + k, tip = (from != null ? "S" + from : "이전 시즌") + " → S" + k + " 참여 시점 상승";
     const dv = riseDeltas[ri];
     if (dv == null) return { bar: false, s: label };
     return { bar: true, s: label, tip: tip + " (" + (dv >= 0 ? "+" : "") + dv + ")", val: (dv >= 0 ? "+" : "") + dv,
@@ -307,7 +331,7 @@ function segHTML(items){
 function memberTableDesktop(){
   const headMid = state.mode === "console"
     ? OPF.map((o, i) => sortTh(o[0], "op" + i, "rd-th-c")).join("")
-    : '<th class="rd-th-l" style="min-width:150px" title="막대 = 직전 시즌 대비 싱크로 상승(S' + latestKey + ' 막대 = S' + (latestKey - 1) + ' → S' + latestKey + '). 레벨 우측 배지 = S' + latestKey + ' → 현재">시즌 상승</th>' + sortTh("노말", "normal", "rd-th-c") + sortTh("하드", "hard", "rd-th-c") + sortTh("타워", "tower", "rd-th-c") + sortTh("오버클럭", "oc", "rd-th-c");
+    : '<th class="rd-th-l" style="min-width:150px" title="막대 = 유니온레이드 참여 시점 기준, 직전 시즌 대비 싱크로 상승(S' + latestKey + ' 막대 = S' + (latestKey - 1) + ' → S' + latestKey + '). 레벨 우측 배지 = S' + latestKey + ' 참여 이후 현재까지">시즌 상승</th>' + sortTh("노말", "normal", "rd-th-c") + sortTh("하드", "hard", "rd-th-c") + sortTh("타워", "tower", "rd-th-c") + sortTh("오버클럭", "oc", "rd-th-c");
   const head = '<tr style="border-bottom:1.5px solid var(--border)">' +
     '<th class="rd-th-sticky" style="left:0;min-width:182px">닉네임</th>' +
     sortTh("레벨", "lvl", "rd-th-l") + headMid + '<th class="rd-th-c">프로필</th></tr>';
