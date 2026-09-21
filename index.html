@@ -142,8 +142,11 @@ function roleOf(m){ const r = ROLE_OVERRIDE[m.name] || m.role; return (r === "Le
 
 const OPF = [["공용","common"],["화력형","attack"],["방어형","defense"],["지원형","support"],["미실리스","missilis"],["엘리시온","elysion"],["테트라","tetra"],["필그림","pilgrim"],["어브노멀","abnormal"]];
 
-/* 시즌 상승: 최신 제외 직전 5시즌, 각 시즌 전시즌 대비 상승량 (멤버별 스케일) */
-const TREND_KEYS = seasonKeys.slice(0, -1).slice(-5);
+/* 시즌 상승: 최신 포함 최근 5시즌, 각 시즌 전시즌 대비 상승량 (멤버별 스케일)
+   ★ 맨 오른쪽(최신) 막대는 진행 중인 시즌이라 스크래퍼가 돌 때마다 자란다 —
+     레벨 칸의 증감 배지와 같은 수치다. 폭은 5칸 고정(헤더 min-width:150px)이니
+     칸 수를 늘리려면 표 폭도 같이 볼 것 */
+const TREND_KEYS = seasonKeys.slice(-5);
 
 const sortedMembers = [...members].sort((a, b) => b.syncroLevel - a.syncroLevel || a.name.localeCompare(b.name, "ko"));
 
