@@ -142,11 +142,20 @@ function roleOf(m){ const r = ROLE_OVERRIDE[m.name] || m.role; return (r === "Le
 
 const OPF = [["공용","common"],["화력형","attack"],["방어형","defense"],["지원형","support"],["미실리스","missilis"],["엘리시온","elysion"],["테트라","tetra"],["필그림","pilgrim"],["어브노멀","abnormal"]];
 
-/* 시즌 상승: 최신 포함 최근 5시즌, 각 시즌 전시즌 대비 상승량 (멤버별 스케일)
-   ★ 맨 오른쪽(최신) 막대는 진행 중인 시즌이라 스크래퍼가 돌 때마다 자란다 —
-     레벨 칸의 증감 배지와 같은 수치다. 폭은 5칸 고정(헤더 min-width:150px)이니
-     칸 수를 늘리려면 표 폭도 같이 볼 것 */
-const TREND_KEYS = seasonKeys.slice(-5);
+/* 시즌 상승: 진행 중인 최신 시즌을 뺀 완료 5시즌, 각 시즌 전시즌 대비 상승량 (멤버별 스케일)
+   ★ UNION[k] 스냅샷의 시점을 알고 볼 것 — api/ingest.js 는 '활성 시즌 키'만 덮어쓰므로
+     최신 키(=latestKey)는 스크래퍼가 돌 때마다 갱신되는 '현재값'이고, 그 앞 키들은
+     각자 시즌이 끝난 순간(= 다음 시즌 개막 시점)에 동결된 값이다. 따라서
+       lvl[k] - lvl[k-1]  =  S(k+1) 개막 시점까지 확정된 상승분  ← 막대 (동결)
+       lvl[latest] - lvl[prev]  =  최신 시즌 개막 이후 현재까지  ← 레벨 칸 배지 (진행 중)
+     둘은 서로 다른 구간이라 분리해서 보여준다. 최신 키를 막대에 넣으면 배지와 똑같은
+     값이 중복될 뿐 아니라, 누적 기간이 완료 시즌들과 달라(현재 S44 는 5주차) 키 비교가
+     깨진다 — 2026-09 에 한 번 그렇게 넣었다가 되돌렸다.
+   ★ 라벨은 '도착 시즌'이다: lvl[43]-lvl[42] 막대에는 S44 가 붙는다(S44 개막 시점에
+     확정된 양). 화면상 최신 시즌까지 이어져 보이는 게 이 표기의 목적이니, 라벨을
+     출발 시즌으로 되돌리지 말 것.
+   ★ 폭은 5칸 고정(헤더 min-width:150px). 칸 수를 늘리려면 표 폭도 같이 볼 것 */
+const TREND_KEYS = seasonKeys.slice(0, -1).slice(-5);
 
 const sortedMembers = [...members].sort((a, b) => b.syncroLevel - a.syncroLevel || a.name.localeCompare(b.name, "ko"));
 
@@ -158,6 +167,8 @@ const membersVM = sortedMembers.map((m, i) => {
   const isNew0 = prevLvl == null, diff = isNew0 ? null : m.syncroLevel - prevLvl;
   const dText = isNew0 ? "New" : (diff > 0 ? "+" + diff : diff < 0 ? String(diff) : "+0");
   const dCol  = isNew0 ? "var(--role-officer)" : (diff > 0 ? "var(--green)" : diff < 0 ? "var(--red)" : "var(--dim)");
+  /* 배지는 막대와 '다른 구간'이다 — 진행 중인 최신 시즌 개막 이후 현재까지 */
+  const dTip  = isNew0 ? ("S" + latestKey + " 합류") : ("S" + latestKey + " 개막 이후 현재까지 " + dText);
   const riseDeltas = TREND_KEYS.map(k => {
     const idx = seasonKeys.indexOf(k), pk = seasonKeys[idx - 1];
     const a = lvlMaps[k][m.name], b = pk != null ? lvlMaps[pk][m.name] : null;
@@ -165,9 +176,13 @@ const membersVM = sortedMembers.map((m, i) => {
   });
   const memMax = Math.max(12, ...riseDeltas.filter(d => d != null).map(d => Math.max(0, d)));
   const riseSlots = TREND_KEYS.map((k, ri) => {
+    /* 도착 시즌 = seasonKeys 상의 다음 키. k+1 로 계산하지 말 것 — 시즌 번호가
+       건너뛰면 없는 시즌 라벨이 찍힌다 */
+    const arrive = seasonKeys[seasonKeys.indexOf(k) + 1];
+    const label = "S" + arrive, tip = "S" + k + " 시즌 상승 · S" + arrive + " 개막 시점 확정";
     const dv = riseDeltas[ri];
-    if (dv == null) return { bar: false, s: "S" + k };
-    return { bar: true, s: "S" + k, val: (dv >= 0 ? "+" : "") + dv,
+    if (dv == null) return { bar: false, s: label };
+    return { bar: true, s: label, tip: tip + " (" + (dv >= 0 ? "+" : "") + dv + ")", val: (dv >= 0 ? "+" : "") + dv,
              h: Math.max(3, Math.round(4 + Math.max(0, dv) / memMax * 28)), hMini: Math.max(2, Math.round(2 + Math.max(0, dv) / memMax * 20)),
              col: dv > 0 ? "var(--green)" : "var(--dim)" };
   });
@@ -181,7 +196,7 @@ const membersVM = sortedMembers.map((m, i) => {
     return { label, v: v == null ? "—" : v, col: isMax ? "var(--red)" : "var(--sub)", w: isMax ? "700" : "500" };
   });
   return {
-    rank: i + 1, name: m.name, role: roleKo, lvl: m.syncroLevel, dText, dCol,
+    rank: i + 1, name: m.name, role: roleKo, lvl: m.syncroLevel, dText, dCol, dTip,
     medalBg: md.bg, medalCol: md.col,
     roleBg: roleKo === "리더" ? "var(--role-leader-bg)" : "var(--role-officer-bg)",
     roleCol: roleKo === "리더" ? "var(--role-leader)" : "var(--role-officer)",
@@ -291,7 +306,7 @@ function segHTML(items){
 function memberTableDesktop(){
   const headMid = state.mode === "console"
     ? OPF.map((o, i) => sortTh(o[0], "op" + i, "rd-th-c")).join("")
-    : '<th class="rd-th-l" style="min-width:150px">시즌 상승</th>' + sortTh("노말", "normal", "rd-th-c") + sortTh("하드", "hard", "rd-th-c") + sortTh("타워", "tower", "rd-th-c") + sortTh("오버클럭", "oc", "rd-th-c");
+    : '<th class="rd-th-l" style="min-width:150px" title="각 막대 = 그 시즌 개막 시점까지 확정된 싱크로 상승. 진행 중인 S' + latestKey + ' 상승분은 레벨 칸에 별도 표기">시즌 상승</th>' + sortTh("노말", "normal", "rd-th-c") + sortTh("하드", "hard", "rd-th-c") + sortTh("타워", "tower", "rd-th-c") + sortTh("오버클럭", "oc", "rd-th-c");
   const head = '<tr style="border-bottom:1.5px solid var(--border)">' +
     '<th class="rd-th-sticky" style="left:0;min-width:182px">닉네임</th>' +
     sortTh("레벨", "lvl", "rd-th-l") + headMid + '<th class="rd-th-c">프로필</th></tr>';
@@ -304,7 +319,7 @@ function memberTableDesktop(){
         '<span class="rd-name" data-act="open-member" data-name="' + esc(m.name) + '">' + esc(m.name) + '</span>' +
         (m.role ? '<span class="rd-role" style="background:' + m.roleBg + ';color:' + m.roleCol + '">' + m.role + '</span>' : "") +
       '</span></td>';
-    const lvlCell = '<td style="padding:10px 12px;white-space:nowrap"><span style="font-weight:700;color:var(--text)" class="tnum">' + m.lvl + '</span> <span style="font-weight:700;font-size:12px;color:' + m.dCol + '">' + m.dText + '</span></td>';
+    const lvlCell = '<td style="padding:10px 12px;white-space:nowrap"><span style="font-weight:700;color:var(--text)" class="tnum">' + m.lvl + '</span> <span style="font-weight:700;font-size:12px;color:' + m.dCol + '" title="' + esc(m.dTip) + '">' + m.dText + '</span></td>';
     let mid;
     if (state.mode === "console") {
       mid = m.outpostFull.map(op => '<td class="rd-td-c tnum" style="color:' + op.col + ';font-weight:' + op.w + '">' + op.v + '</td>').join("");
@@ -312,7 +327,7 @@ function memberTableDesktop(){
       const trend = m.hasTrend
         ? '<td style="padding:8px 12px"><div style="display:flex;align-items:flex-end;gap:6px;height:62px">' +
             m.riseSlots.map(r => r.bar
-              ? '<div style="width:24px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div style="font-size:10px;font-weight:700;color:' + r.col + ';margin-bottom:2px" class="tnum">' + r.val + '</div><div style="width:15px;flex-shrink:0;height:' + r.h + 'px;background:' + r.col + ';border-radius:3px 3px 0 0"></div><div style="font-size:9px;color:var(--dim);font-weight:600;margin-top:3px">' + r.s + '</div></div>'
+              ? '<div title="' + esc(r.tip) + '" style="width:24px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div style="font-size:10px;font-weight:700;color:' + r.col + ';margin-bottom:2px" class="tnum">' + r.val + '</div><div style="width:15px;flex-shrink:0;height:' + r.h + 'px;background:' + r.col + ';border-radius:3px 3px 0 0"></div><div style="font-size:9px;color:var(--dim);font-weight:600;margin-top:3px">' + r.s + '</div></div>'
               : '<div style="width:24px"></div>').join("") +
           '</div></td>'
         : '<td style="padding:10px 12px"><span style="font-size:13px;font-weight:700;color:var(--dim);padding-left:6px">-</span></td>';
